@@ -18,6 +18,7 @@ namespace 星痕共鸣DPS统计.Plugin
             BorderlessForm.Shadow = 10;//阴影大小
             BorderlessForm.BorderWidth = 0;//边框宽度
             BorderlessForm.UseDwm = false;//关闭系统窗口预览
+    
 
             //BorderlessForm.BorderColor = Color.FromArgb(246, 248, 250);
 

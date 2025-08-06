@@ -51,10 +51,8 @@
             input1.Location = new Point(12, 63);
             input1.Multiline = true;
             input1.Name = "input1";
-            input1.SelectionStart = 45;
             input1.Size = new Size(701, 600);
             input1.TabIndex = 1;
-            input1.Text = "玩家ID：1278738 释放技能 1101 造成伤害 3333 扣血 225 标记 暴击";
             // 
             // SkillDiary
             // 

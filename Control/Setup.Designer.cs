@@ -37,6 +37,7 @@
             input3 = new AntdUI.Input();
             input4 = new AntdUI.Input();
             input5 = new AntdUI.Input();
+            label2 = new AntdUI.Label();
             SuspendLayout();
             // 
             // InterfaceComboBox
@@ -63,7 +64,7 @@
             // 
             // colorPicker1
             // 
-            colorPicker1.Location = new Point(190, 392);
+            colorPicker1.Location = new Point(163, 392);
             colorPicker1.Name = "colorPicker1";
             colorPicker1.ShowText = true;
             colorPicker1.Size = new Size(173, 57);
@@ -81,61 +82,83 @@
             // 
             // input1
             // 
-            input1.Location = new Point(25, 149);
+            input1.Location = new Point(20, 149);
             input1.Name = "input1";
             input1.PrefixText = "鼠标穿透键位：";
+            input1.ReadOnly = true;
             input1.Size = new Size(252, 65);
             input1.TabIndex = 15;
+            input1.PreviewKeyDown += input1_PreviewKeyDown;
             // 
             // input2
             // 
-            input2.Location = new Point(288, 149);
+            input2.Location = new Point(285, 149);
             input2.Name = "input2";
             input2.PrefixText = "窗体透明键位：";
+            input2.ReadOnly = true;
             input2.Size = new Size(237, 65);
             input2.TabIndex = 16;
+            input2.PreviewKeyDown += input2_PreviewKeyDown;
             // 
             // input3
             // 
-            input3.Location = new Point(25, 220);
+            input3.Location = new Point(20, 220);
             input3.Name = "input3";
             input3.PrefixText = "开关键位：";
+            input3.ReadOnly = true;
             input3.Size = new Size(252, 65);
             input3.TabIndex = 17;
+            input3.PreviewKeyDown += input3_PreviewKeyDown;
             // 
             // input4
             // 
-            input4.Location = new Point(288, 220);
+            input4.Location = new Point(285, 220);
             input4.Name = "input4";
             input4.PrefixText = "清空数据键位：";
+            input4.ReadOnly = true;
             input4.Size = new Size(237, 65);
             input4.TabIndex = 18;
+            input4.PreviewKeyDown += input4_PreviewKeyDown;
             // 
             // input5
             // 
-            input5.Location = new Point(25, 291);
+            input5.Location = new Point(20, 291);
             input5.Name = "input5";
             input5.PrefixText = "清空历史键位：";
+            input5.ReadOnly = true;
             input5.Size = new Size(252, 65);
             input5.TabIndex = 19;
+            input5.PreviewKeyDown += input5_PreviewKeyDown;
+            // 
+            // label2
+            // 
+            label2.Dock = DockStyle.Bottom;
+            label2.ForeColor = Color.Red;
+            label2.Location = new Point(0, 460);
+            label2.Name = "label2";
+            label2.Size = new Size(550, 41);
+            label2.TabIndex = 20;
+            label2.Text = "Delete删除当前键位";
+            label2.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // Setup
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Transparent;
+            Controls.Add(colorPicker1);
+            Controls.Add(label2);
             Controls.Add(input5);
             Controls.Add(input4);
             Controls.Add(input3);
             Controls.Add(input2);
             Controls.Add(input1);
             Controls.Add(label1);
-            Controls.Add(colorPicker1);
             Controls.Add(inputNumber1);
             Controls.Add(InterfaceComboBox);
             ForeColor = Color.Transparent;
             Name = "Setup";
-            Size = new Size(550, 483);
+            Size = new Size(550, 501);
             Load += Setup_Load;
             ResumeLayout(false);
         }
@@ -151,5 +174,6 @@
         private AntdUI.Input input3;
         private AntdUI.Input input4;
         private AntdUI.Input input5;
+        private AntdUI.Label label2;
     }
 }

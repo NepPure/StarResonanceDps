@@ -21,6 +21,30 @@ namespace 星痕共鸣DPS统计
 
         }
 
+
+        private const int MaxLines = 100;
+
+        public void AppendDiaryLine(string line)
+        {
+            if (input1.InvokeRequired)
+            {
+                input1.BeginInvoke(new Action<string>(AppendDiaryLine), line);
+                return;
+            }
+
+            // 先计算当前行数：按 '\n' 分割（注意 Windows 换行是 "\r\n"，但这里拆出来也是一个 '\n'）
+            int lineCount = input1.Text.Split('\n').Length;
+            if (lineCount >= MaxLines)
+                input1.Clear();
+
+            // 再追加
+            input1.AppendText(line + Environment.NewLine);
+            input1.SelectionStart = input1.Text.Length;
+            input1.ScrollToCaret();
+        }
+
+
+
         private void SkillDiary_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(Common.skillDiary, config.isLight);//设置窗体颜色

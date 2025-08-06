@@ -95,12 +95,12 @@
             // 
             button3.Dock = DockStyle.Right;
             button3.Ghost = true;
-            button3.IconSvg = "VerticalAlignTopOutlined";
+            button3.IconSvg = resources.GetString("button3.IconSvg");
             button3.Location = new Point(836, 0);
             button3.Name = "button3";
             button3.Size = new Size(49, 46);
             button3.TabIndex = 1;
-            button3.ToggleIconSvg = "VerticalAlignBottomOutlined";
+            button3.ToggleIconSvg = resources.GetString("button3.ToggleIconSvg");
             button3.Click += button3_Click;
             // 
             // button2

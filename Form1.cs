@@ -184,7 +184,7 @@ namespace 星痕共鸣DPS统计
         async void kh_OnKeyDownEvent(object sender, KeyEventArgs e)
         {
             //F6 鼠标穿透
-            if (e.KeyData == Keys.F6)
+            if (e.KeyData == config.mouseThroughKey)
             {
                 var exStyle = GetWindowLong(this.Handle, GWL_EXSTYLE);
 
@@ -204,7 +204,7 @@ namespace 星痕共鸣DPS统计
 
             }
             //F7 窗体透明
-            if (e.KeyData == Keys.F7)
+            if (e.KeyData == config.formTransparencyKey)
             {
                 if (hyaline)
                 {
@@ -223,14 +223,14 @@ namespace 星痕共鸣DPS统计
 
             }
             //F8 开启/关闭 监控
-            if (e.KeyData == Keys.F8)
+            if (e.KeyData == config.windowToggleKey)
             {
                 if (monitor == false)
                 {
 
                     //开始监控
                     StartCapture();
-
+                   
                     if (config.network_card == -1)
                     {
                         return;
@@ -258,6 +258,8 @@ namespace 星痕共鸣DPS统计
 
                     //关闭监控
                     StopCapture();
+                    
+                    //_hasAppliedFilter = false;//需要测试
                     timer1.Enabled = false;
                     monitor = false;
                     timer2.Stop();
@@ -269,7 +271,7 @@ namespace 星痕共鸣DPS统计
                 }
             }
             //F9 清空数据
-            if (e.KeyData == Keys.F9)
+            if (e.KeyData == config.clearDataKey)
             {
                 if (tabel.dps_tabel.Count >= 0)
                 {
@@ -281,7 +283,7 @@ namespace 星痕共鸣DPS统计
                 playerStats.Clear();
 
             }//F10 清空历史记录
-            if (e.KeyData == Keys.F10)
+            if (e.KeyData == config.clearHistoryKey)
             {
                 dropdown1.Items.Clear();
                 HistoricalRecords.Clear();
@@ -332,6 +334,7 @@ namespace 星痕共鸣DPS统计
 
         #region tcp抓包
 
+      
         /// <summary>
         /// 开始抓包
         /// </summary>
@@ -360,7 +363,36 @@ namespace 星痕共鸣DPS统计
             // 设置过滤器，只抓取 IP 层和 TCP 协议的数据包（避免抓取无关的 UDP、ARP、ICMP 等）
             // selectedDevice.Filter = "tcp and (net 36.152.0.0/24) and (port 16125 or port 16126)";
 
+            // 取一次初始值
+            _lastStats = selectedDevice.Statistics;
 
+            // 每秒钟计算一次丢包率
+            var statsTimer = new System.Timers.Timer(1000);
+            statsTimer.Elapsed += (s, e) =>
+            {
+                // 取当前统计
+                var cur = selectedDevice.Statistics;
+
+                // 计算差值
+                long recvDelta = cur.ReceivedPackets - _lastStats.ReceivedPackets;
+                long dropDelta = cur.DroppedPackets - _lastStats.DroppedPackets;
+                long ifDropDelta = cur.InterfaceDroppedPackets - _lastStats.InterfaceDroppedPackets;
+
+                // 应用层丢包率 = dropped / (received + dropped)
+                double appLossRate = (recvDelta + dropDelta) > 0
+                    ? dropDelta / (double)(recvDelta + dropDelta) * 100
+                    : 0;
+                // 网卡层丢包率 = ifDrop / (received + dropped + ifDrop)
+                double driverLossRate = (recvDelta + dropDelta + ifDropDelta) > 0
+                    ? ifDropDelta / (double)(recvDelta + dropDelta + ifDropDelta) * 100
+                    : 0;
+                
+
+
+                // 更新上次统计
+                _lastStats = cur;
+            };
+            statsTimer.Start();
             // 注册数据包到达时的事件处理函数（回调）
 
             // selectedDevice.OnPacketArrival += Device_OnPacketArrival;
@@ -416,7 +448,8 @@ namespace 星痕共鸣DPS统计
         private readonly Dictionary<uint, DateTime> tcpCacheTime = new();
         private readonly MemoryStream tcpStream = new();
 
-
+        // 类成员，保存上一时刻的统计数据
+        private ICaptureStatistics _lastStats;
         /// <summary>
         /// 网络设备捕获到 TCP 数据包后的处理回调函数
         /// </summary>
@@ -447,13 +480,13 @@ namespace 星痕共鸣DPS统计
 
                 // 构造当前包的源 -> 目的 IP 和端口的字符串，作为唯一标识
                 var srcServer = $"{ipPacket.SourceAddress}:{tcpPacket.SourcePort} -> {ipPacket.DestinationAddress}:{tcpPacket.DestinationPort}";
-                // ... 前面做 VerifyServer 的逻辑 ...
+                // 更新数据包来源
                 if (!_hasAppliedFilter && VerifyServer(srcServer, payload))
                 {
                     ApplyDynamicFilter(srcServer);
                     _hasAppliedFilter = true;
                 }
-
+        
 
                 // 如果距离上次收到包的时间超过 30 秒，认为可能断线，清除缓存
                 if (lastPacketTime != DateTime.MinValue && (DateTime.Now - lastPacketTime).TotalSeconds > 30)
@@ -492,7 +525,7 @@ namespace 星痕共鸣DPS统计
 
             // 重置下一个期望的 TCP 序列号为 0（重新开始拼接）
             tcpNextSeq = 0;
-
+            _hasAppliedFilter = false;
             // 清空缓存的 TCP 分片数据（已收到但未处理的包）
             tcpCache.Clear();
         }
@@ -872,7 +905,16 @@ namespace 星痕共鸣DPS统计
                             string extra = isCrit ? "暴击" : luckyValue != 0 ? "幸运" : isMiss ? "Miss" : "普通";
 
                             //Console.WriteLine($"玩家 {operatorUid} 使用技能 {skill} 造成伤害 {damage} 扣血 {hpLessen} 标记 {extra}");
+                           if (Common.skillDiary!=null && !Common.skillDiary.IsDisposed)
+                            {
+                                Task.Run(() =>
+                                {
+                                    Common.skillDiary.AppendDiaryLine($"玩家 {operatorUid} 使用技能 {skill} 造成伤害 {damage} 扣血 {hpLessen} 标记 {extra}");
 
+                                });
+
+
+                            }
 
                             // 加入统计
                             if (!playerStats.TryGetValue(operatorUid, out var stat))
@@ -984,9 +1026,45 @@ namespace 星痕共鸣DPS统计
             }
 
 
+            config.reader.Load(config.config_ini);//加载配置文件
+            config.isLight = config.reader.GetValue("SetUp", "IsLight") == "True";
 
+            FormGui.SetColorMode(this, config.isLight);
+            button2.Toggle = !config.isLight;
+
+            config.reader.Load(config.config_ini);
+
+            string raw;
+            if (!string.IsNullOrWhiteSpace(raw = config.reader.GetValue("SetKey", "MouseThroughKey"))
+                 && Enum.TryParse(raw, out Keys k1))
+            {
+                config.mouseThroughKey = k1;  
+            }
+          
+            if (!string.IsNullOrWhiteSpace(raw = config.reader.GetValue("SetKey", "FormTransparencyKey"))
+                 && Enum.TryParse(raw, out Keys k2))
+            {
+                config.formTransparencyKey = k2;
+            }
+            if (!string.IsNullOrWhiteSpace(raw = config.reader.GetValue("SetKey", "WindowToggleKey"))
+                 && Enum.TryParse(raw, out Keys k3))
+            {
+                config.windowToggleKey = k3;
+            }
+            if (!string.IsNullOrWhiteSpace(raw = config.reader.GetValue("SetKey", "ClearDataKey"))
+                 && Enum.TryParse(raw, out Keys k4))
+            {
+                config.clearDataKey = k4;
+            }
+            if (!string.IsNullOrWhiteSpace(raw = config.reader.GetValue("SetKey", "ClearHistoryKey"))
+                 && Enum.TryParse(raw, out Keys k5))
+            {
+                config.clearHistoryKey = k5;
+            }
+            string labe = @$"{config.mouseThroughKey}：鼠标穿透 | {config.formTransparencyKey}：窗体透明 | {config.windowToggleKey}：开启/关闭 | {config.clearDataKey}：清空数据 | {config.clearHistoryKey}：清空历史";
+            label1.Text = labe;
         }
-
+        
 
         private bool Top = false;
         private void button2_Click(object sender, EventArgs e)
@@ -996,6 +1074,13 @@ namespace 星痕共鸣DPS统计
             button2.Toggle = !config.isLight;
             FormGui.SetColorMode(this, config.isLight);
             FormGui.SetColorMode(Common.skillDiary, config.isLight);//设置窗体颜色
+
+            config.reader.Load(config.config_ini);//加载配置文件
+            config.reader.SaveValue("SetUp", "IsLight", config.isLight.ToString());
+            config.reader.Save(config.config_ini);
+     
+
+
 
         }
 
@@ -1040,10 +1125,20 @@ namespace 星痕共鸣DPS统计
                     config.transparency = 100;
                     MessageBox.Show("透明度不能低于10%，已自动设置为100%");
                 }
+                
+                string labe =@$"{config.mouseThroughKey}：鼠标穿透 | {config.formTransparencyKey}：窗体透明 | {config.windowToggleKey}：开启/关闭 | {config.clearDataKey}：清空数据 | {config.clearHistoryKey}：清空历史";
+                label1.Text = labe;
                 config.reader.Load(config.config_ini);//加载配置文件
                 config.reader.SaveValue("SetUp", "NetworkCard", config.network_card.ToString());
                 config.reader.SaveValue("SetUp", "Transparency", form.inputNumber1.Value.ToString());
                 config.reader.SaveValue("SetUp", "DpsColor", config.dpscolor.ToString());
+                //键位存储
+                config.reader.SaveValue("SetKey", "MouseThroughKey", config.mouseThroughKey.ToString());
+                config.reader.SaveValue("SetKey", "FormTransparencyKey", config.formTransparencyKey.ToString());
+                config.reader.SaveValue("SetKey", "WindowToggleKey", config.windowToggleKey.ToString());
+                config.reader.SaveValue("SetKey", "ClearDataKey", config.clearDataKey.ToString());
+                config.reader.SaveValue("SetKey", "ClearHistoryKey", config.clearHistoryKey.ToString());
+                //保存配置文件
                 config.reader.Save(config.config_ini);
                 label2.Visible = false;
 

@@ -104,8 +104,9 @@ namespace 星痕共鸣DPS统计
             get
             {
                 var now = DateTime.Now;
-                // 移除 1 秒前的记录
+                // 移除超过 1 秒的旧记录
                 RecentHits.RemoveAll(hit => (now - hit.Time).TotalSeconds > 1);
+                // 累加最近 1 秒内的所有伤害
                 return (ulong)RecentHits.Sum(hit => (long)hit.Damage);
             }
         }
@@ -117,10 +118,12 @@ namespace 星痕共鸣DPS统计
         {
             get
             {
+                // 如果未开始或者时间相同，则总DPS为 0
                 if (FirstHitTime == DateTime.MinValue || LastHitTime == DateTime.MinValue || FirstHitTime == LastHitTime)
                     return 0;
 
                 var duration = (LastHitTime - FirstHitTime).TotalSeconds;
+                // 计算平均每秒伤害
                 return duration > 0 ? TotalDamage / duration : 0;
             }
         }
@@ -139,43 +142,49 @@ namespace 星痕共鸣DPS统计
         /// <param name="hpLessen">是否减少了目标HP（可能为0）</param>
         public void RecordHit(ulong damage, bool isCrit, bool isLucky, ulong hpLessen)
         {
+            // 更新总伤害和扣血
             TotalDamage += damage;
             HpLessenTotal += hpLessen;
+            // 更新总命中次数
             TotalCount++;
 
+            // 根据是否暴击和幸运分类累加
             if (isCrit && isLucky)
             {
-                CritLuckyDamage += damage;
-                CriticalCount++;
-                LuckyCount++;
+                CritLuckyDamage += damage;    // 暴击+幸运伤害
+                CriticalCount++;               // 暴击计数
+                LuckyCount++;                  // 幸运计数
             }
             else if (isCrit)
             {
-                CriticalDamage += damage;
+                CriticalDamage += damage;     // 纯暴击伤害
                 CriticalCount++;
             }
             else if (isLucky)
             {
-                LuckyDamage += damage;
+                LuckyDamage += damage;        // 纯幸运伤害
                 LuckyCount++;
             }
             else
             {
-                NormalDamage += damage;
+                NormalDamage += damage;       // 普通伤害
                 NormalCount++;
             }
 
+            // 当前时间用于记录瞬时和总时长
             var now = DateTime.Now;
 
+            // 添加到最近命中列表，用于计算 InstantDPS
             RecentHits.Add((now, damage));
+            // 更新瞬时DPS的最高值
             MaxInstantDPS = Math.Max(MaxInstantDPS, InstantDPS);
 
+            // 如果是第一次命中，设置 FirstHitTime
             if (FirstHitTime == DateTime.MinValue)
                 FirstHitTime = now;
 
+            // 始终更新 LastHitTime
             LastHitTime = now;
         }
     }
-
-
 }
