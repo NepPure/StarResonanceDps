@@ -12,6 +12,7 @@ using 星痕共鸣DPS统计.Plugin;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Menu;
 using static 星痕共鸣DPS统计.Plugin.Common;
 using SharpPcap.LibPcap;
+using System.Diagnostics;
 
 
 namespace 星痕共鸣DPS统计
@@ -21,7 +22,7 @@ namespace 星痕共鸣DPS统计
     {
         // 当前选中的网络抓包设备（例如某个网卡）
         private ICaptureDevice selectedDevice;
-      
+
 
         // TCP 分片缓存：Key 是 TCP 序列号，Value 是对应的分片数据
         // 用于重组多段 TCP 数据流（比如一个完整的 protobuf 消息被拆分在多个包里）
@@ -237,7 +238,8 @@ namespace 星痕共鸣DPS统计
                     timer1.Enabled = true;
                     pageHeader1.SubText = "监控已开启";
                     monitor = true;
-
+                    _combatWatch.Restart();
+                    timer2.Start();
 
                     //开始监控的时候清空数据
                     if (tabel.dps_tabel.Count > 0)
@@ -253,13 +255,15 @@ namespace 星痕共鸣DPS统计
                 else
                 {
                     pageHeader1.SubText = "监控已关闭";
-              
+
                     //关闭监控
                     StopCapture();
                     timer1.Enabled = false;
                     monitor = false;
+                    timer2.Stop();
+                    _combatWatch.Stop();
 
-    
+
 
 
                 }
@@ -272,15 +276,16 @@ namespace 星痕共鸣DPS统计
 
                     SaveCurrentDpsSnapshot();
                 }
+                _combatWatch.Restart();
                 tabel.dps_tabel.Clear();
                 playerStats.Clear();
 
             }//F10 清空历史记录
-            if(e.KeyData==Keys.F10)
+            if (e.KeyData == Keys.F10)
             {
                 dropdown1.Items.Clear();
                 HistoricalRecords.Clear();
-            
+
             }
         }
 
@@ -341,7 +346,7 @@ namespace 星痕共鸣DPS统计
                 return;
             }
 
-       
+
             // 获取所有可用的抓包设备（网卡）
             var devices = CaptureDeviceList.Instance;
 
@@ -353,7 +358,7 @@ namespace 星痕共鸣DPS统计
             // selectedDevice.Open(DeviceModes.Promiscuous, 8 * 1024 * 1024);
 
             // 设置过滤器，只抓取 IP 层和 TCP 协议的数据包（避免抓取无关的 UDP、ARP、ICMP 等）
-           // selectedDevice.Filter = "tcp and (net 36.152.0.0/24) and (port 16125 or port 16126)";
+            // selectedDevice.Filter = "tcp and (net 36.152.0.0/24) and (port 16125 or port 16126)";
 
 
             // 注册数据包到达时的事件处理函数（回调）
@@ -363,7 +368,7 @@ namespace 星痕共鸣DPS统计
 
             // 开始
             selectedDevice.StartCapture();
-          
+
             // 控制台打印提示信息
             Console.WriteLine("开始抓包...");
         }
@@ -377,7 +382,7 @@ namespace 星痕共鸣DPS统计
             var serverPort = parts[1];
 
             selectedDevice.Filter = $"tcp and host {serverIp} and port {serverPort}";
-           // Console.WriteLine($"【Filter 已更新】 tcp and host {serverIp} and port {serverPort}");
+            // Console.WriteLine($"【Filter 已更新】 tcp and host {serverIp} and port {serverPort}");
         }
         private bool _hasAppliedFilter = false;
 
@@ -397,7 +402,7 @@ namespace 星痕共鸣DPS统计
                     _hasAppliedFilter = false;
                     ClearTcpCache();
                     selectedDevice.Close();
-                  
+
                     Console.WriteLine("停止抓包");
                 }
                 catch (Exception ex)
@@ -407,7 +412,7 @@ namespace 星痕共鸣DPS统计
             }
         }
 
-    
+
         private readonly Dictionary<uint, DateTime> tcpCacheTime = new();
         private readonly MemoryStream tcpStream = new();
 
@@ -438,7 +443,7 @@ namespace 星痕共鸣DPS统计
                 // 获取 TCP 负载（即应用层数据）
                 var payload = tcpPacket.PayloadData;
                 if (payload == null || payload.Length == 0) return;
-                
+
 
                 // 构造当前包的源 -> 目的 IP 和端口的字符串，作为唯一标识
                 var srcServer = $"{ipPacket.SourceAddress}:{tcpPacket.SourcePort} -> {ipPacket.DestinationAddress}:{tcpPacket.DestinationPort}";
@@ -461,7 +466,7 @@ namespace 星痕共鸣DPS统计
                 // 如果当前服务器（源地址）发生变化，进行验证
                 if (currentServer != srcServer)
                 {
-                    
+
                     // 尝试验证是否为目标服务器（例如游戏服务器）
                     if (!VerifyServer(srcServer, payload))
                         return; // 如果验证失败，丢弃该包
@@ -570,7 +575,7 @@ namespace 星痕共鸣DPS统计
                     tcpStream.Read(packet, 4, len - 4);
 
                     // 异步处理，防止 UI 卡顿
-                     ProcessPacket(packet);
+                    ProcessPacket(packet);
                 }
                 else
                 {
@@ -609,20 +614,20 @@ namespace 星痕共鸣DPS统计
         /// <returns>如果识别成功，返回 true；否则返回 false</returns>
         private bool VerifyServer(string srcServer, byte[] buf)
         {
-            try 
+            try
             {
 
-    
+
                 // 如果当前服务器已经是这个，不需要重复识别
                 if (currentServer == srcServer)
                 {
-                  
+
                     return false;
                 }
-              
+
 
                 // 第 5 字节不为 0，则不是“小包”格式（协议约定）
-      
+
                 if (buf[4] != 0)
                     return false;
 
@@ -657,7 +662,7 @@ namespace 星痕共鸣DPS统计
 
                     // 解码主体结构（跳过前18字节，通常是头部结构）
                     var body = ProtoDynamic.Decode(data1.AsSpan(18).ToArray());
-               
+
                     // 从结构中尝试获取玩家 UID（字段[1]->[5]）
                     if (data1.Length >= 17 && data1[17] == 0x2E) // 特定标志字节 0x2E
                     {
@@ -683,7 +688,7 @@ namespace 星痕共鸣DPS统计
             catch (Exception ex)
             {
                 // 捕获所有异常，避免崩溃
-               //Console.WriteLine($"[VerifyServer 异常] {ex}");
+                //Console.WriteLine($"[VerifyServer 异常] {ex}");
             }
 
             return false; // 无法识别为目标服务器
@@ -887,10 +892,10 @@ namespace 星痕共鸣DPS统计
                                 }
                             }
 
-                           
+
 
                             stat.RecordHit(damage, isCrit, luckyValue != 0, hpLessen);
-                           
+
 
                         }
 
@@ -982,14 +987,16 @@ namespace 星痕共鸣DPS统计
 
         }
 
-        private bool isLight = true;
+
         private bool Top = false;
         private void button2_Click(object sender, EventArgs e)
         {
-            isLight = !isLight;
+            config.isLight = !config.isLight;
             //这里使用了Toggle属性切换图标
-            button2.Toggle = !isLight;
-            FormGui.SetColorMode(this, isLight);
+            button2.Toggle = !config.isLight;
+            FormGui.SetColorMode(this, config.isLight);
+            FormGui.SetColorMode(Common.skillDiary, config.isLight);//设置窗体颜色
+
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -1052,11 +1059,11 @@ namespace 星痕共鸣DPS统计
         private void dropdown1_SelectedValueChanged(object sender, ObjectNEventArgs e)
         {
 
-            if(monitor)
+            if (monitor)
             {
                 MessageBox.Show("请先停止监控后再查看历史数据");
                 return;
-            
+
             }
 
             tabel.dps_tabel.Clear();
@@ -1097,6 +1104,24 @@ namespace 星痕共鸣DPS统计
                     }
                 ));
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (Common.skillDiary == null || Common.skillDiary.IsDisposed)
+            {
+                Common.skillDiary = new SkillDiary();
+
+            }
+            Common.skillDiary.Show();
+        }
+
+
+        private readonly Stopwatch _combatWatch = new Stopwatch();
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            label3.Text = _combatWatch.Elapsed.ToString(@"mm\:ss");
         }
     }
 }

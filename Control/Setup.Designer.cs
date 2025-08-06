@@ -32,6 +32,11 @@
             inputNumber1 = new AntdUI.InputNumber();
             colorPicker1 = new AntdUI.ColorPicker();
             label1 = new AntdUI.Label();
+            input1 = new AntdUI.Input();
+            input2 = new AntdUI.Input();
+            input3 = new AntdUI.Input();
+            input4 = new AntdUI.Input();
+            input5 = new AntdUI.Input();
             SuspendLayout();
             // 
             // InterfaceComboBox
@@ -58,7 +63,7 @@
             // 
             // colorPicker1
             // 
-            colorPicker1.Location = new Point(195, 150);
+            colorPicker1.Location = new Point(190, 392);
             colorPicker1.Name = "colorPicker1";
             colorPicker1.ShowText = true;
             colorPicker1.Size = new Size(173, 57);
@@ -68,23 +73,69 @@
             // 
             // label1
             // 
-            label1.Location = new Point(37, 158);
+            label1.Location = new Point(32, 400);
             label1.Name = "label1";
             label1.Size = new Size(152, 41);
             label1.TabIndex = 14;
             label1.Text = "DPS占比条颜色：";
+            // 
+            // input1
+            // 
+            input1.Location = new Point(25, 149);
+            input1.Name = "input1";
+            input1.PrefixText = "鼠标穿透键位：";
+            input1.Size = new Size(252, 65);
+            input1.TabIndex = 15;
+            // 
+            // input2
+            // 
+            input2.Location = new Point(288, 149);
+            input2.Name = "input2";
+            input2.PrefixText = "窗体透明键位：";
+            input2.Size = new Size(237, 65);
+            input2.TabIndex = 16;
+            // 
+            // input3
+            // 
+            input3.Location = new Point(25, 220);
+            input3.Name = "input3";
+            input3.PrefixText = "开关键位：";
+            input3.Size = new Size(252, 65);
+            input3.TabIndex = 17;
+            // 
+            // input4
+            // 
+            input4.Location = new Point(288, 220);
+            input4.Name = "input4";
+            input4.PrefixText = "清空数据键位：";
+            input4.Size = new Size(237, 65);
+            input4.TabIndex = 18;
+            // 
+            // input5
+            // 
+            input5.Location = new Point(25, 291);
+            input5.Name = "input5";
+            input5.PrefixText = "清空历史键位：";
+            input5.Size = new Size(252, 65);
+            input5.TabIndex = 19;
             // 
             // Setup
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Transparent;
+            Controls.Add(input5);
+            Controls.Add(input4);
+            Controls.Add(input3);
+            Controls.Add(input2);
+            Controls.Add(input1);
             Controls.Add(label1);
             Controls.Add(colorPicker1);
             Controls.Add(inputNumber1);
             Controls.Add(InterfaceComboBox);
+            ForeColor = Color.Transparent;
             Name = "Setup";
-            Size = new Size(550, 250);
+            Size = new Size(550, 483);
             Load += Setup_Load;
             ResumeLayout(false);
         }
@@ -95,5 +146,10 @@
         public AntdUI.InputNumber inputNumber1;
         private AntdUI.Label label1;
         public AntdUI.ColorPicker colorPicker1;
+        private AntdUI.Input input1;
+        private AntdUI.Input input2;
+        private AntdUI.Input input3;
+        private AntdUI.Input input4;
+        private AntdUI.Input input5;
     }
 }

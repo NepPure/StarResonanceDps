@@ -10,6 +10,9 @@ namespace 星痕共鸣DPS统计.Plugin
 {
     public class Common
     {
+        public static SkillDiary skillDiary;
+
+
         private static readonly Dictionary<string, List<ulong>> professionSkills = new()
         {
             

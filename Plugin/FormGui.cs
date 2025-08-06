@@ -9,6 +9,7 @@ namespace 星痕共鸣DPS统计.Plugin
 {
     public class FormGui
     {
+ 
         public static void GUI(BorderlessForm BorderlessForm, bool AutoHandDpi = false)
         {
             BorderlessForm.AutoHandDpi = AutoHandDpi;//自动处理DPi
@@ -29,6 +30,7 @@ namespace 星痕共鸣DPS统计.Plugin
         /// <param name="isLight">是否亮色</param>
         public static void SetColorMode(AntdUI.BorderlessForm window, bool isLight)
         {
+            if (window == null || window.IsDisposed) return;
             if (isLight)
             {
                 AntdUI.Config.IsLight = true;

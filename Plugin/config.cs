@@ -17,5 +17,7 @@ namespace 星痕共鸣DPS统计.Plugin
         public static string config_ini = "config.ini";
         public static double transparency = 100;//透明度
         public static Color dpscolor = Color.FromArgb(252, 227, 138);//DPS占比条颜色
+
+        public static bool isLight = true;//是否为浅色主题
     }
 }
