@@ -1,0 +1,46 @@
+﻿using AntdUI;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace 星痕共鸣DPS统计.Plugin
+{
+    public class FormGui
+    {
+        public static void GUI(BorderlessForm BorderlessForm, bool AutoHandDpi = false)
+        {
+            BorderlessForm.AutoHandDpi = AutoHandDpi;//自动处理DPi
+
+            BorderlessForm.Radius = 10;//圆角
+            BorderlessForm.Shadow = 10;//阴影大小
+            BorderlessForm.BorderWidth = 0;//边框宽度
+            BorderlessForm.UseDwm = false;//关闭系统窗口预览
+
+            //BorderlessForm.BorderColor = Color.FromArgb(246, 248, 250);
+
+        }
+
+        /// <summary>
+        /// 设置明暗颜色
+        /// </summary>
+        /// <param name="window">父窗口</param>
+        /// <param name="isLight">是否亮色</param>
+        public static void SetColorMode(AntdUI.BorderlessForm window, bool isLight)
+        {
+            if (isLight)
+            {
+                AntdUI.Config.IsLight = true;
+                window.BackColor = Color.White;
+                window.ForeColor = Color.Black;
+            }
+            else
+            {
+                AntdUI.Config.IsDark = true;// 设置为深色模式
+                window.BackColor = Color.FromArgb(31, 31, 31);
+                window.ForeColor = Color.White;
+            }
+        }
+    }
+}
