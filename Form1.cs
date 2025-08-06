@@ -3,12 +3,15 @@
 using AntdUI;
 using PacketDotNet;
 using SharpPcap;
+using SharpPcap.LibPcap;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using ZstdNet;
 using 星痕共鸣DPS统计.Control;
 using 星痕共鸣DPS统计.Plugin;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Menu;
 using static 星痕共鸣DPS统计.Plugin.Common;
+using SharpPcap.LibPcap;
 
 
 namespace 星痕共鸣DPS统计
@@ -18,6 +21,7 @@ namespace 星痕共鸣DPS统计
     {
         // 当前选中的网络抓包设备（例如某个网卡）
         private ICaptureDevice selectedDevice;
+      
 
         // TCP 分片缓存：Key 是 TCP 序列号，Value 是对应的分片数据
         // 用于重组多段 TCP 数据流（比如一个完整的 protobuf 消息被拆分在多个包里）
@@ -105,8 +109,8 @@ namespace 星痕共鸣DPS统计
                 float percent = (float)stat.TotalDamage / totalDps;  // 0 ~ 1，所有人的加起来是1
 
 
-                var item = tabel.dps_tabel.FirstOrDefault(x => x.uid == stat.Uid);
-                if (item == null)
+                var item = tabel.dps_tabel
+                                  .FirstOrDefault(x => x != null && x.uid == stat.Uid); if (item == null)
                 {
                     tabel.dps_tabel.Add(new DpsTabel(
                         stat.Uid,
@@ -233,8 +237,10 @@ namespace 星痕共鸣DPS统计
                     timer1.Enabled = true;
                     pageHeader1.SubText = "监控已开启";
                     monitor = true;
+
+
                     //开始监控的时候清空数据
-                    if (tabel.dps_tabel.Count >= 0)
+                    if (tabel.dps_tabel.Count > 0)
                     {
 
                         SaveCurrentDpsSnapshot();
@@ -243,16 +249,17 @@ namespace 星痕共鸣DPS统计
                     tabel.dps_tabel.Clear();
                     playerStats.Clear();
 
-
-
                 }
                 else
                 {
                     pageHeader1.SubText = "监控已关闭";
+              
                     //关闭监控
                     StopCapture();
                     timer1.Enabled = false;
                     monitor = false;
+
+    
 
 
                 }
@@ -319,6 +326,7 @@ namespace 星痕共鸣DPS统计
 
 
         #region tcp抓包
+
         /// <summary>
         /// 开始抓包
         /// </summary>
@@ -333,29 +341,45 @@ namespace 星痕共鸣DPS统计
                 return;
             }
 
-
+       
             // 获取所有可用的抓包设备（网卡）
             var devices = CaptureDeviceList.Instance;
 
             // 根据用户在下拉框中选择的索引获取对应设备
             selectedDevice = devices[config.network_card];
 
-
-            // 注册数据包到达时的事件处理函数（回调）
-            selectedDevice.OnPacketArrival += Device_OnPacketArrival;
-
             // 打开设备，设置为混杂模式（能接收所有经过的包），超时设置为 1000 毫秒
             selectedDevice.Open(DeviceModes.Promiscuous, 1000);
+            // selectedDevice.Open(DeviceModes.Promiscuous, 8 * 1024 * 1024);
 
             // 设置过滤器，只抓取 IP 层和 TCP 协议的数据包（避免抓取无关的 UDP、ARP、ICMP 等）
-            selectedDevice.Filter = "ip and tcp";
+           // selectedDevice.Filter = "tcp and (net 36.152.0.0/24) and (port 16125 or port 16126)";
+
+
+            // 注册数据包到达时的事件处理函数（回调）
+
+            // selectedDevice.OnPacketArrival += Device_OnPacketArrival;
+            selectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
 
             // 开始
             selectedDevice.StartCapture();
-
+          
             // 控制台打印提示信息
             Console.WriteLine("开始抓包...");
         }
+
+        private void ApplyDynamicFilter(string srcServer)
+        {
+            // 拆出服务器那半
+            var serverPart = srcServer.Split("->")[0].Trim();       // "36.152.0.122:16125"
+            var parts = serverPart.Split(':');
+            var serverIp = parts[0];
+            var serverPort = parts[1];
+
+            selectedDevice.Filter = $"tcp and host {serverIp} and port {serverPort}";
+           // Console.WriteLine($"【Filter 已更新】 tcp and host {serverIp} and port {serverPort}");
+        }
+        private bool _hasAppliedFilter = false;
 
         /// <summary>
         /// 停止抓包
@@ -367,7 +391,13 @@ namespace 星痕共鸣DPS统计
                 try
                 {
                     selectedDevice.StopCapture();
+                    selectedDevice.OnPacketArrival -= Device_OnPacketArrival;
+                    currentServer = "";
+                    // 4. 重置动态过滤标志（下次再 StartCapture 时，会重新抓全流量以便重新 VerifyServer）
+                    _hasAppliedFilter = false;
+                    ClearTcpCache();
                     selectedDevice.Close();
+                  
                     Console.WriteLine("停止抓包");
                 }
                 catch (Exception ex)
@@ -377,6 +407,11 @@ namespace 星痕共鸣DPS统计
             }
         }
 
+    
+        private readonly Dictionary<uint, DateTime> tcpCacheTime = new();
+        private readonly MemoryStream tcpStream = new();
+
+
         /// <summary>
         /// 网络设备捕获到 TCP 数据包后的处理回调函数
         /// </summary>
@@ -384,6 +419,7 @@ namespace 星痕共鸣DPS统计
         {
             try
             {
+
                 // 获取原始数据包
                 var rawPacket = e.GetPacket();
 
@@ -402,9 +438,17 @@ namespace 星痕共鸣DPS统计
                 // 获取 TCP 负载（即应用层数据）
                 var payload = tcpPacket.PayloadData;
                 if (payload == null || payload.Length == 0) return;
+                
 
                 // 构造当前包的源 -> 目的 IP 和端口的字符串，作为唯一标识
                 var srcServer = $"{ipPacket.SourceAddress}:{tcpPacket.SourcePort} -> {ipPacket.DestinationAddress}:{tcpPacket.DestinationPort}";
+                // ... 前面做 VerifyServer 的逻辑 ...
+                if (!_hasAppliedFilter && VerifyServer(srcServer, payload))
+                {
+                    ApplyDynamicFilter(srcServer);
+                    _hasAppliedFilter = true;
+                }
+
 
                 // 如果距离上次收到包的时间超过 30 秒，认为可能断线，清除缓存
                 if (lastPacketTime != DateTime.MinValue && (DateTime.Now - lastPacketTime).TotalSeconds > 30)
@@ -417,6 +461,7 @@ namespace 星痕共鸣DPS统计
                 // 如果当前服务器（源地址）发生变化，进行验证
                 if (currentServer != srcServer)
                 {
+                    
                     // 尝试验证是否为目标服务器（例如游戏服务器）
                     if (!VerifyServer(srcServer, payload))
                         return; // 如果验证失败，丢弃该包
@@ -449,68 +494,104 @@ namespace 星痕共鸣DPS统计
 
 
 
-        /// <summary>
-        /// TCP 重组逻辑：根据序列号将 TCP 包拼接成完整的数据流，并提取完整包处理
-        /// </summary>
         private void ReassembleTcp(TcpPacket tcpPacket, byte[] payload)
         {
-            // 加锁，确保多线程访问 tcpCache 安全（如抓包线程与 UI 线程并发）
+            uint seq = (uint)tcpPacket.SequenceNumber;
+
             lock (tcpCache)
             {
-                // 初始化：首次设置 tcpNextSeq（记录当前期望的 TCP 序列号）
-                if (tcpNextSeq == 0)
+                // 尝试初始化 tcpNextSeq（只有第一次设置）
+                if (tcpNextSeq == 0 && payload.Length > 4)
                 {
-                    tcpNextSeq = (uint)tcpPacket.SequenceNumber;
+                    int len = (payload[0] << 24) | (payload[1] << 16) | (payload[2] << 8) | payload[3];
+                    if (len < 999999) // 判断为合理包头
+                    {
+                        tcpNextSeq = seq;
+                    }
                 }
 
-                // 把当前 TCP 包缓存起来，key 是它的序列号，value 是数据
-                tcpCache[(uint)tcpPacket.SequenceNumber] = payload;
+                // 缓存当前段
+                tcpCache[seq] = payload;
+                tcpCacheTime[seq] = DateTime.Now;
 
-                // 不断拼接 TCP 包，只要缓存中包含期望的序列号
-                while (tcpCache.ContainsKey(tcpNextSeq))
+                // 清理超时缓存（超过10秒）
+                var expired = tcpCacheTime
+                    .Where(kv => (DateTime.Now - kv.Value).TotalSeconds > 10)
+                    .Select(kv => kv.Key)
+                    .ToList();
+
+                foreach (var key in expired)
                 {
-                    // 拿出当前需要的分段
-                    var chunk = tcpCache[tcpNextSeq];
+                    tcpCache.Remove(key);
+                    tcpCacheTime.Remove(key);
+                }
 
-                    // 把这个分段追加到总缓冲区中
-                    tcpDataBuffer = tcpDataBuffer.Concat(chunk).ToArray();
-
-                    // 更新下一个期望的序列号（累加当前分段长度）
+                // 按顺序拼接数据
+                while (tcpCache.TryGetValue(tcpNextSeq, out var chunk))
+                {
+                    tcpStream.Seek(0, SeekOrigin.End);
+                    tcpStream.Write(chunk, 0, chunk.Length);
                     tcpNextSeq += (uint)chunk.Length;
 
-                    // 移除已处理的缓存项
                     tcpCache.Remove(tcpNextSeq - (uint)chunk.Length);
+                    tcpCacheTime.Remove(tcpNextSeq - (uint)chunk.Length);
 
-                    // 更新上次收到数据的时间（用于断线判断）
                     lastPacketTime = DateTime.Now;
                 }
 
-                // ---- 解析完整包 ----
-                // 一个包的结构：前4字节为大端长度字段，表示整个包的长度
+                // 解析完整包
+                TryParseTcpStream();
+            }
+        }
 
-                while (tcpDataBuffer.Length > 4)
+        private void TryParseTcpStream()
+        {
+            tcpStream.Seek(0, SeekOrigin.Begin);
+
+            while (tcpStream.Length - tcpStream.Position >= 4)
+            {
+                byte[] lenBytes = new byte[4];
+                tcpStream.Read(lenBytes, 0, 4);
+                int len = (lenBytes[0] << 24) | (lenBytes[1] << 16) | (lenBytes[2] << 8) | lenBytes[3];
+
+                if (len > 999999)
                 {
-                    // 从前4个字节读取大端整数，表示包长
-                    int len = (tcpDataBuffer[0] << 24) | (tcpDataBuffer[1] << 16) | (tcpDataBuffer[2] << 8) | tcpDataBuffer[3];
-
-                    // 如果缓存的数据长度 >= 一个完整包的长度，说明可以处理
-                    if (tcpDataBuffer.Length >= len)
-                    {
-                        // 取出一个完整包
-                        var packetData = tcpDataBuffer.Take(len).ToArray();
-
-                        // 移除这个包的数据（从缓冲区中“消费”掉）
-                        tcpDataBuffer = tcpDataBuffer.Skip(len).ToArray();
-
-                        // 处理这个完整包（可能是 protobuf 消息）
-                        ProcessPacket(packetData); // ✅ 真正的线程，适合持续处理包
-                    }
-                    else
-                    {
-                        // 不足以组成完整包，等待下次数据到来
-                        break;
-                    }
+                    // 非法长度，清空整个缓冲区
+                    tcpStream.SetLength(0);
+                    return;
                 }
+
+                long remain = tcpStream.Length - tcpStream.Position;
+                if (remain + 4 >= len)
+                {
+                    // 数据够一个完整包
+                    byte[] packet = new byte[len];
+                    Array.Copy(lenBytes, 0, packet, 0, 4);
+                    tcpStream.Read(packet, 4, len - 4);
+
+                    // 异步处理，防止 UI 卡顿
+                     ProcessPacket(packet);
+                }
+                else
+                {
+                    // 不够，回退4字节
+                    tcpStream.Position -= 4;
+                    break;
+                }
+            }
+
+            // 剩余未读部分保留到新缓冲区
+            long unread = tcpStream.Length - tcpStream.Position;
+            if (unread > 0)
+            {
+                byte[] remain = new byte[unread];
+                tcpStream.Read(remain, 0, (int)unread);
+                tcpStream.SetLength(0);
+                tcpStream.Write(remain, 0, remain.Length);
+            }
+            else
+            {
+                tcpStream.SetLength(0);
             }
         }
         #endregion
@@ -528,17 +609,20 @@ namespace 星痕共鸣DPS统计
         /// <returns>如果识别成功，返回 true；否则返回 false</returns>
         private bool VerifyServer(string srcServer, byte[] buf)
         {
-            try
+            try 
             {
+
+    
                 // 如果当前服务器已经是这个，不需要重复识别
                 if (currentServer == srcServer)
+                {
+                  
                     return false;
-
-                // 长度不足，不是合法的小包（必须至少32字节）
-                if (buf.Length < 32)
-                    return false;
+                }
+              
 
                 // 第 5 字节不为 0，则不是“小包”格式（协议约定）
+      
                 if (buf[4] != 0)
                     return false;
 
@@ -567,12 +651,13 @@ namespace 星痕共鸣DPS统计
 
                     // 签名校验，确认是目标游戏协议的数据包
                     byte[] signature = new byte[] { 0x00, 0x63, 0x33, 0x53, 0x42, 0x00 };
+                    //Console.WriteLine(!data1.Skip(5).Take(signature.Length).SequenceEqual(signature));
                     if (!data1.Skip(5).Take(signature.Length).SequenceEqual(signature))
                         break;
 
                     // 解码主体结构（跳过前18字节，通常是头部结构）
                     var body = ProtoDynamic.Decode(data1.AsSpan(18).ToArray());
-
+               
                     // 从结构中尝试获取玩家 UID（字段[1]->[5]）
                     if (data1.Length >= 17 && data1[17] == 0x2E) // 特定标志字节 0x2E
                     {
@@ -598,7 +683,7 @@ namespace 星痕共鸣DPS统计
             catch (Exception ex)
             {
                 // 捕获所有异常，避免崩溃
-                Console.WriteLine($"[VerifyServer 异常] {ex}");
+               //Console.WriteLine($"[VerifyServer 异常] {ex}");
             }
 
             return false; // 无法识别为目标服务器
@@ -781,7 +866,7 @@ namespace 星痕共鸣DPS统计
 
                             string extra = isCrit ? "暴击" : luckyValue != 0 ? "幸运" : isMiss ? "Miss" : "普通";
 
-                            //Console.WriteLine($"玩家 {operatorUid} 职业 {Common.GetProfessionBySkill(skill)} 使用技能 {skill} 造成伤害 {damage} 扣血 {hpLessen} 标记 {extra}");
+                            //Console.WriteLine($"玩家 {operatorUid} 使用技能 {skill} 造成伤害 {damage} 扣血 {hpLessen} 标记 {extra}");
 
 
                             // 加入统计
@@ -802,9 +887,10 @@ namespace 星痕共鸣DPS统计
                                 }
                             }
 
-
+                           
 
                             stat.RecordHit(damage, isCrit, luckyValue != 0, hpLessen);
+                           
 
                         }
 

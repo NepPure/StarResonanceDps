@@ -48,7 +48,7 @@
             pageHeader1.Size = new Size(992, 46);
             pageHeader1.SubText = "";
             pageHeader1.TabIndex = 8;
-            pageHeader1.Text = "DPS统计 - by: 惊奇猫猫盒 [别查我DPS] v1.0.0";
+            pageHeader1.Text = "DPS统计 - by: 惊奇猫猫盒 [别查我DPS] v1.0.1";
             // 
             // dropdown1
             // 
@@ -135,6 +135,7 @@
             // 
             // timer1
             // 
+            timer1.Interval = 600;
             timer1.Tick += timer1_Tick;
             // 
             // label1
