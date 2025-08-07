@@ -54,13 +54,16 @@
             // inputNumber1
             // 
             inputNumber1.Location = new Point(20, 87);
+            inputNumber1.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
+            inputNumber1.Minimum = new decimal(new int[] { 10, 0, 0, 0 });
             inputNumber1.Name = "inputNumber1";
             inputNumber1.PrefixText = "窗体透明度：";
-            inputNumber1.SelectionStart = 1;
+            inputNumber1.SelectionStart = 2;
             inputNumber1.Size = new Size(500, 56);
             inputNumber1.SuffixText = "%";
             inputNumber1.TabIndex = 12;
-            inputNumber1.Text = "0";
+            inputNumber1.Text = "10";
+            inputNumber1.Value = new decimal(new int[] { 10, 0, 0, 0 });
             // 
             // colorPicker1
             // 

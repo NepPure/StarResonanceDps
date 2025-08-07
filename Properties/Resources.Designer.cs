@@ -59,5 +59,23 @@ namespace 星痕共鸣DPS统计.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1754553843272&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;7228&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M308.705882 124.235294c100.291765 0 184.470588 37.406118 184.470589 96.617412v210.823529c0 59.211294-84.208941 96.647529-184.470589 96.64753-97.581176 0-179.892706-35.448471-184.289882-91.858824l-0.180706-4.788706v-210.823529l0.180706-4.728471c4.397176-56.470588 86.738824-91.888941 184.289882-91.888941z m0 298.676706c-51.109647 0-98.032941-9.728-131.76470 [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string data_display {
+            get {
+                return ResourceManager.GetString("data-display", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1754553927035&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1096 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;9938&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M890.591549 699.363155l-27.373972 11.826479-134.25938 11.047662c-3.374873-1.413408-6.720901-2.797972-10.038084-4.15369l-38.594705-10.542874a42.128225 42.128225 0 0 1-12.792788-5.942084c-22.35493-15.388845-37.628394-45.690592-52.555719-78.025916l-1.874929-4.081577a42.15707 42.15707 0 0 1-2.16338-5.682479c0-0.05769-0.043268-0.100958-0.057691-0.17307-0.40383 [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string userUid {
+            get {
+                return ResourceManager.GetString("userUid", resourceCulture);
+            }
+        }
     }
 }

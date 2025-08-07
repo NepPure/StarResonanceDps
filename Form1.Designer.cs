@@ -28,16 +28,17 @@
             table1 = new AntdUI.Table();
             timer1 = new System.Windows.Forms.Timer(components);
             label1 = new AntdUI.Label();
-            label3 = new AntdUI.Label();
             timer2 = new System.Windows.Forms.Timer(components);
+            switch1 = new AntdUI.Switch();
+            panel1 = new AntdUI.Panel();
             pageHeader1.SuspendLayout();
+            panel1.SuspendLayout();
             SuspendLayout();
             // 
             // pageHeader1
             // 
             pageHeader1.Controls.Add(button1);
             pageHeader1.Controls.Add(dropdown1);
-            pageHeader1.Controls.Add(label2);
             pageHeader1.Controls.Add(button3);
             pageHeader1.Controls.Add(button2);
             pageHeader1.Controls.Add(button4);
@@ -52,7 +53,7 @@
             pageHeader1.Size = new Size(1127, 46);
             pageHeader1.SubText = "";
             pageHeader1.TabIndex = 8;
-            pageHeader1.Text = "DPS统计 - by: 惊奇猫猫盒 [别查我DPS] v1.0.1";
+            pageHeader1.Text = "DPS统计 - by: 惊奇猫猫盒 [别查我DPS] v1.0.2";
             // 
             // button1
             // 
@@ -82,13 +83,13 @@
             // 
             // label2
             // 
-            label2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label2.Dock = DockStyle.Left;
             label2.ForeColor = Color.Red;
-            label2.Location = new Point(532, 5);
+            label2.Location = new Point(654, 0);
             label2.Name = "label2";
-            label2.Size = new Size(222, 31);
+            label2.Size = new Size(231, 42);
             label2.TabIndex = 16;
-            label2.Text = "请先右边设置网卡在启动哟！";
+            label2.Text = "请先右上角设置网卡在启动哟！";
             label2.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // button3
@@ -127,26 +128,27 @@
             button4.TabIndex = 2;
             button4.ToggleIconSvg = "";
             button4.Click += button4_Click;
+            button4.MouseClick += button4_MouseClick;
             // 
             // checkbox1
             // 
-            checkbox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            checkbox1.Location = new Point(1002, 61);
+            checkbox1.Dock = DockStyle.Right;
+            checkbox1.Location = new Point(1003, 0);
             checkbox1.Name = "checkbox1";
-            checkbox1.Size = new Size(124, 31);
+            checkbox1.Size = new Size(124, 42);
             checkbox1.TabIndex = 15;
             checkbox1.Text = "占比数据";
             checkbox1.CheckedChanged += checkbox1_CheckedChanged;
             // 
             // table1
             // 
-            table1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            table1.Dock = DockStyle.Fill;
             table1.FixedHeader = false;
             table1.Gap = 8;
             table1.Gaps = new Size(8, 8);
-            table1.Location = new Point(0, 105);
+            table1.Location = new Point(0, 46);
             table1.Name = "table1";
-            table1.Size = new Size(1127, 555);
+            table1.Size = new Size(1127, 616);
             table1.TabIndex = 13;
             table1.Text = "table1";
             // 
@@ -157,26 +159,42 @@
             // 
             // label1
             // 
-            label1.Location = new Point(12, 53);
+            label1.Dock = DockStyle.Left;
+            label1.Location = new Point(0, 0);
             label1.Name = "label1";
-            label1.Size = new Size(675, 45);
+            label1.Size = new Size(654, 42);
             label1.TabIndex = 14;
             label1.Text = "F6：鼠标穿透 | F7：窗体透明 | F8：开启/关闭 | F9：清空数据 | F10：清空历史";
-            // 
-            // label3
-            // 
-            label3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label3.Location = new Point(761, 61);
-            label3.Name = "label3";
-            label3.Prefix = "战斗计时：";
-            label3.Size = new Size(222, 31);
-            label3.TabIndex = 17;
-            label3.Text = "";
-            label3.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // timer2
             // 
             timer2.Tick += timer2_Tick;
+            // 
+            // switch1
+            // 
+            switch1.CheckedText = "开启中";
+            switch1.Dock = DockStyle.Right;
+            switch1.Location = new Point(888, 0);
+            switch1.Name = "switch1";
+            switch1.Size = new Size(115, 42);
+            switch1.TabIndex = 18;
+            switch1.UnCheckedText = "关闭中";
+            switch1.CheckedChanged += switch1_CheckedChanged;
+            // 
+            // panel1
+            // 
+            panel1.Back = Color.Transparent;
+            panel1.BackColor = Color.Transparent;
+            panel1.Controls.Add(label2);
+            panel1.Controls.Add(label1);
+            panel1.Controls.Add(switch1);
+            panel1.Controls.Add(checkbox1);
+            panel1.Dock = DockStyle.Bottom;
+            panel1.Location = new Point(0, 620);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(1127, 42);
+            panel1.TabIndex = 19;
+            panel1.Text = "panel1";
             // 
             // Form1
             // 
@@ -184,9 +202,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(1127, 662);
-            Controls.Add(label3);
-            Controls.Add(checkbox1);
-            Controls.Add(label1);
+            Controls.Add(panel1);
             Controls.Add(table1);
             Controls.Add(pageHeader1);
             Dark = true;
@@ -199,6 +215,7 @@
             Text = "DPS 统计工具";
             Load += Form1_Load_1;
             pageHeader1.ResumeLayout(false);
+            panel1.ResumeLayout(false);
             ResumeLayout(false);
         }
         private AntdUI.PageHeader pageHeader1;
@@ -212,7 +229,8 @@
         public AntdUI.Label label2;
         private AntdUI.Dropdown dropdown1;
         private AntdUI.Button button1;
-        public AntdUI.Label label3;
         private System.Windows.Forms.Timer timer2;
+        private AntdUI.Switch switch1;
+        private AntdUI.Panel panel1;
     }
 }

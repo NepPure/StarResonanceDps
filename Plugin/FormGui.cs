@@ -45,5 +45,28 @@ namespace 星痕共鸣DPS统计.Plugin
                 window.ForeColor = Color.White;
             }
         }
+
+        /// <summary>
+        /// 弹窗提示
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="title"></param>
+        /// <param name="content"></param>
+        /// <param name="type"></param>
+        public static void Modal(Form from, string title, string content, string okText = "确定", string cancelText = "取消", TType type = TType.Info)
+        {
+            AntdUI.Modal.Config config = new Modal.Config(from, title, content)
+            {
+                CloseIcon = true,
+                Icon = type,
+                CancelText = cancelText,
+                OkText = okText,
+                MaskClosable = false,
+
+
+            };
+            AntdUI.Modal.open(config);
+
+        }
     }
 }

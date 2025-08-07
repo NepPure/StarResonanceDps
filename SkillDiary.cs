@@ -47,7 +47,7 @@ namespace 星痕共鸣DPS统计
 
         private void SkillDiary_Load(object sender, EventArgs e)
         {
-            FormGui.SetColorMode(Common.skillDiary, config.isLight);//设置窗体颜色
+            FormGui.SetColorMode(this, config.isLight);//设置窗体颜色
         }
     }
 }

@@ -1,16 +1,22 @@
-﻿using SharpPcap;
+﻿using Flurl;
+using Flurl.Http;
+using Newtonsoft.Json.Linq;
+using OpenTK.Graphics.ES11;
+using SharpPcap;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
+using 星痕共鸣DPS统计.Control;
 
 namespace 星痕共鸣DPS统计.Plugin
 {
     public class Common
     {
         public static SkillDiary skillDiary;
+        public static UserUidSet userUidSet;
 
 
         private static readonly Dictionary<string, List<ulong>> professionSkills = new()
@@ -340,7 +346,103 @@ namespace 星痕共鸣DPS统计.Plugin
         }
 
 
+        /// <summary>
+        /// get请求封装
+        /// </summary>
+        /// <param name="url">请求链接</param>
+        /// <param name="queryParams">请求参数</param>
+        /// <param name="cookies">请求cookies</param>
+        /// <returns></returns>
+        public async static Task<JObject> RequestGet(string url, object queryParams = null, string cookies = "", object headers = null)
+        {
+            JObject data;
+
+            try
+            {
+                var response = await url
+                    .SetQueryParams(queryParams)
+                    .GetAsync();
+
+                // 获取响应的内容并解析为 JSON
+                var result = await response.GetJsonAsync();
+                data = JObject.FromObject(result);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error in HTTP request: {ex.Message}");
+                data = JObject.FromObject(new { code = 401, error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+                data = JObject.FromObject(new { code = 500, error = ex.Message });
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// post请求封装
+        /// </summary>
+        /// <param name="url">请求链接</param>
+        /// <param name="queryParams">请求参数</param>
+        /// <param name="cookies">请求cookies</param>
+        /// <returns></returns>
+        public async static Task<JObject> RequestPost(string url, object queryParams, string cookies = "", object headers = null)
+        {
+            JObject data;
+
+            try
+            {
+                // 发送 POST 请求并接收 JSON 数据
+                var result = await url
+                    .WithCookies(cookies)
+                    .WithHeaders(headers)
+                    .PostJsonAsync(queryParams)
+                    .ReceiveJson();
+                // 将 JSON 数据转换为 JObject
+
+                data = JObject.FromObject(result);
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"Error in HTTP request: {ex.Message}");
+                data = JObject.FromObject(new { code = 401, error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An unexpected error occurred: {ex.Message}");
+                data = JObject.FromObject(new { code = 500, error = ex.Message });
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// 请求id查看角色名
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <returns></returns>
+        public async static Task<JObject> player_uid_map(List<string> uid)
+        {
+            string url = "https://api.jx3rec.com/player_uid_map";
+            var query = new
+            {
+                uid = uid,
+               
+            };
+            return await Common.RequestPost(url, query);
+         
+           
+        }
+
 
     }
+
+    
+
+
+
+
 }
 

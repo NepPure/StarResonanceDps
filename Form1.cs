@@ -13,6 +13,9 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Menu;
 using static 星痕共鸣DPS统计.Plugin.Common;
 using SharpPcap.LibPcap;
 using System.Diagnostics;
+using static System.Windows.Forms.AxHost;
+using 星痕共鸣DPS统计.Properties;
+using System.Threading;
 
 
 namespace 星痕共鸣DPS统计
@@ -42,122 +45,181 @@ namespace 星痕共鸣DPS统计
         public Form1()
         {
             InitializeComponent();
+
             FormGui.GUI(this);
+          
+            load_tabel();
             tabel_load();
 
-
+            
         }
 
+        /// <summary>
+        /// 启动时加载网卡设备
+        /// </summary>
+        private void LoadNetworkDevices()
+        {
+            Console.WriteLine("应用程序启动时加载网卡...");
+
+
+
+            // 如果配置中指定了网卡索引，直接使用
+            if (config.network_card >= 0)
+            {
+                var devices = CaptureDeviceList.Instance;
+                if (config.network_card < devices.Count)
+                {
+                    selectedDevice = devices[config.network_card];
+                    Console.WriteLine($"启动时已选择网卡: {selectedDevice.Description} (索引: {config.network_card})");
+                }
+            }
+            else
+            {
+                // 创建临时Setup对象用于调用LoadDevices方法
+                using (var setup = new Setup(this))
+                {
+                    setup.LoadDevices();
+                }
+            }
+        }
+
+
+
+        private void load_tabel()
+        {
+            foreach (var item in ColumnSettingsManager.AllSettings)
+            {
+                config.reader.Load(config.config_ini);
+                string? strValue = config.reader.GetValue("TabelSet", item.Key);
+                if (strValue != null)
+                {
+                    item.IsVisible = strValue == "True";
+                }
+
+            }
+        }
 
         private void tabel_load()
         {
             table1.Columns.Clear();
-            table1.Columns = new ColumnCollection
+
+           
+            table1.Columns = ColumnSettingsManager.BuildColumns(checkbox1.Checked);
+            if(!checkbox1.Checked)
             {
-                new Column("","序号"){
-                    Width = "50",
-                    Render = (value,record,rowindex)=>{return (rowindex+1); },
-                    Fixed = true,//冻结列
-                },
-                new AntdUI.Column("uid", "角色ID",ColumnAlign.Center){ SortOrder=true},
-                new AntdUI.Column("profession", "职业",ColumnAlign.Center),
-                new AntdUI.Column("totalDamage", "总伤害/总治疗",ColumnAlign.Center){ SortOrder=true},
-
-
-            };
-
-
-            if (!checkbox1.Checked)
-            {
-                var extraColumns = new[]
-                {
-                    new AntdUI.Column("criticalDamage", "纯暴击"){ SortOrder=true},
-                    new AntdUI.Column("luckyDamage", "纯幸运"){ SortOrder=true},
-                    new AntdUI.Column("critLuckyDamage", "暴击幸运"){ SortOrder=true},
-                    new AntdUI.Column("critRate", "暴击率"){ SortOrder=true},
-                    new AntdUI.Column("luckyRate", "幸运率"){ SortOrder=true},
-                    new AntdUI.Column("instantDps", "瞬时DPS"){ SortOrder=true},
-                    new AntdUI.Column("maxInstantDps", "最大瞬时"){ SortOrder=true}
-                };
-                // 添加到现有 Columns 中
-                foreach (var col in extraColumns)
-                {
-                    if (!table1.Columns.Any(c => c.Key == col.Key))
-                        table1.Columns.Add(col);
-                }
-
+                table1.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
             }
-            else
-            {
-
-                table1.Columns.Add(new Column("CellProgress", "团队总伤害占比", ColumnAlign.Center));
-            }
-            table1.Columns.Add(new Column("totalDps", "总DPS/治疗", ColumnAlign.Center) { SortOrder = true });
+          
             table1.Binding(tabel.dps_tabel);
         }
-        private void RefreshDpsTabel()
+        private void RefreshDpsTable()
         {
-            // 先解绑（或冻结 UI）
+            // 1) 拷贝一份所有玩家数据，避免并发修改
+            List<PlayerData> statsList = StatisticData._manager
+                .GetAllPlayers()
+                .ToList();
 
-            var statsList = playerStats.Values.ToList(); // 拷贝一份，避免并发修改
+            // 2) 计算最大总伤害，用于归一化进度条
+            float totalDamageSum = statsList.Sum(p => (float)p.DamageStats.Total);
+            if (totalDamageSum <= 0f) totalDamageSum = 1f;
 
-            // 计算最大 DPS
-            float totalDps = statsList.Sum(s => (float)s.TotalDamage);
-            if (totalDps <= 0f) totalDps = 1f; // 避免除以 0
-
+            // 3) 遍历，新增或更新行
             foreach (var stat in statsList)
             {
-                float percent = (float)stat.TotalDamage / totalDps;  // 0 ~ 1，所有人的加起来是1
+                // 3.1 计算进度条比例
+                float percent = (float)stat.DamageStats.Total / totalDamageSum;
 
+                // 3.2 按 UID 查找已有行
+                var row = tabel.dps_tabel
+                    .FirstOrDefault(x => x.uid == stat.Uid);
 
-                var item = tabel.dps_tabel
-                                  .FirstOrDefault(x => x != null && x.uid == stat.Uid); if (item == null)
+                // 3.3 计算暴击率/幸运率（以 % 计）
+                double critRate = stat.DamageStats.CountTotal > 0
+                                 ? (double)stat.DamageStats.CountCritical / stat.DamageStats.CountTotal * 100
+                                 : 0.0;
+                double luckyRate = stat.DamageStats.CountTotal > 0
+                                 ? (double)stat.DamageStats.CountLucky / stat.DamageStats.CountTotal * 100
+                                 : 0.0;
+
+                if (row == null)
                 {
+                    // 新增一行
                     tabel.dps_tabel.Add(new DpsTabel(
                         stat.Uid,
+                        stat.Nickname,
+                        stat.TakenDamage,
+                        stat.HealingStats.Total,
+                        stat.HealingStats.Critical,
+                        stat.HealingStats.Lucky,
+                        stat.HealingStats.CritLucky,
+                        stat.HealingStats.RealtimeValue,
+                        stat.HealingStats.RealtimeMax,
+
                         stat.Profession,
-                        stat.TotalDamage,
-                        stat.CriticalDamage,
-                        stat.LuckyDamage,
-                        stat.CritLuckyDamage,
-                        Math.Round(stat.CritRate, 1),
-                        Math.Round(stat.LuckyRate, 1),
-                        stat.InstantDPS,
-                        stat.MaxInstantDPS,
-                        Math.Round(stat.TotalDPS, 1),
-                        new CellProgress(percent) { Size = new Size(300, 10), Fill = config.dpscolor }
+                        stat.DamageStats.Total,
+                        stat.DamageStats.Critical,
+                        stat.DamageStats.Lucky,
+                        stat.DamageStats.CritLucky,
+                        Math.Round(critRate, 1),
+                        Math.Round(luckyRate, 1),
+                        stat.DamageStats.RealtimeValue,      // 即时 DPS（过去1秒）
+                        stat.DamageStats.RealtimeMax,        // 峰值 DPS
+                        Math.Round(stat.DamageStats.GetTotalPerSecond(), 1), // 总平均 DPS
+                         Math.Round(stat.HealingStats.GetTotalPerSecond(), 1),//总平均 HPS
+                        new CellProgress(percent)
+                        {
+                            Size = new Size(200, 10),
+                            Fill = config.dpscolor
+                        }
+
                     ));
                 }
                 else
                 {
-                    item.totalDamage = stat.TotalDamage;
-                    item.profession = stat.Profession;
-                    item.criticalDamage = stat.CriticalDamage;
-                    item.luckyDamage = stat.LuckyDamage;
-                    item.critLuckyDamage = stat.CritLuckyDamage;
-                    item.critRate = Math.Round(stat.CritRate, 1).ToString();
-                    item.luckyRate = Math.Round(stat.LuckyRate, 1).ToString();
-                    item.instantDps = stat.InstantDPS;
-                    item.maxInstantDps = stat.MaxInstantDPS;
-                    item.totalDps = Math.Round(stat.TotalDPS, 1);
-                    if (item.CellProgress is not CellProgress cp)
+                    // —— 更新 DPS 部分 —— 
+                    row.profession = stat.Profession;
+                    row.nickname = stat.Nickname;
+                    row.totalDamage = stat.DamageStats.Total;
+                    row.criticalDamage = stat.DamageStats.Critical;
+                    row.luckyDamage = stat.DamageStats.Lucky;
+                    row.critLuckyDamage = stat.DamageStats.CritLucky;
+                    row.critRate = Math.Round(critRate, 1).ToString();
+                    row.luckyRate = Math.Round(luckyRate, 1).ToString();
+                    row.instantDps = stat.DamageStats.RealtimeValue;
+                    row.maxInstantDps = stat.DamageStats.RealtimeMax;
+                    row.totalDps = Math.Round(stat.DamageStats.GetTotalPerSecond(), 1);
+
+                    // —— 更新 HPS（治疗）部分 —— 
+                    row.damageTaken = stat.TakenDamage;
+                    row.totalHealingDone = stat.HealingStats.Total;
+                    row.criticalHealingDone = stat.HealingStats.Critical;
+                    row.luckyHealingDone = stat.HealingStats.Lucky;
+                    row.critLuckyHealingDone = stat.HealingStats.CritLucky;
+                    row.instantHps = stat.HealingStats.RealtimeValue;
+                    row.maxInstantHps = stat.HealingStats.RealtimeMax;
+                    row.totalHps = Math.Round(stat.HealingStats.GetTotalPerSecond(), 1);
+
+                    // —— 更新进度条 —— 
+                    if (row.CellProgress is CellProgress cp)
                     {
-                        cp = new CellProgress(percent) { Size = new Size(300, 10), Fill = config.dpscolor };
-                        item.CellProgress = cp;
+                        cp.Value = percent;  // 仅更新进度值
                     }
                     else
                     {
-                        cp.Value = percent; // ✅ 仅更新数值，不重新创建
+                        // 兼容：如果之前没创建过，就新建一个
+                        row.CellProgress = new CellProgress(percent)
+                        {
+                            Size = new Size(200, 10),
+                            Fill = config.dpscolor
+                        };
                     }
-
-
                 }
-            }
 
+            }
         }
 
 
-        private Dictionary<ulong, PlayerStat> playerStats = new();
+
 
 
 
@@ -230,16 +292,22 @@ namespace 星痕共鸣DPS统计
 
                     //开始监控
                     StartCapture();
-                   
+
                     if (config.network_card == -1)
                     {
                         return;
                     }
+                    switch1.Checked = true;
                     timer1.Enabled = true;
                     pageHeader1.SubText = "监控已开启";
                     monitor = true;
                     _combatWatch.Restart();
                     timer2.Start();
+                    if(label2.Visible == false)
+                    {
+                        label2.Visible = true;
+                        label2.Text = "00:00";
+                    }
 
                     //开始监控的时候清空数据
                     if (tabel.dps_tabel.Count > 0)
@@ -249,7 +317,7 @@ namespace 星痕共鸣DPS统计
                     }
 
                     tabel.dps_tabel.Clear();
-                    playerStats.Clear();
+                    StatisticData._manager.ClearAll();
 
                 }
                 else
@@ -258,7 +326,8 @@ namespace 星痕共鸣DPS统计
 
                     //关闭监控
                     StopCapture();
-                    
+                    label2.Text = "00:00";
+                    switch1.Checked = false;
                     //_hasAppliedFilter = false;//需要测试
                     timer1.Enabled = false;
                     monitor = false;
@@ -280,7 +349,7 @@ namespace 星痕共鸣DPS统计
                 }
                 _combatWatch.Restart();
                 tabel.dps_tabel.Clear();
-                playerStats.Clear();
+                StatisticData._manager.ClearAll();
 
             }//F10 清空历史记录
             if (e.KeyData == config.clearHistoryKey)
@@ -304,25 +373,44 @@ namespace 星痕共鸣DPS统计
             var snapshot = new AntdUI.AntList<DpsTabel>();
             foreach (var item in tabel.dps_tabel)
             {
+                // 先把 critRate / luckyRate 的 "%" 去掉再解析成 double
+                double.TryParse(item.critRate.TrimEnd('%'), out var cr);
+                double.TryParse(item.luckyRate.TrimEnd('%'), out var lr);
+
                 snapshot.Add(new DpsTabel(
+                    // —— 受伤 & 治疗 —— 
                     item.uid,
-                    item.profession,
-                    item.totalDamage,
-                    item.criticalDamage,
-                    item.luckyDamage,
-                    item.critLuckyDamage,
-                    double.TryParse(item.critRate.ToString(), out var cr) ? cr : 0,
-                    double.TryParse(item.luckyRate.ToString(), out var lr) ? lr : 0,
-                    item.instantDps,
-                    item.maxInstantDps,
-                    item.totalDps,
+                    item.nickname,
+                    item.damageTaken,             // 累计受到的伤害
+                    item.totalHealingDone,        // 总治疗量
+                    item.criticalHealingDone,     // 暴击治疗量
+                    item.luckyHealingDone,        // 幸运治疗量
+                    item.critLuckyHealingDone,    // 暴击+幸运治疗量
+                    item.instantHps,              // 瞬时 HPS
+                    item.maxInstantHps,           // 峰值 HPS
+
+                    // —— 职业 & DPS —— 
+                    item.profession,              // 职业
+                    item.totalDamage,             // 总伤害
+                    item.criticalDamage,          // 暴击伤害
+                    item.luckyDamage,             // 幸运伤害
+                    item.critLuckyDamage,         // 暴击+幸运伤害
+                    cr,                           // 暴击率（0～100）
+                    lr,                           // 幸运率（0～100）
+                    item.instantDps,              // 瞬时 DPS
+                    item.maxInstantDps,           // 峰值 DPS
+                    item.totalDps,                // 平均 DPS
+
+                    // —— 平均 HPS & 进度 —— 
+                    item.totalHps,                // 平均 HPS
                     new CellProgress(item.CellProgress?.Value ?? 0)
                     {
-                        Size = new Size(300, 10),
+                        Size = new Size(200, 10),
                         Fill = config.dpscolor
                     }
                 ));
             }
+
 
             HistoricalRecords[timeOnly] = snapshot;
             dropdown1.Items.Add(timeOnly);
@@ -334,7 +422,7 @@ namespace 星痕共鸣DPS统计
 
         #region tcp抓包
 
-      
+
         /// <summary>
         /// 开始抓包
         /// </summary>
@@ -353,56 +441,160 @@ namespace 星痕共鸣DPS统计
             // 获取所有可用的抓包设备（网卡）
             var devices = CaptureDeviceList.Instance;
 
+            // 检查设备列表是否为空
+            if (devices == null || devices.Count == 0)
+            {
+                throw new InvalidOperationException("没有找到可用的网络抓包设备");
+            }
+
+            // 检查索引是否有效
+            if (config.network_card < 0 || config.network_card >= devices.Count)
+            {
+                throw new InvalidOperationException($"无效的网络设备索引: {config.network_card}");
+            }
+
             // 根据用户在下拉框中选择的索引获取对应设备
             selectedDevice = devices[config.network_card];
 
+            // 检查获取的设备是否为null
+            if (selectedDevice == null)
+            {
+                throw new InvalidOperationException($"无法获取网络设备，索引: {config.network_card}");
+            }
+
             // 打开设备，设置为混杂模式（能接收所有经过的包），超时设置为 1000 毫秒
             selectedDevice.Open(DeviceModes.Promiscuous, 1000);
-            // selectedDevice.Open(DeviceModes.Promiscuous, 8 * 1024 * 1024);
 
-            // 设置过滤器，只抓取 IP 层和 TCP 协议的数据包（避免抓取无关的 UDP、ARP、ICMP 等）
-            // selectedDevice.Filter = "tcp and (net 36.152.0.0/24) and (port 16125 or port 16126)";
+            // selectedDevice.OnPacketArrival += Device_OnPacketArrival;
+            //selectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
 
-            // 取一次初始值
-            _lastStats = selectedDevice.Statistics;
+            // 开始
+            //selectedDevice.StartCapture();
 
-            // 每秒钟计算一次丢包率
-            var statsTimer = new System.Timers.Timer(1000);
-            statsTimer.Elapsed += (s, e) =>
+            _lastStats = selectedDevice.Statistics!;  // 使用!操作符告诉编译器Statistics不会为null
+
+            //selectedDevice.StartCapture();
+            InitStatsTimer();
+            // 控制台打印提示信息
+           // Console.WriteLine("开始抓包...");
+        }
+
+
+        // 统计计时器间隔 (毫秒)
+        private int statsInterval = 1000;
+        // 统计计时器
+        private System.Timers.Timer? statsTimer;
+        // 用于同步统计任务的互斥锁
+        private object statsLock = new object();
+        // 标记统计任务是否正在处理中
+        private bool isProcessing = false;
+        // 上次统计时间
+        private DateTime lastStatsTime = DateTime.Now;
+
+        // 初始化统计计时器
+        private void InitStatsTimer()
+        {
+            if (statsTimer != null)
             {
-                // 取当前统计
-                var cur = selectedDevice.Statistics;
+                statsTimer.Stop();
+                statsTimer.Dispose();
+            }
+            #region 丢包统计
+            //statsTimer = new System.Timers.Timer(statsInterval);
+            //statsTimer.AutoReset = true;  // 设置为自动重置，定期触发
+            //lastStatsTime = DateTime.Now;
 
-                // 计算差值
-                long recvDelta = cur.ReceivedPackets - _lastStats.ReceivedPackets;
-                long dropDelta = cur.DroppedPackets - _lastStats.DroppedPackets;
-                long ifDropDelta = cur.InterfaceDroppedPackets - _lastStats.InterfaceDroppedPackets;
+            //statsTimer.Elapsed += (s, e) =>
+            //{
+            //    var currentTime = DateTime.Now;
+            //    var elapsedSinceLast = currentTime - lastStatsTime;
+            //    lastStatsTime = currentTime;
 
-                // 应用层丢包率 = dropped / (received + dropped)
-                double appLossRate = (recvDelta + dropDelta) > 0
-                    ? dropDelta / (double)(recvDelta + dropDelta) * 100
-                    : 0;
-                // 网卡层丢包率 = ifDrop / (received + dropped + ifDrop)
-                double driverLossRate = (recvDelta + dropDelta + ifDropDelta) > 0
-                    ? ifDropDelta / (double)(recvDelta + dropDelta + ifDropDelta) * 100
-                    : 0;
-                
+            //    // 使用互斥锁确保同一时间只有一个统计任务在执行
+            //    if (!Monitor.TryEnter(statsLock, 100))  // 设置100ms超时
+            //    {
+            //        var timestamp = currentTime.ToString("HH:mm:ss.fff");
+            //        Console.WriteLine($"[{timestamp}] [丢包统计] 警告: 上一个统计任务仍在执行({elapsedSinceLast.TotalMilliseconds:F2}ms)，跳过本次统计");
+            //        return;
+            //    }
+
+            //    try
+            //    {
+            //        if (isProcessing)
+            //        {
+            //            var timestamp = currentTime.ToString("HH:mm:ss.fff");
+            //            Console.WriteLine($"[{timestamp}] [丢包统计] 警告: 统计任务重入，跳过本次统计");
+            //            return;
+            //        }
+
+            //        isProcessing = true;
+            //        var startTime = currentTime;
+
+            //        // 取当前统计
+            //        var cur = selectedDevice.Statistics!;  // 使用!操作符告诉编译器Statistics不会为null
+
+            //        // 计算差值
+            //        long recvDelta = cur.ReceivedPackets - _lastStats.ReceivedPackets;
+            //        long dropDelta = cur.DroppedPackets - _lastStats.DroppedPackets;
+            //        long ifDropDelta = cur.InterfaceDroppedPackets - _lastStats.InterfaceDroppedPackets;
+
+            //        // 应用层丢包率 = dropped / (received + dropped)
+            //        double appLossRate = (recvDelta + dropDelta) > 0
+            //            ? dropDelta / (double)(recvDelta + dropDelta) * 100
+            //            : 0;
+            //        // 网卡层丢包率 = ifDrop / (received + dropped + ifDrop)
+            //        double driverLossRate = (recvDelta + dropDelta + ifDropDelta) > 0
+            //            ? ifDropDelta / (double)(recvDelta + dropDelta + ifDropDelta) * 100
+            //            : 0;
 
 
-                // 更新上次统计
-                _lastStats = cur;
-            };
-            statsTimer.Start();
+            //        // 只在丢包率不为0或有较多数据包接收时才打印
+            //        if (appLossRate > 0 || driverLossRate > 0 || recvDelta > 10)  // 增加阈值，减少无意义的打印
+            //        {
+            //            // 输出丢包率信息，添加时间戳以便观察实时性
+            //            var timestamp = currentTime.ToString("HH:mm:ss.fff");
+            //            Console.WriteLine($"[{timestamp}] [丢包统计] (间隔: {elapsedSinceLast.TotalMilliseconds:F0}ms) 应用层丢包率: {appLossRate:F2}%, 网卡层丢包率: {driverLossRate:F2}%");
+            //            Console.WriteLine($"[{timestamp}] [丢包统计] 接收包数: {recvDelta}, 丢弃包数: {dropDelta}, 网卡丢弃: {ifDropDelta}");
+            //        }
+
+            //        // 更新上次统计
+            //        _lastStats = cur;
+
+            //        var endTime = DateTime.Now;
+            //        var processingTime = endTime - startTime;
+            //        if (processingTime.TotalMilliseconds > statsInterval / 2)
+            //        {
+            //            var timestamp = endTime.ToString("HH:mm:ss.fff");
+            //            Console.WriteLine($"[{timestamp}] [丢包统计] 警告: 统计任务执行时间过长 ({processingTime.TotalMilliseconds:F2}ms)");
+            //        }
+            //    }
+            //    finally
+            //    {
+            //        isProcessing = false;
+            //        Monitor.Exit(statsLock);
+            //    }
+            //};
+            //statsTimer.Start();
+            #endregion
             // 注册数据包到达时的事件处理函数（回调）
 
             // selectedDevice.OnPacketArrival += Device_OnPacketArrival;
             selectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
+
+            // 初始化工作线程
+            _cancellationTokenSource = new CancellationTokenSource();
+            _workerTasks = new Task[_workerCount];
+            for (int i = 0; i < _workerCount; i++)
+            {
+                _workerTasks[i] = Task.Run(() => WorkerLoop(_cancellationTokenSource.Token));
+            }
 
             // 开始
             selectedDevice.StartCapture();
 
             // 控制台打印提示信息
             Console.WriteLine("开始抓包...");
+            Console.WriteLine($"已启动 {_workerCount} 个工作线程处理数据包");
         }
 
         private void ApplyDynamicFilter(string srcServer)
@@ -419,6 +611,41 @@ namespace 星痕共鸣DPS统计
         private bool _hasAppliedFilter = false;
 
         /// <summary>
+        /// 网络设备捕获到 TCP 数据包后的处理回调函数
+        /// </summary>
+        /// <summary>
+        /// 工作线程循环，从队列中取出数据包并处理
+        /// </summary>
+        /// <param name="cancellationToken">取消令牌</param>
+        private void WorkerLoop(CancellationToken cancellationToken)
+        {
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        // 从队列中获取数据包，如果队列为空则阻塞
+                        PacketData packetData = _packetQueue.Take(cancellationToken);
+                        ProcessPacket(packetData.Packet);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // 预期的取消操作，不记录异常
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[工作线程异常] {ex}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[工作线程致命异常] {ex}");
+            }
+        }
+        /// <summary>
         /// 停止抓包
         /// </summary>
         private void StopCapture()
@@ -429,10 +656,6 @@ namespace 星痕共鸣DPS统计
                 {
                     selectedDevice.StopCapture();
                     selectedDevice.OnPacketArrival -= Device_OnPacketArrival;
-                    currentServer = "";
-                    // 4. 重置动态过滤标志（下次再 StartCapture 时，会重新抓全流量以便重新 VerifyServer）
-                    _hasAppliedFilter = false;
-                    ClearTcpCache();
                     selectedDevice.Close();
 
                     Console.WriteLine("停止抓包");
@@ -441,15 +664,72 @@ namespace 星痕共鸣DPS统计
                 {
                     Console.WriteLine($"停止抓包异常: {ex.Message}");
                 }
-            }
-        }
 
+                selectedDevice = null;
+            }
+
+            // 停止统计定时器
+            if (statsTimer != null)
+            {
+                statsTimer.Stop();
+                statsTimer.Dispose();
+                statsTimer = null;
+            }
+
+            // 停止工作线程
+            if (_cancellationTokenSource != null)
+            {
+                _cancellationTokenSource.Cancel();
+
+                try
+                {
+                    Task.WaitAll(_workerTasks, 3000);
+                }
+                catch (AggregateException ex)
+                {
+                    foreach (var inner in ex.InnerExceptions)
+                    {
+                        Console.WriteLine($"[线程终止异常] {inner.Message}");
+                    }
+                }
+
+                _cancellationTokenSource.Dispose();
+                _cancellationTokenSource = null;
+                _workerTasks = null;
+            }
+
+            // 清空缓存状态
+            currentServer = "";
+            _hasAppliedFilter = false;
+            ClearTcpCache();
+
+            // 清空数据包队列
+            while (_packetQueue.TryTake(out _)) ;
+        }
 
         private readonly Dictionary<uint, DateTime> tcpCacheTime = new();
         private readonly MemoryStream tcpStream = new();
 
+        // 多线程处理相关成员
+        private BlockingCollection<PacketData> _packetQueue = new BlockingCollection<PacketData>(new ConcurrentQueue<PacketData>());
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private Task[] _workerTasks = Array.Empty<Task>();
+        private const int _workerCount = 2; // 工作线程数量
+
+        // 用于存储数据包数据的包装类
+        private class PacketData
+        {
+            public object Packet { get; set; }
+
+            public PacketData(object packet)
+            {
+                Packet = packet;
+            }
+        }
+
         // 类成员，保存上一时刻的统计数据
         private ICaptureStatistics _lastStats;
+
         /// <summary>
         /// 网络设备捕获到 TCP 数据包后的处理回调函数
         /// </summary>
@@ -457,12 +737,37 @@ namespace 星痕共鸣DPS统计
         {
             try
             {
+                // 提取数据包并包装后添加到队列中，由工作线程处理
+                var packet = e.GetPacket();
+                _packetQueue.Add(new PacketData(packet), _cancellationTokenSource.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // 预期的取消操作，不记录异常
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[数据包入队异常] {ex}");
+            }
+
+           
+        }
+
+
+        /// <summary>
+        /// 处理单个数据包
+        /// </summary>
+        /// <param name="packetObj">数据包对象</param>
+        private void ProcessPacket(object packetObj)
+        {
+            try
+            {
 
                 // 获取原始数据包
-                var rawPacket = e.GetPacket();
+                dynamic rawPacket = packetObj;
 
                 // 使用 PacketDotNet 解析为通用数据包对象（包含以太网/IP/TCP 等）
-                var packet = Packet.ParsePacket(rawPacket.LinkLayerType, rawPacket.Data.ToArray());
+                var packet = Packet.ParsePacket(rawPacket.LinkLayerType, rawPacket.Data);
 
                 // 提取 TCP 数据包（如果不是 TCP，会返回 null）
                 var tcpPacket = packet.Extract<TcpPacket>();
@@ -486,7 +791,7 @@ namespace 星痕共鸣DPS统计
                     ApplyDynamicFilter(srcServer);
                     _hasAppliedFilter = true;
                 }
-        
+
 
                 // 如果距离上次收到包的时间超过 30 秒，认为可能断线，清除缓存
                 if (lastPacketTime != DateTime.MinValue && (DateTime.Now - lastPacketTime).TotalSeconds > 30)
@@ -514,7 +819,6 @@ namespace 星痕共鸣DPS统计
                 Console.WriteLine("抓包异常: " + ex.Message);
             }
         }
-
         /// <summary>
         /// 清除 TCP 缓存，用于断线、错误重组等情况的重置操作
         /// </summary>
@@ -564,23 +868,45 @@ namespace 星痕共鸣DPS统计
                     tcpCacheTime.Remove(key);
                 }
 
-                // 按顺序拼接数据
-                while (tcpCache.TryGetValue(tcpNextSeq, out var chunk))
+                // —— 关键：处理拼接 —— 
+                int skipTimeoutMs = 200;
+
+                // 找到当前可用的最小 Seq
+                var sortedSeqs = tcpCache.Keys.OrderBy(k => k).ToList();
+
+                while (true)
                 {
-                    tcpStream.Seek(0, SeekOrigin.End);
-                    tcpStream.Write(chunk, 0, chunk.Length);
-                    tcpNextSeq += (uint)chunk.Length;
+                    if (tcpCache.TryGetValue(tcpNextSeq, out var chunk))
+                    {
+                        // 找到了当前需要的段，正常拼接
+                        tcpStream.Seek(0, SeekOrigin.End);
+                        tcpStream.Write(chunk, 0, chunk.Length);
+                        tcpCache.Remove(tcpNextSeq);
+                        tcpCacheTime.Remove(tcpNextSeq);
+                        tcpNextSeq += (uint)chunk.Length;
+                        lastPacketTime = DateTime.Now;
+                    }
+                    else
+                    {
+                        // 当前段还没到，判断是否跳过等待
+                        var delayed = sortedSeqs
+                            .Where(k => k > tcpNextSeq && tcpCacheTime.ContainsKey(k))
+                            .FirstOrDefault(k => (DateTime.Now - tcpCacheTime[k]).TotalMilliseconds > skipTimeoutMs);
 
-                    tcpCache.Remove(tcpNextSeq - (uint)chunk.Length);
-                    tcpCacheTime.Remove(tcpNextSeq - (uint)chunk.Length);
-
-                    lastPacketTime = DateTime.Now;
+                        if (delayed != 0)
+                        {
+                            // 跳过迟迟不到的 tcpNextSeq，跳到新的 delayed
+                            tcpNextSeq = delayed;
+                            continue;
+                        }
+                        break;
+                    }
                 }
 
-                // 解析完整包
                 TryParseTcpStream();
             }
         }
+
 
         private void TryParseTcpStream()
         {
@@ -888,16 +1214,35 @@ namespace 星痕共鸣DPS统计
                             var luckyValue = ProtoFieldHelper.TryGetU64(hit, 8);     // 幸运伤害
                             var isMiss = ProtoFieldHelper.TryGetBool(hit, 2);        // 是否Miss
                             var isCrit = ProtoFieldHelper.TryGetBool(hit, 5);        // 是否暴击
+                            bool isLucky = luckyValue != 0;
+
+                            bool isHeal = ProtoFieldHelper.TryGetU64(hit, 4) == 2;
+                            var isDead = ProtoFieldHelper.TryGetBool(hit, 17);// 是否造成死亡
                             var hpLessen = ProtoFieldHelper.TryGetU64(hit, 9);       // 实际扣血
 
                             // 施法者 UID：字段 21 优先，其次 11
-                            var operatorRaw = ProtoFieldHelper.TryGetU64(hit, 21);
+                            var operatorRaw = ProtoFieldHelper.TryGetU64(hit, 21); //操作者 ID
+
+                            ulong targetRaw = ProtoFieldHelper.TryGetU64(b, 1);//目标UID
+
+
                             if (operatorRaw == 0) operatorRaw = ProtoFieldHelper.TryGetU64(hit, 11);
+
+
+                            bool operator_is_player = (operatorRaw & 0xFFFFUL) == 640UL;
+
+                            bool target_is_player = (targetRaw & 0xFFFFUL) == 640UL;
+
+
                             var operatorUid = operatorRaw >> 16;
-                            var operatorTail = operatorRaw & 0xFFFF;
+
+                            ulong targetUid = targetRaw >> 16;
+
+
 
                             // 仅统计玩家（尾部不是 640 说明是怪物或NPC）
-                            if (operatorUid == 0 || operatorTail != 640) continue;
+                            if (operatorUid == 0) continue;
+
 
                             // 伤害数值：优先普通，如果没有用幸运值（注意0值可能表示治疗）
                             var damage = value != 0 ? value : luckyValue;
@@ -905,7 +1250,7 @@ namespace 星痕共鸣DPS统计
                             string extra = isCrit ? "暴击" : luckyValue != 0 ? "幸运" : isMiss ? "Miss" : "普通";
 
                             //Console.WriteLine($"玩家 {operatorUid} 使用技能 {skill} 造成伤害 {damage} 扣血 {hpLessen} 标记 {extra}");
-                           if (Common.skillDiary!=null && !Common.skillDiary.IsDisposed)
+                            if (Common.skillDiary != null && !Common.skillDiary.IsDisposed)
                             {
                                 Task.Run(() =>
                                 {
@@ -916,37 +1261,117 @@ namespace 星痕共鸣DPS统计
 
                             }
 
-                            // 加入统计
-                            if (!playerStats.TryGetValue(operatorUid, out var stat))
+
+                            //根据目标类型，处理数据
+                            if (target_is_player)
                             {
-                                stat = new PlayerStat { Uid = operatorUid };
-                                playerStats[operatorUid] = stat;
+                                if (isHeal)
+                                {
+                                    if (operator_is_player)
+                                    {
+                                        var healer = StatisticData._manager.GetOrCreate(operatorUid);
+
+                                        //记录玩家造成的治疗
+                                        healer.AddHealing(damage, isCrit, isLucky);
+                                    }
+
+
+                                }
+                                else
+                                {
+                                    // 拿到“受伤者” 对象
+                                    var victim = StatisticData._manager.GetOrCreate(targetUid);
+
+                                    victim.AddTakenDamage(skill, damage);
+                                    //记录玩家受到伤害
+                                }
+
+
+                            }
+                            else
+                            {
+                                if (!isHeal && operator_is_player)
+                                {
+                                    var healer = StatisticData._manager.GetOrCreate(operatorUid);
+
+                                    //记录输出
+                                    healer.AddDamage(skill, damage, isCrit, isLucky, hpLessen);
+
+                                }
                             }
 
-                            // 总是尝试识别职业（只要当前没值）
-                            if (string.IsNullOrWhiteSpace(stat.Profession))
+                            if (operator_is_player)
                             {
-                                var profession = Common.GetProfessionBySkill(skill);
-                                if (!string.IsNullOrWhiteSpace(profession))
+                                string roleName = null;
+
+                                switch (skill)
                                 {
-                                    stat.Profession = profession;
-                                    // Console.WriteLine($"[职业识别成功] 玩家 {operatorUid} → {profession}");
+                                    case 1241:
+                                        roleName = "射线";
+                                        break;
+                                    case 55302:
+                                        roleName = "协奏";
+                                        break;
+                                    case 20301:
+                                        roleName = "愈合";
+                                        break;
+                                    case 1518:
+                                        roleName = "惩戒";
+                                        break;
+                                    case 2306:
+                                        roleName = "狂音";
+                                        break;
+                                    case 120902:
+                                        roleName = "冰矛";
+                                        break;
+                                    case 1714:
+                                        roleName = "居合";
+                                        break;
+                                    case 44701:
+                                        roleName = "月刃";
+                                        break;
+                                    case 220112:
+                                    case 2203622:
+                                        roleName = "鹰弓";
+                                        break;
+                                    case 1700827:
+                                        roleName = "狼弓";
+                                        break;
+                                    case 1419:
+                                        roleName = "空枪";
+                                        break;
+                                    case 1418:
+                                        roleName = "重装";
+                                        break;
+                                    case 2405:
+                                        roleName = "防盾";
+                                        break;
+                                    case 2406:
+                                        roleName = "光盾";
+                                        break;
+                                    case 199902:
+                                        roleName = "岩盾";
+                                        break;
+                                    default:
+                                        // 未匹配到任何职业，不做处理
+                                        break;
+                                }
+
+
+                                if (!string.IsNullOrEmpty(roleName))
+                                {
+
+                                    StatisticData._manager.SetProfession(operatorUid, roleName);
                                 }
                             }
 
 
 
-                            stat.RecordHit(damage, isCrit, luckyValue != 0, hpLessen);
-
-
                         }
-
-
-
+                        #endregion
                     }
                     #endregion
                 }
-                #endregion
             }
             catch (Exception ex)
             {
@@ -962,7 +1387,7 @@ namespace 星痕共鸣DPS统计
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            RefreshDpsTabel();
+            RefreshDpsTable();
         }
 
 
@@ -986,7 +1411,7 @@ namespace 星痕共鸣DPS统计
                 config.network_card = -1;
 
             }
-
+            LoadNetworkDevices();
 
 
             if (!string.IsNullOrEmpty(config.reader.GetValue("SetUp", "Transparency")))
@@ -1038,9 +1463,9 @@ namespace 星痕共鸣DPS统计
             if (!string.IsNullOrWhiteSpace(raw = config.reader.GetValue("SetKey", "MouseThroughKey"))
                  && Enum.TryParse(raw, out Keys k1))
             {
-                config.mouseThroughKey = k1;  
+                config.mouseThroughKey = k1;
             }
-          
+
             if (!string.IsNullOrWhiteSpace(raw = config.reader.GetValue("SetKey", "FormTransparencyKey"))
                  && Enum.TryParse(raw, out Keys k2))
             {
@@ -1064,7 +1489,7 @@ namespace 星痕共鸣DPS统计
             string labe = @$"{config.mouseThroughKey}：鼠标穿透 | {config.formTransparencyKey}：窗体透明 | {config.windowToggleKey}：开启/关闭 | {config.clearDataKey}：清空数据 | {config.clearHistoryKey}：清空历史";
             label1.Text = labe;
         }
-        
+
 
         private bool Top = false;
         private void button2_Click(object sender, EventArgs e)
@@ -1074,11 +1499,13 @@ namespace 星痕共鸣DPS统计
             button2.Toggle = !config.isLight;
             FormGui.SetColorMode(this, config.isLight);
             FormGui.SetColorMode(Common.skillDiary, config.isLight);//设置窗体颜色
+            FormGui.SetColorMode(Common.userUidSet, config.isLight);//设置窗体颜色
+
 
             config.reader.Load(config.config_ini);//加载配置文件
             config.reader.SaveValue("SetUp", "IsLight", config.isLight.ToString());
             config.reader.Save(config.config_ini);
-     
+
 
 
 
@@ -1125,8 +1552,8 @@ namespace 星痕共鸣DPS统计
                     config.transparency = 100;
                     MessageBox.Show("透明度不能低于10%，已自动设置为100%");
                 }
-                
-                string labe =@$"{config.mouseThroughKey}：鼠标穿透 | {config.formTransparencyKey}：窗体透明 | {config.windowToggleKey}：开启/关闭 | {config.clearDataKey}：清空数据 | {config.clearHistoryKey}：清空历史";
+
+                string labe = @$"{config.mouseThroughKey}：鼠标穿透 | {config.formTransparencyKey}：窗体透明 | {config.windowToggleKey}：开启/关闭 | {config.clearDataKey}：清空数据 | {config.clearHistoryKey}：清空历史";
                 label1.Text = labe;
                 config.reader.Load(config.config_ini);//加载配置文件
                 config.reader.SaveValue("SetUp", "NetworkCard", config.network_card.ToString());
@@ -1162,7 +1589,7 @@ namespace 星痕共鸣DPS统计
             }
 
             tabel.dps_tabel.Clear();
-            playerStats.Clear();
+            StatisticData._manager.ClearAll();
             ShowHistoricalDps(e.Value.ToString());
 
             dropdown1.SelectedValue = -1;
@@ -1180,18 +1607,36 @@ namespace 星痕共鸣DPS统计
             // 深拷贝每一项（防止修改历史数据）
             foreach (var item in recordList)
             {
+                // 先把 critRate / luckyRate 的 "%" 去掉再解析成 double
+                double.TryParse(item.critRate.TrimEnd('%'), out var cr);
+                double.TryParse(item.luckyRate.TrimEnd('%'), out var lr);
+
                 tabel.dps_tabel.Add(new DpsTabel(
+                    // —— 受伤 & 治疗 —— 
                     item.uid,
-                    item.profession,
-                    item.totalDamage,
-                    item.criticalDamage,
-                    item.luckyDamage,
-                    item.critLuckyDamage,
-                     double.TryParse(item.critRate, out var cr) ? cr : 0,
-                    double.TryParse(item.luckyRate, out var lr) ? lr : 0,
-                    item.instantDps,
-                    item.maxInstantDps,
-                    item.totalDps,
+                    item.nickname,
+                    item.damageTaken,             // 累计受到的伤害
+                    item.totalHealingDone,        // 总治疗量
+                    item.criticalHealingDone,     // 暴击治疗量
+                    item.luckyHealingDone,        // 幸运治疗量
+                    item.critLuckyHealingDone,    // 暴击+幸运治疗量
+                    item.instantHps,              // 瞬时 HPS
+                    item.maxInstantHps,           // 峰值 HPS
+
+                    // —— 职业 & DPS —— 
+                    item.profession,              // 职业
+                    item.totalDamage,             // 总伤害
+                    item.criticalDamage,          // 暴击伤害
+                    item.luckyDamage,             // 幸运伤害
+                    item.critLuckyDamage,         // 暴击+幸运伤害
+                    cr,                           // 暴击率（0～100）
+                    lr,                           // 幸运率（0～100）
+                    item.instantDps,              // 瞬时 DPS
+                    item.maxInstantDps,           // 峰值 DPS
+                    item.totalDps,                // 平均 DPS
+
+                    // —— 平均 HPS & 进度 —— 
+                    item.totalHps,                // 平均 HPS
                     new CellProgress(item.CellProgress?.Value ?? 0)
                     {
                         Size = new Size(300, 10),
@@ -1203,6 +1648,8 @@ namespace 星痕共鸣DPS统计
 
         private void button1_Click(object sender, EventArgs e)
         {
+            FormGui.Modal(this, "正在开发", "正在开发");
+            return;
             if (Common.skillDiary == null || Common.skillDiary.IsDisposed)
             {
                 Common.skillDiary = new SkillDiary();
@@ -1216,7 +1663,119 @@ namespace 星痕共鸣DPS统计
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            label3.Text = _combatWatch.Elapsed.ToString(@"mm\:ss");
+          
+            label2.Text = _combatWatch.Elapsed.ToString(@"mm\:ss");
+        }
+
+        private void switch1_CheckedChanged(object sender, BoolEventArgs e)
+        {
+            if (monitor == false)
+            {
+
+                //开始监控
+                StartCapture();
+
+                if (config.network_card == -1)
+                {
+                    return;
+                }
+
+                timer1.Enabled = true;
+                pageHeader1.SubText = "监控已开启";
+                monitor = true;
+                _combatWatch.Restart();
+                timer2.Start();
+
+                //开始监控的时候清空数据
+                if (tabel.dps_tabel.Count > 0)
+                {
+
+                    SaveCurrentDpsSnapshot();
+                }
+
+                tabel.dps_tabel.Clear();
+                StatisticData._manager.ClearAll();
+
+            }
+            else
+            {
+                pageHeader1.SubText = "监控已关闭";
+
+                //关闭监控
+                StopCapture();
+                label2.Text = "00:00";
+                //_hasAppliedFilter = false;//需要测试
+                timer1.Enabled = false;
+                monitor = false;
+                timer2.Stop();
+                _combatWatch.Stop();
+
+
+
+
+            }
+        }
+
+        private void button4_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                IContextMenuStripItem[] menulist = new AntdUI.IContextMenuStripItem[]
+                {
+                        new ContextMenuStripItem("数据显示设置")
+                        {
+                            IconSvg = Resources.data_display,
+
+                        },
+                        new ContextMenuStripItem("用户UID设置")
+                            {
+                                IconSvg = Resources.userUid,
+                            },
+
+                };
+                AntdUI.ContextMenuStrip.open(this, async it =>
+                {
+                    switch (it.Text)
+                    {
+                        case "数据显示设置":
+                            dataDisplay();
+                            break;
+                        case "用户UID设置":
+                            if(Common.userUidSet==null|| Common.userUidSet.IsDisposed)
+                            {
+                                Common.userUidSet = new UserUidSet();
+                            }
+                            Common.userUidSet.Show();
+                            break;
+                    }
+
+                }, menulist);
+            }
+           
+        }
+
+        private void dataDisplay()
+        {
+            using (var form = new DataDisplaySettings(this))
+            {
+
+
+                config.reader.Load(config.config_ini);//加载配置文件
+                string title = AntdUI.Localization.Get("DataDisplaySettings", "请勾选需要显示的统计");
+                AntdUI.Modal.open(new AntdUI.Modal.Config(this, title, form, TType.Info)
+                {
+
+                    CloseIcon = true,
+                    BtnHeight = 0,
+
+                });
+
+                table1.Columns = ColumnSettingsManager.BuildColumns(checkbox1.Checked);
+                if (!checkbox1.Checked)
+                {
+                    table1.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
+                }
+            }
         }
     }
 }

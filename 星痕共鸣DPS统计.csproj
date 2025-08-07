@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
@@ -15,6 +15,8 @@
 
   <ItemGroup>
     <PackageReference Include="AntdUI" Version="2.0.16" />
+    <PackageReference Include="Flurl.Http" Version="3.2.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="PacketDotNet" Version="1.4.9-pre44" />
     <PackageReference Include="PcapDotNet" Version="0.10.2" />
     <PackageReference Include="ScottPlot.WinForms" Version="5.0.55" />
