@@ -71,6 +71,11 @@ public static class ProtoDynamic
         while (ms.Position < ms.Length)
         {
             uint key = ReadVarint(reader);
+            // 检查uint到int的转换是否会溢出
+            if (key > (long)int.MaxValue * 8 + 7)
+            {
+                throw new OverflowException("Key too large to convert to int");
+            }
             int tag = (int)(key >> 3);
             int wireType = (int)(key & 0x7);
 
@@ -83,7 +88,14 @@ public static class ProtoDynamic
                     break;
 
                 case 1: // 64-bit
-                    value = reader.ReadUInt64();
+                    if (reader.BaseStream.Length - reader.BaseStream.Position >= 8)
+                    {
+                        value = reader.ReadUInt64();
+                    }
+                    else
+                    {
+                        throw new InvalidDataException("Insufficient data to read UInt64");
+                    }
                     break;
 
                 case 2: // Length-delimited
@@ -105,8 +117,36 @@ public static class ProtoDynamic
                     value = reader.ReadUInt32();
                     break;
 
+                case 4: // End group (已废弃)
+                    // 忽略废弃的End group类型
+                    break;
                 default:
-                    throw new Exception($"未知 wireType: {wireType}");
+                    // 遇到未知wireType，需要跳过整个字段值
+                    // 对于未知类型，我们尝试按Length-delimited格式处理（最常见的可变长度格式）
+                    try
+                    {
+                        // 尝试按Length-delimited格式读取长度并跳过
+                        uint unknownLen = ReadVarint(reader);
+                        // 跳过指定长度的字节
+                        if (ms.Position + unknownLen <= ms.Length)
+                        {
+                            ms.Position += unknownLen;
+                        }
+                        else
+                        {
+                            // 如果超出流长度，直接跳到流末尾
+                            ms.Position = ms.Length;
+                        }
+                    }
+                    catch
+                    {
+                        // 如果读取失败，至少跳过一个字节以避免死循环
+                        if (ms.Position < ms.Length)
+                        {
+                            reader.ReadByte();
+                        }
+                    }
+                    continue;
             }
 
             if (result.TryGetValue(tag, out var existing))
@@ -128,7 +168,6 @@ public static class ProtoDynamic
 
         return result;
     }
-
     public static byte[] Encode(Dictionary<int, object> data)
     {
         using var ms = new MemoryStream();

@@ -31,6 +31,11 @@ namespace StarResonanceDpsAnalysis
         // 上一次接收到数据包的时间，用于判断是否超时（如超时则可能清理缓存）
         private DateTime lastPacketTime = DateTime.MinValue;
 
+
+        // 用于检测长时间无数据包并重启抓包的定时器
+        private System.Timers.Timer? _restartCaptureTimer;
+        private const double NO_PACKET_TIMEOUT_SECONDS = 1.5; // 无数据包超时时间（秒）
+
         // 键盘钩子
         private KeyboardHook? kbHook;
 
@@ -250,6 +255,13 @@ namespace StarResonanceDpsAnalysis
 
             //selectedDevice.StartCapture();
             InitStatsTimer();
+
+
+            // 初始化无数据包检测定时器
+            _restartCaptureTimer = new System.Timers.Timer(1000); // 每秒检查一次
+            _restartCaptureTimer.AutoReset = true;
+            _restartCaptureTimer.Elapsed += RestartCaptureTimer_Elapsed;
+            _restartCaptureTimer.Start();
             // 控制台打印提示信息
             // Console.WriteLine("开始抓包...");
         }
@@ -265,6 +277,8 @@ namespace StarResonanceDpsAnalysis
         private bool isProcessing = false;
         // 上次统计时间
         private DateTime lastStatsTime = DateTime.Now;
+
+      
 
         // 初始化统计计时器
         private void InitStatsTimer()
@@ -368,12 +382,23 @@ namespace StarResonanceDpsAnalysis
             selectedDevice.StartCapture();
 
             // 控制台打印提示信息
-            Console.WriteLine("开始抓包...");
-            Console.WriteLine($"已启动 {_workerCount} 个工作线程处理数据包");
+            // 控制台打印提示信息
+            if (!_isCaptureStarted)
+            {
+                Console.WriteLine("开始抓包...");
+                Console.WriteLine($"已启动 {_workerCount} 个工作线程处理数据包");
+                _isCaptureStarted = true;
+            }
         }
 
         private void ApplyDynamicFilter(string srcServer)
         {
+            if (selectedDevice == null)
+            {
+                Console.WriteLine("[错误] selectedDevice为null，无法应用过滤器");
+                return;
+            }
+
             // 拆出服务器那半
             var serverPart = srcServer.Split("->")[0].Trim();       // "36.152.0.122:16125"
             var parts = serverPart.Split(':');
@@ -384,6 +409,7 @@ namespace StarResonanceDpsAnalysis
             // Console.WriteLine($"【Filter 已更新】 tcp and host {serverIp} and port {serverPort}");
         }
         private bool _hasAppliedFilter = false;
+        private bool _isCaptureStarted = false;
 
         /// <summary>
         /// 网络设备捕获到 TCP 数据包后的处理回调函数
@@ -527,6 +553,40 @@ namespace StarResonanceDpsAnalysis
 
 
         }
+
+
+        /// <summary>
+        /// 无数据包超时检测定时器事件处理
+        /// </summary>
+        private async void RestartCaptureTimer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            if (lastPacketTime == DateTime.MinValue)
+                return; // 还没有收到过包
+
+            if ((DateTime.Now - lastPacketTime).TotalSeconds > NO_PACKET_TIMEOUT_SECONDS)
+            {
+                var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+                Console.WriteLine($"[{timestamp}] [场景切换] 检测到场景切换重连数据中...");
+
+                // 执行重启抓包操作
+                try
+                {
+                    // 停止当前抓包
+                    StopCapture();
+                    // 非阻塞等待一小段时间
+                    await Task.Delay(500);
+                    // 重新开始抓包
+                    StartCapture();
+                    // 重置最后数据包时间
+                    lastPacketTime = DateTime.Now;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[{timestamp}] [重启抓包失败] {ex.Message}");
+                }
+            }
+        }
+
 
 
         /// <summary>
