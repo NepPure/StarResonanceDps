@@ -20,7 +20,7 @@ namespace StarResonanceDpsAnalysis
 
         // TCP 分片缓存：Key 是 TCP 序列号，Value 是对应的分片数据
         // 用于重组多段 TCP 数据流（比如一个完整的 protobuf 消息被拆分在多个包里）
-        private readonly Dictionary<uint, byte[]> tcpCache = [];
+        private readonly ConcurrentDictionary<uint, byte[]> tcpCache = new();
 
         // 期望的下一个 TCP 序列号，用于判断数据是否连续（是否需要缓存/拼接）
         private uint tcpNextSeq = 0;
@@ -212,7 +212,7 @@ namespace StarResonanceDpsAnalysis
 
             // 获取所有可用的抓包设备（网卡）
             var devices = CaptureDeviceList.Instance;
-            
+
             // 检查设备列表是否为空
             if (devices == null || devices.Count == 0)
             {
@@ -479,14 +479,14 @@ namespace StarResonanceDpsAnalysis
             while (_packetQueue.TryTake(out _)) ;
         }
 
-        private readonly Dictionary<uint, DateTime> tcpCacheTime = new();
+        private readonly ConcurrentDictionary<uint, DateTime> tcpCacheTime = new();
         private readonly MemoryStream tcpStream = new();
 
         // 多线程处理相关成员
         private BlockingCollection<PacketData> _packetQueue = new BlockingCollection<PacketData>(new ConcurrentQueue<PacketData>());
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private Task[] _workerTasks = Array.Empty<Task>();
-        private const int _workerCount = 2; // 工作线程数量
+        private readonly int _workerCount = Math.Max(2, Environment.ProcessorCount / 2);
 
         // 用于存储数据包数据的包装类
         private class PacketData
@@ -522,7 +522,7 @@ namespace StarResonanceDpsAnalysis
                 Console.WriteLine($"[数据包入队异常] {ex}");
             }
 
-           
+
         }
 
 
@@ -637,8 +637,10 @@ namespace StarResonanceDpsAnalysis
 
                 foreach (var key in expired)
                 {
-                    tcpCache.Remove(key);
-                    tcpCacheTime.Remove(key);
+                    tcpCache.Remove(key, out var v1);
+                    tcpCacheTime.Remove(key, out var v2);
+
+
                 }
 
                 // —— 关键：处理拼接 —— 
@@ -654,8 +656,9 @@ namespace StarResonanceDpsAnalysis
                         // 找到了当前需要的段，正常拼接
                         tcpStream.Seek(0, SeekOrigin.End);
                         tcpStream.Write(chunk, 0, chunk.Length);
-                        tcpCache.Remove(tcpNextSeq);
-                        tcpCacheTime.Remove(tcpNextSeq);
+
+                        tcpCache.Remove(tcpNextSeq, out var v1);
+                        tcpCacheTime.Remove(tcpNextSeq, out var v2);
                         tcpNextSeq += (uint)chunk.Length;
                         lastPacketTime = DateTime.Now;
                     }
@@ -1501,7 +1504,7 @@ namespace StarResonanceDpsAnalysis
                             dataDisplay();
                             break;
                         case "用户UID设置":
-                            if(Common.userUidSet==null|| Common.userUidSet.IsDisposed)
+                            if (Common.userUidSet == null || Common.userUidSet.IsDisposed)
                             {
                                 Common.userUidSet = new UserUidSet();
                             }
@@ -1511,7 +1514,7 @@ namespace StarResonanceDpsAnalysis
 
                 }, menulist);
             }
-           
+
         }
 
         private void dataDisplay()
