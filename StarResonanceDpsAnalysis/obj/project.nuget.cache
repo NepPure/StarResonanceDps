@@ -1,0 +1,57 @@
+{
+  "version": 2,
+  "dgSpecHash": "lN707kX4X/g=",
+  "success": true,
+  "projectFilePath": "E:\\Projects\\Rocy-June\\StarResonanceDps\\StarResonanceDpsAnalysis\\StarResonanceDpsAnalysis.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\a1048\\.nuget\\packages\\antdui\\2.0.16\\antdui.2.0.16.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\flurl\\3.0.6\\flurl.3.0.6.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\flurl.http\\3.2.4\\flurl.http.3.2.4.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\harfbuzzsharp\\7.3.0.3\\harfbuzzsharp.7.3.0.3.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\harfbuzzsharp.nativeassets.linux\\7.3.0.3\\harfbuzzsharp.nativeassets.linux.7.3.0.3.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\harfbuzzsharp.nativeassets.macos\\7.3.0.3\\harfbuzzsharp.nativeassets.macos.7.3.0.3.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\harfbuzzsharp.nativeassets.win32\\7.3.0.3\\harfbuzzsharp.nativeassets.win32.7.3.0.3.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\microsoft.netcore.platforms\\3.1.9\\microsoft.netcore.platforms.3.1.9.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\microsoft.win32.systemevents\\4.7.0\\microsoft.win32.systemevents.4.7.0.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\opentk\\3.1.0\\opentk.3.1.0.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\opentk.glcontrol\\3.1.0\\opentk.glcontrol.3.1.0.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\packetdotnet\\1.4.9-pre44\\packetdotnet.1.4.9-pre44.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\scottplot\\5.0.55\\scottplot.5.0.55.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\scottplot.winforms\\5.0.55\\scottplot.winforms.5.0.55.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\sharppcap\\6.3.1\\sharppcap.6.3.1.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\skiasharp\\2.88.9\\skiasharp.2.88.9.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\skiasharp.harfbuzz\\2.88.9\\skiasharp.harfbuzz.2.88.9.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\skiasharp.nativeassets.linux.nodependencies\\2.88.9\\skiasharp.nativeassets.linux.nodependencies.2.88.9.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\skiasharp.nativeassets.macos\\2.88.9\\skiasharp.nativeassets.macos.2.88.9.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\skiasharp.nativeassets.win32\\2.88.9\\skiasharp.nativeassets.win32.2.88.9.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\skiasharp.views.desktop.common\\2.88.9\\skiasharp.views.desktop.common.2.88.9.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\skiasharp.views.windowsforms\\2.88.9\\skiasharp.views.windowsforms.2.88.9.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\system.drawing.common\\4.7.3\\system.drawing.common.4.7.3.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\system.memory\\4.6.3\\system.memory.4.6.3.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\system.text.encoding.codepages\\9.0.5\\system.text.encoding.codepages.9.0.5.nupkg.sha512",
+    "C:\\Users\\a1048\\.nuget\\packages\\zstdnet\\1.4.5\\zstdnet.1.4.5.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "已使用“.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1”而不是项目目标框架“net8.0-windows7.0”还原包“OpenTK 3.1.0”。此包可能与项目不完全兼容。",
+      "libraryId": "OpenTK",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "已使用“.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1”而不是项目目标框架“net8.0-windows7.0”还原包“OpenTK.GLControl 3.1.0”。此包可能与项目不完全兼容。",
+      "libraryId": "OpenTK.GLControl",
+      "targetGraphs": [
+        "net8.0-windows7.0"
+      ]
+    }
+  ]
+}
