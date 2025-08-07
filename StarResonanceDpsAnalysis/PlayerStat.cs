@@ -191,6 +191,7 @@ namespace StarResonanceDpsAnalysis
                 stat = new StatisticData();
                 SkillUsage[skillId] = stat;
             }
+           
             stat.AddRecord(damage, isCrit, isLucky, hpLessen);
         }
 
@@ -330,7 +331,7 @@ namespace StarResonanceDpsAnalysis
             var elapsed = (DateTime.Now - _lastAddTime).TotalSeconds;
 
             // Console.WriteLine($"[Timer] 距上次添加 {elapsed:F2}s, 触发状态: {_hasTriggeredFetch}");
-
+            UpdateAllRealtimeStats();
             if (elapsed >= 5 && !_hasTriggeredFetch)
             {
                 _hasTriggeredFetch = true;

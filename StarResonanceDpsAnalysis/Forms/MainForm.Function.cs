@@ -14,7 +14,10 @@ namespace StarResonanceDpsAnalysis
     {
         #region TableLoad() 初始化Table表头
 
-        private void tabel_load()
+        /// <summary>
+        /// 初始化 或者刷新 表头 用于用户更改了显示列设置
+        /// </summary>
+        private void ToggleTableView()
         {
             table_DpsDataTable.Columns.Clear();
 

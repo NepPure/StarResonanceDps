@@ -41,9 +41,9 @@ namespace StarResonanceDpsAnalysis
 
             FormGui.SetDefaultGUI(this);
 
-            load_tabel();
-            tabel_load();
-
+            LoadTableColumnVisibilitySettings();
+            ToggleTableView();
+            LoadNetworkDevices();
         }
 
         /// <summary>
@@ -77,7 +77,10 @@ namespace StarResonanceDpsAnalysis
 
 
 
-        private void load_tabel()
+        /// <summary>
+        /// 用于加载数据记录表格列名
+        /// </summary>
+        private void LoadTableColumnVisibilitySettings()
         {
             foreach (var item in ColumnSettingsManager.AllSettings)
             {
@@ -566,7 +569,7 @@ namespace StarResonanceDpsAnalysis
 
 
                 // 如果距离上次收到包的时间超过 30 秒，认为可能断线，清除缓存
-                if (lastPacketTime != DateTime.MinValue && (DateTime.Now - lastPacketTime).TotalSeconds > 30)
+                if (lastPacketTime != DateTime.MinValue && (DateTime.Now - lastPacketTime).TotalSeconds > 10)
                 {
                     Console.WriteLine("长时间未收到包，可能已断线");
                     currentServer = "";
@@ -1033,8 +1036,6 @@ namespace StarResonanceDpsAnalysis
 
 
                             }
-
-
                             //根据目标类型，处理数据
                             if (target_is_player)
                             {
@@ -1127,13 +1128,13 @@ namespace StarResonanceDpsAnalysis
                                         break;
                                     default:
                                         // 未匹配到任何职业，不做处理
+                                        roleName = Common.GetProfessionBySkill(skill);
                                         break;
                                 }
 
 
                                 if (!string.IsNullOrEmpty(roleName))
                                 {
-
                                     StatisticData._manager.SetProfession(operatorUid, roleName);
                                 }
                             }
@@ -1294,52 +1295,10 @@ namespace StarResonanceDpsAnalysis
 
         }
 
-        private void button4_Click(object sender, EventArgs e)
-        {
-            using (var form = new Setup(this))
-            {
-
-
-                form.inputNumber1.Value = (decimal)AppConfig.Transparency;
-                form.colorPicker1.Value = AppConfig.DpsColor;
-                string title = AntdUI.Localization.Get("systemset", "请选择网卡");
-                AntdUI.Modal.open(new AntdUI.Modal.Config(this, title, form, TType.Info)
-                {
-
-                    CloseIcon = true,
-                    BtnHeight = 0,
-
-                });
-                AppConfig.Transparency = (double)form.inputNumber1.Value;
-                if (AppConfig.Transparency < 10)
-                {
-                    AppConfig.Transparency = 100;
-                    MessageBox.Show("透明度不能低于10%，已自动设置为100%");
-                }
-
-                string labe = @$"{AppConfig.MouseThroughKey}：鼠标穿透 | {AppConfig.FormTransparencyKey}：窗体透明 | {AppConfig.WindowToggleKey}：开启/关闭 | {AppConfig.ClearDataKey}：清空数据 | {AppConfig.ClearHistoryKey}：清空历史";
-                label_HotKeyTips.Text = labe;
-                AppConfig.Reader.Load(AppConfig.ConfigIni);//加载配置文件
-                AppConfig.Reader.SaveValue("SetUp", "NetworkCard", AppConfig.NetworkCard.ToString());
-                AppConfig.Reader.SaveValue("SetUp", "Transparency", form.inputNumber1.Value.ToString());
-                AppConfig.Reader.SaveValue("SetUp", "DpsColor", AppConfig.DpsColor.ToString());
-                //键位存储
-                AppConfig.Reader.SaveValue("SetKey", "MouseThroughKey", AppConfig.MouseThroughKey.ToString());
-                AppConfig.Reader.SaveValue("SetKey", "FormTransparencyKey", AppConfig.FormTransparencyKey.ToString());
-                AppConfig.Reader.SaveValue("SetKey", "WindowToggleKey", AppConfig.WindowToggleKey.ToString());
-                AppConfig.Reader.SaveValue("SetKey", "ClearDataKey", AppConfig.ClearDataKey.ToString());
-                AppConfig.Reader.SaveValue("SetKey", "ClearHistoryKey", AppConfig.ClearHistoryKey.ToString());
-                //保存配置文件
-                AppConfig.Reader.Save(AppConfig.ConfigIni);
-                label_SettingTip.Visible = false;
-
-
-            }
-        }
-
+       
         private void checkbox1_CheckedChanged(object sender, BoolEventArgs e)
         {
-            tabel_load();
+            ToggleTableView();
         }
 
         private void dropdown1_SelectedValueChanged(object sender, ObjectNEventArgs e)
@@ -1481,40 +1440,94 @@ namespace StarResonanceDpsAnalysis
 
         private void button4_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
-            {
-                IContextMenuStripItem[] menulist = new AntdUI.IContextMenuStripItem[]
-                {
-                        new ContextMenuStripItem("数据显示设置")
-                        {
-                            IconSvg = Resources.data_display,
-
-                        },
-                        new ContextMenuStripItem("用户UID设置")
-                            {
-                                IconSvg = Resources.userUid,
-                            },
-
-                };
-                AntdUI.ContextMenuStrip.open(this, async it =>
-                {
-                    switch (it.Text)
+           
+            IContextMenuStripItem[] menulist = new AntdUI.IContextMenuStripItem[]
+            {   
+                    new ContextMenuStripItem("基础设置")
                     {
-                        case "数据显示设置":
-                            dataDisplay();
-                            break;
-                        case "用户UID设置":
-                            if (Common.userUidSet == null || Common.userUidSet.IsDisposed)
-                            {
-                                Common.userUidSet = new UserUidSet();
-                            }
-                            Common.userUidSet.Show();
-                            break;
-                    }
+                        IconSvg = Resources.set_up,
 
-                }, menulist);
+                    },
+
+                    new ContextMenuStripItem("数据显示设置")
+                    {
+                        IconSvg = Resources.data_display,
+
+                    },
+                    new ContextMenuStripItem("用户UID设置")
+                        {
+                            IconSvg = Resources.userUid,
+                        },
+
+            };
+            AntdUI.ContextMenuStrip.open(this, async it =>
+            {
+                switch (it.Text)
+                {
+                    case "基础设置":
+                        OpenSettingsDialog();
+                        break;
+                    case "数据显示设置":
+                        dataDisplay();
+                        break;
+                    case "用户UID设置":
+                        if (Common.userUidSet == null || Common.userUidSet.IsDisposed)
+                        {
+                            Common.userUidSet = new UserUidSet();
+                        }
+                        Common.userUidSet.Show();
+                        break;
+                }
+
+            }, menulist);
+            
+
+        }
+
+        /// <summary>
+        /// 打开基础设置面板
+        /// </summary>
+        private void OpenSettingsDialog()
+        {
+            using (var form = new Setup(this))
+            {
+
+
+                form.inputNumber1.Value = (decimal)AppConfig.Transparency;
+                form.colorPicker1.Value = AppConfig.DpsColor;
+                string title = AntdUI.Localization.Get("systemset", "请选择网卡");
+                AntdUI.Modal.open(new AntdUI.Modal.Config(this, title, form, TType.Info)
+                {
+
+                    CloseIcon = true,
+                    BtnHeight = 0,
+
+                });
+                AppConfig.Transparency = (double)form.inputNumber1.Value;
+                if (AppConfig.Transparency < 10)
+                {
+                    AppConfig.Transparency = 100;
+                    MessageBox.Show("透明度不能低于10%，已自动设置为100%");
+                }
+
+                string labe = @$"{AppConfig.MouseThroughKey}：鼠标穿透 | {AppConfig.FormTransparencyKey}：窗体透明 | {AppConfig.WindowToggleKey}：开启/关闭 | {AppConfig.ClearDataKey}：清空数据 | {AppConfig.ClearHistoryKey}：清空历史";
+                label_HotKeyTips.Text = labe;
+                AppConfig.Reader.Load(AppConfig.ConfigIni);//加载配置文件
+                AppConfig.Reader.SaveValue("SetUp", "NetworkCard", AppConfig.NetworkCard.ToString());
+                AppConfig.Reader.SaveValue("SetUp", "Transparency", form.inputNumber1.Value.ToString());
+                AppConfig.Reader.SaveValue("SetUp", "DpsColor", AppConfig.DpsColor.ToString());
+                //键位存储
+                AppConfig.Reader.SaveValue("SetKey", "MouseThroughKey", AppConfig.MouseThroughKey.ToString());
+                AppConfig.Reader.SaveValue("SetKey", "FormTransparencyKey", AppConfig.FormTransparencyKey.ToString());
+                AppConfig.Reader.SaveValue("SetKey", "WindowToggleKey", AppConfig.WindowToggleKey.ToString());
+                AppConfig.Reader.SaveValue("SetKey", "ClearDataKey", AppConfig.ClearDataKey.ToString());
+                AppConfig.Reader.SaveValue("SetKey", "ClearHistoryKey", AppConfig.ClearHistoryKey.ToString());
+                //保存配置文件
+                AppConfig.Reader.Save(AppConfig.ConfigIni);
+                label_SettingTip.Visible = false;
+
+
             }
-
         }
 
         private void dataDisplay()
@@ -1536,6 +1549,17 @@ namespace StarResonanceDpsAnalysis
                 {
                     table_DpsDataTable.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
                 }
+            }
+        }
+
+        private void dropdown1_SelectedValueChanged_1(object sender, ObjectNEventArgs e)
+        {
+            switch(e.Value)
+            {
+                case "基础设置":
+
+                    break;
+
             }
         }
     }

@@ -61,7 +61,7 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
-        ///   查找类似 &lt;svg t=&quot;1754553843272&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;7228&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M308.705882 124.235294c100.291765 0 184.470588 37.406118 184.470589 96.617412v210.823529c0 59.211294-84.208941 96.647529-184.470589 96.64753-97.581176 0-179.892706-35.448471-184.289882-91.858824l-0.180706-4.788706v-210.823529l0.180706-4.728471c4.397176-56.470588 86.738824-91.888941 184.289882-91.888941z m0 298.676706c-51.109647 0-98.032941-9.728-131.76470 [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///   查找类似 &lt;svg  xmlns=&quot;http://www.w3.org/2000/svg&quot;  width=&quot;24&quot;  height=&quot;24&quot;  viewBox=&quot;0 0 24 24&quot;  fill=&quot;none&quot;  stroke=&quot;currentColor&quot;  stroke-width=&quot;2&quot;  stroke-linecap=&quot;round&quot;  stroke-linejoin=&quot;round&quot;  class=&quot;icon icon-tabler icons-tabler-outline icon-tabler-chart-bar-popular&quot;&gt;&lt;path stroke=&quot;none&quot; d=&quot;M0 0h24v24H0z&quot; fill=&quot;none&quot;/&gt;&lt;path d=&quot;M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z&quot; /&gt;&lt;path d=&quot;M9 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z&quot; /&gt;&lt;path d=&quot;M15 5a1 1 0 0 [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string data_display {
             get {
@@ -70,7 +70,16 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
-        ///   查找类似 &lt;svg t=&quot;1754553927035&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1096 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;9938&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M890.591549 699.363155l-27.373972 11.826479-134.25938 11.047662c-3.374873-1.413408-6.720901-2.797972-10.038084-4.15369l-38.594705-10.542874a42.128225 42.128225 0 0 1-12.792788-5.942084c-22.35493-15.388845-37.628394-45.690592-52.555719-78.025916l-1.874929-4.081577a42.15707 42.15707 0 0 1-2.16338-5.682479c0-0.05769-0.043268-0.100958-0.057691-0.17307-0.40383 [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///   查找类似 &lt;svg t=&quot;1724122928419&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;2893&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M920.5 435.9c-7.6-40.3-36.1-66.8-69.8-66.2h-3.4c-36.6 0-66.3-29.7-66.3-66.3 0-7.8 3.6-19.1 6-24.9 15.4-35.1 3.3-78.1-28.9-100.6l-102-56.9-4.2-2c-31.7-13.7-72.7-5.4-96.4 19.2-15.1 15.6-42.2 33.7-54.6 33.7-12.5 0-39.8-18.5-54.9-34.3-23.6-24.9-62.2-34.4-97.4-19.5l-105.4 57.7-4.2 2.7c-31.7 22-43.8 65.3-28.3 100.1 1.9 4.6 6 16.7 6 24.9 0 36.6-29.7 66.3-66.3 66 [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string set_up {
+            get {
+                return ResourceManager.GetString("set_up", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1754590078301&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;8371&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M619.064182 504.57971c91.163561-42.401656 154.766046-133.565217 154.766046-239.569358C773.830228 118.724638 655.10559 0 508.819876 0S243.809524 118.724638 243.809524 265.010352c0 106.004141 63.602484 197.167702 154.766045 239.569358C169.606625 555.461698 0 758.989648 0 1002.799172v21.200828h1017.639752v-21.200828c0-243.809524-169.606625-447.337474-398.575 [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string userUid {
             get {

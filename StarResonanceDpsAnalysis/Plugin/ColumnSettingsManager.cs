@@ -50,16 +50,16 @@ namespace StarResonanceDpsAnalysis.Plugin
                 Builder = () => new Column("critLuckyDamage", "暴击幸运") { SortOrder = true }
             },
             new ColumnSetting {
-                Key = "instantDps", Title = "瞬时DPS",IsVisible = true,
-                Builder = () => new Column("instantDps", "瞬时DPS") { SortOrder = true }
+                Key = "instantDps", Title = "瞬时Dps",IsVisible = true,
+                Builder = () => new Column("instantDps", "瞬时Dps") { SortOrder = true }
             },
             new ColumnSetting {
-                Key = "maxInstantDps", Title = "最大瞬时",IsVisible = true,
-                Builder = () => new Column("maxInstantDps", "最大瞬时") { SortOrder = true }
+                Key = "maxInstantDps", Title = "最大瞬时Dps",IsVisible = true,
+                Builder = () => new Column("maxInstantDps", "最大瞬时Dps") { SortOrder = true }
             },
             new ColumnSetting {
-                Key = "totalDps", Title = "总DPS",IsVisible = true,
-                Builder = () => new Column("totalDps", "总DPS", ColumnAlign.Center) { SortOrder = true }
+                Key = "totalDps", Title = "DPS/秒",IsVisible = true,
+                Builder = () => new Column("totalDps", "DPS/秒", ColumnAlign.Center) { SortOrder = true }
             },
             new ColumnSetting {
                 Key = "totalHealingDone", Title = "总治疗",IsVisible = true,
@@ -82,12 +82,12 @@ namespace StarResonanceDpsAnalysis.Plugin
                 Builder = () => new Column("instantHps", "瞬时Hps") { SortOrder = true }
             },
             new ColumnSetting {
-                Key = "maxInstantHps", Title = "最大瞬时",IsVisible = true,
-                Builder = () => new Column("maxInstantHps", "最大瞬时") { SortOrder = true }
+                Key = "maxInstantHps", Title = "最大瞬时Hps",IsVisible = true,
+                Builder = () => new Column("maxInstantHps", "最大瞬时Hps") { SortOrder = true }
             },
             new ColumnSetting {
-                Key = "totalHps", Title = "总HPS",IsVisible = true,
-                Builder = () => new Column("totalHps", "总HPS", ColumnAlign.Center) { SortOrder = true }
+                Key = "totalHps", Title = "HPS/秒",IsVisible = true,
+                Builder = () => new Column("totalHps", "HPS/秒", ColumnAlign.Center) { SortOrder = true }
             },
         };
 
@@ -140,8 +140,8 @@ namespace StarResonanceDpsAnalysis.Plugin
             else
             {
                 columns.Add(new Column("CellProgress", "团队总伤害占比", ColumnAlign.Center));
-                columns.Add(new AntdUI.Column("totalDps", "总伤害", ColumnAlign.Center) { SortOrder = true });
-                columns.Add(new AntdUI.Column("totalHps", "总HPS", ColumnAlign.Center) { SortOrder = true });
+                columns.Add(new AntdUI.Column("totalDps", "Dps/秒", ColumnAlign.Center) { SortOrder = true });
+                columns.Add(new AntdUI.Column("totalHps", "Hps/秒", ColumnAlign.Center) { SortOrder = true });
             }
 
             return new ColumnCollection(columns);

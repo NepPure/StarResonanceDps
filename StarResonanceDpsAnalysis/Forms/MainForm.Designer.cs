@@ -20,10 +20,10 @@
             pageHeader_MainHeader = new AntdUI.PageHeader();
             button_SkillDiary = new AntdUI.Button();
             dropdown_History = new AntdUI.Dropdown();
-            label_SettingTip = new AntdUI.Label();
             button_AlwaysOnTop = new AntdUI.Button();
             button_ThemeSwitch = new AntdUI.Button();
             button_Settings = new AntdUI.Button();
+            label_SettingTip = new AntdUI.Label();
             checkbox_PersentData = new AntdUI.Checkbox();
             table_DpsDataTable = new AntdUI.Table();
             timer_RefreshDpsTable = new System.Windows.Forms.Timer(components);
@@ -81,17 +81,6 @@
             dropdown_History.Trigger = AntdUI.Trigger.Hover;
             dropdown_History.SelectedValueChanged += dropdown1_SelectedValueChanged;
             // 
-            // label_SettingTip
-            // 
-            label_SettingTip.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label_SettingTip.ForeColor = Color.Red;
-            label_SettingTip.Location = new Point(654, 0);
-            label_SettingTip.Name = "label_SettingTip";
-            label_SettingTip.Size = new Size(231, 42);
-            label_SettingTip.TabIndex = 16;
-            label_SettingTip.Text = "请先右上角设置网卡在启动哟！";
-            label_SettingTip.TextAlign = ContentAlignment.MiddleCenter;
-            // 
             // button_AlwaysOnTop
             // 
             button_AlwaysOnTop.Dock = DockStyle.Right;
@@ -127,8 +116,18 @@
             button_Settings.Size = new Size(49, 46);
             button_Settings.TabIndex = 2;
             button_Settings.ToggleIconSvg = "";
-            button_Settings.Click += button4_Click;
             button_Settings.MouseClick += button4_MouseClick;
+            // 
+            // label_SettingTip
+            // 
+            label_SettingTip.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label_SettingTip.ForeColor = Color.Red;
+            label_SettingTip.Location = new Point(654, 0);
+            label_SettingTip.Name = "label_SettingTip";
+            label_SettingTip.Size = new Size(231, 42);
+            label_SettingTip.TabIndex = 16;
+            label_SettingTip.Text = "请先右上角设置网卡在启动哟！";
+            label_SettingTip.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // checkbox_PersentData
             // 
