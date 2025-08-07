@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="data-display" xml:space="preserve">
+    <value>&lt;svg t="1754553843272" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="7228" width="200" height="200"&gt;&lt;path d="M308.705882 124.235294c100.291765 0 184.470588 37.406118 184.470589 96.617412v210.823529c0 59.211294-84.208941 96.647529-184.470589 96.64753-97.581176 0-179.892706-35.448471-184.289882-91.858824l-0.180706-4.788706v-210.823529l0.180706-4.728471c4.397176-56.470588 86.738824-91.888941 184.289882-91.888941z m0 298.676706c-51.109647 0-98.032941-9.728-131.764706-27.105882v35.870117c0 18.432 57.374118 43.941647 131.764706 43.941647 71.800471 0 127.789176-23.792941 131.553883-42.014117l0.210823-1.92753 0.030118-35.870117c-33.731765 17.377882-80.685176 27.105882-131.794824 27.105882z m131.794824-132.517647c-33.731765 17.377882-80.685176 27.105882-131.794824 27.105882-51.109647 0-98.032941-9.728-131.764706-27.105882v35.870118c0 18.432 57.374118 43.941647 131.764706 43.941647 74.390588 0 131.764706-25.509647 131.764706-43.941647z m307.410823-131.011765c51.531294 0 93.665882 40.327529 96.496942 91.136l0.150588 5.481412V361.411765a26.352941 26.352941 0 0 1-52.525177 3.312941l-0.180706-3.312941V256c0-22.829176-17.438118-41.592471-39.695058-43.730824l-4.216471-0.180705h-105.411765a26.352941 26.352941 0 0 1-3.312941-52.525177l3.312941-0.180706h105.411765zM185.735529 616.146824c13.432471 0 24.515765 10.059294 26.142118 23.070117l0.210824 3.312941v105.411765c0 22.799059 17.408 41.562353 39.695058 43.700706l4.216471 0.210823H361.411765a26.352941 26.352941 0 0 1 3.312941 52.495059l-3.312941 0.210824H256a96.617412 96.617412 0 0 1-96.466824-91.166118l-0.150588-5.481412v-105.411764c0-14.546824 11.776-26.352941 26.352941-26.352941z m667.587765-105.411765c14.576941 0 26.352941 11.806118 26.352941 26.352941v210.823529a26.352941 26.352941 0 0 1-26.352941 26.352942h-131.764706v52.705882h79.058824a26.352941 26.352941 0 0 1 3.312941 52.525176l-3.312941 0.180706h-210.82353a26.352941 26.352941 0 0 1-3.312941-52.495059l3.312941-0.210823h79.058824v-52.705882h-131.764706a26.352941 26.352941 0 0 1-26.142118-23.04l-0.210823-3.312942v-210.823529c0-14.546824 11.806118-26.352941 26.352941-26.352941z" fill="#000000" p-id="7229"&gt;&lt;/path&gt;&lt;/svg&gt;</value>
+  </data>
+  <data name="userUid" xml:space="preserve">
+    <value>&lt;svg t="1754553927035" class="icon" viewBox="0 0 1096 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="9938" width="200" height="200"&gt;&lt;path d="M890.591549 699.363155l-27.373972 11.826479-134.25938 11.047662c-3.374873-1.413408-6.720901-2.797972-10.038084-4.15369l-38.594705-10.542874a42.128225 42.128225 0 0 1-12.792788-5.942084c-22.35493-15.388845-37.628394-45.690592-52.555719-78.025916l-1.874929-4.081577a42.15707 42.15707 0 0 1-2.16338-5.682479c0-0.05769-0.043268-0.100958-0.057691-0.17307-0.403831-1.384563-0.649014-2.797972-0.908619-4.196958-0.11538-0.634592-0.317296-1.254761-0.403831-1.889352-0.11538-0.764394-0.100958-1.528789-0.144226-2.307606-0.129803-1.283606-0.288451-2.552789-0.274028-3.836394l0.028845-0.346141A42.142648 42.142648 0 0 1 620.169014 573.252507a298.344563 298.344563 0 0 0 41.248451-58.324732c25.239437-46.354028 39.416789-99.919324 39.416789-152.446198 0-158.099831-44.637746-224.457915-97.352113-251.384788-27.619155-14.105239-57.473803-17.408-84.256451-17.408-19.499268 0-40.599437 1.745127-61.295775 8.119887-54.272 16.730141-105.717183 65.42062-117.716732 198.381972a691.661521 691.661521 0 0 0-2.624901 62.305352c0 9.590986 0.475944 19.181972 1.384563 28.758535 6.461296 67.136901 35.090028 133.509408 79.280676 182.012395 2.812394 3.086423 5.163268 6.576676 6.951662 10.369802 0.274028 0.576901 0.447099 1.182648 0.677859 1.75955 0.562479 1.298028 1.124958 2.610479 1.543212 3.966197 0.230761 0.749972 0.346141 1.528789 0.519211 2.307606 0.302873 1.211493 0.649014 2.422986 0.836507 3.663323 0.072113 0.447099 0.072113 0.90862 0.11538 1.355719 0.187493 1.586479 0.360563 3.158535 0.374986 4.759436l-0.028845 0.346141c0 5.999775-1.269183 12.042817-3.894085 17.696451l-1.903774 4.081577c-3.043155 6.605521-6.144 13.023549-9.288113 19.326198l-1.557634 3.100845c-0.951887 1.87493-1.87493 3.793127-2.855662 5.624788-11.018817 21.013634-23.177014 39.186028-38.85431 49.974085-3.894085 2.682592-8.220845 4.701746-12.792788 5.942084l-38.580282 10.528451a6215.030986 6215.030986 0 0 0-88.366873 37.455324c-19.802141 8.509296-39.416789 16.960901-58.238197 24.893296-11.018817 4.658479-22.008789 8.451606-32.623775 12.143774-30.215211 10.456338-46.743437 17.307042-53.666254 28.845071-0.144225 11.898592-0.490366 27.258592-0.908619 43.902197a6920.941972 6920.941972 0 0 0-1.067268 50.579831H692.28169v84.415099H42.344563a42.200338 42.200338 0 0 1-42.185915-41.378254c-0.519211-25.71538 0.374986-62.853408 1.153803-95.635831 0.490366-20.379042 0.951887-38.79662 0.951887-50.810591 0-4.672901 0.778817-9.33138 2.307606-13.759099 18.994479-55.065239 68.377239-72.184789 108.082479-85.929465a454.59831 454.59831 0 0 0 27.431662-10.139042c18.662761-7.889127 38.104338-16.239775 57.718985-24.676958 30.72-13.182197 62.449577-26.840338 92.073465-38.984112a43.12338 43.12338 0 0 1 4.94693-1.673015l30.474817-8.321802 0.432676-0.634592-0.028845-0.014422a87.833239 87.833239 0 0 0 4.817126-7.701634 220.087887 220.087887 0 0 0 3.490254-6.288226c0.721127-1.326873 1.398986-2.682592 2.10569-4.038309l1.153803-2.235493a397.917746 397.917746 0 0 1-60.430423-110.563155c-0.576901-1.615324-1.211493-3.201803-1.759549-4.802705-0.216338-0.591324-0.374986-1.182648-0.576901-1.759549a406.859718 406.859718 0 0 1-8.884282-29.941183 403.657915 403.657915 0 0 1-8.869859-45.979042 399.41769 399.41769 0 0 1-3.230648-35.926535 407.177014 407.177014 0 0 1-0.346141-16.629184c0-27.359549 1.254761-52.699944 3.677747-76.150985C280.071211 59.608338 409.210592 9.27369 519.196845 9.27369h0.028845c60.675606 0 127.192338 15.331155 178.522141 67.136902 51.344225 51.820169 87.515944 140.11493 87.515944 286.070985 0 74.780845-21.648225 148.970366-60.603493 211.722817a387.288338 387.288338 0 0 1-23.508733 33.864113c3.966197 7.860282 8.336225 15.864789 11.970705 20.912676l30.489239 8.336225c1.687437 0.447099 3.346028 1.009577 4.94693 1.673015 27.965296 11.451493 57.762254 24.229859 86.823662 36.734197l5.220957 2.249915c16.932056 7.268958 33.719887 14.480225 49.988507 21.38862zM807.661972 1024h-57.690141V749.971831h57.690141v274.028169z m115.380282-216.338028v173.070422h51.603831c26.393239 0 44.825239-12.893746 55.238309-38.681239 5.696901-14.148507 8.538141-31.008451 8.538141-50.550986 0-26.984563-4.26907-47.709746-12.807211-62.161127C1017.077183 814.887662 1000.087437 807.661972 974.646085 807.661972H923.042254z m52.743211-57.690141c17.956056 0.245183 32.897803 2.235493 44.825239 5.942084a95.419493 95.419493 0 0 1 49.353916 34.75831 118.740732 118.740732 0 0 1 20.638648 44.262761c3.677746 15.864789 5.509408 30.979606 5.509408 45.358873 0 36.431324-7.730479 67.295549-23.205859 92.592676C1051.936451 1006.938141 1019.557859 1024 975.785465 1024H850.929577V749.971831h124.855888z" fill="#040000" p-id="9939"&gt;&lt;/path&gt;&lt;/svg&gt;</value>
+  </data>
+</root>
