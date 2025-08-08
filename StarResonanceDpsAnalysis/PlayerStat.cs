@@ -424,8 +424,13 @@ namespace StarResonanceDpsAnalysis
         /// </summary>
         public void UpdateAllRealtimeStats()
         {
-            foreach (var player in _players.Values)
-                player.UpdateRealtimeStats();
+            if(_players!=null)
+            {
+                foreach (var player in _players.Values)
+                    if(player!=null)
+                    player.UpdateRealtimeStats();
+            }
+          
         }
 
         /// <summary>

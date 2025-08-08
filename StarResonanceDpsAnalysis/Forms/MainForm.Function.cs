@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -43,13 +44,18 @@ namespace StarResonanceDpsAnalysis
                 .GetAllPlayers()
                 .ToList();
 
+            if (statsList.Count <= 0) return;
             // 2) 计算最大总伤害，用于归一化进度条
-            float totalDamageSum = statsList.Sum(p => (float)p.DamageStats.Total);
+            float totalDamageSum = statsList
+            .Where(p => p?.DamageStats != null)
+            .Sum(p => (float)p.DamageStats.Total);
+
             if (totalDamageSum <= 0f) totalDamageSum = 1f;
 
             // 3) 遍历，新增或更新行
             foreach (var stat in statsList)
             {
+                if (stat == null) continue;
                 // 3.1 计算进度条比例
                 float percent = (float)stat.DamageStats.Total / totalDamageSum;
 
@@ -206,24 +212,26 @@ namespace StarResonanceDpsAnalysis
 
         private void HandleSwitchMonitoring()
         {
+            
             if (!monitor)
             {
+                switch_IsMonitoring.Checked = true;
                 //开始监控
-                StartCapture();
-
-              
+                //StartCapture();
 
             }
             else
             {
                 pageHeader_MainHeader.SubText = "监控已关闭";
 
+                switch_IsMonitoring.Checked = false;
                 //关闭监控
-                StopCapture();
-           
+                //StopCapture();
+
 
 
             }
+       
         }
 
         #endregion
