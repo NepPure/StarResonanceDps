@@ -123,9 +123,10 @@
             label_SettingTip.AutoSizeMode = AntdUI.TAutoSize.Width;
             label_SettingTip.Dock = DockStyle.Right;
             label_SettingTip.ForeColor = Color.Red;
-            label_SettingTip.Location = new Point(633, 0);
+            label_SettingTip.Location = new Point(397, 0);
+            label_SettingTip.Margin = new Padding(2);
             label_SettingTip.Name = "label_SettingTip";
-            label_SettingTip.Size = new Size(252, 42);
+            label_SettingTip.Size = new Size(168, 30);
             label_SettingTip.TabIndex = 16;
             label_SettingTip.Text = "请先右上角设置网卡在启动哟！";
             label_SettingTip.TextAlign = ContentAlignment.MiddleCenter;
@@ -161,9 +162,10 @@
             // 
             label_HotKeyTips.AutoSizeMode = AntdUI.TAutoSize.Width;
             label_HotKeyTips.Dock = DockStyle.Left;
-            label_HotKeyTips.Location = new Point(16, 0);
+            label_HotKeyTips.Location = new Point(10, 0);
+            label_HotKeyTips.Margin = new Padding(2);
             label_HotKeyTips.Name = "label_HotKeyTips";
-            label_HotKeyTips.Size = new Size(631, 42);
+            label_HotKeyTips.Size = new Size(421, 30);
             label_HotKeyTips.TabIndex = 14;
             label_HotKeyTips.Text = "F6：鼠标穿透 | F7：窗体透明 | F8：开启/关闭 | F9：清空数据 | F10：清空历史";
             // 
@@ -193,8 +195,8 @@
             panel_FooterPanel.Dock = DockStyle.Bottom;
             panel_FooterPanel.Location = new Point(0, 620);
             panel_FooterPanel.Name = "panel_FooterPanel";
-            panel_FooterPanel.Padding = new Padding(16, 0, 0, 0);
-            panel_FooterPanel.Size = new Size(1127, 42);
+            panel_FooterPanel.Padding = new Padding(10, 0, 0, 0);
+            panel_FooterPanel.Size = new Size(717, 30);
             panel_FooterPanel.TabIndex = 19;
             panel_FooterPanel.Text = "panel1";
             // 
