@@ -46,6 +46,13 @@ namespace StarResonanceDpsAnalysis
 
             FormGui.SetDefaultGUI(this);
 
+            /* Application.ProductVersion 默认会被 MSBuild 附加 Git 哈希, 
+             * 如: "1.0.0+123456789acbdef", 
+             * 将 + 后面去掉就是项目属性的版本号,
+             * 这样可以让生成文件的版本号与标题版本号一致
+             * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+            pageHeader_MainHeader.Text += $" v{Application.ProductVersion.Split('+')[0]}";
+
             LoadTableColumnVisibilitySettings();
             ToggleTableView();
             LoadNetworkDevices();
@@ -99,15 +106,6 @@ namespace StarResonanceDpsAnalysis
             }
         }
 
-
-        bool monitor = false;//监控开关
-        bool hyaline = false;//是否开启透明
-
-        public const int WS_EX_TRANSPARENT = 0x00000020;
-        public const int WS_EX_LAYERED = 0x00080000;
-
-
-        private const int GWL_EXSTYLE = -20;
 
         public void kbHook_OnKeyDownEvent(object? sender, KeyEventArgs e)
         {
