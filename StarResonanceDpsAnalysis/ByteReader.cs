@@ -1,4 +1,7 @@
-﻿using PacketDotNet;
+﻿
+
+
+using PacketDotNet;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -150,23 +153,16 @@ namespace StarResonanceDpsAnalysis
                 // 外层：处理一次输入里可能包含的多个完整包
                 var packetsReader = new ByteReader(packets);
 
-                while (packetsReader.Remaining >= 4) // 至少读得到一个 packetSize
+                while (packetsReader.Remaining >= 0) // 至少读得到一个 packetSize
                 {
                     // —— 预读长度，不前进指针 —— 
-                    if (!packetsReader.TryPeekUInt32BE(out uint packetSize)) return;
+                    if (!packetsReader.TryPeekUInt32BE(out uint packetSize)) continue;
 
                     // 合法包最短：size(4) + type(2) = 6
                     if (packetSize < 6)
                     {
                         Console.WriteLine($"Received invalid packet size (<6): {packetSize}. Drop the rest.");
                         return; // 丢掉剩余，避免死循环
-                    }
-
-                    // 不够一个完整包，直接返回等下一批（防止 ReadBytes 越界）
-                    if (packetSize > (uint)packetsReader.Remaining)
-                    {
-                        Console.WriteLine($"Truncated packet: need {packetSize}, have {packetsReader.Remaining}. Stop here.");
-                        return;
                     }
 
                     // —— 切出一个完整包，交给独立 reader 解析 —— 
@@ -185,7 +181,7 @@ namespace StarResonanceDpsAnalysis
                     int msgTypeId = packetType & 0x7FFF;                // 低15位
 
                     // 调试输出（按需保留）
-                    //Console.WriteLine($"MsgType={msgTypeId}, Size={packetSize}, RemainInPacket={packetReader.Remaining}");
+                    Console.WriteLine($"MsgType={msgTypeId}, Size={packetSize}, RemainInPacket={packetReader.Remaining}");
 
                     switch (msgTypeId)
                     {
@@ -302,11 +298,14 @@ namespace StarResonanceDpsAnalysis
             }
 
             byte[] msgPayload = packet.ReadRemaining();
-            byte[] protoBody = msgPayload; // 纯 protobuf 部分，初始化为原 payload
+            // byte[] protoBody = msgPayload; // 纯 protobuf 部分，初始化为原 payload
+
+
             if (isZstdCompressed)
             {
                 msgPayload = DecompressZstdIfNeeded(msgPayload);
             }
+
 
             #region
             //if (isZstdCompressed && msgPayload.Length >= 4)
@@ -381,13 +380,13 @@ namespace StarResonanceDpsAnalysis
 
         public static void _processSyncNearEntities(byte[] payloadBuffer)
         {
-            var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
-
+            var syncNearEntities = DecodeSyncNearEntities(payloadBuffer);
+            //var syncNearEntities = Blueprotobuf.Decode(payloadBuffer);
             if (syncNearEntities.Appear == null || syncNearEntities.Appear.Count == 0)
             {
                 return;
             }
-           
+
 
             foreach (var entity in syncNearEntities.Appear)
             {
@@ -445,6 +444,57 @@ namespace StarResonanceDpsAnalysis
             }
 
         }
+
+
+
+        /// <summary>
+        /// 等价于 JS: SyncNearEntities.decode(reader, length, error)
+        /// </summary>
+        /// <param name="data">整个 buffer（或截断后的片段）</param>
+        /// <param name="length">可选：已知消息长度，行为等价于 JS 里 end=pos+length</param>
+        /// <param name="errorTag">可选：遇到这个 tag 就提前 break（等价于 if (tag === error) break）</param>
+        public static SyncNearEntities DecodeSyncNearEntities(byte[] data, int offset = 0, int? length = null, uint? errorTag = null)
+        {
+            int count = length ?? (data.Length - offset);
+
+            // 切片成新的 byte[]，避免使用 PushLimit/RestoreLimit
+            var buffer = new byte[count];
+            Buffer.BlockCopy(data, offset, buffer, 0, count);
+
+            var input = new CodedInputStream(buffer);
+            var message = new SyncNearEntities();
+
+            while (!input.IsAtEnd)
+            {
+                uint tag = input.ReadTag();
+                if (tag == 0) break;
+                if (errorTag.HasValue && tag == errorTag.Value)
+                    break;
+
+                int fieldNumber = WireFormat.GetTagFieldNumber(tag);
+                switch (fieldNumber)
+                {
+                    case 1: // Appear
+                        var ent = new Entity();
+                        input.ReadMessage(ent);
+                        message.Appear.Add(ent);
+                        break;
+
+                    case 2: // Disappear
+                        var de = new DisappearEntity();
+                        input.ReadMessage(de);
+                        message.Disappear.Add(de);
+                        break;
+
+                    default:
+                        input.SkipLastField();
+                        break;
+                }
+            }
+
+            return message;
+        }
+
     }
 
 

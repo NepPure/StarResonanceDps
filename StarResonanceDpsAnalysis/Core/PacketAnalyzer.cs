@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using PacketDotNet;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Plugin;
@@ -12,33 +13,36 @@ using ZstdNet;
 
 namespace StarResonanceDpsAnalysis.Core
 {
-    public class PacketAnalyzer(ICaptureDevice? device, RawCapture raw)
+    public class PacketAnalyzer()
     {
+        #region ====== 字段定义 ======
+        private readonly BlockingCollection<(ICaptureDevice dev, RawCapture raw)> _queue
+        = new(8192);
+        // 启动 N 个工作线程（放到 PacketAnalyzer 里）
+        private readonly List<Thread> _threads = new();
+
+        // worker 管理
+        private CancellationTokenSource _cts = new();
+        #endregion
+
+        #region ====== 公共属性与状态 ======
         public AnalyzerState State { get; private set; } = AnalyzerState.NeverStarted;
-        private Thread AnalyzerThread { get; set; } = null!;
 
         // TCP 分片缓存：Key 是 TCP 序列号，Value 是对应的分片数据
         // 用于重组多段 TCP 数据流（比如一个完整的 protobuf 消息被拆分在多个包里）
         private static ConcurrentDictionary<uint, byte[]> TcpCache { get; } = new();
 
-        /// <summary>
-        /// 当前已缓存的数据缓冲区，用于拼接多个 TCP 包的数据
-        /// </summary>
+        /// <summary>当前已缓存的数据缓冲区，用于拼接多个 TCP 包的数据</summary>
         private byte[] TcpDataBuffer { get; set; } = [];
 
-        /// <summary>
-        /// 期望的下一个 TCP 序列号，用于判断数据是否连续（是否需要缓存/拼接）
-        /// </summary>
+        /// <summary>期望的下一个 TCP 序列号</summary>
         private uint TcpNextSeq { get; set; } = 0;
 
-
-        /// <summary>
-        /// 上一次接收到数据包的时间，用于判断是否超时（如超时则可能清理缓存）
-        /// </summary>
+        /// <summary>上一次接收到数据包的时间</summary>
         public static DateTime LastPacketTime { get; private set; } = DateTime.MinValue;
 
-        private ICaptureDevice? SelectedDevice { get; init; } = device;
-        private RawCapture Raw { get; init; } = raw;
+        // private ICaptureDevice? SelectedDevice { get; init; } = null;
+        // private RawCapture Raw { get; init; } = null;
         private bool HasAppliedFilter { get; set; } = false;
         private static string CurrentServer { get; set; } = string.Empty;
         private ulong UserUid { get; set; } = 0;
@@ -46,52 +50,110 @@ namespace StarResonanceDpsAnalysis.Core
         private MemoryStream TcpStream { get; } = new();
         public Exception? LastException { get; private set; } = null;
 
+        private int workerCount;
+        #endregion
 
+        #region ====== 静态辅助方法 ======
         public static void Recaptured()
         {
             LastPacketTime = DateTime.Now;
         }
+        #endregion
 
-        public PacketAnalyzer Start()
+        #region ========== Public API: Start / Enqueue / Stop ==========
+        public void Start(int workerCount = 5)
         {
-            AnalyzerThread = new Thread(AnalyzerAction)
+            if (_threads.Count > 0) return; // 已经启动，防重复
+            if (workerCount <= 0) workerCount = Math.Max(2, Environment.ProcessorCount / 2);
+
+            _cts = new CancellationTokenSource();
+
+            for (int i = 0; i < workerCount; i++)
             {
-                IsBackground = true
-            };
-
-            State = AnalyzerState.Running;
-
-            AnalyzerThread.Start();
-
-            return this;
+                var t = new Thread(() => AnalyzerAction(_cts.Token))
+                {
+                    IsBackground = true,
+                    Name = $"PA-Worker-{i}"
+                };
+                _threads.Add(t);
+                t.Start();
+            }
+            Console.WriteLine($"线程创建: {workerCount}");
         }
 
-        public void AnalyzerAction()
+        public void Enqueue(ICaptureDevice dev, RawCapture raw)
         {
+            _queue.Add((dev, raw));
+            int count = _queue.Count;
+            Console.WriteLine($"当前队列长度: {count}");
+        }
+
+        public void Stop(bool drain = true, int maxWaitMs = 10000)
+        {
+            if (drain)
+            {
+                // 让消费者知道没有新数据了，消费到空即可退出
+                _queue.CompleteAdding();
+            }
+            else
+            {
+                // 立即取消阻塞中的 Take()
+                _cts?.Cancel();
+            }
+
+            foreach (var t in _threads)
+            {
+                try { t.Join(2000); } catch { }
+            }
+            _threads.Clear();
+
+            // 兜底清空
+            while (_queue.TryTake(out _)) { }
+
+        }
+        #endregion
+
+        #region ====== 工作线程主循环 ======
+        public void AnalyzerAction(CancellationToken token)
+        {
+            const int batchMax = 12000;
+            var batch = new List<(ICaptureDevice device, RawCapture raw)>(1024);
+
             try
             {
-                HandleRaw();
+                while (true)
+                {
+                    var first = _queue.Take(token); // 阻塞取1个，支持 Cancel/CompleteAdding
+                    batch.Add(first);
 
-                State = AnalyzerState.Completed;
-            }
-            catch (Exception ex)
-            {
-                LastException = ex;
+                    while (batch.Count < batchMax && _queue.TryTake(out var more))
+                        batch.Add(more);
 
-                State = AnalyzerState.Errored;
+                    for (int i = 0; i < batch.Count; i++)
+                    {
+                        var (device, raw) = batch[i];
+                        HandleRaw(device, raw);      // ⚠️ 确保线程安全地更新共享状态
+                        token.ThrowIfCancellationRequested();
+                    }
+                    batch.Clear();
+                }
             }
+            catch (OperationCanceledException) { /* 取消退出 */ }
+            catch (InvalidOperationException) { /* CompleteAdding + 取空退出 */ }
         }
+        #endregion
 
+        #region ========== Stage 1: 逐包解析入口 ==========
         /// <summary>
         /// 处理单个数据包
         /// </summary>
         /// <param name="packetObj">数据包对象</param>
-        private void HandleRaw()
+        private void HandleRaw(ICaptureDevice? device, RawCapture raw)
         {
             try
             {
                 // 使用 PacketDotNet 解析为通用数据包对象（包含以太网/IP/TCP 等）
-                var packet = Packet.ParsePacket(Raw.LinkLayerType, Raw.Data);
+                var packet = Packet.ParsePacket(raw.LinkLayerType, raw.Data);
 
                 // 提取 TCP 数据包（如果不是 TCP，会返回 null）
                 var tcpPacket = packet.Extract<TcpPacket>();
@@ -112,13 +174,13 @@ namespace StarResonanceDpsAnalysis.Core
                 // 更新数据包来源
                 if (!HasAppliedFilter && VerifyServer(srcServer, payload))
                 {
-                    ApplyDynamicFilter(srcServer);
+                    ApplyDynamicFilter(device, srcServer);
                     HasAppliedFilter = true;
                 }
 
 
                 // 如果距离上次收到包的时间超过 30 秒，认为可能断线，清除缓存
-                if (LastPacketTime != DateTime.MinValue && (DateTime.Now - LastPacketTime).TotalSeconds > 10)
+                if (LastPacketTime != DateTime.MinValue && (DateTime.Now - LastPacketTime).TotalSeconds > 30)
                 {
                     Console.WriteLine("长时间未收到包，可能已断线");
                     CurrentServer = "";
@@ -142,7 +204,9 @@ namespace StarResonanceDpsAnalysis.Core
                 Console.WriteLine("抓包异常: " + ex.Message);
             }
         }
+        #endregion
 
+        #region ========== Stage 1.1: 服务器识别 / 过滤器应用 ==========
         /// <summary>
         /// 尝试识别当前 TCP 包是否来自目标服务器，并提取玩家 UID（只在首次识别时调用）
         /// </summary>
@@ -161,62 +225,94 @@ namespace StarResonanceDpsAnalysis.Core
 
 
                 // 第 5 字节不为 0，则不是“小包”格式（协议约定）
-                if (buf[4] != 0)
-                    return false;
-
-                // 提取去掉前10字节后的内容（通常前面是包头或控制信息）
-                var data = buf.AsSpan(10);
-                if (data.Length == 0)
-                    return false;
-
-                // 将数据包装为流，逐个解析其中的 protobuf 消息结构
-                using var ms = new MemoryStream(data.ToArray());
-                while (ms.Position < ms.Length)
+                if (buf.Length >= 10 && buf[4] == 0)
                 {
-                    // 读取消息长度（4字节大端序）
-                    byte[] lenBuf = new byte[4];
-                    if (ms.Read(lenBuf, 0, 4) != 4)
-                        break;
-
-                    int len = ProtoFieldHelper.ReadInt32BigEndian(lenBuf);
-                    if (len < 4 || len > 1024 * 1024) // 防止异常长度（小于最小值或超大）
-                        break;
-
-                    // 读取真正的数据体（减去4字节长度头）
-                    byte[] data1 = new byte[len - 4];
-                    if (ms.Read(data1, 0, data1.Length) != data1.Length)
-                        break;
-
-                    // 签名校验，确认是目标游戏协议的数据包
-                    byte[] signature = new byte[] { 0x00, 0x63, 0x33, 0x53, 0x42, 0x00 };
-                    //Console.WriteLine(!data1.Skip(5).Take(signature.Length).SequenceEqual(signature));
-                    if (!data1.Skip(5).Take(signature.Length).SequenceEqual(signature))
-                        break;
-
-                    // 解码主体结构（跳过前18字节，通常是头部结构）
-                    var body = global::Blueprotobuf.Decode(data1.AsSpan(18).ToArray());
-
-                    // 从结构中尝试获取玩家 UID（字段[1]->[5]）
-                    if (data1.Length >= 17 && data1[17] == 0x2E) // 特定标志字节 0x2E
+                    // 提取去掉前10字节后的内容（通常前面是包头或控制信息）
+                    var data = buf.AsSpan(10);
+                    if (data.Length > 0)
                     {
-                        var b1 = ProtoFieldHelper.TryGetDecoded(body, 1); // 获取字段 1 的子结构
-                        if (b1 != null && ProtoFieldHelper.TryGetU64(b1, 5) is ulong rawUid && rawUid != 0)
+                        // 将数据包装为流，逐个解析其中的 protobuf 消息结构
+                        using var ms = new MemoryStream(data.ToArray());
+                        while (ms.Position < ms.Length)
                         {
-                            UserUid = rawUid >> 16; // 截断低16位，仅保留玩家 UID 主体
-                            Console.WriteLine($"识别玩家UID: {UserUid}");
+                            // 读取消息长度（4字节大端序）
+                            byte[] lenBuf = new byte[4];
+                            if (ms.Read(lenBuf, 0, 4) != 4)
+                                break;
+
+                            int len = ProtoFieldHelper.ReadInt32BigEndian(lenBuf);
+                            if (len < 4 || len > 1024 * 1024) // 防止异常长度（小于最小值或超大）
+                                break;
+
+                            // 读取真正的数据体（减去4字节长度头）
+                            byte[] data1 = new byte[len - 4];
+                            if (ms.Read(data1, 0, data1.Length) != data1.Length)
+                                break;
+
+                            // 签名校验，确认是目标游戏协议的数据包
+                            byte[] signature = new byte[] { 0x00, 0x63, 0x33, 0x53, 0x42, 0x00 };
+                            //Console.WriteLine(!data1.Skip(5).Take(signature.Length).SequenceEqual(signature));
+                            if (!data1.Skip(5).Take(signature.Length).SequenceEqual(signature))
+                                break;
+
+                            // 解码主体结构（跳过前18字节，通常是头部结构）
+                            // var body = global::Blueprotobuf.Decode(data1.AsSpan(18).ToArray());
+                            if (CurrentServer != srcServer)
+                            {
+                                // 成功识别服务器，设置当前 server
+                                CurrentServer = srcServer;
+                                Console.WriteLine($"识别到场景服务器地址: {srcServer}");
+
+                                // 清除之前可能未完成的 TCP 拼包缓存
+                                ClearTcpCache();
+                                return true; // ✅ 成功识别，立即返回
+                            }
+                            //// 从结构中尝试获取玩家 UID（字段[1]->[5]）
+                            //if (data1.Length >= 17 && data1[17] == 0x2E) // 特定标志字节 0x2E
+                            //{
+                            //    var b1 = ProtoFieldHelper.TryGetDecoded(body, 1); // 获取字段 1 的子结构
+                            //    if (b1 != null && ProtoFieldHelper.TryGetU64(b1, 5) is ulong rawUid && rawUid != 0)
+                            //    {
+                            //        UserUid = rawUid >> 16; // 截断低16位，仅保留玩家 UID 主体
+                            //        Console.WriteLine($"识别玩家UID: {UserUid}");
+
+                            //    }
+                            //}
+
                         }
+
                     }
 
-                    // 成功识别服务器，设置当前 server
-                    CurrentServer = srcServer;
-
-                    // 清除之前可能未完成的 TCP 拼包缓存
-                    ClearTcpCache();
-
-                    Console.WriteLine($"识别到场景服务器地址: {srcServer}");
-
-                    return true; // ✅ 成功识别，立即返回
                 }
+                if (buf.Length == 0x62)
+                {
+                    byte[] signature_ = new byte[]
+                    {
+                                0x00, 0x00, 0x00, 0x62,
+                                0x00, 0x03,
+                                0x00, 0x00, 0x00, 0x01,
+                                0x00, 0x11, 0x45, 0x14, // seq?
+                                0x00, 0x00, 0x00, 0x00,
+                                0x0a, 0x4e, 0x08, 0x01, 0x22, 0x24
+                    };
+
+                    bool firstPartMatch = buf.AsSpan(0, 10).SequenceEqual(signature_.AsSpan(0, 10));
+                    bool secondPartMatch = buf.AsSpan(14, 6).SequenceEqual(signature_.AsSpan(14, 6));
+
+                    if (firstPartMatch && secondPartMatch)
+                    {
+                        if (CurrentServer != srcServer)
+                        {
+                            CurrentServer = srcServer;
+                            ClearTcpCache();
+                            Console.WriteLine("Got Scene Server Address by Login Return Packet: " + srcServer);
+                            return true; // ✅ 成功识别，立即返回
+                        }
+                    }
+                }
+
+
+
             }
             catch (Exception ex)
             {
@@ -227,9 +323,9 @@ namespace StarResonanceDpsAnalysis.Core
             return false; // 无法识别为目标服务器
         }
 
-        private void ApplyDynamicFilter(string srcServer)
+        private void ApplyDynamicFilter(ICaptureDevice? device, string srcServer)
         {
-            if (SelectedDevice == null)
+            if (device == null)
             {
                 Console.WriteLine("[错误] selectedDevice为null，无法应用过滤器");
                 return;
@@ -241,10 +337,12 @@ namespace StarResonanceDpsAnalysis.Core
             var serverIp = parts[0];
             var serverPort = parts[1];
 
-            SelectedDevice.Filter = $"tcp and host {serverIp} and port {serverPort}";
+            device.Filter = $"tcp and host {serverIp} and port {serverPort}";
             // Console.WriteLine($"【Filter 已更新】 tcp and host {serverIp} and port {serverPort}");
         }
+        #endregion
 
+        #region ========== Stage 2: TCP 重组 ==========
         private void ReassembleTcp(TcpPacket tcpPacket, byte[] payload)
         {
             var seq = tcpPacket.SequenceNumber;
@@ -318,6 +416,7 @@ namespace StarResonanceDpsAnalysis.Core
                 TryParseTcpStream();
             }
         }
+
         private void TryParseTcpStream()
         {
             TcpStream.Seek(0, SeekOrigin.Begin);
@@ -342,9 +441,9 @@ namespace StarResonanceDpsAnalysis.Core
                     byte[] packet = new byte[len];
                     Array.Copy(lenBytes, 0, packet, 0, 4);
                     TcpStream.Read(packet, 4, len - 4);
-                    临时字段测试.process(packet);
+                    //临时字段测试.process(packet);
                     // 异步处理，防止 UI 卡顿
-                    //AnalyzePacket(packet);
+                    AnalyzePacket(packet);
                 }
                 else
                 {
@@ -368,7 +467,9 @@ namespace StarResonanceDpsAnalysis.Core
                 TcpStream.SetLength(0);
             }
         }
+        #endregion
 
+        #region ========== Stage 3: 业务解析（解压/拆包/统计） ==========
         /// <summary>
         /// 处理完整的 TCP 数据包，包括解压缩、解包、protobuf 解析、技能伤害提取与统计
         /// </summary>
@@ -563,7 +664,7 @@ namespace StarResonanceDpsAnalysis.Core
 
                             // 伤害数值：优先普通，如果没有用幸运值（注意0值可能表示治疗）
                             var damage = value != 0 ? value : luckyValue;
-                            if(damage==0) continue;
+                            if (damage == 0) continue;
 
                             string extra = isCrit ? "暴击" : luckyValue != 0 ? "幸运" : isMiss ? "Miss" : "普通";
 
@@ -681,7 +782,7 @@ namespace StarResonanceDpsAnalysis.Core
                                     StatisticData._manager.SetProfession(operatorUid, roleName);
                                 }
                             }
-                           MainForm.RefreshDpsTable();
+                            MainForm.RefreshDpsTable();
 
 
                         }
@@ -695,7 +796,9 @@ namespace StarResonanceDpsAnalysis.Core
                 Console.WriteLine($"解析异常: {ex}");
             }
         }
+        #endregion
 
+        #region ====== TCP 缓存清理 ======
         /// <summary>
         /// 清除 TCP 缓存，用于断线、错误重组等情况的重置操作
         /// </summary>
@@ -710,8 +813,10 @@ namespace StarResonanceDpsAnalysis.Core
             // 清空缓存的 TCP 分片数据（已收到但未处理的包）
             TcpCache.Clear();
         }
+        #endregion
     }
 
+    #region ====== 枚举定义 ======
     public enum AnalyzerState
     {
         Errored = -1,
@@ -720,4 +825,5 @@ namespace StarResonanceDpsAnalysis.Core
         Running = 1,
         Completed = 2,
     }
+    #endregion
 }
