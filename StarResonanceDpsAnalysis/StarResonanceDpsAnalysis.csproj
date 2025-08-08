@@ -8,11 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Assets\ApplicationIcon_256x256.ico</ApplicationIcon>
     <Platforms>AnyCPU;x86;x64</Platforms>
+    <Version>1.0.2</Version>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Plugin\config.cs~RF3fbf99bf.TMP" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\ApplicationIcon_256x256.ico" />
@@ -29,9 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Forms\MainForm.Function.cs">
-      <DependentUpon>Forms\MainForm.cs</DependentUpon>
-    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -44,6 +38,14 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- 把任意 *.Function.cs 折叠到去掉 .Function 后的同名 .cs 下 -->
+    <Compile Update="**/*.Function.cs">
+      <!-- %(Filename) 不带扩展名 -->
+      <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.Function','')).cs</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>
