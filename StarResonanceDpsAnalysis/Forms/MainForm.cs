@@ -435,12 +435,17 @@ namespace StarResonanceDpsAnalysis
         private void StartCapture()
         {
             Volatile.Write(ref _stopping, 0);
-
+      
             #region —— 前置校验与设备打开 —— 
             if (AppConfig.NetworkCard < 0)
             {
+                if (switch_IsMonitoring.Checked)
+                {
+                    switch_IsMonitoring.Checked = false;
+                }
                 MessageBox.Show("请选择一个网卡设备");
                 pageHeader_MainHeader.SubText = "监控已关闭";
+              
                 return;
             }
 
@@ -481,8 +486,9 @@ namespace StarResonanceDpsAnalysis
         /// <summary>停止抓包</summary>
         private async void StopCapture()
         {
+            
             Volatile.Write(ref _stopping, 1);
-
+           
             #region —— 保存快照 —— 
             if (TableDatas.DpsTable.Count > 0)
             {
@@ -622,6 +628,8 @@ namespace StarResonanceDpsAnalysis
             {
                 var dev = (ICaptureDevice)sender;
                 _packetAnalyzer.Enqueue(dev, e.GetPacket()); // 只入队
+                //ServerAddressResolver.OnAnyPacketArrived(); // 记录最后到包时间
+
             }
             catch (InvalidOperationException)
             {

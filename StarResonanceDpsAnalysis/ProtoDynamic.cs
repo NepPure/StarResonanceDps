@@ -61,7 +61,8 @@ public static class Blueprotobuf
         }
     }
 
-
+    private static long Remaining(BinaryReader r) =>
+    r.BaseStream.Length - r.BaseStream.Position;
     public static Dictionary<int, object> Decode(byte[] data)
     {
         var result = new Dictionary<int, object>();
@@ -84,7 +85,13 @@ public static class Blueprotobuf
             switch (wireType)
             {
                 case 0: // Varint
-                    value = ReadVarint64(reader);
+                                // 记住位置，读不全要回退
+                    if (!TryReadVarint64(reader, out ulong v))  // ← 正确用法：bool + out
+                    {
+                        ms.Position = ms.Position;     // 回退
+                        return result;         // 或者 break/continue，看你的流控
+                    }
+                    value = v; // 如需与 JS 的 long2int 行为一致，可转成 int/long
                     break;
 
                 case 1: // 64-bit
@@ -99,7 +106,21 @@ public static class Blueprotobuf
                     break;
 
                 case 2: // Length-delimited
-                    uint len = ReadVarint(reader);
+                    long mark = ms.Position;
+
+                    if (!TryReadVarint32(reader, out uint len))
+                    {
+                        // 长度都读不全：回退并结束（或 return; 随你需求）
+                        ms.Position = mark;
+                        return result; // 或者 break/continue，取你当前框架的流控
+                    }
+
+                    if (len > Remaining(reader))
+                    {
+                        // 数据体不完整：回退到读长度前，等下次
+                        ms.Position = mark;
+                        return result;
+                    }
                     byte[] buf = reader.ReadBytes((int)len);
 
                     try
@@ -256,19 +277,28 @@ public static class Blueprotobuf
         return result;
     }
 
-    private static ulong ReadVarint64(BinaryReader reader)
+    private static bool TryReadVarint64(BinaryReader reader, out ulong value)
     {
-        ulong result = 0;
+        value = 0;
+        long start = reader.BaseStream.Position;
         int shift = 0;
-        byte b;
-        do
+
+        while (shift < 70) // 7 * 10
         {
-            b = reader.ReadByte();
-            result |= (ulong)(b & 0x7F) << shift;
+            if (reader.BaseStream.Position >= reader.BaseStream.Length)
+            {
+                reader.BaseStream.Position = start; // 回退
+                return false; // 数据不够
+            }
+            byte b = reader.ReadByte();
+            value |= (ulong)(b & 0x7F) << shift;
+            if ((b & 0x80) == 0) return true; // 结束
             shift += 7;
-        } while ((b & 0x80) != 0);
-        return result;
+        }
+        reader.BaseStream.Position = start;
+        throw new FormatException("Varint64 too long");
     }
+
 
     private static void WriteVarint(BinaryWriter writer, ulong value)
     {
@@ -279,4 +309,32 @@ public static class Blueprotobuf
         }
         writer.Write((byte)value);
     }
+
+    private static bool TryReadVarint32(BinaryReader reader, out uint value)
+    {
+        value = 0;
+        long start = reader.BaseStream.Position;
+        int shift = 0;
+
+        while (shift < 35)
+        {
+            if (reader.BaseStream.Position >= reader.BaseStream.Length)
+            {
+                reader.BaseStream.Position = start; // 回退
+                return false; // 数据不够
+            }
+
+            byte b = reader.ReadByte();
+            value |= (uint)(b & 0x7F) << shift;
+
+            if ((b & 0x80) == 0) return true; // 结束
+
+            shift += 7;
+        }
+
+        // 非法 varint：回退并报错（按需也可直接 false）
+        reader.BaseStream.Position = start;
+        throw new FormatException("Varint32 too long");
+    }
+
 }

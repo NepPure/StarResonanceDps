@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace StarResonanceDpsAnalysis
 {
     internal static class Program
@@ -8,6 +10,8 @@ namespace StarResonanceDpsAnalysis
         [STAThread]
         static void Main()
         {
+            Console.OutputEncoding = Encoding.UTF8;
+
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();

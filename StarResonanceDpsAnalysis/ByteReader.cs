@@ -8,8 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ZstdNet;
-using Google.Protobuf;   // Parser.ParseFrom 在这
-using Blue;           // Blueprotobuf.cs 里的命名空间
+using Google.Protobuf;
+using Blue;   // Parser.ParseFrom 在这
 
 
 namespace StarResonanceDpsAnalysis
@@ -153,10 +153,10 @@ namespace StarResonanceDpsAnalysis
                 // 外层：处理一次输入里可能包含的多个完整包
                 var packetsReader = new ByteReader(packets);
 
-                while (packetsReader.Remaining >= 0) // 至少读得到一个 packetSize
+                while (packetsReader.Remaining > 0) // 至少读得到一个 packetSize
                 {
                     // —— 预读长度，不前进指针 —— 
-                    if (!packetsReader.TryPeekUInt32BE(out uint packetSize)) continue;
+                    if (!packetsReader.TryPeekUInt32BE(out uint packetSize)) break;
 
                     // 合法包最短：size(4) + type(2) = 6
                     if (packetSize < 6)
@@ -181,7 +181,7 @@ namespace StarResonanceDpsAnalysis
                     int msgTypeId = packetType & 0x7FFF;                // 低15位
 
                     // 调试输出（按需保留）
-                    Console.WriteLine($"MsgType={msgTypeId}, Size={packetSize}, RemainInPacket={packetReader.Remaining}");
+                   //Console.WriteLine($"MsgType={msgTypeId}, Size={packetSize}, RemainInPacket={packetReader.Remaining}");
 
                     switch (msgTypeId)
                     {
@@ -195,26 +195,25 @@ namespace StarResonanceDpsAnalysis
 
                         case 6: // FrameDown（注意：这里才读“服务器序列号”）
                             {
-                                if (packetReader.Remaining < 4)
-                                {
-                                    Console.WriteLine("FrameDown missing serverSequenceId, skip.");
-                                    break;
-                                }
-
                                 uint serverSequenceId = packetReader.ReadUInt32BE(); // 仅读取，不使用
-                                if (packetReader.Remaining == 0) break; // 空 FrameDown
 
-                                // 剩余即为嵌套包（通常自身也是“完整下行包”：size + type + body）
-                                byte[] nestedPacket = packetReader.ReadRemaining();
-
-                                if (isZstdCompressed)
+                                if (packetReader.Remaining != 0)
                                 {
-                                    // 你的解压函数：输入压缩体 -> 输出解压后的原始字节
-                                    nestedPacket = DecompressZstdIfNeeded(nestedPacket);
+
+                                    // 剩余即为嵌套包（通常自身也是“完整下行包”：size + type + body）
+                                    byte[] nestedPacket = packetReader.ReadRemaining();
+
+                                    if (isZstdCompressed)
+                                    {
+                                        // 你的解压函数：输入压缩体 -> 输出解压后的原始字节
+                                        nestedPacket = DecompressZstdIfNeeded(nestedPacket);
+                                    }
+
+                                    // 递归处理内部包
+                                    process(nestedPacket);
                                 }
 
-                                // 递归处理内部包
-                                process(nestedPacket);
+                               
                                 break;
                             }
 
@@ -298,14 +297,14 @@ namespace StarResonanceDpsAnalysis
             }
 
             byte[] msgPayload = packet.ReadRemaining();
-            // byte[] protoBody = msgPayload; // 纯 protobuf 部分，初始化为原 payload
+            byte[] protoBody = msgPayload; // 纯 protobuf 部分，初始化为原 payload
 
 
             if (isZstdCompressed)
             {
                 msgPayload = DecompressZstdIfNeeded(msgPayload);
             }
-
+            //protoBody = DecompressZstdIfNeeded(protoBody);
 
             #region
             //if (isZstdCompressed && msgPayload.Length >= 4)
@@ -356,8 +355,10 @@ namespace StarResonanceDpsAnalysis
             #endregion
             // ====== 打印区 ======
             //Console.WriteLine($"[PROTO][svc={serviceUuid:X16}][stub={stubId}][mid={methodId}] len={protoBody.Length}");
+
             //Console.WriteLine(BitConverter.ToString(protoBody));
             //ProtoPrinter.Print(protoBody); // 这里假设你有 ProtoPrinter
+            //string result = ProtoPrettyPrinter.PrettyPrintProto(BitConverter.ToString(protoBody));
 
             // ====== 原有路由逻辑 ======
             switch (methodId)
@@ -380,12 +381,11 @@ namespace StarResonanceDpsAnalysis
 
         public static void _processSyncNearEntities(byte[] payloadBuffer)
         {
-            var syncNearEntities = DecodeSyncNearEntities(payloadBuffer);
-            //var syncNearEntities = Blueprotobuf.Decode(payloadBuffer);
+            var syncNearEntities =SyncNearEntities.Parser.ParseFrom(payloadBuffer);
+            //var syncNearEntities = SyncNearEntitiesManual.Decode(payloadBuffer);
+
             if (syncNearEntities.Appear == null || syncNearEntities.Appear.Count == 0)
-            {
                 return;
-            }
 
 
             foreach (var entity in syncNearEntities.Appear)
@@ -447,56 +447,7 @@ namespace StarResonanceDpsAnalysis
 
 
 
-        /// <summary>
-        /// 等价于 JS: SyncNearEntities.decode(reader, length, error)
-        /// </summary>
-        /// <param name="data">整个 buffer（或截断后的片段）</param>
-        /// <param name="length">可选：已知消息长度，行为等价于 JS 里 end=pos+length</param>
-        /// <param name="errorTag">可选：遇到这个 tag 就提前 break（等价于 if (tag === error) break）</param>
-        public static SyncNearEntities DecodeSyncNearEntities(byte[] data, int offset = 0, int? length = null, uint? errorTag = null)
-        {
-            int count = length ?? (data.Length - offset);
-
-            // 切片成新的 byte[]，避免使用 PushLimit/RestoreLimit
-            var buffer = new byte[count];
-            Buffer.BlockCopy(data, offset, buffer, 0, count);
-
-            var input = new CodedInputStream(buffer);
-            var message = new SyncNearEntities();
-
-            while (!input.IsAtEnd)
-            {
-                uint tag = input.ReadTag();
-                if (tag == 0) break;
-                if (errorTag.HasValue && tag == errorTag.Value)
-                    break;
-
-                int fieldNumber = WireFormat.GetTagFieldNumber(tag);
-                switch (fieldNumber)
-                {
-                    case 1: // Appear
-                        var ent = new Entity();
-                        input.ReadMessage(ent);
-                        message.Appear.Add(ent);
-                        break;
-
-                    case 2: // Disappear
-                        var de = new DisappearEntity();
-                        input.ReadMessage(de);
-                        message.Disappear.Add(de);
-                        break;
-
-                    default:
-                        input.SkipLastField();
-                        break;
-                }
-            }
-
-            return message;
-        }
-
     }
-
 
 
 }

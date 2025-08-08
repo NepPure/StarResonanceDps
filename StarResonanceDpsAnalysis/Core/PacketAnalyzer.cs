@@ -44,7 +44,7 @@ namespace StarResonanceDpsAnalysis.Core
         // private ICaptureDevice? SelectedDevice { get; init; } = null;
         // private RawCapture Raw { get; init; } = null;
         private bool HasAppliedFilter { get; set; } = false;
-        private static string CurrentServer { get; set; } = string.Empty;
+        public static string CurrentServer { get; set; } = string.Empty;
         private ulong UserUid { get; set; } = 0;
         private ConcurrentDictionary<uint, DateTime> TcpCacheTime { get; } = new();
         private MemoryStream TcpStream { get; } = new();
@@ -78,14 +78,17 @@ namespace StarResonanceDpsAnalysis.Core
                 _threads.Add(t);
                 t.Start();
             }
+
+          
             Console.WriteLine($"线程创建: {workerCount}");
         }
 
         public void Enqueue(ICaptureDevice dev, RawCapture raw)
         {
             _queue.Add((dev, raw));
-            int count = _queue.Count;
-            Console.WriteLine($"当前队列长度: {count}");
+      
+           // int count = _queue.Count;
+           // Console.WriteLine($"当前队列长度: {count}");
         }
 
         public void Stop(bool drain = true, int maxWaitMs = 10000)
@@ -111,6 +114,11 @@ namespace StarResonanceDpsAnalysis.Core
             while (_queue.TryTake(out _)) { }
 
         }
+        #endregion
+
+
+        #region 看门
+
         #endregion
 
         #region ====== 工作线程主循环 ======
@@ -187,7 +195,7 @@ namespace StarResonanceDpsAnalysis.Core
                     ClearTcpCache(); // 清除 TCP 缓存数据
                 }
 
-                // 如果当前服务器（源地址）发生变化，进行验证
+                //如果当前服务器（源地址）发生变化，进行验证
                 if (CurrentServer != srcServer)
                 {
                     // 尝试验证是否为目标服务器（例如游戏服务器）
@@ -337,7 +345,7 @@ namespace StarResonanceDpsAnalysis.Core
             var serverIp = parts[0];
             var serverPort = parts[1];
 
-            device.Filter = $"tcp and host {serverIp} and port {serverPort}";
+            device.Filter = $"tcp and host {serverIp}";
             // Console.WriteLine($"【Filter 已更新】 tcp and host {serverIp} and port {serverPort}");
         }
         #endregion
@@ -441,9 +449,9 @@ namespace StarResonanceDpsAnalysis.Core
                     byte[] packet = new byte[len];
                     Array.Copy(lenBytes, 0, packet, 0, 4);
                     TcpStream.Read(packet, 4, len - 4);
-                    //临时字段测试.process(packet);
+                    临时字段测试.process(packet);
                     // 异步处理，防止 UI 卡顿
-                    AnalyzePacket(packet);
+                    //AnalyzePacket(packet);
                 }
                 else
                 {
