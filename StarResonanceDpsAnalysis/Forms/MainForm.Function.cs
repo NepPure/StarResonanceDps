@@ -153,7 +153,12 @@ namespace StarResonanceDpsAnalysis
         [DllImport("user32.dll")]
         private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
-        bool IsMousePenetrate = false;
+        private bool IsMousePenetrate = false;
+
+        private const int GWL_EXSTYLE = -20;
+
+        private const int WS_EX_TRANSPARENT = 0x00000020;
+        private const int WS_EX_LAYERED = 0x00080000;
 
         private void HandleMouseThrough()
         {
@@ -174,6 +179,11 @@ namespace StarResonanceDpsAnalysis
 
         #region HandleFormTransparency() 响应窗体透明
 
+        /// <summary>
+        /// 是否开启透明
+        /// </summary>
+        bool hyaline = false;
+
         private void HandleFormTransparency()
         {
             var opacity = hyaline ? 1 : AppConfig.Transparency / 100;
@@ -187,6 +197,11 @@ namespace StarResonanceDpsAnalysis
 
         #region HandleSwitchMonitoring() 响应监控切换
 
+        /// <summary>
+        /// 监控开关
+        /// </summary>
+        bool monitor = false;
+
         private void HandleSwitchMonitoring()
         {
             if (!monitor)
@@ -194,31 +209,7 @@ namespace StarResonanceDpsAnalysis
                 //开始监控
                 StartCapture();
 
-                if (AppConfig.NetworkCard == -1)
-                {
-                    return;
-                }
-                switch1.Checked = true;
-                timer_RefreshDpsTable.Enabled = true;
-                pageHeader_MainHeader.SubText = "监控已开启";
-                monitor = true;
-                _combatWatch.Restart();
-                timer_RefreshRunningTime.Start();
-                if (label_SettingTip.Visible == false)
-                {
-                    label_SettingTip.Visible = true;
-                    label_SettingTip.Text = "00:00";
-                }
-
-                //开始监控的时候清空数据
-                if (TableDatas.DpsTable.Count > 0)
-                {
-
-                    SaveCurrentDpsSnapshot();
-                }
-
-                TableDatas.DpsTable.Clear();
-                StatisticData._manager.ClearAll();
+              
 
             }
             else
@@ -227,13 +218,8 @@ namespace StarResonanceDpsAnalysis
 
                 //关闭监控
                 StopCapture();
-                label_SettingTip.Text = "00:00";
-                switch1.Checked = false;
-                //_hasAppliedFilter = false;//需要测试
-                timer_RefreshDpsTable.Enabled = false;
-                monitor = false;
-                timer_RefreshRunningTime.Stop();
-                _combatWatch.Stop();
+           
+
 
             }
         }

@@ -34,7 +34,7 @@ namespace StarResonanceDpsAnalysis
 
         // 用于检测长时间无数据包并重启抓包的定时器
         private System.Timers.Timer? _restartCaptureTimer;
-        private const double NO_PACKET_TIMEOUT_SECONDS = 1.5; // 无数据包超时时间（秒）
+        private const double NO_PACKET_TIMEOUT_SECONDS = 5; // 无数据包超时时间（秒）
 
         // 键盘钩子
         private KeyboardHook? kbHook;
@@ -45,6 +45,13 @@ namespace StarResonanceDpsAnalysis
             InitializeComponent();
 
             FormGui.SetDefaultGUI(this);
+
+            /* Application.ProductVersion 默认会被 MSBuild 附加 Git 哈希, 
+             * 如: "1.0.0+123456789acbdef", 
+             * 将 + 后面去掉就是项目属性的版本号,
+             * 这样可以让生成文件的版本号与标题版本号一致
+             * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+            pageHeader_MainHeader.Text += $" v{Application.ProductVersion.Split('+')[0]}";
 
             LoadTableColumnVisibilitySettings();
             ToggleTableView();
@@ -99,15 +106,6 @@ namespace StarResonanceDpsAnalysis
             }
         }
 
-
-        bool monitor = false;//监控开关
-        bool hyaline = false;//是否开启透明
-
-        public const int WS_EX_TRANSPARENT = 0x00000020;
-        public const int WS_EX_LAYERED = 0x00080000;
-
-
-        private const int GWL_EXSTYLE = -20;
 
         public void kbHook_OnKeyDownEvent(object? sender, KeyEventArgs e)
         {
@@ -258,12 +256,35 @@ namespace StarResonanceDpsAnalysis
 
 
             // 初始化无数据包检测定时器
-            _restartCaptureTimer = new System.Timers.Timer(1000); // 每秒检查一次
-            _restartCaptureTimer.AutoReset = true;
-            _restartCaptureTimer.Elapsed += RestartCaptureTimer_Elapsed;
-            _restartCaptureTimer.Start();
+            //_restartCaptureTimer = new System.Timers.Timer(1000); // 每秒检查一次
+            //_restartCaptureTimer.AutoReset = true;
+            //_restartCaptureTimer.Elapsed += RestartCaptureTimer_Elapsed;
+            //_restartCaptureTimer.Start();
+
             // 控制台打印提示信息
             // Console.WriteLine("开始抓包...");
+
+            switch_IsMonitoring.Checked = true;
+            timer_RefreshDpsTable.Enabled = true;
+            pageHeader_MainHeader.SubText = "监控已开启";
+            monitor = true;
+            _combatWatch.Restart();
+            timer_RefreshRunningTime.Start();
+            if (label_SettingTip.Visible == false)
+            {
+                label_SettingTip.Visible = true;
+                label_SettingTip.Text = "00:00";
+            }
+
+            //开始监控的时候清空数据
+            if (TableDatas.DpsTable.Count > 0)
+            {
+
+                SaveCurrentDpsSnapshot();
+            }
+
+            TableDatas.DpsTable.Clear();
+            StatisticData._manager.ClearAll();
         }
 
 
@@ -449,14 +470,16 @@ namespace StarResonanceDpsAnalysis
         /// <summary>
         /// 停止抓包
         /// </summary>
-        private void StopCapture()
+        private async void StopCapture()
         {
+
             if (selectedDevice != null)
             {
                 try
                 {
-                    selectedDevice.StopCapture();
                     selectedDevice.OnPacketArrival -= Device_OnPacketArrival;
+
+                    selectedDevice.StopCapture();
                     selectedDevice.Close();
 
                     Console.WriteLine("停止抓包");
@@ -478,34 +501,72 @@ namespace StarResonanceDpsAnalysis
             }
 
             // 停止工作线程
+            // 在 async 方法中调用
             if (_cancellationTokenSource != null)
             {
-                _cancellationTokenSource.Cancel();
+                var cts = _cancellationTokenSource;      // 捕获本地引用，避免竞态
+                var tasks = _workerTasks;                // 同上
+
+                cts.Cancel();
 
                 try
                 {
-                    Task.WaitAll(_workerTasks, 3000);
-                }
-                catch (AggregateException ex)
-                {
-                    foreach (var inner in ex.InnerExceptions)
+                    // 过滤掉 null 和已完成的任务，避免无意义等待和异常
+                    var pending = tasks?
+                        .Where(t => t != null && !t.IsCompleted)
+                        .ToArray() ?? Array.Empty<Task>();
+
+                    if (pending.Length > 0)
                     {
-                        Console.WriteLine($"[线程终止异常] {inner.Message}");
+                        var all = Task.WhenAll(pending);             // 汇总任务
+                        var finished = await Task.WhenAny(all, Task.Delay(3000)); // 最多等3秒
+
+                        if (finished != all)
+                        {
+                            // 超时：此处可记日志，但不要阻塞
+                            Console.WriteLine("[关闭] 等待任务超时（>3s），后续让任务自行收尾。");
+                        }
+                        else
+                        {
+                            // 如果里头有异常，这里会把 AggregateException 展开抛出
+                            await all;
+                        }
                     }
                 }
-
-                _cancellationTokenSource.Dispose();
-                _cancellationTokenSource = null;
-                _workerTasks = null;
+                catch (OperationCanceledException)
+                {
+                    // 正常：任务响应取消
+                }
+                catch (AggregateException aex)
+                {
+                    foreach (var inner in aex.Flatten().InnerExceptions)
+                        Console.WriteLine($"[线程终止异常] {inner.Message}");
+                }
+                finally
+                {
+                    cts.Dispose();
+                    _cancellationTokenSource = null;
+                    _workerTasks = Array.Empty<Task>(); // 避免设 null 引发后续判空失误
+                }
             }
+
 
             // 清空缓存状态
             currentServer = "";
             _hasAppliedFilter = false;
             ClearTcpCache();
-
+            #region 清空记录
+            label_SettingTip.Text = "00:00";
+            switch_IsMonitoring.Checked = false;
+            //_hasAppliedFilter = false;//需要测试
+            timer_RefreshDpsTable.Enabled = false;
+            monitor = false;
+            timer_RefreshRunningTime.Stop();
+            _combatWatch.Stop();
+            #endregion
             // 清空数据包队列
             while (_packetQueue.TryTake(out _)) ;
+
         }
 
         private readonly ConcurrentDictionary<uint, DateTime> tcpCacheTime = new();
@@ -574,7 +635,7 @@ namespace StarResonanceDpsAnalysis
                     // 停止当前抓包
                     StopCapture();
                     // 非阻塞等待一小段时间
-                    await Task.Delay(500);
+                    await Task.Delay(3000);
                     // 重新开始抓包
                     StartCapture();
                     // 重置最后数据包时间
