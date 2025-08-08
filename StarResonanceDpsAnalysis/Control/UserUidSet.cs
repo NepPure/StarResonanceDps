@@ -94,7 +94,7 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 if (!user_tabel.Any(x => x.Uid == item.Uid))
                 {
-                    if (!string.IsNullOrWhiteSpace(item.Nickname)&& item.Nickname!= "未知")
+                    if (!string.IsNullOrWhiteSpace(item.Nickname) && item.Nickname != "未知")
                     {
                         user_tabel.Add(new UserTabel(item.Uid, item.Nickname));
                     }
@@ -112,7 +112,7 @@ namespace StarResonanceDpsAnalysis.Control
             if (!user_tabel.Any(x => x.Uid == inputNumber1.Value))
             {
 
-                if(inputNumber1.Value==null||input2.Text==null)
+                if (inputNumber1.Value == null || input2.Text == null)
                 {
                     FormGui.Modal(this, "输入不能为空", "请输入UID和昵称");
                     return;
@@ -141,8 +141,18 @@ namespace StarResonanceDpsAnalysis.Control
 
         private bool table1_CellEndEdit(object sender, TableEndEditEventArgs e)
         {
-         
+
             return true;
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            user_tabel.Clear();
+        }
+
+        private void UserUidSet_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            user_tabel.Clear();
         }
     }
 }

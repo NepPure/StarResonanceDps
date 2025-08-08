@@ -153,13 +153,15 @@ namespace StarResonanceDpsAnalysis
             var snapshot = new BindingList<DpsTable>();
             foreach (var item in TableDatas.DpsTable)
             {
+               
+                string nickname = item.nickname;
                 // 先把 critRate / luckyRate 的 "%" 去掉再解析成 double
                 double.TryParse(item.critRate.TrimEnd('%'), out var cr);
                 double.TryParse(item.luckyRate.TrimEnd('%'), out var lr);
                 snapshot.Add(new DpsTable(
                     // —— 受伤 & 治疗 —— 
                     item.uid,
-                    item.nickname,
+                    nickname : nickname,
                     item.damageTaken,             // 累计受到的伤害
                     item.totalHealingDone,        // 总治疗量
                     item.criticalHealingDone,     // 暴击治疗量
@@ -174,8 +176,8 @@ namespace StarResonanceDpsAnalysis
                     item.criticalDamage,          // 暴击伤害
                     item.luckyDamage,             // 幸运伤害
                     item.critLuckyDamage,         // 暴击+幸运伤害
-                    cr,                           // 暴击率（0～100）
-                    lr,                           // 幸运率（0～100）
+                    cr.ToString(),                           // 暴击率（0～100）
+                    lr.ToString(),                           // 幸运率（0～100）
                     item.instantDps,              // 瞬时 DPS
                     item.maxInstantDps,           // 峰值 DPS
                     item.totalDps,                // 平均 DPS
@@ -188,9 +190,18 @@ namespace StarResonanceDpsAnalysis
                         Fill = AppConfig.DpsColor
                     }
                 ));
+               
+                
+           
+            }
+            foreach (var item in snapshot)
+            {
+                Console.WriteLine("dict nickname = " + item.nickname);
             }
 
             HistoricalRecords[timeOnly] = snapshot;
+            Console.WriteLine("dict readback nickname = " + HistoricalRecords[timeOnly].Last().nickname);
+
             dropdown_History.Items.Add(timeOnly);
             dropdown_History.SelectedValue = -1;
         }
@@ -276,12 +287,7 @@ namespace StarResonanceDpsAnalysis
                 label_SettingTip.Text = "00:00";
             }
 
-            //开始监控的时候清空数据
-            if (TableDatas.DpsTable.Count > 0)
-            {
-
-                SaveCurrentDpsSnapshot();
-            }
+     
 
             TableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
@@ -472,6 +478,11 @@ namespace StarResonanceDpsAnalysis
         /// </summary>
         private async void StopCapture()
         {
+            if (TableDatas.DpsTable.Count > 0)
+            {
+
+                SaveCurrentDpsSnapshot();
+            }
 
             if (selectedDevice != null)
             {
@@ -556,6 +567,8 @@ namespace StarResonanceDpsAnalysis
             _hasAppliedFilter = false;
             ClearTcpCache();
             #region 清空记录
+            //开始监控的时候清空数据
+          
             label_SettingTip.Text = "00:00";
             switch_IsMonitoring.Checked = false;
             //_hasAppliedFilter = false;//需要测试
@@ -1282,7 +1295,8 @@ namespace StarResonanceDpsAnalysis
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            RefreshDpsTable();
+            Task.Run(() => RefreshDpsTable());
+
         }
 
 
@@ -1454,7 +1468,7 @@ namespace StarResonanceDpsAnalysis
                 // 先把 critRate / luckyRate 的 "%" 去掉再解析成 double
                 double.TryParse(item.critRate.TrimEnd('%'), out var cr);
                 double.TryParse(item.luckyRate.TrimEnd('%'), out var lr);
-
+             
                 Plugin.TableDatas.DpsTable.Add(new DpsTable(
                     // —— 受伤 & 治疗 —— 
                     item.uid,
@@ -1473,8 +1487,8 @@ namespace StarResonanceDpsAnalysis
                     item.criticalDamage,          // 暴击伤害
                     item.luckyDamage,             // 幸运伤害
                     item.critLuckyDamage,         // 暴击+幸运伤害
-                    cr,                           // 暴击率（0～100）
-                    lr,                           // 幸运率（0～100）
+                    cr.ToString(),                           // 暴击率（0～100）
+                    lr.ToString(),                           // 幸运率（0～100）
                     item.instantDps,              // 瞬时 DPS
                     item.maxInstantDps,           // 峰值 DPS
                     item.totalDps,                // 平均 DPS
@@ -1529,12 +1543,7 @@ namespace StarResonanceDpsAnalysis
                 _combatWatch.Restart();
                 timer_RefreshRunningTime.Start();
 
-                //开始监控的时候清空数据
-                if (TableDatas.DpsTable.Count > 0)
-                {
 
-                    SaveCurrentDpsSnapshot();
-                }
 
                 TableDatas.DpsTable.Clear();
                 StatisticData._manager.ClearAll();

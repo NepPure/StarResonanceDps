@@ -35,6 +35,7 @@
             button2 = new AntdUI.Button();
             input2 = new AntdUI.Input();
             inputNumber1 = new AntdUI.InputNumber();
+            button3 = new AntdUI.Button();
             SuspendLayout();
             // 
             // pageHeader1
@@ -105,12 +106,23 @@
             inputNumber1.TabIndex = 7;
             inputNumber1.Text = "0";
             // 
+            // button3
+            // 
+            button3.Location = new Point(313, 53);
+            button3.Name = "button3";
+            button3.Size = new Size(295, 57);
+            button3.TabIndex = 8;
+            button3.Text = "清空表格内的ID";
+            button3.Type = AntdUI.TTypeMini.Primary;
+            button3.Click += button3_Click;
+            // 
             // UserUidSet
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(823, 775);
+            Controls.Add(button3);
             Controls.Add(inputNumber1);
             Controls.Add(input2);
             Controls.Add(button2);
@@ -121,6 +133,7 @@
             Name = "UserUidSet";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "UserUidSet";
+            FormClosed += UserUidSet_FormClosed;
             Load += UserUidSet_Load;
             ResumeLayout(false);
         }
@@ -133,5 +146,6 @@
         private AntdUI.Button button2;
         private AntdUI.Input input2;
         private AntdUI.InputNumber inputNumber1;
+        private AntdUI.Button button3;
     }
 }

@@ -33,16 +33,16 @@ namespace StarResonanceDpsAnalysis.Plugin
         private string Profession;
 
         /// <summary>该玩家造成的总伤害</summary>
-        private ulong TotalDamage;
+        private string TotalDamage;
 
         /// <summary>该玩家通过暴击造成的伤害总量</summary>
-        private ulong CriticalDamage;
+        private string CriticalDamage;
 
         /// <summary>该玩家通过幸运造成的伤害总量</summary>
-        private ulong LuckyDamage;
+        private string LuckyDamage;
 
         /// <summary>同时满足暴击和幸运条件的伤害总量</summary>
-        private ulong CritLuckyDamage;
+        private string CritLuckyDamage;
 
         /// <summary>格式化后的暴击率（字符串，带“%”）</summary>
         private string CritRate;
@@ -51,13 +51,13 @@ namespace StarResonanceDpsAnalysis.Plugin
         private string LuckyRate;
 
         /// <summary>最近 1 秒内的瞬时 DPS（伤害/秒）</summary>
-        private ulong InstantDPS;
+        private string InstantDPS;
 
         /// <summary>统计期间出现过的最大瞬时 DPS</summary>
-        private ulong MaxInstantDPS;
+        private string MaxInstantDPS;
 
         /// <summary>平均总 DPS（总伤害 ÷ 战斗持续秒数）</summary>
-        private double TotalDPS;
+        private string TotalDPS;
 
         /// <summary>用于在 UI 中展示进度条的 CellProgress 对象</summary>
         private CellProgress progress;
@@ -66,28 +66,28 @@ namespace StarResonanceDpsAnalysis.Plugin
         // —— HPS 相关私有字段 —— 
 
         /// <summary>累计受到的伤害（该玩家受到的总伤害）</summary>
-        private ulong DamageTaken;
+        private string DamageTaken;
 
         /// <summary>该玩家提供的总治疗量</summary>
-        private ulong TotalHealingDone;
+        private string TotalHealingDone;
 
         /// <summary>该玩家通过暴击造成的治疗总量</summary>
-        private ulong CriticalHealingDone;
+        private string CriticalHealingDone;
 
         /// <summary>该玩家通过幸运造成的治疗总量</summary>
-        private ulong LuckyHealingDone;
+        private string LuckyHealingDone;
 
         /// <summary>同时满足暴击和幸运条件的治疗总量</summary>
-        private ulong CritLuckyHealingDone;
+        private string CritLuckyHealingDone;
 
         /// <summary>最近 1 秒内的瞬时 HPS（治疗/秒）</summary>
-        private ulong InstantHps;
+        private string InstantHps;
 
         /// <summary>统计期间出现过的最大瞬时 HPS</summary>
-        private ulong MaxInstantHps;
+        private string MaxInstantHps;
 
         /// <summary>平均总 HPS（总治疗 ÷ 战斗持续秒数）</summary>
-        private double TotalHps;
+        private string TotalHps;
 
 
 
@@ -117,24 +117,24 @@ namespace StarResonanceDpsAnalysis.Plugin
         public DpsTable(
             ulong uid,
             string nickname,
-            ulong takenDamage,
-            ulong totalHealing,
-            ulong totalCriticalHealing,
-            ulong totalLuckyHealing,
-            ulong totalCritLuckyHealing,
-            ulong totalInstantHps,
-            ulong totalMaxInstantHps,
+            string takenDamage,
+            string totalHealing,
+            string totalCriticalHealing,
+            string totalLuckyHealing,
+            string totalCritLuckyHealing,
+            string totalInstantHps,
+            string totalMaxInstantHps,
             string profession,
-            ulong totalDamage,
-            ulong criticalDamage,
-            ulong luckyDamage,
-            ulong critLuckyDamage,
-            double critRate,
-            double luckyRate,
-            ulong instantDPS,
-            ulong maxInstantDPS,
-            double totalDPS,
-            double totalHps,
+            string totalDamage,
+            string criticalDamage,
+            string luckyDamage,
+            string critLuckyDamage,
+            string critRate,
+            string luckyRate,
+            string instantDPS,
+            string maxInstantDPS,
+            string totalDPS,
+            string totalHps,
             CellProgress cellProgress = null)
         {
             // DPS 相关
@@ -145,6 +145,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             this.LuckyDamage = luckyDamage;
             this.CritLuckyDamage = critLuckyDamage;
             this.CritRate = @$"{critRate}%";
+        
             this.LuckyRate = @$"{luckyRate}%";
             this.InstantDPS = instantDPS;
             this.MaxInstantDPS = maxInstantDPS;
@@ -187,7 +188,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 if (Uid == value) return;
                 Uid = value;
-                OnPropertyChanged(nameof(uid));
+                OnPropertyChanged(nameof(Uid));
             }
         }
 
@@ -198,7 +199,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 if (NickName == value) return;
                 NickName = value;
-                OnPropertyChanged(nameof(nickname));
+                OnPropertyChanged(nameof(NickName));
             }
         }
 
@@ -217,50 +218,50 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
 
         /// <summary>总伤害</summary>
-        public ulong totalDamage
+        public string totalDamage
         {
             get => TotalDamage;
             set
             {
                 if (TotalDamage == value) return;
                 TotalDamage = value;
-                OnPropertyChanged(nameof(totalDamage));
+                OnPropertyChanged(nameof(TotalDamage));
             }
         }
 
         /// <summary>纯暴击伤害</summary>
-        public ulong criticalDamage
+        public string criticalDamage
         {
             get => CriticalDamage;
             set
             {
                 if (CriticalDamage == value) return;
                 CriticalDamage = value;
-                OnPropertyChanged(nameof(criticalDamage));
+                OnPropertyChanged(nameof(CriticalDamage));
             }
         }
 
         /// <summary>纯幸运伤害</summary>
-        public ulong luckyDamage
+        public string luckyDamage
         {
             get => LuckyDamage;
             set
             {
                 if (LuckyDamage == value) return;
                 LuckyDamage = value;
-                OnPropertyChanged(nameof(luckyDamage));
+                OnPropertyChanged(nameof(LuckyDamage));
             }
         }
 
         /// <summary>暴击+幸运伤害</summary>
-        public ulong critLuckyDamage
+        public string critLuckyDamage
         {
             get => CritLuckyDamage;
             set
             {
                 if (CritLuckyDamage == value) return;
                 CritLuckyDamage = value;
-                OnPropertyChanged(nameof(critLuckyDamage));
+                OnPropertyChanged(nameof(CritLuckyDamage));
             }
         }
 
@@ -272,7 +273,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 if (CritRate == value) return;
                 CritRate = value;
-                OnPropertyChanged(nameof(critRate));
+                OnPropertyChanged(nameof(CritRate));
             }
         }
 
@@ -284,141 +285,141 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 if (LuckyRate == value) return;
                 LuckyRate = value;
-                OnPropertyChanged(nameof(luckyRate));
+                OnPropertyChanged(nameof(LuckyRate));
             }
         }
 
         /// <summary>瞬时 DPS（最近1秒）</summary>
-        public ulong instantDps
+        public string instantDps
         {
             get => InstantDPS;
             set
             {
                 if (InstantDPS == value) return;
                 InstantDPS = value;
-                OnPropertyChanged(nameof(instantDps));
+                OnPropertyChanged(nameof(InstantDPS));
             }
         }
 
         /// <summary>最大瞬时 DPS</summary>
-        public ulong maxInstantDps
+        public string maxInstantDps
         {
             get => MaxInstantDPS;
             set
             {
                 if (MaxInstantDPS == value) return;
                 MaxInstantDPS = value;
-                OnPropertyChanged(nameof(maxInstantDps));
+                OnPropertyChanged(nameof(MaxInstantDPS));
             }
         }
 
         /// <summary>平均总 DPS</summary>
-        public double totalDps
+        public string totalDps
         {
             get => TotalDPS;
             set
             {
                 if (TotalDPS == value) return;
                 TotalDPS = value;
-                OnPropertyChanged(nameof(totalDps));
+                OnPropertyChanged(nameof(TotalDPS));
             }
         }
 
         // —— 公开属性（包含通知） —— 
 
         /// <summary>累计受到的伤害（该玩家受到的总伤害）</summary>
-        public ulong damageTaken
+        public string damageTaken
         {
             get => DamageTaken;
             set
             {
                 if (DamageTaken == value) return;
                 DamageTaken = value;
-                OnPropertyChanged(nameof(damageTaken));
+                OnPropertyChanged(nameof(DamageTaken));
             }
         }
 
         /// <summary>总治疗量（该玩家提供的治疗总量）</summary>
-        public ulong totalHealingDone
+        public string totalHealingDone
         {
             get => TotalHealingDone;
             set
             {
                 if (TotalHealingDone == value) return;
                 TotalHealingDone = value;
-                OnPropertyChanged(nameof(totalHealingDone));
+                OnPropertyChanged(nameof(TotalHealingDone));
             }
         }
 
         /// <summary>暴击治疗量（该玩家通过暴击造成的治疗）</summary>
-        public ulong criticalHealingDone
+        public string criticalHealingDone
         {
             get => CriticalHealingDone;
             set
             {
                 if (CriticalHealingDone == value) return;
                 CriticalHealingDone = value;
-                OnPropertyChanged(nameof(criticalHealingDone));
+                OnPropertyChanged(nameof(CriticalHealingDone));
             }
         }
 
         /// <summary>幸运治疗量（该玩家通过幸运造成的治疗）</summary>
-        public ulong luckyHealingDone
+        public string luckyHealingDone
         {
             get => LuckyHealingDone;
             set
             {
                 if (LuckyHealingDone == value) return;
                 LuckyHealingDone = value;
-                OnPropertyChanged(nameof(luckyHealingDone));
+                OnPropertyChanged(nameof(LuckyHealingDone));
             }
         }
 
         /// <summary>暴击+幸运治疗量（同时满足暴击和幸运条件的治疗）</summary>
-        public ulong critLuckyHealingDone
+        public string critLuckyHealingDone
         {
             get => CritLuckyHealingDone;
             set
             {
                 if (CritLuckyHealingDone == value) return;
                 CritLuckyHealingDone = value;
-                OnPropertyChanged(nameof(critLuckyHealingDone));
+                OnPropertyChanged(nameof(CritLuckyHealingDone));
             }
         }
 
         /// <summary>瞬时 HPS（最近 1 秒内的治疗/秒）</summary>
-        public ulong instantHps
+        public string instantHps
         {
             get => InstantHps;
             set
             {
                 if (InstantHps == value) return;
                 InstantHps = value;
-                OnPropertyChanged(nameof(instantHps));
+                OnPropertyChanged(nameof(InstantHps));
             }
         }
 
         /// <summary>最大瞬时 HPS（统计期间出现过的最大治疗/秒）</summary>
-        public ulong maxInstantHps
+        public string maxInstantHps
         {
             get => MaxInstantHps;
             set
             {
                 if (MaxInstantHps == value) return;
                 MaxInstantHps = value;
-                OnPropertyChanged(nameof(maxInstantHps));
+                OnPropertyChanged(nameof(MaxInstantHps));
             }
         }
 
         /// <summary>平均总 HPS（总治疗 ÷ 战斗持续秒数）</summary>
-        public double totalHps
+        public string totalHps
         {
             get => TotalHps;
             set
             {
                 if (TotalHps == value) return;
                 TotalHps = value;
-                OnPropertyChanged(nameof(totalHps));
+                OnPropertyChanged(nameof(TotalHps));
             }
         }
     }
