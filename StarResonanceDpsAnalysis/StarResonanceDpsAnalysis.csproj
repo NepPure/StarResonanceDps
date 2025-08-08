@@ -18,6 +18,7 @@
   <ItemGroup>
     <PackageReference Include="AntdUI" Version="2.0.16" />
     <PackageReference Include="Flurl.Http" Version="3.2.4" />
+    <PackageReference Include="Google.Protobuf" Version="3.32.0-rc2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="PacketDotNet" Version="1.4.9-pre44" />
     <PackageReference Include="ScottPlot.WinForms" Version="5.0.55" />

@@ -16,6 +16,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// 表格数据绑定
         /// </summary>
         public static BindingList<DpsTable> DpsTable = [];
+        public static readonly object DpsTableLock = new();
 
     }
 

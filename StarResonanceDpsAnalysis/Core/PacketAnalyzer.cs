@@ -194,7 +194,7 @@ namespace StarResonanceDpsAnalysis.Core
                         break;
 
                     // 解码主体结构（跳过前18字节，通常是头部结构）
-                    var body = ProtoDynamic.Decode(data1.AsSpan(18).ToArray());
+                    var body = global::Blueprotobuf.Decode(data1.AsSpan(18).ToArray());
 
                     // 从结构中尝试获取玩家 UID（字段[1]->[5]）
                     if (data1.Length >= 17 && data1[17] == 0x2E) // 特定标志字节 0x2E
@@ -336,7 +336,7 @@ namespace StarResonanceDpsAnalysis.Core
                 }
 
                 long remain = TcpStream.Length - TcpStream.Position;
-                if (remain + 4 >= len)
+                if (remain >= len - 4)  // 剩余是否够“包体”的长度
                 {
                     // 数据够一个完整包
                     byte[] packet = new byte[len];
@@ -344,7 +344,7 @@ namespace StarResonanceDpsAnalysis.Core
                     TcpStream.Read(packet, 4, len - 4);
                     临时字段测试.process(packet);
                     // 异步处理，防止 UI 卡顿
-                    AnalyzePacket(packet);
+                    //AnalyzePacket(packet);
                 }
                 else
                 {
@@ -436,7 +436,7 @@ namespace StarResonanceDpsAnalysis.Core
                     if (data1.Length < 18) continue;
 
                     // 解码：从第18字节开始是 protobuf 数据结构
-                    var body = ProtoDynamic.Decode(data1.AsSpan(18).ToArray());
+                    var body = global::Blueprotobuf.Decode(data1.AsSpan(18).ToArray());
 
                     // 如果 data1[17] == 0x2E（.），意味着 body[1] 是真正的结构
                     if (data1.Length >= 17 && data1[17] == 0x2E)
@@ -563,10 +563,11 @@ namespace StarResonanceDpsAnalysis.Core
 
                             // 伤害数值：优先普通，如果没有用幸运值（注意0值可能表示治疗）
                             var damage = value != 0 ? value : luckyValue;
+                            if(damage==0) continue;
 
                             string extra = isCrit ? "暴击" : luckyValue != 0 ? "幸运" : isMiss ? "Miss" : "普通";
 
-                            //Console.WriteLine($"玩家 {operatorUid} 使用技能 {skill} 造成伤害 {damage} 扣血 {hpLessen} 标记 {extra}");
+                            Console.WriteLine($"玩家 {operatorUid} 使用技能 {skill} 造成伤害 {damage} 扣血 {hpLessen} 标记 {extra}");
                             if (Common.skillDiary != null && !Common.skillDiary.IsDisposed)
                             {
                                 Task.Run(() =>
@@ -680,7 +681,7 @@ namespace StarResonanceDpsAnalysis.Core
                                     StatisticData._manager.SetProfession(operatorUid, roleName);
                                 }
                             }
-
+                           MainForm.RefreshDpsTable();
 
 
                         }

@@ -37,7 +37,7 @@ namespace StarResonanceDpsAnalysis
 
         #region RefreshDpsTable() 刷新DPS信息
 
-        private void RefreshDpsTable()
+        public static void RefreshDpsTable()
         {
             // 1) 拷贝一份所有玩家数据，避免并发修改
             List<PlayerData> statsList = StatisticData._manager

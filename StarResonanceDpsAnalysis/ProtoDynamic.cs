@@ -18,7 +18,7 @@ public class ProtoValue
     public override string ToString() => BitConverter.ToString(Raw);
 }
 
-public static class ProtoDynamic
+public static class Blueprotobuf
 {
     public static string FormatProtoValue(object value, int indent = 0)
     {
