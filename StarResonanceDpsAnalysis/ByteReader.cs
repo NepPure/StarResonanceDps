@@ -130,20 +130,12 @@ namespace StarResonanceDpsAnalysis
     {
 
 
-        private static byte[] DecompressZstdIfNeeded(byte[] body, bool isZstdCompressed)
+        private static byte[] DecompressZstdIfNeeded(byte[] body)
         {
-            if (!isZstdCompressed)
-            {
-                // 没压缩，直接返回原正文
-                return body;
-            }
-
             using var input = new MemoryStream(body);
-            using var z = new ZstdNet.DecompressionStream(input);
+            using var z = new DecompressionStream(input);
             using var output = new MemoryStream();
             z.CopyTo(output);
-
-            // 只返回解压后的正文
             return output.ToArray();
         }
 
@@ -222,7 +214,7 @@ namespace StarResonanceDpsAnalysis
                                 if (isZstdCompressed)
                                 {
                                     // 你的解压函数：输入压缩体 -> 输出解压后的原始字节
-                                    nestedPacket = DecompressZstdIfNeeded(nestedPacket,false);
+                                    nestedPacket = DecompressZstdIfNeeded(nestedPacket);
                                 }
 
                                 // 递归处理内部包
@@ -311,53 +303,58 @@ namespace StarResonanceDpsAnalysis
 
             byte[] msgPayload = packet.ReadRemaining();
             byte[] protoBody = msgPayload; // 纯 protobuf 部分，初始化为原 payload
-
-            if (isZstdCompressed && msgPayload.Length >= 4)
+            if (isZstdCompressed)
             {
-                bool looksZstdAt0 = msgPayload.Length >= 4 &&
-                                    msgPayload[0] == 0x28 && msgPayload[1] == 0xB5 &&
-                                    msgPayload[2] == 0x2F && msgPayload[3] == 0xFD;
-
-                bool looksZstdAt10 = msgPayload.Length >= 14 &&
-                                     msgPayload[10] == 0x28 && msgPayload[11] == 0xB5 &&
-                                     msgPayload[12] == 0x2F && msgPayload[13] == 0xFD;
-
-                try
-                {
-                    if (looksZstdAt0)
-                    {
-                        using var in0 = new MemoryStream(msgPayload, writable: false);
-                        using var z0 = new ZstdNet.DecompressionStream(in0);
-                        using var out0 = new MemoryStream();
-                        z0.CopyTo(out0);
-                        protoBody = out0.ToArray(); // 解压后的 protobuf
-                        msgPayload = protoBody;     // 如果下游用这个变量
-                    }
-                    else if (looksZstdAt10)
-                    {
-                        using var in10 = new MemoryStream(msgPayload, 10, msgPayload.Length - 10, writable: false);
-                        using var z10 = new ZstdNet.DecompressionStream(in10);
-                        using var out10 = new MemoryStream();
-                        z10.CopyTo(out10);
-                        var decompressed = out10.ToArray();
-
-                        // 保留 10 字节协议头的版本
-                        msgPayload = msgPayload.AsSpan(0, 10).ToArray().Concat(decompressed).ToArray();
-
-                        // 纯 protobuf 部分去掉前 10 字节
-                        protoBody = decompressed;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Notify flagged compressed, but no ZSTD magic at 0 or +10. Treat as plain.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ZSTD decompress failed: " + ex.Message + " — treat as plain.");
-                }
+                msgPayload = DecompressZstdIfNeeded(msgPayload);
             }
 
+            #region
+            //if (isZstdCompressed && msgPayload.Length >= 4)
+            //{
+            //    bool looksZstdAt0 = msgPayload.Length >= 4 &&
+            //                        msgPayload[0] == 0x28 && msgPayload[1] == 0xB5 &&
+            //                        msgPayload[2] == 0x2F && msgPayload[3] == 0xFD;
+
+            //    bool looksZstdAt10 = msgPayload.Length >= 14 &&
+            //                         msgPayload[10] == 0x28 && msgPayload[11] == 0xB5 &&
+            //                         msgPayload[12] == 0x2F && msgPayload[13] == 0xFD;
+
+            //    try
+            //    {
+            //        if (looksZstdAt0)
+            //        {
+            //            using var in0 = new MemoryStream(msgPayload, writable: false);
+            //            using var z0 = new ZstdNet.DecompressionStream(in0);
+            //            using var out0 = new MemoryStream();
+            //            z0.CopyTo(out0);
+            //            protoBody = out0.ToArray(); // 解压后的 protobuf
+            //            msgPayload = protoBody;     // 如果下游用这个变量
+            //        }
+            //        else if (looksZstdAt10)
+            //        {
+            //            using var in10 = new MemoryStream(msgPayload, 10, msgPayload.Length - 10, writable: false);
+            //            using var z10 = new ZstdNet.DecompressionStream(in10);
+            //            using var out10 = new MemoryStream();
+            //            z10.CopyTo(out10);
+            //            var decompressed = out10.ToArray();
+
+            //            // 保留 10 字节协议头的版本
+            //            msgPayload = msgPayload.AsSpan(0, 10).ToArray().Concat(decompressed).ToArray();
+
+            //            // 纯 protobuf 部分去掉前 10 字节
+            //            protoBody = decompressed;
+            //        }
+            //        else
+            //        {
+            //            Console.WriteLine("Notify flagged compressed, but no ZSTD magic at 0 or +10. Treat as plain.");
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine("ZSTD decompress failed: " + ex.Message + " — treat as plain.");
+            //    }
+            //}
+            #endregion
             // ====== 打印区 ======
             //Console.WriteLine($"[PROTO][svc={serviceUuid:X16}][stub={stubId}][mid={methodId}] len={protoBody.Length}");
             //Console.WriteLine(BitConverter.ToString(protoBody));
@@ -390,11 +387,14 @@ namespace StarResonanceDpsAnalysis
             {
                 return;
             }
+           
 
             foreach (var entity in syncNearEntities.Appear)
             {
+                Console.WriteLine(entity.EntType);
+                Console.WriteLine((int)EEntityType.EntChar);
                 // 仅关心“角色（玩家）实体”
-                if ((EEntityType)entity.EntType != EEntityType.EntChar) continue;
+                if (entity.EntType != (int)EEntityType.EntChar) continue;
 
                 // 玩家完整 UUID（含类型位），右移 16 位得到 UID
                 long playerUuid = entity.Uuid;
