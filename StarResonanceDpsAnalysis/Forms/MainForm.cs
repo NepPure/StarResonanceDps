@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -154,14 +155,14 @@ namespace StarResonanceDpsAnalysis
             foreach (var item in TableDatas.DpsTable)
             {
                
-                string nickname = item.nickname;
+                //string nickname = item.nickname;
                 // 先把 critRate / luckyRate 的 "%" 去掉再解析成 double
                 double.TryParse(item.critRate.TrimEnd('%'), out var cr);
                 double.TryParse(item.luckyRate.TrimEnd('%'), out var lr);
                 snapshot.Add(new DpsTable(
                     // —— 受伤 & 治疗 —— 
                     item.uid,
-                    nickname : nickname,
+                    nickname : item.nickname,
                     item.damageTaken,             // 累计受到的伤害
                     item.totalHealingDone,        // 总治疗量
                     item.criticalHealingDone,     // 暴击治疗量
@@ -194,13 +195,13 @@ namespace StarResonanceDpsAnalysis
                 
            
             }
-            foreach (var item in snapshot)
-            {
-                Console.WriteLine("dict nickname = " + item.nickname);
-            }
+            //foreach (var item in snapshot)
+            //{
+            //    Console.WriteLine("dict nickname = " + item.nickname);
+            //}
 
             HistoricalRecords[timeOnly] = snapshot;
-            Console.WriteLine("dict readback nickname = " + HistoricalRecords[timeOnly].Last().nickname);
+            //Console.WriteLine("dict readback nickname = " + HistoricalRecords[timeOnly].Last().nickname);
 
             dropdown_History.Items.Add(timeOnly);
             dropdown_History.SelectedValue = -1;
@@ -455,6 +456,7 @@ namespace StarResonanceDpsAnalysis
                     {
                         // 从队列中获取数据包，如果队列为空则阻塞
                         PacketData packetData = _packetQueue.Take(cancellationToken);
+                       
                         ProcessPacket(packetData.Packet);
                     }
                     catch (OperationCanceledException)
@@ -677,7 +679,7 @@ namespace StarResonanceDpsAnalysis
 
                 // 使用 PacketDotNet 解析为通用数据包对象（包含以太网/IP/TCP 等）
                 var packet = Packet.ParsePacket(rawPacket.LinkLayerType, rawPacket.Data);
-
+              
                 // 提取 TCP 数据包（如果不是 TCP，会返回 null）
                 var tcpPacket = packet.Extract<TcpPacket>();
 
@@ -845,8 +847,10 @@ namespace StarResonanceDpsAnalysis
                     Array.Copy(lenBytes, 0, packet, 0, 4);
                     tcpStream.Read(packet, 4, len - 4);
 
+                    临时字段测试.process(packet);//测试
                     // 异步处理，防止 UI 卡顿
                     ProcessPacket(packet);
+                   
                 }
                 else
                 {
@@ -974,6 +978,7 @@ namespace StarResonanceDpsAnalysis
         {
             try
             {
+               
                 // 如果包长度小于 32 字节，认为是无效或空包
                 if (buf.Length < 32)
                     return;
@@ -1003,6 +1008,9 @@ namespace StarResonanceDpsAnalysis
                         return;
                     }
                 }
+
+                // buf 是解压完成的数据
+
 
                 // Step 2: 开始拆包（跳过前10字节协议头）
                 using var ms = new MemoryStream(buf, 10, buf.Length - 10);
@@ -1170,6 +1178,7 @@ namespace StarResonanceDpsAnalysis
 
 
                             }
+                            
                             //根据目标类型，处理数据
                             if (target_is_player)
                             {
