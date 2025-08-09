@@ -382,7 +382,8 @@ namespace StarResonanceDpsAnalysis
                     {
                         Size = new Size(300, 10),
                         Fill = AppConfig.DpsColor
-                    }
+                    },
+                    item.combatPower
                 ));
             }
 

@@ -9,6 +9,7 @@ using BlueProto;
 using System.Runtime.CompilerServices;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 using PacketDotNet;
+using HarfBuzzSharp;
 namespace StarResonanceDpsAnalysis.Core
 {
     public class MessageAnalyzer
@@ -271,21 +272,25 @@ namespace StarResonanceDpsAnalysis.Core
                         case (int)AttrType.AttrName:
                             // protobuf string: 先读长度（varint），后读 UTF-8 bytes
                             string playerName = reader.ReadString();
+                            StatisticData._manager.SetNickname((ulong)playerUuid, playerName);
+                 
                             //this.userDataManager.setName((long)playerUuid, playerName);
-                            Console.WriteLine($"Found player name {playerName} for uuid {playerUuid}");
+                           // Console.WriteLine($"Found player name {playerName} for uuid {playerUuid}");
                             break;
 
                         case (int)AttrType.AttrProfessionId:
                             int professionId = reader.ReadInt32();
                             string professionName = GetProfessionNameFromId(professionId);
                             //this.userDataManager.setProfession((long)playerUuid, professionName);
-                            Console.WriteLine($"Found profession {professionName} for uuid {playerUuid}");
+                            StatisticData._manager.SetProfession((ulong)playerUuid, professionName);
+                           // Console.WriteLine($"Found profession {professionName} for uuid {playerUuid}");
                             break;
 
                         case (int)AttrType.AttrFightPoint:
                             int playerFightPoint = reader.ReadInt32();
                             //this.userDataManager.setFightPoint((long)playerUuid, playerFightPoint);
-                            Console.WriteLine($"Found player fight point {playerFightPoint} for uuid {playerUuid}");
+                            StatisticData._manager.SetCombatPower((ulong)playerUuid, playerFightPoint);
+                            //Console.WriteLine($"Found player fight point {playerFightPoint} for uuid {playerUuid}");
                             break;
 
                         default:

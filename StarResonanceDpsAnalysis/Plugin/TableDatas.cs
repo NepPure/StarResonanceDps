@@ -30,8 +30,14 @@ namespace StarResonanceDpsAnalysis.Plugin
         private ulong Uid;
         private string NickName;
 
+
         /// <summary>玩家的职业/角色名称</summary>
         private string Profession;
+
+        /// <summary>
+        /// 战力
+        /// </summary>
+        private int CombatPower;
 
         /// <summary>该玩家造成的总伤害</summary>
         private string TotalDamage;
@@ -136,10 +142,11 @@ namespace StarResonanceDpsAnalysis.Plugin
             string maxInstantDPS,
             string totalDPS,
             string totalHps,
-            CellProgress cellProgress = null)
+            CellProgress cellProgress = null,int combatPower=0)
         {
             // DPS 相关
             this.Uid = uid;
+            this.CombatPower = combatPower;
             this.Profession = profession;
             this.TotalDamage = totalDamage;
             this.CriticalDamage = criticalDamage;
@@ -161,9 +168,10 @@ namespace StarResonanceDpsAnalysis.Plugin
             this.InstantHps = totalInstantHps;
             this.MaxInstantHps = totalMaxInstantHps;
             this.TotalHps = totalHps;
-
+         
             // UI 控件
             this.CellProgress = cellProgress;
+            //
         }
 
 
@@ -201,6 +209,17 @@ namespace StarResonanceDpsAnalysis.Plugin
                 if (NickName == value) return;
                 NickName = value;
                 OnPropertyChanged(nameof(NickName));
+            }
+        }
+
+        public int combatPower
+        {
+            get => CombatPower;
+            set
+            {
+                if (CombatPower == value) return;
+                CombatPower = value;
+                OnPropertyChanged(nameof(CombatPower));
             }
         }
 

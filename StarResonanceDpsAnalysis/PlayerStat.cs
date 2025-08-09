@@ -154,7 +154,15 @@ namespace StarResonanceDpsAnalysis
         /// <summary>玩家唯一标识 UID</summary>
         public ulong Uid { get; }
 
+        /// <summary>
+        /// 昵称
+        /// </summary>
         public string Nickname { get; set; } = "未知";
+
+        /// <summary>
+        /// 战力
+        /// </summary>
+        public int CombatPower { get; set; } = 0;
 
         /// <summary>玩家伤害统计</summary>
         public StatisticData DamageStats { get; } = new();
@@ -163,7 +171,7 @@ namespace StarResonanceDpsAnalysis
         /// <summary>玩家承受总伤害（伤害吸收、护盾等）</summary>
         public ulong TakenDamage { get; private set; }
         /// <summary>玩家职业名称</summary>
-        public string Profession { get; private set; } = "未知";
+        public string Profession { get; set; } = "未知";
 
         /// <summary>按技能ID分组的统计数据</summary>
         public Dictionary<ulong, StatisticData> SkillUsage { get; } = new();
@@ -302,6 +310,18 @@ namespace StarResonanceDpsAnalysis
                 {
                     data.Nickname = cachedName;
                 }
+
+                if (_combatPowerByUid.TryGetValue(uid, out var power) && power > 0)
+                {
+                    data.CombatPower = power;
+                }
+
+
+                if (_professionByUid.TryGetValue(uid, out var profession) &&
+               !string.IsNullOrWhiteSpace(profession))
+                {
+                    data.Profession = profession;
+                }
             }
             return data;
         }
@@ -319,7 +339,20 @@ namespace StarResonanceDpsAnalysis
             _checkTimer.Start();
         }
 
+        /// <summary>
+        /// 存储用户uid对应昵称
+        /// </summary>
         private static Dictionary<ulong,string> _nicknameRequestedUids = new Dictionary<ulong, string>();
+
+        /// <summary>
+        /// 存储用户uid对应战力
+        /// </summary>
+        private static readonly Dictionary<ulong, int> _combatPowerByUid = new();
+        /// <summary>
+        /// 存用用户uid对应职业
+        /// </summary>
+        private static readonly Dictionary<ulong, string> _professionByUid = new(); // 没有枚举就用 string
+
 
 
         // 单独封装为 async void 方法（Timer支持）
@@ -328,63 +361,8 @@ namespace StarResonanceDpsAnalysis
             if (_lastAddTime == DateTime.MinValue || _players.Count == 0)
                 return;
 
-            var elapsed = (DateTime.Now - _lastAddTime).TotalSeconds;
-
-            // Console.WriteLine($"[Timer] 距上次添加 {elapsed:F2}s, 触发状态: {_hasTriggeredFetch}");
             UpdateAllRealtimeStats();
-            if (elapsed >= 5 && !_hasTriggeredFetch)
-            {
-                _hasTriggeredFetch = true;
 
-                // 🔍 只挑出未请求过昵称的 UID
-                var newUids = _players
-                 .Where(p => !_nicknameRequestedUids.ContainsKey(p.Key)) // 没请求过
-                 .Where(p => string.IsNullOrWhiteSpace(p.Value.Nickname) || p.Value.Nickname == "未知") // 昵称确实为空
-                 .Select(p => p.Key)
-                 .ToList();
-
-
-                if (newUids.Count == 0)
-                {
-                    Console.WriteLine("✅ 所有 UID 昵称已请求，无需重复请求");
-                    return;
-                }
-
-                var uidList = _players.Keys.Select(uid => uid.ToString()).ToList();
-
-                await Common.player_uid_map(uidList);
-
-                var data = await Common.player_uid_map(uidList);
-
-                if (data != null && data["code"]?.ToString() == "200")
-                {
-                    var dict = data["data"]; // 如果是数组格式
-                    if (dict != null)
-                    {
-                        foreach (var item in dict)
-                        {
-                            if (item["uid"] == null) continue;
-
-                            var uid = Convert.ToUInt64(item["uid"]);
-                            var nickname = item["name"]?.ToString();
-
-                            if (!string.IsNullOrWhiteSpace(nickname))
-                            {
-                                var player = GetOrCreate(uid);
-                                player.Nickname = nickname;
-
-                                // ✅ 存入缓存
-                                _nicknameRequestedUids[uid] = nickname;
-
-                                Console.WriteLine($"✅ UID {uid} 昵称更新为：{nickname}");
-                            }
-                        }
-                    }
-                }
-
-
-
-            }
         }
 
         /// <summary>
@@ -416,7 +394,31 @@ namespace StarResonanceDpsAnalysis
         /// </summary>
         public void SetProfession(ulong uid, string profession)
         {
+            _professionByUid[uid] = profession;
             GetOrCreate(uid).SetProfession(profession);
+        }
+
+        /// <summary>
+        /// 设置玩家战力
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <param name="combatPower"></param>
+        public void SetCombatPower(ulong uid,int combatPower)
+        {
+            _combatPowerByUid[uid] = combatPower;
+            GetOrCreate(uid).CombatPower = combatPower;
+        }
+
+        /// <summary>
+        /// 设置玩家昵称
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <param name="nickname"></param>
+        public void SetNickname(ulong uid, string nickname)
+        {
+            _nicknameRequestedUids[uid] = nickname;
+            GetOrCreate(uid).Nickname = nickname;
+            
         }
 
         /// <summary>

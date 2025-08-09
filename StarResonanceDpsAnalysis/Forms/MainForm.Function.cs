@@ -101,7 +101,8 @@ namespace StarResonanceDpsAnalysis
                         {
                             Size = new Size(200, 10),
                             Fill = AppConfig.DpsColor
-                        }
+                        },
+                    stat.CombatPower
 
                     ));
                 }
@@ -130,7 +131,7 @@ namespace StarResonanceDpsAnalysis
                     row.instantHps = Common.FormatWithEnglishUnits(stat.HealingStats.RealtimeValue);
                     row.maxInstantHps = Common.FormatWithEnglishUnits(stat.HealingStats.RealtimeMax);
                     row.totalHps = Common.FormatWithEnglishUnits(Math.Round(stat.HealingStats.GetTotalPerSecond(), 1));
-
+                    row.combatPower = stat.CombatPower;
                     // —— 更新进度条 —— 
                     if (row.CellProgress is CellProgress cp)
                     {
