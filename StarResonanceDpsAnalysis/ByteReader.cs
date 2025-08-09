@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 using ZstdNet;
 using Google.Protobuf;
-using Blue;   // Parser.ParseFrom 在这
 
 
 namespace StarResonanceDpsAnalysis

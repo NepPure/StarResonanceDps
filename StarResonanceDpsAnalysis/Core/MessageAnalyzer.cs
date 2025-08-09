@@ -1,11 +1,11 @@
-﻿using System;
+﻿using ScottPlot.Colormaps;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Blue;
 using ZstdNet;
-
+using BlueProto;
 namespace StarResonanceDpsAnalysis.Core
 {
     public class MessageAnalyzer
@@ -227,8 +227,13 @@ namespace StarResonanceDpsAnalysis.Core
             return output.ToArray();
         }
 
+        /// <summary>
+        /// 获取人物属性（名字、职业、战力）
+        /// </summary>
+        /// <param name="payloadBuffer"></param>
         public static void ProcessSyncNearEntities(byte[] payloadBuffer)
         {
+       
             var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
             //var syncNearEntities = SyncNearEntitiesManual.Decode(payloadBuffer);
 
@@ -242,7 +247,7 @@ namespace StarResonanceDpsAnalysis.Core
             {
             
                 // 仅关心“角色（玩家）实体”
-                if (entity.EntType != (int)EEntityType.EntChar) continue;
+                if (entity.EntType != EEntityType.EntChar) continue;
 
                 // 玩家完整 UUID（含类型位），右移 16 位得到 UID
                 long playerUuid = entity.Uuid;
@@ -339,7 +344,7 @@ namespace StarResonanceDpsAnalysis.Core
                     bool isCrit = typeFlag.HasValue && ((typeFlag.Value & 1) == 1);
 
                     bool isMiss = syncDamageInfo.IsMiss is true;
-                    bool isHeal = syncDamageInfo.Type ==(int)EDamageType.Heal;
+                    bool isHeal = syncDamageInfo.Type ==EDamageType.Heal;
                     bool isDead = syncDamageInfo.IsDead is true;
                     bool isLucky = luckyValue.HasValue && luckyValue.Value != 0;
 
