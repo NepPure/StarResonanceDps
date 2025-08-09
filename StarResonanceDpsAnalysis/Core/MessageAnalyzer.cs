@@ -103,10 +103,10 @@ namespace StarResonanceDpsAnalysis.Core
             { 0x00000006U, ProcessSyncNearEntities },
 
             // NotifyMethod.SyncToMeDeltaInfo
-            //{ 0x0000002eU, ProcessSyncToMeDeltaInfo },
+            //{ 0x0000002DU, ProcessSyncToMeDeltaInfo },
 
             // NotifyMethod.SyncNearDeltaInfo
-            //{ 0x0000002dU, ProcessSyncNearDeltaInfo },
+            { 0x0000002DU, ProcessSyncNearDeltaInfo },
         };
 
         public static void ProcessNotifyMsg(ByteReader packet, bool isZstdCompressed)
@@ -188,7 +188,7 @@ namespace StarResonanceDpsAnalysis.Core
             var flag = ProcessMethods.TryGetValue(methodId, out var processMethod);
             if (!flag)
             {
-                Console.WriteLine($"Skipping NotifyMsg with methodId {methodId}");
+               // Console.WriteLine($"Skipping NotifyMsg with methodId {methodId}");
                 return;
             }
 
@@ -240,8 +240,7 @@ namespace StarResonanceDpsAnalysis.Core
 
             foreach (var entity in syncNearEntities.Appear)
             {
-                Console.WriteLine(entity.EntType);
-                Console.WriteLine((int)EEntityType.EntChar);
+            
                 // 仅关心“角色（玩家）实体”
                 if (entity.EntType != (int)EEntityType.EntChar) continue;
 
@@ -290,6 +289,117 @@ namespace StarResonanceDpsAnalysis.Core
                 }
             }
 
+        }
+
+
+        public static void ProcessSyncNearDeltaInfo(byte[] payloadBuffer)
+        {
+            var syncNearDeltaInfo = SyncNearDeltaInfo.Parser.ParseFrom(payloadBuffer);
+            if(syncNearDeltaInfo.DeltaInfos == null || syncNearDeltaInfo.DeltaInfos.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var aoiSyncDelta in syncNearDeltaInfo.DeltaInfos)
+            {
+                if (aoiSyncDelta == null) return;
+                long targetUuid = aoiSyncDelta.Uuid;
+                if (targetUuid == 0) return;
+                bool isTargetPlayer = IsUuidPlayer(targetUuid);
+                targetUuid = targetUuid >> 16;
+                var skillEffect = aoiSyncDelta?.SkillEffects;
+                if (skillEffect == null) return;
+                if (skillEffect.Damages == null) return;
+                foreach (var syncDamageInfo in skillEffect.Damages)
+                {
+                    long skillId = syncDamageInfo.OwnerId;
+                    if (skillId == 0) continue;   // 在循环里使用
+
+
+                    // 取 TopSummonerId（若为 0 则退回 AttackerUuid）
+                    long attackerUuid = syncDamageInfo.TopSummonerId != 0
+                        ? syncDamageInfo.TopSummonerId
+                        : syncDamageInfo.AttackerUuid;
+
+                    if (attackerUuid == 0) continue;
+
+                    bool isAttackerPlayer = IsUuidPlayer(attackerUuid);
+
+                    // JS 的 shiftRight(16) 等价的“逻辑右移”（零填充）
+                    attackerUuid = (long)((ulong)attackerUuid >> 16);
+
+                    // 伤害：Value ?? LuckyValue ?? 0
+                    long? value = syncDamageInfo.Value;
+                    long? luckyValue = syncDamageInfo.LuckyValue;
+                    long damage = value ?? luckyValue ?? 0L;
+                    if (damage == 0) continue;
+
+                    // 用 typeFlag 的最低位判断是否暴击
+                    int? typeFlag = syncDamageInfo.TypeFlag;
+                    bool isCrit = typeFlag.HasValue && ((typeFlag.Value & 1) == 1);
+
+                    bool isMiss = syncDamageInfo.IsMiss is true;
+                    bool isHeal = syncDamageInfo.Type ==(int)EDamageType.Heal;
+                    bool isDead = syncDamageInfo.IsDead is true;
+                    bool isLucky = luckyValue.HasValue && luckyValue.Value != 0;
+
+                    // 兼容 long 与 long? 的写法
+                    long hpLessenValue = syncDamageInfo.HpLessenValue is long v ? v : 0L;
+
+
+                    // skillId 若你在外层已取可直接使用；否则：
+                    skillId = syncDamageInfo.OwnerId;
+
+                    if (isTargetPlayer)
+                    {
+                        // 玩家目标
+                        if (isHeal)
+                        {
+                            // 玩家被治疗：只记录玩家造成的治疗
+                            if (isAttackerPlayer)
+                            {
+                               // userDataManager.AddHealing(attackerUuid, damage, isCrit, isLucky);
+
+                                var healer = StatisticData._manager.GetOrCreate((ulong)attackerUuid);
+
+                                //记录玩家造成的治疗
+                                healer.AddHealing((ulong)damage, isCrit, isLucky);
+                            }
+
+                        }
+                        else
+                        {
+                            // 拿到“受伤者” 对象
+                            var victim = StatisticData._manager.GetOrCreate((ulong)targetUuid);
+
+                            victim.AddTakenDamage((ulong)skillId, (ulong)damage);
+                            // 玩家受到伤害
+                            
+                        }
+                    }
+                    else
+                    {
+                        // 非玩家目标
+                        if (!isHeal && isAttackerPlayer)
+                        {
+                            var healer = StatisticData._manager.GetOrCreate((ulong)attackerUuid);
+
+                            //记录输出
+                            healer.AddDamage((ulong)skillId, (ulong)damage, isCrit, isLucky, (ulong)hpLessenValue);
+
+                        }
+                    }
+                    MainForm.RefreshDpsTable();
+
+                }
+
+
+            }
+
+        }
+        static bool IsUuidPlayer(long uuid)
+        {
+            return (uuid & 0xFFFFL) == 640L;
         }
 
         public static string GetProfessionNameFromId(int professionId)
