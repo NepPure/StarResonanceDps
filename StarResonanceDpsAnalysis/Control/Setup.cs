@@ -28,7 +28,6 @@ namespace StarResonanceDpsAnalysis.Control
             var devices = CaptureDeviceList.Instance;
             foreach (var dev in devices)
             {
-
                 InterfaceComboBox.Items.Add(dev.Description);
             }
             if (AppConfig.NetworkCard == -1)

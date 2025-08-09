@@ -449,9 +449,9 @@ namespace StarResonanceDpsAnalysis.Core
                     byte[] packet = new byte[len];
                     Array.Copy(lenBytes, 0, packet, 0, 4);
                     TcpStream.Read(packet, 4, len - 4);
-                    临时字段测试.process(packet);
+                    //临时字段测试.process(packet);
                     // 异步处理，防止 UI 卡顿
-                    //AnalyzePacket(packet);
+                    AnalyzePacket(packet);
                 }
                 else
                 {

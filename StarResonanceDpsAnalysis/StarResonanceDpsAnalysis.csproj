@@ -23,6 +23,7 @@
     <PackageReference Include="PacketDotNet" Version="1.4.9-pre44" />
     <PackageReference Include="ScottPlot.WinForms" Version="5.0.55" />
     <PackageReference Include="SharpPcap" Version="6.3.1" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.8" />
     <PackageReference Include="ZstdNet" Version="1.4.5" />
   </ItemGroup>
 

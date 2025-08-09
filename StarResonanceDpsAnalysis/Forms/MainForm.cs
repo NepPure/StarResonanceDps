@@ -60,6 +60,7 @@ namespace StarResonanceDpsAnalysis
         #region ========== 构造与启动加载 ==========
         public MainForm()
         {
+           
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
 
@@ -75,8 +76,11 @@ namespace StarResonanceDpsAnalysis
             LoadNetworkDevices();
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
+        private async void MainForm_Load(object sender, EventArgs e)
         {
+       
+      
+        
             #region —— 键盘钩子初始化 ——
             kbHook = new KeyboardHook();
             kbHook.SetHook();
