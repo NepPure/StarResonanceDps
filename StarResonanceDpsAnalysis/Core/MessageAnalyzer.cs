@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using ZstdNet;
 using BlueProto;
 using System.Runtime.CompilerServices;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
+using PacketDotNet;
 namespace StarResonanceDpsAnalysis.Core
 {
     public class MessageAnalyzer
@@ -25,10 +27,12 @@ namespace StarResonanceDpsAnalysis.Core
 
         public static void Process(byte[] packets)
         {
+
             try
             {
                 // 外层：处理一次输入里可能包含的多个完整包
                 var packetsReader = new ByteReader(packets);
+
 
                 while (packetsReader.Remaining > 0) // 至少读得到一个 packetSize
                 {
@@ -59,6 +63,7 @@ namespace StarResonanceDpsAnalysis.Core
 
                     // 调试输出（按需保留）
                     //Console.WriteLine($"MsgType={msgTypeId}, Size={packetSize}, RemainInPacket={packetReader.Remaining}");
+               
 
                     var flag = MessageHandlers.TryGetValue(msgTypeId, out var handler);
                     if (!flag)
@@ -66,7 +71,7 @@ namespace StarResonanceDpsAnalysis.Core
                         //Console.WriteLine($"Ignore packet with message type {msgTypeId}.");
                         return;
                     }
-
+              
                     handler!(packetReader, isZstdCompressed);
                 }
             }
@@ -232,6 +237,7 @@ namespace StarResonanceDpsAnalysis.Core
             var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
 
            
+
             if (syncNearEntities.Appear == null || syncNearEntities.Appear.Count == 0)
             {
                 return;
@@ -422,7 +428,7 @@ namespace StarResonanceDpsAnalysis.Core
         {
             // 1) 反序列化：把网络收到的一段二进制，解成 SyncToMeDeltaInfo（“与我相关”的增量同步包）
             var syncToMeDeltaInfo = SyncToMeDeltaInfo.Parser.ParseFrom(payloadBuffer);
-
+            
             // 2) 取出里面的 AoiSyncToMeDelta（包含：我的Uuid、BaseDelta、以及可选的技能CD/资源CD等）
             var aoiSyncToMeDelta = syncToMeDeltaInfo.DeltaInfo;
 
