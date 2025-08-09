@@ -233,9 +233,6 @@ namespace StarResonanceDpsAnalysis.Core
         {
             try
             {
-
-
-
                 // 第 5 字节不为 0，则不是“小包”格式（协议约定）
                 if (buf.Length >= 10 && buf[4] == 0)
                 {

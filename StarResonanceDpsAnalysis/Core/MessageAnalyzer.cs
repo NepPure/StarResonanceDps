@@ -63,7 +63,7 @@ namespace StarResonanceDpsAnalysis.Core
                     var flag = MessageHandlers.TryGetValue(msgTypeId, out var handler);
                     if (!flag)
                     {
-                        Console.WriteLine($"Ignore packet with message type {msgTypeId}.");
+                        //Console.WriteLine($"Ignore packet with message type {msgTypeId}.");
                         return;
                     }
 
@@ -98,7 +98,7 @@ namespace StarResonanceDpsAnalysis.Core
             { 0x00000006U, ProcessSyncNearEntities },
 
             // NotifyMethod.SyncToMeDeltaInfo
-            //{ 0x0000002EU, ProcessSyncToMeDeltaInfo },
+            { 0x0000002EU, ProcessSyncToMeDeltaInfo },
 
             // NotifyMethod.SyncNearDeltaInfo
             { 0x0000002DU, ProcessSyncNearDeltaInfo },
@@ -292,6 +292,24 @@ namespace StarResonanceDpsAnalysis.Core
         }
 
 
+        public static void ProcessSyncNearDeltaInfo(byte[] payloadBuffer)
+        {
+            //var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
+            var syncNearDeltaInfo = SyncNearDeltaInfo.Parser.ParseFrom(payloadBuffer);
+
+
+            if (syncNearDeltaInfo.DeltaInfos == null || syncNearDeltaInfo.DeltaInfos.Count == 0)
+            {
+                return;
+            }
+
+
+            foreach (var aoiSyncDelta in syncNearDeltaInfo.DeltaInfos)
+            {
+                
+                ProcessAoiSyncDelta(aoiSyncDelta);
+            }
+        }
         /// <summary>
         /// 解析 SyncNearDeltaInfo 并统计玩家的伤害/治疗/被打量。
         /// 关键点：
@@ -299,21 +317,17 @@ namespace StarResonanceDpsAnalysis.Core
         /// 2) UUID 相关计算全部使用 ulong，并在“未右移的原始值”上判断玩家身份
         /// 3) UI 刷新放在循环外（仍建议你做节流）
         /// </summary>
-        public static void ProcessSyncNearDeltaInfo(byte[] payloadBuffer)
+        public static void ProcessAoiSyncDelta(AoiSyncDelta delta)
         {
-            // 解析 protobuf 消息
-            var msg = SyncNearDeltaInfo.Parser.ParseFrom(payloadBuffer);
-            if (msg?.DeltaInfos == null || msg.DeltaInfos.Count == 0) return;
-
+          
             // 遍历 AOI 的增量信息
-            foreach (var delta in msg.DeltaInfos)
-            {
-                if (delta == null) continue; // ← 避免早退，跳过空项
+        
+                if (delta == null) return; // ← 避免早退，跳过空项
 
                 // 目标 UUID（原始 64 位数值，不做任何位移）
                 // 用 ulong 是为了无符号右移 >>16 时不发生算术右移（C# long >> 是算术右移）
                 ulong targetUuidRaw = (ulong)delta.Uuid;
-                if (targetUuidRaw == 0) continue; // ← 跳过无效 UUID
+                if (targetUuidRaw == 0) return; // ← 跳过无效 UUID
 
                 // 在“未右移的原值”上判断是否为玩家（等价 JS 的 isUuidPlayer）
                 bool isTargetPlayer = IsUuidPlayerRaw(targetUuidRaw);
@@ -323,7 +337,9 @@ namespace StarResonanceDpsAnalysis.Core
 
                 // 技能效果段判空（Damages 列表为空就跳过）
                 var se = delta.SkillEffects;
-                if (se?.Damages == null || se.Damages.Count == 0) continue;
+      
+
+                if (se?.Damages == null || se.Damages.Count == 0) return;
 
                 // 遍历所有伤害/治疗记录
                 foreach (var d in se.Damages)
@@ -375,6 +391,7 @@ namespace StarResonanceDpsAnalysis.Core
                         }
                         else
                         {
+                     
                             // 玩家受到伤害 → 统计“被打量”
                             var victim = StatisticData._manager.GetOrCreate(targetUuid);
 
@@ -395,11 +412,32 @@ namespace StarResonanceDpsAnalysis.Core
                         }
                     }
                 }
-            }
+            
 
             // UI 刷新放在循环外，避免高频阻塞消息处理线程
             // NOTE: 强烈建议节流，例如 100–200ms 合并一次刷新（BeginInvoke + 计时器）
             MainForm.RefreshDpsTable();
+        }
+        public static void ProcessSyncToMeDeltaInfo(byte[] payloadBuffer)
+        {
+            // 1) 反序列化：把网络收到的一段二进制，解成 SyncToMeDeltaInfo（“与我相关”的增量同步包）
+            var syncToMeDeltaInfo = SyncToMeDeltaInfo.Parser.ParseFrom(payloadBuffer);
+
+            // 2) 取出里面的 AoiSyncToMeDelta（包含：我的Uuid、BaseDelta、以及可选的技能CD/资源CD等）
+            var aoiSyncToMeDelta = syncToMeDeltaInfo.DeltaInfo;
+
+            // 3) 我的实体 Uuid（64 位）。常用于：
+            //    - 记录/缓存“当前玩家”的 Uuid，便于后续做归属、过滤（例如把与我无关的事件忽略）
+            //    - 可按项目规则右移16位得到“短ID”用于显示或作为字典Key
+            long uuid = aoiSyncToMeDelta.Uuid; // ← 这里取UID是用于做缓存？是的，通常会缓存当前玩家Uuid。
+
+            // 4) BaseDelta 是一条通用的 AoiSyncDelta，里面才有战斗/治疗/BUFF 等具体增量数据
+            var aoiSyncDelta = aoiSyncToMeDelta.BaseDelta;
+            if (aoiSyncDelta == null) return;  // 没有具体增量就直接返回
+
+            // 5) 交给统一的增量处理逻辑：在这里面解析 SkillEffects.Damages（伤害/治疗）、
+            //    BuffInfos/BuffEffect（增益变更）、EventDataList 等，并更新你的统计表
+            ProcessAoiSyncDelta(aoiSyncDelta);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
