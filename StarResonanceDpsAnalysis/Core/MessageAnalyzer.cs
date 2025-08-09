@@ -292,49 +292,81 @@ namespace StarResonanceDpsAnalysis.Core
         }
 
 
+        /// <summary>
+        /// 解析 SyncNearDeltaInfo 并统计玩家的伤害/治疗/被打量。
+        /// 关键点：
+        /// 1) 全程避免早退 return（用 continue），以免丢后续数据包导致“解析不出来/延迟”
+        /// 2) UUID 相关计算全部使用 ulong，并在“未右移的原始值”上判断玩家身份
+        /// 3) UI 刷新放在循环外（仍建议你做节流）
+        /// </summary>
         public static void ProcessSyncNearDeltaInfo(byte[] payloadBuffer)
         {
-
+            // 解析 protobuf 消息
             var msg = SyncNearDeltaInfo.Parser.ParseFrom(payloadBuffer);
             if (msg?.DeltaInfos == null || msg.DeltaInfos.Count == 0) return;
 
+            // 遍历 AOI 的增量信息
             foreach (var delta in msg.DeltaInfos)
             {
-                if (delta == null) continue;                                  // ← return → continue
+                if (delta == null) continue; // ← 避免早退，跳过空项
 
+                // 目标 UUID（原始 64 位数值，不做任何位移）
+                // 用 ulong 是为了无符号右移 >>16 时不发生算术右移（C# long >> 是算术右移）
                 ulong targetUuidRaw = (ulong)delta.Uuid;
-                if (targetUuidRaw == 0) continue;                             // ← return → continue
+                if (targetUuidRaw == 0) continue; // ← 跳过无效 UUID
 
-                bool isTargetPlayer = IsUuidPlayerRaw(targetUuidRaw);         // 先用“原始 uuid”判玩家
-                ulong targetUuid = Shr16(targetUuidRaw);                      // 再无符号右移 16
+                // 在“未右移的原值”上判断是否为玩家（等价 JS 的 isUuidPlayer）
+                bool isTargetPlayer = IsUuidPlayerRaw(targetUuidRaw);
 
+                // 与 JS: shiftRight(16) 对齐 —— 取实体真正 ID（去掉低 16 位类型/分片信息）
+                ulong targetUuid = Shr16(targetUuidRaw);
+
+                // 技能效果段判空（Damages 列表为空就跳过）
                 var se = delta.SkillEffects;
-                if (se?.Damages == null || se.Damages.Count == 0) continue;   // ← return → continue
+                if (se?.Damages == null || se.Damages.Count == 0) continue;
 
+                // 遍历所有伤害/治疗记录
                 foreach (var d in se.Damages)
                 {
+                    // 技能 ID（统计输出用）
                     long skillId = d.OwnerId;
                     if (skillId == 0) continue;
 
+                    // 施法者/伤害来源：优先使用 TopSummonerId（顶层召唤者），否则用 AttackerUuid
                     ulong attackerRaw = (ulong)(d.TopSummonerId != 0 ? d.TopSummonerId : d.AttackerUuid);
                     if (attackerRaw == 0) continue;
 
-                    bool isAttackerPlayer = IsUuidPlayerRaw(attackerRaw);     // 判断在未位移的原值上做
+                    // 同样在“原始 attackerRaw”上做玩家判断
+                    bool isAttackerPlayer = IsUuidPlayerRaw(attackerRaw);
+
+                    // 再把 UUID 无符号右移 16 位，得到最终用于统计的 ID
                     ulong attackerUuid = Shr16(attackerRaw);
 
+                    // 伤害值：优先 Value，其次 LuckyValue（JS 是 value ?? luckyValue ?? 0）
                     long damageSigned = d.HasValue ? d.Value : (d.HasLuckyValue ? d.LuckyValue : 0L);
                     if (damageSigned == 0) continue;
-                    ulong damage = (ulong)(damageSigned < 0 ? -damageSigned : damageSigned); // 保险：绝对值
 
+                    // 保险起见转为正的 ulong（有些服务端字段可能出现负数占位）
+                    ulong damage = (ulong)(damageSigned < 0 ? -damageSigned : damageSigned);
+
+                    // 暴击判断：JS 用 TypeFlag 的第 1 位（& 1）
                     bool isCrit = d.HasTypeFlag && ((d.TypeFlag & 1L) == 1L);
+
+                    // 是否治疗：直接对齐枚举
                     bool isHeal = d.Type == EDamageType.Heal;
+
+                    // 幸运（JS: !!luckyValue，只要存在就 true）
                     bool isLucky = d.HasLuckyValue;
+
+                    // 血量压制/减益（JS: HpLessenValue?.toNumber()）
                     ulong hpLessen = d.HasHpLessenValue ? (ulong)d.HpLessenValue : 0UL;
 
                     if (isTargetPlayer)
                     {
+                        // 目标是玩家
                         if (isHeal)
                         {
+                            // “玩家被治疗”场景下，只记录“玩家造成的治疗”（奶妈是玩家时才记）
                             if (isAttackerPlayer)
                             {
                                 var attacker = StatisticData._manager.GetOrCreate(attackerUuid);
@@ -343,24 +375,31 @@ namespace StarResonanceDpsAnalysis.Core
                         }
                         else
                         {
+                            // 玩家受到伤害 → 统计“被打量”
                             var victim = StatisticData._manager.GetOrCreate(targetUuid);
-                            // 注意：和 JS 一样，“被打量”只传伤害值，不要把 skillId 当作第一个参数传进去
-                            victim.AddTakenDamage((ulong)skillId,damage);
+
+                            // NOTE: JS 的 addTakenDamage 只传伤害值。如果你的 C# 方法签名是 (ulong damage)，
+                            // 请改为：victim.AddTakenDamage(damage);
+                            // 目前按你代码保留 (skillId, damage)，确保签名匹配你自己的实现。
+                            victim.AddTakenDamage((ulong)skillId, damage);
                         }
                     }
                     else
                     {
+                        // 目标不是玩家
                         if (!isHeal && isAttackerPlayer)
                         {
+                            // 只记录“玩家造成的输出伤害”，治疗对非玩家一般不计
                             var attacker = StatisticData._manager.GetOrCreate(attackerUuid);
                             attacker.AddDamage((ulong)skillId, damage, isCrit, isLucky, hpLessen);
                         }
                     }
                 }
             }
+
+            // UI 刷新放在循环外，避免高频阻塞消息处理线程
+            // NOTE: 强烈建议节流，例如 100–200ms 合并一次刷新（BeginInvoke + 计时器）
             MainForm.RefreshDpsTable();
-
-
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
