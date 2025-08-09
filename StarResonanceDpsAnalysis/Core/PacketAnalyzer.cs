@@ -87,8 +87,8 @@ namespace StarResonanceDpsAnalysis.Core
         {
             _queue.Add((dev, raw));
       
-            int count = _queue.Count;
-            Console.WriteLine($"当前队列长度: {count}");
+            //int count = _queue.Count;
+            //Console.WriteLine($"当前队列长度: {count}");
         }
 
         public void Stop(bool drain = true, int maxWaitMs = 10000)
@@ -152,6 +152,7 @@ namespace StarResonanceDpsAnalysis.Core
         #endregion
 
         #region ========== Stage 1: 逐包解析入口 ==========
+
         /// <summary>
         /// 处理单个数据包
         /// </summary>
@@ -179,8 +180,9 @@ namespace StarResonanceDpsAnalysis.Core
 
                 // 构造当前包的源 -> 目的 IP 和端口的字符串，作为唯一标识
                 var srcServer = $"{ipPacket.SourceAddress}:{tcpPacket.SourcePort} -> {ipPacket.DestinationAddress}:{tcpPacket.DestinationPort}";
+               
                 // 更新数据包来源
-                if (!HasAppliedFilter && VerifyServer(srcServer, payload))
+                if (!HasAppliedFilter)
                 {
                     ApplyDynamicFilter(device, srcServer);
                     HasAppliedFilter = true;
@@ -196,11 +198,17 @@ namespace StarResonanceDpsAnalysis.Core
                 }
 
                 //如果当前服务器（源地址）发生变化，进行验证
+               
                 if (CurrentServer != srcServer)
                 {
+
                     // 尝试验证是否为目标服务器（例如游戏服务器）
-                    if (!VerifyServer(srcServer, payload))
-                        return; // 如果验证失败，丢弃该包
+                    bool server_verify = VerifyServer(srcServer, payload);
+                  
+                    if (!server_verify) return;//如果验证失败则丢弃
+
+                    CurrentServer = srcServer;
+                    ClearTcpCache();
                 }
 
                 // 通过序列号和数据进行 TCP 数据流重组（例如多个 TCP 包拼接成完整的 protobuf）
@@ -225,11 +233,7 @@ namespace StarResonanceDpsAnalysis.Core
         {
             try
             {
-                // 如果当前服务器已经是这个，不需要重复识别
-                if (CurrentServer == srcServer)
-                {
-                    return false;
-                }
+
 
 
                 // 第 5 字节不为 0，则不是“小包”格式（协议约定）
@@ -265,16 +269,9 @@ namespace StarResonanceDpsAnalysis.Core
 
                             // 解码主体结构（跳过前18字节，通常是头部结构）
                             // var body = global::Blueprotobuf.Decode(data1.AsSpan(18).ToArray());
-                            if (CurrentServer != srcServer)
-                            {
-                                // 成功识别服务器，设置当前 server
-                                CurrentServer = srcServer;
-                                Console.WriteLine($"识别到场景服务器地址: {srcServer}");
-
-                                // 清除之前可能未完成的 TCP 拼包缓存
-                                ClearTcpCache();
+                          
                                 return true; // ✅ 成功识别，立即返回
-                            }
+                            
                             //// 从结构中尝试获取玩家 UID（字段[1]->[5]）
                             //if (data1.Length >= 17 && data1[17] == 0x2E) // 特定标志字节 0x2E
                             //{
@@ -309,13 +306,10 @@ namespace StarResonanceDpsAnalysis.Core
 
                     if (firstPartMatch && secondPartMatch)
                     {
-                        if (CurrentServer != srcServer)
-                        {
-                            CurrentServer = srcServer;
-                            ClearTcpCache();
+                      
                             Console.WriteLine("Got Scene Server Address by Login Return Packet: " + srcServer);
                             return true; // ✅ 成功识别，立即返回
-                        }
+                        
                     }
                 }
 

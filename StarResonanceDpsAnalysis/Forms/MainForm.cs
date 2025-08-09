@@ -73,7 +73,7 @@ namespace StarResonanceDpsAnalysis
 
             LoadTableColumnVisibilitySettings();
             ToggleTableView();
-            LoadNetworkDevices();
+           
         }
 
         private async void MainForm_Load(object sender, EventArgs e)
@@ -89,6 +89,7 @@ namespace StarResonanceDpsAnalysis
 
             #region —— 配置读取（网卡/透明度/颜色/主题/热键） ——
             AppConfig.Reader.Load(AppConfig.ConfigIni);//加载配置文件
+            LoadNetworkDevices();
             if (!string.IsNullOrEmpty(AppConfig.Reader.GetValue("SetUp", "NetworkCard")))
             {
                 AppConfig.NetworkCard = Convert.ToInt32(Convert.ToInt32(AppConfig.Reader.GetValue("SetUp", "NetworkCard")));
