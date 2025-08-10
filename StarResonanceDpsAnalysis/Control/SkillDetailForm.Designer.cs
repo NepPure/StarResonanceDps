@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            AntdUI.SegmentedItem segmentedItem1 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem2 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem3 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem4 = new AntdUI.SegmentedItem();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SkillDetailForm));
             table_DpsDetailDataTable = new AntdUI.Table();
             pageHeader1 = new AntdUI.PageHeader();
@@ -63,6 +63,7 @@
             timer1 = new System.Windows.Forms.Timer(components);
             UidText = new AntdUI.Label();
             PowerText = new AntdUI.Label();
+            divider3 = new AntdUI.Divider();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             SuspendLayout();
@@ -94,11 +95,11 @@
             // 
             // segmented1
             // 
-            segmented1.Anchor = AnchorStyles.Top;
-            segmentedItem1.Text = "技能伤害分析";
-            segmentedItem2.Text = "技能治疗分析";
-            segmented1.Items.Add(segmentedItem1);
-            segmented1.Items.Add(segmentedItem2);
+            segmented1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            segmentedItem3.Text = "技能伤害分析";
+            segmentedItem4.Text = "技能治疗分析";
+            segmented1.Items.Add(segmentedItem3);
+            segmented1.Items.Add(segmentedItem4);
             segmented1.Location = new Point(911, 82);
             segmented1.Name = "segmented1";
             segmented1.SelectIndex = 0;
@@ -109,6 +110,7 @@
             // 
             // NickNameText
             // 
+            NickNameText.BackColor = Color.Transparent;
             NickNameText.Font = new Font("Microsoft YaHei UI", 10.5F, FontStyle.Bold, GraphicsUnit.Point, 134);
             NickNameText.Location = new Point(20, 58);
             NickNameText.Name = "NickNameText";
@@ -118,7 +120,8 @@
             // 
             // button_AlwaysOnTop
             // 
-            button_AlwaysOnTop.Anchor = AnchorStyles.Top;
+            button_AlwaysOnTop.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            button_AlwaysOnTop.BackColor = Color.Transparent;
             button_AlwaysOnTop.Ghost = true;
             button_AlwaysOnTop.IconSvg = resources.GetString("button_AlwaysOnTop.IconSvg");
             button_AlwaysOnTop.Location = new Point(1194, 85);
@@ -129,6 +132,7 @@
             // 
             // ProfessionText
             // 
+            ProfessionText.BackColor = Color.Transparent;
             ProfessionText.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             ProfessionText.Location = new Point(20, 109);
             ProfessionText.Name = "ProfessionText";
@@ -395,6 +399,7 @@
             // 
             // UidText
             // 
+            UidText.BackColor = Color.Transparent;
             UidText.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             UidText.Location = new Point(197, 109);
             UidText.Name = "UidText";
@@ -405,6 +410,7 @@
             // 
             // PowerText
             // 
+            PowerText.BackColor = Color.Transparent;
             PowerText.Font = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             PowerText.Location = new Point(369, 109);
             PowerText.Name = "PowerText";
@@ -413,12 +419,23 @@
             PowerText.TabIndex = 24;
             PowerText.Text = "123";
             // 
+            // divider3
+            // 
+            divider3.BackColor = Color.Transparent;
+            divider3.Location = new Point(-1, 346);
+            divider3.Name = "divider3";
+            divider3.OrientationMargin = 0F;
+            divider3.Size = new Size(1247, 14);
+            divider3.TabIndex = 25;
+            divider3.Text = "";
+            // 
             // SkillDetailForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(1247, 1138);
+            Controls.Add(divider3);
             Controls.Add(PowerText);
             Controls.Add(UidText);
             Controls.Add(panel2);
@@ -430,6 +447,7 @@
             Controls.Add(pageHeader1);
             Controls.Add(table_DpsDetailDataTable);
             Name = "SkillDetailForm";
+            Resizable = false;
             Text = "SkillDetailForm";
             Load += SkillDetailForm_Load;
             panel1.ResumeLayout(false);
@@ -470,5 +488,6 @@
         private AntdUI.Label UidText;
         private AntdUI.Label PowerText;
         public System.Windows.Forms.Timer timer1;
+        private AntdUI.Divider divider3;
     }
 }

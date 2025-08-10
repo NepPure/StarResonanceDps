@@ -849,7 +849,7 @@ namespace StarResonanceDpsAnalysis
         /// <summary>
         /// 获取“全队 Top 技能”（按总伤害聚合）
         /// </summary>
-        public List<TeamSkillSummary> GetTeamTopSkillsByTotal(int topN = 10)
+        public List<TeamSkillSummary> GetTeamTopSkillsByTotal(int topN = 20)
         {
             // skillId -> (total, count)
             var agg = new Dictionary<ulong, (ulong total, int count)>();
