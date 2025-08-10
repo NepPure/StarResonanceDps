@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -7,6 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using AntdUI;
+using SharpPcap;
+using StarResonanceDpsAnalysis.Control;
+using StarResonanceDpsAnalysis.Core;
 using StarResonanceDpsAnalysis.Plugin;
 
 namespace StarResonanceDpsAnalysis
@@ -265,13 +269,344 @@ namespace StarResonanceDpsAnalysis
         #endregion
 
 
-        #region RefreshHotKeyTips()
+        #region RefreshHotKeyTips() 更新热键提示
 
         public void RefreshHotKeyTips() 
         {
             label_HotKeyTips.Text = @$"{AppConfig.MouseThroughKey}：鼠标穿透 | {AppConfig.FormTransparencyKey}：窗体透明 | {AppConfig.WindowToggleKey}：开启/关闭 | {AppConfig.ClearDataKey}：清空数据 | {AppConfig.ClearHistoryKey}：清空历史";
         }
 
+        #endregion
+
+
+        #region SaveCurrentDpsSnapshot() 历史记录：保存/显示
+
+        private void SaveCurrentDpsSnapshot()
+        {
+            if (TableDatas.DpsTable.Count == 0) return;
+
+            string timeOnly = @$"结束时间：{DateTime.Now:HH:mm:ss}";
+            var snapshot = new BindingList<DpsTable>();
+
+            foreach (var item in TableDatas.DpsTable)
+            {
+                string nickname = item.nickname;
+                double.TryParse(item.critRate.TrimEnd('%'), out var cr);
+                double.TryParse(item.luckyRate.TrimEnd('%'), out var lr);
+
+                snapshot.Add(new DpsTable(
+                    item.uid,
+                    nickname: nickname,
+                    item.damageTaken,
+                    item.totalHealingDone,
+                    item.criticalHealingDone,
+                    item.luckyHealingDone,
+                    item.critLuckyHealingDone,
+                    item.instantHps,
+                    item.maxInstantHps,
+                    item.profession,
+                    item.totalDamage,
+                    item.criticalDamage,
+                    item.luckyDamage,
+                    item.critLuckyDamage,
+                    cr.ToString(),
+                    lr.ToString(),
+                    item.instantDps,
+                    item.maxInstantDps,
+                    item.totalDps,
+                    item.totalHps,
+                    new CellProgress(item.CellProgress?.Value ?? 0)
+                    {
+                        Size = new Size(300, 10),
+                        Fill = AppConfig.DpsColor
+                    }
+                ));
+            }
+
+            HistoricalRecords[timeOnly] = snapshot;
+            dropdown_History.Items.Add(timeOnly);
+            dropdown_History.SelectedValue = -1;
+        }
+
+        private void ShowHistoricalDps(string timeKey)
+        {
+            if (!HistoricalRecords.TryGetValue(timeKey, out var recordList))
+            {
+                MessageBox.Show($"未找到时间 {timeKey} 的历史记录");
+                return;
+            }
+
+            foreach (var item in recordList)
+            {
+                double.TryParse(item.critRate.TrimEnd('%'), out var cr);
+                double.TryParse(item.luckyRate.TrimEnd('%'), out var lr);
+
+                Plugin.TableDatas.DpsTable.Add(new DpsTable(
+                    item.uid,
+                    item.nickname,
+                    item.damageTaken,
+                    item.totalHealingDone,
+                    item.criticalHealingDone,
+                    item.luckyHealingDone,
+                    item.critLuckyHealingDone,
+                    item.instantHps,
+                    item.maxInstantHps,
+                    item.profession,
+                    item.totalDamage,
+                    item.criticalDamage,
+                    item.luckyDamage,
+                    item.critLuckyDamage,
+                    cr.ToString(),
+                    lr.ToString(),
+                    item.instantDps,
+                    item.maxInstantDps,
+                    item.totalDps,
+                    item.totalHps,
+                    new CellProgress(item.CellProgress?.Value ?? 0)
+                    {
+                        Size = new Size(300, 10),
+                        Fill = AppConfig.DpsColor
+                    }
+                ));
+            }
+        }
+        #endregion
+
+
+        #region StartCapture() 抓包：开始/停止/事件/统计
+
+        /// <summary>开始抓包</summary>
+        private void StartCapture()
+        {
+            Volatile.Write(ref _stopping, 0);
+
+            #region —— 前置校验与设备打开 —— 
+            if (AppConfig.NetworkCard < 0)
+            {
+                if (switch_IsMonitoring.Checked)
+                {
+                    switch_IsMonitoring.Checked = false;
+                }
+                MessageBox.Show("请选择一个网卡设备");
+                pageHeader_MainHeader.SubText = "监控已关闭";
+
+                return;
+            }
+
+            var devices = CaptureDeviceList.Instance;
+            if (devices == null || devices.Count == 0)
+                throw new InvalidOperationException("没有找到可用的网络抓包设备");
+
+            if (AppConfig.NetworkCard < 0 || AppConfig.NetworkCard >= devices.Count)
+                throw new InvalidOperationException($"无效的网络设备索引: {AppConfig.NetworkCard}");
+
+            selectedDevice = devices[AppConfig.NetworkCard];
+            if (selectedDevice == null)
+                throw new InvalidOperationException($"无法获取网络设备，索引: {AppConfig.NetworkCard}");
+
+            selectedDevice.Open(DeviceModes.Promiscuous, 1000);
+            #endregion
+
+            #region —— 启动统计/事件注册 —— 
+            InitStatsTimer();
+            timer_RefreshDpsTable.Enabled = true;
+            pageHeader_MainHeader.SubText = "监控已开启";
+            monitor = true;
+            _combatWatch.Restart();
+            timer_RefreshRunningTime.Start();
+            if (label_SettingTip.Visible == false)
+            {
+                label_SettingTip.Visible = true;
+                label_SettingTip.Text = "00:00";
+            }
+            #endregion
+
+            #region —— 清空当前统计 —— 
+            TableDatas.DpsTable.Clear();
+            StatisticData._manager.ClearAll();
+            #endregion
+        }
+
+        /// <summary>停止抓包</summary>
+        private async void StopCapture()
+        {
+
+            Volatile.Write(ref _stopping, 1);
+
+            #region —— 保存快照 —— 
+            if (TableDatas.DpsTable.Count > 0)
+            {
+                SaveCurrentDpsSnapshot();
+            }
+            #endregion
+
+            #region —— 停止设备与事件反注册 —— 
+            _packetAnalyzer.Stop();
+            if (selectedDevice != null)
+            {
+                try
+                {
+                    selectedDevice.OnPacketArrival -= Device_OnPacketArrival;
+                    selectedDevice.StopCapture();
+                    selectedDevice.Close();
+                    Console.WriteLine("停止抓包");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"停止抓包异常: {ex.Message}");
+                }
+                selectedDevice = null;
+            }
+
+            #endregion
+
+            #region —— 停止统计定时器 —— 
+            if (statsTimer != null)
+            {
+                statsTimer.Stop();
+                statsTimer.Dispose();
+                statsTimer = null;
+            }
+            #endregion
+
+            #region —— 停止工作线程（带超时） —— 
+            if (_cancellationTokenSource != null)
+            {
+                var cts = _cancellationTokenSource;
+                var tasks = _workerTasks;
+
+                cts.Cancel();
+                try
+                {
+                    var pending = tasks?
+                        .Where(t => t != null && !t.IsCompleted)
+                        .ToArray() ?? Array.Empty<Task>();
+
+                    if (pending.Length > 0)
+                    {
+                        var all = Task.WhenAll(pending);
+                        var finished = await Task.WhenAny(all, Task.Delay(3000));
+                        if (finished != all)
+                        {
+                            Console.WriteLine("[关闭] 等待任务超时（>3s），后续让任务自行收尾。");
+                        }
+                        else
+                        {
+                            await all;
+                        }
+                    }
+                }
+                catch (OperationCanceledException) { }
+                catch (AggregateException aex)
+                {
+                    foreach (var inner in aex.Flatten().InnerExceptions)
+                        Console.WriteLine($"[线程终止异常] {inner.Message}");
+                }
+                finally
+                {
+                    cts.Dispose();
+                    _cancellationTokenSource = null;
+                    _workerTasks = [];
+                }
+            }
+            #endregion
+
+            #region —— 状态复位/计时器复位 —— 
+            _isCaptureStarted = false;
+            label_SettingTip.Text = "00:00";
+            timer_RefreshDpsTable.Enabled = false;
+            monitor = false;
+            timer_RefreshRunningTime.Stop();
+            _combatWatch.Stop();
+            #endregion
+        }
+
+        /// <summary>初始化统计/注册回调并启动</summary>
+        private void InitStatsTimer()
+        {
+            if (statsTimer != null)
+            {
+                statsTimer.Stop();
+                statsTimer.Dispose();
+            }
+
+            #region —— 丢包统计（保留注释块原样） —— 
+            //statsTimer = new System.Timers.Timer(statsInterval);
+            //statsTimer.AutoReset = true;  // 设置为自动重置，定期触发
+            //lastStatsTime = DateTime.Now;
+            //statsTimer.Elapsed += (s, e) => { ... };
+            //statsTimer.Start();
+            #endregion
+
+            #region —— 注册抓包事件并启动 —— 
+            selectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
+            selectedDevice.StartCapture();
+
+
+
+            if (!_isCaptureStarted)
+            {
+                Console.WriteLine("开始抓包...");
+                // 启动抓包的时候创建一次
+                _packetAnalyzer = new PacketAnalyzer();
+                _packetAnalyzer.Start();
+                // Console.WriteLine($"已启动 {_workerCount} 个工作线程处理数据包");
+                _isCaptureStarted = true;
+            }
+            #endregion
+        }
+
+        #endregion
+
+
+        #region OpenSettingsDialog() 设置/对话框
+
+        /// <summary>
+        /// 打开基础设置面板
+        /// </summary>
+        private void OpenSettingsDialog()
+        {
+            using var form = new Setup(this);
+            form.inputNumber1.Value = (decimal)AppConfig.Transparency;
+            form.colorPicker1.Value = AppConfig.DpsColor;
+
+            var title = Localization.Get("systemset", "请选择网卡");
+            AntdUI.Modal.open(new Modal.Config(this, title, form, TType.Info)
+            {
+                CloseIcon = true,
+                BtnHeight = 0,
+            });
+
+            AppConfig.Transparency = (double)form.inputNumber1.Value;
+            if (AppConfig.Transparency < 10)
+            {
+                AppConfig.Transparency = 100;
+                MessageBox.Show("透明度不能低于10%，已自动设置为100%");
+            }
+
+            RefreshHotKeyTips();
+
+            label_SettingTip.Visible = false;
+        }
+
+        private void dataDisplay()
+        {
+            using (var form = new DataDisplaySettings(this))
+            {
+                string title = Localization.Get("DataDisplaySettings", "请勾选需要显示的统计");
+                AntdUI.Modal.open(new Modal.Config(this, title, form, TType.Info)
+                {
+                    CloseIcon = true,
+                    BtnHeight = 0,
+                });
+
+                table_DpsDataTable.Columns = ColumnSettingsManager.BuildColumns(checkbox_PersentData.Checked);
+                if (!checkbox_PersentData.Checked)
+                {
+                    table_DpsDataTable.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
+                }
+            }
+        }
         #endregion
     }
 }
