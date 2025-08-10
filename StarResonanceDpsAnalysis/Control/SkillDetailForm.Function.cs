@@ -28,7 +28,7 @@ namespace StarResonanceDpsAnalysis.Control
             };
 
             table_DpsDetailDataTable.Binding(SkillTableDatas.SkillTable);
-            LoadPlayerSkillsToTable();
+            UpdateSkillTable(Uid, false);
 
         }
 
@@ -40,30 +40,17 @@ namespace StarResonanceDpsAnalysis.Control
         /// <summary>
         /// 刷新玩家技能数据
         /// </summary>
-        public void LoadPlayerSkillsToTable()
+        private void UpdateSkillTable(ulong uid, bool isHeal)
         {
-            var p = StatisticData._manager.GetOrCreate(Uid);
+            var skillType = isHeal
+                ? StarResonanceDpsAnalysis.Core.SkillType.Heal
+                : StarResonanceDpsAnalysis.Core.SkillType.Damage;
 
-            // 伤害信息
-            TotalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Total);                 // 总伤害
-            TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalDps());                      // 秒伤
-            CritRateText.Text= $"{(p.DamageStats.GetCritRate() * 100):0.#}%";       // 暴击率
-            LuckyRate.Text = $"{(p.DamageStats.GetLuckyRate() * 100):0.#}%";      // 幸运率
-
-            // 伤害分布
-            NormalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Normal);                // 普通伤害
-            CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);              // 暴击伤害
-            LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Lucky);                  // 幸运伤害
-            AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());    // 平均伤害
-
-
-            // 先取原始数据并按伤害降序
-            var playerSkill = StatisticData._manager
-                .GetPlayerSkillSummaries(Uid)
-                .OrderByDescending(s => s.Total) // 直接用原始 ulong
+            var skills = StatisticData._manager
+                .GetPlayerSkillSummaries(uid, topN: null, orderByTotalDesc: true, skillType)
                 .ToList();
 
-            foreach (var item in playerSkill)
+            foreach (var item in skills)
             {
                 string critRateStr = $"{Math.Round(item.CritRate * 100, 1)}%";
                 string luckyRateStr = $"{Math.Round(item.LuckyRate * 100, 1)}%";
@@ -71,13 +58,17 @@ namespace StarResonanceDpsAnalysis.Control
                 var existing = SkillTableDatas.SkillTable.FirstOrDefault(s => s.Name == item.SkillName);
                 if (existing != null)
                 {
-                    existing.Damage =item.Total.ToString();
+                    existing.Damage = item.Total.ToString();
                     existing.HitCount = item.HitCount;
                     existing.CritRate = critRateStr;
                     existing.LuckyRate = luckyRateStr;
-                    existing.Share = new CellProgress((float)item.ShareOfTotal) { Fill = AppConfig.DpsColor, Size = new Size(200, 10) };
-                    existing.AvgPerHit =item.AvgPerHit.ToString();
-                    existing.TotalDps =item.TotalDps.ToString();
+                    existing.AvgPerHit = item.AvgPerHit.ToString();
+                    existing.TotalDps = item.TotalDps.ToString();
+                    existing.Share = new CellProgress((float)item.ShareOfTotal)
+                    {
+                        Fill = AppConfig.DpsColor,
+                        Size = new Size(200, 10)
+                    };
                 }
                 else
                 {
@@ -89,12 +80,20 @@ namespace StarResonanceDpsAnalysis.Control
                         critRateStr,
                         luckyRateStr,
                         item.ShareOfTotal,
-                       item.AvgPerHit,
-                       item.TotalDps
-                    ));
+                        item.AvgPerHit,
+                        item.TotalDps
+                    )
+                    {
+                        Share = new CellProgress((float)item.ShareOfTotal)
+                        {
+                            Fill = AppConfig.DpsColor,
+                            Size = new Size(200, 10)
+                        }
+                    });
                 }
             }
         }
+
 
         /// <summary>
         /// 更新玩家信息

@@ -105,6 +105,7 @@
             segmented1.Size = new Size(277, 53);
             segmented1.TabIndex = 16;
             segmented1.Text = "segmented1";
+            segmented1.SelectIndexChanged += segmented1_SelectIndexChanged;
             // 
             // NickNameText
             // 

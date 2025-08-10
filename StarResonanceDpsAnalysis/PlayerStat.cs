@@ -885,11 +885,19 @@ namespace StarResonanceDpsAnalysis
         /// <param name="topN"></param>
         /// <param name="orderByTotalDesc"></param>
         /// <returns></returns>
-        public List<SkillSummary> GetPlayerSkillSummaries(ulong uid, int? topN = null, bool orderByTotalDesc = true)
+        /// <summary>
+        /// 按玩家获取技能明细列表（支持按技能类型过滤）
+        /// </summary>
+        public List<SkillSummary> GetPlayerSkillSummaries(
+            ulong uid,
+            int? topN = null,
+            bool orderByTotalDesc = true,
+            StarResonanceDpsAnalysis.Core.SkillType? filterType = StarResonanceDpsAnalysis.Core.SkillType.Damage)
         {
             var p = GetOrCreate(uid);
-            return p.GetSkillSummaries(topN, orderByTotalDesc);
+            return p.GetSkillSummaries(topN, orderByTotalDesc, filterType);
         }
+
 
         /// <summary>
         /// 分类：按玩家获取实时技能占比（TopN + 其他）
