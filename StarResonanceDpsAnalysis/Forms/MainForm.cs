@@ -12,11 +12,62 @@ using StarResonanceDpsAnalysis.Core;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Properties;
 using ZstdNet;
+using static System.Windows.Forms.AxHost;
 
 namespace StarResonanceDpsAnalysis
 {
     public partial class MainForm : BorderlessForm
     {
+
+        public static void LoadFromEmbeddedSkillConfig()
+        {
+            // 1) 先用 int 键的表（已经解析过字符串）
+            foreach (var kv in EmbeddedSkillConfig.AllByInt)
+            {
+                var id = (ulong)kv.Key;
+                var def = kv.Value;
+
+                // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
+                // 这里用的是整条更新（SetOrUpdate），如果该技能 ID 已存在则覆盖，不存在则添加
+                SkillBook.SetOrUpdate(new SkillMeta
+                {
+                    Id = id,                         // 技能 ID（唯一标识一个技能）
+                    Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
+                    School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
+                    Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
+                    Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
+                });
+
+
+            }
+
+            // 2) 有些 ID 可能超出 int 或不在 AllByInt，可以再兜底遍历字符串键
+            foreach (var kv in EmbeddedSkillConfig.AllByString)
+            {
+                if (ulong.TryParse(kv.Key, out var id))
+                {
+                    // 如果 int 表已覆盖，这里会覆盖同名；没关系，等价
+                    var def = kv.Value;
+                    // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
+                    // 这里用的是整条更新（SetOrUpdate），如果该技能 ID 已存在则覆盖，不存在则添加
+                    SkillBook.SetOrUpdate(new SkillMeta
+                    {
+                        Id = id,                         // 技能 ID（唯一标识一个技能）
+                        Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
+                        School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
+                        Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
+                        Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
+                    });
+
+                }
+            }
+
+            // 你也可以在这里写日志：加载了多少条技能
+            // Console.WriteLine($"SkillBook loaded {EmbeddedSkillConfig.AllByInt.Count} + {EmbeddedSkillConfig.AllByString.Count} entries.");
+        }
+
+
+
         #region ========== 字段与常量 ==========
         #region —— 抓包设备/统计 —— 
         private ICaptureDevice? selectedDevice;
@@ -38,7 +89,7 @@ namespace StarResonanceDpsAnalysis
         #endregion
 
         #region —— 历史记录/数据结构 —— 
-        Dictionary<string, BindingList<DpsTable>> HistoricalRecords = [];
+        Dictionary<string, List<PlayerData>> HistoricalRecords = [];
         private readonly BlockingCollection<(ICaptureDevice? dev, RawCapture raw)> _queue = new(8192);
         #endregion
 
@@ -60,7 +111,7 @@ namespace StarResonanceDpsAnalysis
         #region ========== 构造与启动加载 ==========
         public MainForm()
         {
-           
+
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
 
@@ -73,14 +124,16 @@ namespace StarResonanceDpsAnalysis
 
             LoadTableColumnVisibilitySettings();
             ToggleTableView();
-           
+            LoadFromEmbeddedSkillConfig();
+
+
         }
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
-       
-      
-        
+
+
+
             #region —— 键盘钩子初始化 ——
             kbHook = new KeyboardHook();
             kbHook.SetHook();
@@ -232,6 +285,7 @@ namespace StarResonanceDpsAnalysis
             FormGui.SetColorMode(this, AppConfig.IsLight);
             FormGui.SetColorMode(Common.skillDiary, AppConfig.IsLight);
             FormGui.SetColorMode(Common.userUidSet, AppConfig.IsLight);
+            FormGui.SetColorMode(Common.skillDetailForm, AppConfig.IsLight);
 
             AppConfig.Reader.Load(AppConfig.ConfigIni);
             AppConfig.Reader.SaveValue("SetUp", "IsLight", AppConfig.IsLight.ToString());
@@ -258,7 +312,7 @@ namespace StarResonanceDpsAnalysis
                 return;
             }
 
-            TableDatas.DpsTable.Clear();
+            DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             ShowHistoricalDps(e.Value.ToString());
             dropdown_History.SelectedValue = -1;
@@ -266,7 +320,18 @@ namespace StarResonanceDpsAnalysis
 
         private void button1_Click(object sender, EventArgs e)
         {
-            FormGui.Modal(this, "正在开发", "正在开发");
+
+
+
+            //var teamShare = StatisticData._manager.GetTeamSkillDamageShareTotal(topN: 15, includeOthers: true);
+            //// 绑定表格或打印
+            //foreach (var s in teamShare)
+            //    Console.WriteLine($"{s.SkillName} 总伤害={s.Total} 占比={s.Percent}%");
+
+
+
+
+            //FormGui.Modal(this, "正在开发", "正在开发");
             return;
             if (Common.skillDiary == null || Common.skillDiary.IsDisposed)
             {
@@ -289,8 +354,9 @@ namespace StarResonanceDpsAnalysis
                 _combatWatch.Restart();
                 timer_RefreshRunningTime.Start();
 
-                TableDatas.DpsTable.Clear();
+                DpsTableDatas.DpsTable.Clear();
                 StatisticData._manager.ClearAll();
+                SkillTableDatas.SkillTable.Clear();
             }
             else
             {
@@ -300,7 +366,9 @@ namespace StarResonanceDpsAnalysis
                 timer_RefreshDpsTable.Enabled = false;
                 monitor = false;
                 timer_RefreshRunningTime.Stop();
+
                 _combatWatch.Stop();
+               
             }
         }
 
@@ -346,48 +414,14 @@ namespace StarResonanceDpsAnalysis
         #region ========== 历史记录：保存/显示 ==========
         private void SaveCurrentDpsSnapshot()
         {
-            if (TableDatas.DpsTable.Count == 0) return;
+            List<PlayerData> statsList = StatisticData._manager
+            .GetAllPlayers()
+            .ToList();
+            if (statsList.Count == 0) return;
 
             string timeOnly = @$"结束时间：{DateTime.Now:HH:mm:ss}";
-            var snapshot = new BindingList<DpsTable>();
 
-            foreach (var item in TableDatas.DpsTable)
-            {
-                string nickname = item.nickname;
-                double.TryParse(item.critRate.TrimEnd('%'), out var cr);
-                double.TryParse(item.luckyRate.TrimEnd('%'), out var lr);
-
-                snapshot.Add(new DpsTable(
-                    item.uid,
-                    nickname: nickname,
-                    item.damageTaken,
-                    item.totalHealingDone,
-                    item.criticalHealingDone,
-                    item.luckyHealingDone,
-                    item.critLuckyHealingDone,
-                    item.instantHps,
-                    item.maxInstantHps,
-                    item.profession,
-                    item.totalDamage,
-                    item.criticalDamage,
-                    item.luckyDamage,
-                    item.critLuckyDamage,
-                    cr.ToString(),
-                    lr.ToString(),
-                    item.instantDps,
-                    item.maxInstantDps,
-                    item.totalDps,
-                    item.totalHps,
-                    new CellProgress(item.CellProgress?.Value ?? 0)
-                    {
-                        Size = new Size(300, 10),
-                        Fill = AppConfig.DpsColor
-                    },
-                    item.combatPower
-                ));
-            }
-
-            HistoricalRecords[timeOnly] = snapshot;
+            HistoricalRecords[timeOnly] = statsList;
             dropdown_History.Items.Add(timeOnly);
             dropdown_History.SelectedValue = -1;
         }
@@ -399,41 +433,69 @@ namespace StarResonanceDpsAnalysis
                 MessageBox.Show($"未找到时间 {timeKey} 的历史记录");
                 return;
             }
+            if (recordList.Count <= 0) return;
+            // 2) 计算最大总伤害，用于归一化进度条
+            float totalDamageSum = recordList
+            .Where(p => p?.DamageStats != null)
+            .Sum(p => (float)p.DamageStats.Total);
 
-            foreach (var item in recordList)
+            if (totalDamageSum <= 0f) totalDamageSum = 1f;
+
+            // 3) 遍历，新增或更新行
+            foreach (var stat in recordList)
             {
-                double.TryParse(item.critRate.TrimEnd('%'), out var cr);
-                double.TryParse(item.luckyRate.TrimEnd('%'), out var lr);
+                if (stat == null) continue;
+                // 3.1 计算进度条比例
+                float percent = (float)stat.DamageStats.Total / totalDamageSum;
 
-                Plugin.TableDatas.DpsTable.Add(new DpsTable(
-                    item.uid,
-                    item.nickname,
-                    item.damageTaken,
-                    item.totalHealingDone,
-                    item.criticalHealingDone,
-                    item.luckyHealingDone,
-                    item.critLuckyHealingDone,
-                    item.instantHps,
-                    item.maxInstantHps,
-                    item.profession,
-                    item.totalDamage,
-                    item.criticalDamage,
-                    item.luckyDamage,
-                    item.critLuckyDamage,
-                    cr.ToString(),
-                    lr.ToString(),
-                    item.instantDps,
-                    item.maxInstantDps,
-                    item.totalDps,
-                    item.totalHps,
-                    new CellProgress(item.CellProgress?.Value ?? 0)
+                // 3.2 按 UID 查找已有行
+                var row = DpsTableDatas.DpsTable
+                    .FirstOrDefault(x => x.Uid == stat.Uid);
+
+                // 3.3 计算暴击率/幸运率（以 % 计）
+                double critRate = stat.DamageStats.CountTotal > 0
+                                 ? (double)stat.DamageStats.CountCritical / stat.DamageStats.CountTotal * 100
+                                 : 0.0;
+                double luckyRate = stat.DamageStats.CountTotal > 0
+                                 ? (double)stat.DamageStats.CountLucky / stat.DamageStats.CountTotal * 100
+                                 : 0.0;
+
+
+                if (row == null)
+                {
+                    // 新增一行
+                    DpsTableDatas.DpsTable.Add(new DpsTable(
+                         stat.Uid,
+                         stat.Nickname,
+                         stat.TakenDamage,
+                         stat.HealingStats.Total,
+                         stat.HealingStats.Critical,
+                        stat.HealingStats.Lucky,
+                        stat.HealingStats.CritLucky,
+                        stat.HealingStats.RealtimeValue,
+                        stat.HealingStats.RealtimeMax,
+                         stat.Profession,
+                        stat.DamageStats.Total,
+                        stat.DamageStats.Critical,
+                         stat.DamageStats.Lucky,
+                        stat.DamageStats.CritLucky,
+                        Math.Round(critRate, 1),
+                        Math.Round(luckyRate, 1),
+                       stat.DamageStats.RealtimeValue,     // 即时 DPS
+                        stat.DamageStats.RealtimeMax,       // 峰值 DPS
+                        Math.Round(stat.DamageStats.GetTotalPerSecond(), 1), // 总平均 DPS
+                        Math.Round(stat.HealingStats.GetTotalPerSecond(), 1), // 总平均 HPS
+                    new CellProgress(percent)
                     {
-                        Size = new Size(300, 10),
+                        Size = new Size(200, 10),
                         Fill = AppConfig.DpsColor
-                    }
-                ));
+                    },
+                    stat.CombatPower
+
+                    ));
+                }
             }
-        }
+            }
         #endregion
 
         #region ========== 抓包：开始/停止/事件/统计 ==========
@@ -441,7 +503,7 @@ namespace StarResonanceDpsAnalysis
         private void StartCapture()
         {
             Volatile.Write(ref _stopping, 0);
-      
+
             #region —— 前置校验与设备打开 —— 
             if (AppConfig.NetworkCard < 0)
             {
@@ -451,7 +513,7 @@ namespace StarResonanceDpsAnalysis
                 }
                 MessageBox.Show("请选择一个网卡设备");
                 pageHeader_MainHeader.SubText = "监控已关闭";
-              
+
                 return;
             }
 
@@ -484,7 +546,7 @@ namespace StarResonanceDpsAnalysis
             #endregion
 
             #region —— 清空当前统计 —— 
-            TableDatas.DpsTable.Clear();
+            DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             #endregion
         }
@@ -492,11 +554,11 @@ namespace StarResonanceDpsAnalysis
         /// <summary>停止抓包</summary>
         private async void StopCapture()
         {
-            
+
             Volatile.Write(ref _stopping, 1);
-           
+
             #region —— 保存快照 —— 
-            if (TableDatas.DpsTable.Count > 0)
+            if (DpsTableDatas.DpsTable.Count > 0)
             {
                 SaveCurrentDpsSnapshot();
             }
@@ -519,7 +581,7 @@ namespace StarResonanceDpsAnalysis
                 }
                 selectedDevice = null;
             }
-   
+
             #endregion
 
             #region —— 停止统计定时器 —— 
@@ -581,6 +643,7 @@ namespace StarResonanceDpsAnalysis
             monitor = false;
             timer_RefreshRunningTime.Stop();
             _combatWatch.Stop();
+           
             #endregion
         }
 
@@ -604,7 +667,7 @@ namespace StarResonanceDpsAnalysis
             #region —— 注册抓包事件并启动 —— 
             selectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
             selectedDevice.StartCapture();
-         
+
 
 
             if (!_isCaptureStarted)
@@ -664,7 +727,7 @@ namespace StarResonanceDpsAnalysis
             //}
         }
 
- 
+
         #endregion
 
         #region ========== 计时器Tick事件 ==========
@@ -675,7 +738,11 @@ namespace StarResonanceDpsAnalysis
 
         private void timer2_Tick(object sender, EventArgs e)
         {
-            label_SettingTip.Text = _combatWatch.Elapsed.ToString(@"mm\:ss");
+
+            // 例：定时器里刷新战斗时间标签
+            var dur = StatisticData._manager.GetCombatDuration();
+            label_SettingTip.Text = dur.ToString(@"hh\:mm\:ss");
+
         }
         #endregion
 
@@ -739,5 +806,39 @@ namespace StarResonanceDpsAnalysis
             }
         }
         #endregion
+
+        private void table_DpsDataTable_CellClick(object sender, TableClickEventArgs e)
+        {
+            ulong uid = 0;
+           
+            if(sort != null)
+            {
+                uid = DpsTableDatas.DpsTable[sort[e.RowIndex - 1]].Uid;
+
+            }else
+            {
+                uid = DpsTableDatas.DpsTable[e.RowIndex - 1].Uid;
+            }
+
+            if (Common.skillDetailForm == null || Common.skillDetailForm.IsDisposed)
+            {
+                Common.skillDetailForm = new SkillDetailForm();
+            }
+            SkillTableDatas.SkillTable.Clear();
+
+            Common.skillDetailForm.Uid = uid;
+            //获取玩家信息
+            var info = StatisticData._manager.GetPlayerBasicInfo(uid);
+            Common.skillDetailForm.GetPlayerInfo(info.Nickname, info.CombatPower, info.Profession);
+
+            Common.skillDetailForm.Show();
+
+        }
+
+        private int[] sort;//存储排列后的顺序
+        private void table_DpsDataTable_SortRows(object sender, IntEventArgs e)
+        {
+            sort = table_DpsDataTable.SortIndex();
+        }
     }
 }

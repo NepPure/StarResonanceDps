@@ -459,139 +459,135 @@ namespace BlueProto {
             "KANIAYgBAUIMCgpfQmFzZURlbHRhQgcKBV9VdWlkIkAKEVN5bmNOZWFyRGVs",
             "dGFJbmZvEisKCkRlbHRhSW5mb3MYASADKAsyFy5CbHVlUHJvdG8uQW9pU3lu",
             "Y0RlbHRhIkMKEVN5bmNUb01lRGVsdGFJbmZvEi4KCURlbHRhSW5mbxgBIAEo",
-            "CzIbLkJsdWVQcm90by5Bb2lTeW5jVG9NZURlbHRhImQKEFN5bmNOZWFyRW50",
-            "aXRpZXMSIQoGQXBwZWFyGAEgAygLMhEuQmx1ZVByb3RvLkVudGl0eRItCglE",
-            "aXNhcHBlYXIYAiADKAsyGi5CbHVlUHJvdG8uRGlzYXBwZWFyRW50aXR5IoAB",
-            "ChdNYWduZXRpY1F1ZXVlQXBwZWFySW5mbxIZChFQYXNzZW5nZXJVdWlkTGlz",
-            "dBgBIAMoAxIVCghJc0NpcmNsZRgCIAEoCEgAiAEBEhcKClBhdGhMZW5ndGgY",
-            "AyABKAJIAYgBAUILCglfSXNDaXJjbGVCDQoLX1BhdGhMZW5ndGgijgYKBkVu",
-            "dGl0eRIRCgRVdWlkGAEgASgDSACIAQESLAoHRW50VHlwZRgCIAEoDjIWLkJs",
-            "dWVQcm90by5FRW50aXR5VHlwZUgBiAEBEi0KBUF0dHJzGAMgASgLMhkuQmx1",
-            "ZVByb3RvLkF0dHJDb2xsZWN0aW9uSAKIAQESNQoJVGVtcEF0dHJzGAQgASgL",
-            "Mh0uQmx1ZVByb3RvLlRlbXBBdHRyQ29sbGVjdGlvbkgDiAEBEjkKDUJvZHlQ",
-            "YXJ0SW5mb3MYBSABKAsyHS5CbHVlUHJvdG8uQWN0b3JCb2R5UGFydEluZm9z",
-            "SASIAQESPgoRUGFzc2l2ZVNraWxsSW5mb3MYBiABKAsyHi5CbHVlUHJvdG8u",
-            "U2VxUGFzc2l2ZVNraWxsSW5mb0gFiAEBEi8KCUJ1ZmZJbmZvcxgHIAEoCzIX",
-            "LkJsdWVQcm90by5CdWZmSW5mb1N5bmNIBogBARIyCgpCdWZmRWZmZWN0GAgg",
-            "ASgLMhkuQmx1ZVByb3RvLkJ1ZmZFZmZlY3RTeW5jSAeIAQESLwoKQXBwZWFy",
-            "VHlwZRgJIAEoDjIWLkJsdWVQcm90by5FQXBwZWFyVHlwZUgIiAEBEl8KH01h",
-            "Z25ldGljUmlkZVF1ZXVlQ2hhbmdlSW5mb0RpY3QYCiADKAsyNi5CbHVlUHJv",
-            "dG8uRW50aXR5Lk1hZ25ldGljUmlkZVF1ZXVlQ2hhbmdlSW5mb0RpY3RFbnRy",
-            "eRpqCiRNYWduZXRpY1JpZGVRdWV1ZUNoYW5nZUluZm9EaWN0RW50cnkSCwoD",
-            "a2V5GAEgASgDEjEKBXZhbHVlGAIgASgLMiIuQmx1ZVByb3RvLk1hZ25ldGlj",
-            "UXVldWVBcHBlYXJJbmZvOgI4AUIHCgVfVXVpZEIKCghfRW50VHlwZUIICgZf",
-            "QXR0cnNCDAoKX1RlbXBBdHRyc0IQCg5fQm9keVBhcnRJbmZvc0IUChJfUGFz",
-            "c2l2ZVNraWxsSW5mb3NCDAoKX0J1ZmZJbmZvc0INCgtfQnVmZkVmZmVjdEIN",
-            "CgtfQXBwZWFyVHlwZSJkCg9EaXNhcHBlYXJFbnRpdHkSEQoEVXVpZBgBIAEo",
-            "A0gAiAEBEiwKBFR5cGUYAiABKA4yGS5CbHVlUHJvdG8uRURpc2FwcGVhclR5",
-            "cGVIAYgBAUIHCgVfVXVpZEIHCgVfVHlwZSpKCglFQm9keVNpemUSEAoMQm9k",
-            "eVNpemVOdWxsEAASDQoJQm9keVNpemVTEAESDQoJQm9keVNpemVNEAISDQoJ",
-            "Qm9keVNpemVMEAMqjwEKClN5c3RlbVR5cGUSEwoPU3lzdGVtVHlwZV9OdWxs",
-            "EAASFgoSU3lzdGVtVHlwZV9BbmRyb2lkEAESEgoOU3lzdGVtVHlwZV9Jb3MQ",
-            "AhISCg5TeXN0ZW1UeXBlX1dlYhADEhQKEFN5c3RlbVR5cGVfTGludXgQBBIW",
-            "ChJTeXN0ZW1UeXBlX1dpbmRvd3MQBSpZCg5MYXVuY2hQbGF0Zm9ybRIWChJM",
-            "YXVuY2hQbGF0Zm9ybU51bGwQABIYChNMYXVuY2hQbGF0Zm9ybVdlWGluEOkH",
-            "EhUKEExhdW5jaFBsYXRmb3JtUXEQ6gcqzAEKEUVVc2VyVHJhbnNmZXJUeXBl",
-            "EhwKGEVVc2VyVHJhbnNmZXJUeXBlRGVmYXVsdBAAEiIKHkVVc2VyVHJhbnNm",
-            "ZXJUeXBlU2NlbmVQb3NpdGlvbhABEh8KG0VVc2VyVHJhbnNmZXJUeXBlU2Nl",
-            "bmVQb3NJZBACEhoKFkVVc2VyVHJhbnNmZXJUeXBlUGl2b3QQAxIdChlFVXNl",
-            "clRyYW5zZmVyVHlwZUN1dFNjZW5lEAQSGQoVRVVzZXJUcmFuc2ZlclR5cGVO",
-            "ZWFyEAUqrAEKEEVTY2VuZUxpbmVTdGF0dXMSFwoTU2NlbmVMaW5lU3RhdHVz",
-            "Tm9uZRAAEhYKElNjZW5lTGluZVN0YXR1c0xvdxABEhkKFVNjZW5lTGluZVN0",
-            "YXR1c01lZGl1bRACEhcKE1NjZW5lTGluZVN0YXR1c0hpZ2gQAxIXChNTY2Vu",
-            "ZUxpbmVTdGF0dXNGdWxsEAQSGgoWU2NlbmVMaW5lU3RhdHVzUmVjeWNsZRAF",
-            "KlkKDUJvZHlQYXJ0U3RhdGUSGAoUQm9keVBhcnRTdGF0ZURlZmF1bHQQABIX",
-            "ChNCb2R5UGFydFN0YXRlSW5qdXJ5EAESFQoRQm9keVBhcnRTdGF0ZURlYWQQ",
-            "AircAgoWRUJ1ZmZFZmZlY3RMb2dpY1BiVHlwZRIOCgpQbGF5RWZmZWN0EAAS",
-            "CwoHR3Jhdml0eRABEhIKDlBhcmFib2xhRWZmZWN0EAISCwoHTGlua2luZxAD",
-            "EhMKD0NvbmZ1c2lvbkVmZmVjdBAEEg0KCVpvb21TY2FsZRAFEhgKFEJ1ZmZQ",
-            "cm9mZXNzaW9uRWZmZWN0EAcSEAoMVGVsZXBvcnRCZWx0EAgSFQoRQnVmZkVm",
-            "ZmVjdFJhaW5ib3cQCRIVChFCdWZmRWZmZWN0QXR0ckhVRBALEhIKDkJ1ZmZF",
-            "ZmZlY3RTdG9wEAwSFgoSQnVmZkVmZmVjdFByb2dyZXNzEA0SGwoXQnVmZkVm",
-            "ZmVjdEVuZXJneURpc3BsYXkQDhIVChFCdWZmRWZmZWN0U3RvcEFsbBAPEhkK",
-            "FUJ1ZmZFZmZlY3RMYXllckNoYW5nZRAQEgsKB1RlbnNpb24QESqjAQoNRURh",
-            "bWFnZVNvdXJjZRIWChJFRGFtYWdlU291cmNlU2tpbGwQABIXChNFRGFtYWdl",
-            "U291cmNlQnVsbGV0EAESFQoRRURhbWFnZVNvdXJjZUJ1ZmYQAhIVChFFRGFt",
-            "YWdlU291cmNlRmFsbBADEhsKF0VEYW1hZ2VTb3VyY2VGYWtlQnVsbGV0EAQS",
-            "FgoSRURhbWFnZVNvdXJjZU90aGVyEGQqggEKD0VEYW1hZ2VQcm9wZXJ0eRIL",
-            "CgdHZW5lcmFsEAASCAoERmlyZRABEgkKBVdhdGVyEAISDwoLRWxlY3RyaWNp",
-            "dHkQAxIICgRXb29kEAQSCAoEV2luZBAFEggKBFJvY2sQBhIJCgVMaWdodBAH",
-            "EggKBERhcmsQCBIJCgVDb3VudBAJKkYKC0VEYW1hZ2VNb2RlEhAKDERhbWFn",
-            "ZU5vcm1hbBAAEhIKDkRhbWFnZVBoeXNpY2FsEAESEQoNRGFtYWdlTWFnaWNh",
-            "bBACKlEKC0VEYW1hZ2VUeXBlEgoKBk5vcm1hbBAAEggKBE1pc3MQARIICgRI",
-            "ZWFsEAISCgoGSW1tdW5lEAMSCAoERmFsbBAEEgwKCEFic29yYmVkEAUqshQK",
-            "DkVCdWZmRXZlbnRUeXBlEhQKEEJ1ZmZFdmVudFVua25vd24QABISCg5CdWZm",
-            "RXZlbnRBZGRUbxABEhMKD0J1ZmZFdmVudFJlbW92ZRACEhQKEEJ1ZmZFdmVu",
-            "dFJlcGxhY2UQAxISCg5CdWZmRXZlbnRUaW1lchAEEhcKE0J1ZmZFdmVudFN0",
-            "YWNrTGF5ZXIQBRIYChRCdWZmRXZlbnRSZW1vdmVMYXllchAGEh4KGkJ1ZmZF",
-            "dmVudE9uSGl0VGFyZ2V0QmVmb3JlEAcSHQoZQnVmZkV2ZW50T25IaXRUYXJn",
-            "ZXRBZnRlchAIEhsKF0J1ZmZFdmVudE9uSGl0dGVkQmVmb3JlEAkSGgoWQnVm",
-            "ZkV2ZW50T25IaXR0ZWRBZnRlchAKEhwKGEJ1ZmZFdmVudE9uUmVhY2hNYXhM",
-            "YXllchALEhYKEkJ1ZmZFdmVudEhvc3REZWF0aBAMEhwKGEJ1ZmZFdmVudE9u",
-            "U2tpbGxIaXRBZnRlchANEhsKF0J1ZmZFdmVudFRyaWdUaW1pbmdBdXJhEA4S",
-            "GQoVQnVmZkV2ZW50Qm9keVBhcnREZWFkEA8SGAoUQnVmZkV2ZW50Qm9keVBh",
-            "cnRIaXQQEBIgChxCdWZmRXZlbnRCb2R5UGFydFN0YXRlQ2hhbmdlEBESHwob",
-            "QnVmZkV2ZW50T25QYXJ0SGl0dGVkQmVmb3JlEBISHgoaQnVmZkV2ZW50T25Q",
-            "YXJ0SGl0dGVkQWZ0ZXIQExIaChZCdWZmRXZlbnRHcmF2aXRhdGlvbmFsEBQS",
-            "GwoXQnVmZkV2ZW50RmlnaHRSZXNDaGFuZ2UQFRIYChRCdWZmRXZlbnRPbktp",
-            "bGxBY3RvchAXEhgKFEJ1ZmZFdmVudEF0dHJXYXRjaGVyEBgSHQoZQnVmZkV2",
-            "ZW50T25IaXR0ZWRMSEJlZm9yZRAZEh8KG0J1ZmZFdmVudE9uQmVIaXR0ZWRM",
-            "SEJlZm9yZRAaEhgKFEJ1ZmZFdmVudEFkZEJ5VGFyZ2V0EBsSGwoXQnVmZkV2",
-            "ZW50UmVtb3ZlQnlUYXJnZXQQHBIaChZCdWZmRXZlbnRJbkNvbWJhdFN0YXRl",
-            "EB0SGwoXQnVmZkV2ZW50T3V0Q29tYmF0U3RhdGUQHhIXChNCdWZmRXZlbnRT",
-            "a2lsbEJlZ2luEB8SFQoRQnVmZkV2ZW50U2tpbGxFbmQQIBIXChNCdWZmRXZl",
-            "bnRTaW5naW5nRW5kECISGgoWQnVmZkV2ZW50U3VtbW9uQnVmZkFkZBAjEhkK",
-            "FUJ1ZmZFdmVudFN1bW1vbkVudGl0eRAkEhUKEUJ1ZmZFdmVudEd1aWRlRW5k",
-            "ECUSFwoTQnVmZkV2ZW50T25EZWxheUhpdBAnEhgKFEJ1ZmZFdmVudFRlYW1C",
-            "dWZmQWRkECgSHQoZQnVmZkV2ZW50Q2hhbmdlUHJvZmVzc2lvbhApEhkKFUJ1",
-            "ZmZFdmVudERvZGdlU3VjY2VzcxAqEhcKE0J1ZmZFdmVudEhlYWxCZWZvcmUQ",
-            "KxIWChJCdWZmRXZlbnRIZWFsQWZ0ZXIQLBIeChpCdWZmRXZlbnRQcm9kdWNl",
-            "SGVhbEJlZm9yZRAtEh0KGUJ1ZmZFdmVudFByb2R1Y2VIZWFsQWZ0ZXIQLhIZ",
-            "ChVCdWZmRXZlbnRTaGllbGRCcm9rZW4QLxIZChVCdWZmRXZlbnRMaW5raW5n",
-            "U3RhcnQQMBIXChNCdWZmRXZlbnRMaW5raW5nRW5kEDESGwoXQnVmZkV2ZW50",
-            "TGlua2luZ1dhdGNoZXIQMhIdChlCdWZmRXZlbnRTdXBlckFybW9yQnJva2Vu",
-            "EDMSHQoZQnVmZkV2ZW50QWRkZWRCeVRhcmdldFRhZxA0EhsKF0J1ZmZFdmVu",
-            "dEFkZFRvVGFyZ2V0VGFnEDUSHAoYQnVmZkV2ZW50T25CZUhpdExlc3Nlbkhw",
-            "EDkSGgoWQnVmZkV2ZW50RW50ZXJCcmVha2luZxA6EhkKFUJ1ZmZFdmVudFRl",
-            "bGVwb3J0QmVsdBA7Eh0KGUJ1ZmZFdmVudE9uQmVIaXRBZnRlck9ubHkQPxIb",
-            "ChdCdWZmRXZlbnRPbkhpdEFmdGVyT25seRBAEh4KGkJ1ZmZFdmVudE9uQmVI",
-            "ZWFsQWZ0ZXJPbmx5EEESHAoYQnVmZkV2ZW50T25IZWFsQWZ0ZXJPbmx5EEIS",
-            "HwobQnVmZkV2ZW50SGVhbENhbGNBdHRyQmVmb3JlEEMSJgoiQnVmZkV2ZW50",
-            "UHJvZHVjZUhlYWxDYWxjQXR0ckJlZm9yZRBEEh0KGUJ1ZmZFdmVudFJldml2",
-            "ZVN1Y2Nlc3NFbmQQRRIhCh1CdWZmRXZlbnRBZnRlclJldml2ZUZpcnN0TW92",
-            "ZRBGEh0KGUJ1ZmZFdmVudE1vbnN0ZXJJbnRvQWxlcnQQRxIcChhCdWZmRXZl",
-            "bnRNb25zdGVyT3V0QWxlcnQQSBIiCh5CdWZmRXZlbnRPbkFkZFNoaWVsZENh",
-            "bGNCZWZvcmUQSRIeChpCdWZmRXZlbnRPbkFkZFNoaWVsZEJlZm9yZRBKEh0K",
-            "GUJ1ZmZFdmVudE9uQWRkU2hpZWxkQWZ0ZXIQSxImCiJCdWZmRXZlbnRPbkJl",
-            "QWRkZWRTaGllbGRDYWxjQmVmb3JlEEwSIgoeQnVmZkV2ZW50T25CZUFkZGVk",
-            "U2hpZWxkQmVmb3JlEE0SIQodQnVmZkV2ZW50T25CZUFkZGVkU2hpZWxkQWZ0",
-            "ZXIQThIcChhCdWZmRXZlbnRQcm9ncmVzc1dhdGNoZXIQTxIaChZCdWZmRXZl",
-            "bnRPbkx1Y2t5RGFtYWdlEFASFwoTQnVmZkV2ZW50U2tpbGxDREVuZBBREhcK",
-            "E0J1ZmZFdmVudE1vdGlvbmxlc3MQUhIcChhCdWZmRXZlbnRQYXJ0aWNpcGF0",
-            "ZUtpbGwQUxIjCh9CdWZmRXZlbnRQcm9mZXNzaW9uQkRUeXBlQ2hhbmdlEFQS",
-            "GQoVQnVmZkV2ZW50U2luZ2luZ0JlZ2luEFUSFwoTQnVmZkV2ZW50R3VpZGVC",
-            "ZWdpbhBWEhYKEkJ1ZmZFdmVudFJhbmRUaW1lchBXEh4KGkJ1ZmZFdmVudElu",
-            "dG9GcmFjdHVyZVN0YXRlEFgSFwoTQnVmZkV2ZW50VGFrZU9uUmlkZRBZEhgK",
-            "FEJ1ZmZFdmVudFRha2VPZmZSaWRlEFoSFgoSQnVmZkV2ZW50U3RhcnRKdW1w",
-            "EFsSFwoTQnVmZkV2ZW50UGxheUFjdGlvbhBcEhYKEkJ1ZmZFdmVudFBsYXlF",
-            "bW90ZRBdEhMKDkJ1ZmZFdmVudENoZWNrEOkHEhcKEkJ1ZmZFdmVudEN1c3Rv",
-            "bWl6ZRDqBxIgChtCdWZmRXZlbnRTaGFwZXNoaWZ0RW5kRXZlbnQQ6wcSGQoU",
-            "QnVmZkV2ZW50QXR0clJlZnJlc2gQ7AcSIgodQnVmZkV2ZW50TW9uaXRvclRl",
-            "YW1LaWxsQWN0b3IQ7QcSHAoXQnVmZkV2ZW50U3BlY2lhbEVmZmVjdHMQkU4q",
-            "NgoMRVNraWxsQ0RUeXBlEhIKDkVTa2lsbENETm9ybWFsEAASEgoORVNraWxs",
-            "Q0RDaGFyZ2UQASrIAgoLRUVudGl0eVR5cGUSDgoKRW50RXJyVHlwZRAAEg4K",
-            "CkVudE1vbnN0ZXIQARIKCgZFbnROcGMQAhISCg5FbnRTY2VuZU9iamVjdBAD",
-            "EgsKB0VudFpvbmUQBRINCglFbnRCdWxsZXQQBhITCg9FbnRDbGllbnRCdWxs",
-            "ZXQQBxIKCgZFbnRQZXQQCBILCgdFbnRDaGFyEAoSDAoIRW50RHVtbXkQCxIL",
-            "CgdFbnREcm9wEAwSDAoIRW50RmllbGQQDhILCgdFbnRUcmFwEA8SEQoNRW50",
-            "Q29sbGVjdGlvbhAQEhMKD0VudFN0YXRpY09iamVjdBASEg4KCkVudFZlaGlj",
-            "bGUQExIKCgZFbnRUb3kQFBIVChFFbnRDb21tdW5pdHlIb3VzZRAVEhAKDEVu",
-            "dEhvdXNlSXRlbRAWEgwKCEVudENvdW50EBcqVAoLRUFwcGVhclR5cGUSDwoL",
-            "RUFwcGVhck51bGwQABIVChFFQXBwZWFyVHJhbnNmZXJJbhABEh0KGUVBcHBl",
-            "YXJUcmFuc2ZlclBhc3NMaW5lSW4QAiqTAQoORURpc2FwcGVhclR5cGUSFAoQ",
-            "RURpc2FwcGVhck5vcm1hbBAAEhIKDkVEaXNhcHBlYXJEZWFkEAESFQoRRURp",
-            "c2FwcGVhckRlc3Ryb3kQAhIbChdFRGlzYXBwZWFyVHJhbnNmZXJMZWF2ZRAD",
-            "EiMKH0VEaXNhcHBlYXJUcmFuc2ZlclBhc3NMaW5lTGVhdmUQBGIGcHJvdG8z"));
+            "CzIbLkJsdWVQcm90by5Bb2lTeW5jVG9NZURlbHRhIloKF01hZ25ldGljUXVl",
+            "dWVBcHBlYXJJbmZvEhkKEVBhc3NlbmdlclV1aWRMaXN0GAEgAygDEhAKCElz",
+            "Q2lyY2xlGAIgASgIEhIKClBhdGhMZW5ndGgYAyABKAIi4AQKBkVudGl0eRIM",
+            "CgRVdWlkGAEgASgDEicKB0VudFR5cGUYAiABKA4yFi5CbHVlUHJvdG8uRUVu",
+            "dGl0eVR5cGUSKAoFQXR0cnMYAyABKAsyGS5CbHVlUHJvdG8uQXR0ckNvbGxl",
+            "Y3Rpb24SMAoJVGVtcEF0dHJzGAQgASgLMh0uQmx1ZVByb3RvLlRlbXBBdHRy",
+            "Q29sbGVjdGlvbhI0Cg1Cb2R5UGFydEluZm9zGAUgASgLMh0uQmx1ZVByb3Rv",
+            "LkFjdG9yQm9keVBhcnRJbmZvcxI5ChFQYXNzaXZlU2tpbGxJbmZvcxgGIAEo",
+            "CzIeLkJsdWVQcm90by5TZXFQYXNzaXZlU2tpbGxJbmZvEioKCUJ1ZmZJbmZv",
+            "cxgHIAEoCzIXLkJsdWVQcm90by5CdWZmSW5mb1N5bmMSLQoKQnVmZkVmZmVj",
+            "dBgIIAEoCzIZLkJsdWVQcm90by5CdWZmRWZmZWN0U3luYxIqCgpBcHBlYXJU",
+            "eXBlGAkgASgOMhYuQmx1ZVByb3RvLkVBcHBlYXJUeXBlEl8KH01hZ25ldGlj",
+            "UmlkZVF1ZXVlQ2hhbmdlSW5mb0RpY3QYCiADKAsyNi5CbHVlUHJvdG8uRW50",
+            "aXR5Lk1hZ25ldGljUmlkZVF1ZXVlQ2hhbmdlSW5mb0RpY3RFbnRyeRpqCiRN",
+            "YWduZXRpY1JpZGVRdWV1ZUNoYW5nZUluZm9EaWN0RW50cnkSCwoDa2V5GAEg",
+            "ASgFEjEKBXZhbHVlGAIgASgLMiIuQmx1ZVByb3RvLk1hZ25ldGljUXVldWVB",
+            "cHBlYXJJbmZvOgI4ASJICg9EaXNhcHBlYXJFbnRpdHkSDAoEVXVpZBgBIAEo",
+            "AxInCgRUeXBlGAIgASgOMhkuQmx1ZVByb3RvLkVEaXNhcHBlYXJUeXBlImQK",
+            "EFN5bmNOZWFyRW50aXRpZXMSIQoGQXBwZWFyGAEgAygLMhEuQmx1ZVByb3Rv",
+            "LkVudGl0eRItCglEaXNhcHBlYXIYAiADKAsyGi5CbHVlUHJvdG8uRGlzYXBw",
+            "ZWFyRW50aXR5KkoKCUVCb2R5U2l6ZRIQCgxCb2R5U2l6ZU51bGwQABINCglC",
+            "b2R5U2l6ZVMQARINCglCb2R5U2l6ZU0QAhINCglCb2R5U2l6ZUwQAyqPAQoK",
+            "U3lzdGVtVHlwZRITCg9TeXN0ZW1UeXBlX051bGwQABIWChJTeXN0ZW1UeXBl",
+            "X0FuZHJvaWQQARISCg5TeXN0ZW1UeXBlX0lvcxACEhIKDlN5c3RlbVR5cGVf",
+            "V2ViEAMSFAoQU3lzdGVtVHlwZV9MaW51eBAEEhYKElN5c3RlbVR5cGVfV2lu",
+            "ZG93cxAFKlkKDkxhdW5jaFBsYXRmb3JtEhYKEkxhdW5jaFBsYXRmb3JtTnVs",
+            "bBAAEhgKE0xhdW5jaFBsYXRmb3JtV2VYaW4Q6QcSFQoQTGF1bmNoUGxhdGZv",
+            "cm1RcRDqByrMAQoRRVVzZXJUcmFuc2ZlclR5cGUSHAoYRVVzZXJUcmFuc2Zl",
+            "clR5cGVEZWZhdWx0EAASIgoeRVVzZXJUcmFuc2ZlclR5cGVTY2VuZVBvc2l0",
+            "aW9uEAESHwobRVVzZXJUcmFuc2ZlclR5cGVTY2VuZVBvc0lkEAISGgoWRVVz",
+            "ZXJUcmFuc2ZlclR5cGVQaXZvdBADEh0KGUVVc2VyVHJhbnNmZXJUeXBlQ3V0",
+            "U2NlbmUQBBIZChVFVXNlclRyYW5zZmVyVHlwZU5lYXIQBSqsAQoQRVNjZW5l",
+            "TGluZVN0YXR1cxIXChNTY2VuZUxpbmVTdGF0dXNOb25lEAASFgoSU2NlbmVM",
+            "aW5lU3RhdHVzTG93EAESGQoVU2NlbmVMaW5lU3RhdHVzTWVkaXVtEAISFwoT",
+            "U2NlbmVMaW5lU3RhdHVzSGlnaBADEhcKE1NjZW5lTGluZVN0YXR1c0Z1bGwQ",
+            "BBIaChZTY2VuZUxpbmVTdGF0dXNSZWN5Y2xlEAUqWQoNQm9keVBhcnRTdGF0",
+            "ZRIYChRCb2R5UGFydFN0YXRlRGVmYXVsdBAAEhcKE0JvZHlQYXJ0U3RhdGVJ",
+            "bmp1cnkQARIVChFCb2R5UGFydFN0YXRlRGVhZBACKtwCChZFQnVmZkVmZmVj",
+            "dExvZ2ljUGJUeXBlEg4KClBsYXlFZmZlY3QQABILCgdHcmF2aXR5EAESEgoO",
+            "UGFyYWJvbGFFZmZlY3QQAhILCgdMaW5raW5nEAMSEwoPQ29uZnVzaW9uRWZm",
+            "ZWN0EAQSDQoJWm9vbVNjYWxlEAUSGAoUQnVmZlByb2Zlc3Npb25FZmZlY3QQ",
+            "BxIQCgxUZWxlcG9ydEJlbHQQCBIVChFCdWZmRWZmZWN0UmFpbmJvdxAJEhUK",
+            "EUJ1ZmZFZmZlY3RBdHRySFVEEAsSEgoOQnVmZkVmZmVjdFN0b3AQDBIWChJC",
+            "dWZmRWZmZWN0UHJvZ3Jlc3MQDRIbChdCdWZmRWZmZWN0RW5lcmd5RGlzcGxh",
+            "eRAOEhUKEUJ1ZmZFZmZlY3RTdG9wQWxsEA8SGQoVQnVmZkVmZmVjdExheWVy",
+            "Q2hhbmdlEBASCwoHVGVuc2lvbhARKqMBCg1FRGFtYWdlU291cmNlEhYKEkVE",
+            "YW1hZ2VTb3VyY2VTa2lsbBAAEhcKE0VEYW1hZ2VTb3VyY2VCdWxsZXQQARIV",
+            "ChFFRGFtYWdlU291cmNlQnVmZhACEhUKEUVEYW1hZ2VTb3VyY2VGYWxsEAMS",
+            "GwoXRURhbWFnZVNvdXJjZUZha2VCdWxsZXQQBBIWChJFRGFtYWdlU291cmNl",
+            "T3RoZXIQZCqCAQoPRURhbWFnZVByb3BlcnR5EgsKB0dlbmVyYWwQABIICgRG",
+            "aXJlEAESCQoFV2F0ZXIQAhIPCgtFbGVjdHJpY2l0eRADEggKBFdvb2QQBBII",
+            "CgRXaW5kEAUSCAoEUm9jaxAGEgkKBUxpZ2h0EAcSCAoERGFyaxAIEgkKBUNv",
+            "dW50EAkqRgoLRURhbWFnZU1vZGUSEAoMRGFtYWdlTm9ybWFsEAASEgoORGFt",
+            "YWdlUGh5c2ljYWwQARIRCg1EYW1hZ2VNYWdpY2FsEAIqUQoLRURhbWFnZVR5",
+            "cGUSCgoGTm9ybWFsEAASCAoETWlzcxABEggKBEhlYWwQAhIKCgZJbW11bmUQ",
+            "AxIICgRGYWxsEAQSDAoIQWJzb3JiZWQQBSqyFAoORUJ1ZmZFdmVudFR5cGUS",
+            "FAoQQnVmZkV2ZW50VW5rbm93bhAAEhIKDkJ1ZmZFdmVudEFkZFRvEAESEwoP",
+            "QnVmZkV2ZW50UmVtb3ZlEAISFAoQQnVmZkV2ZW50UmVwbGFjZRADEhIKDkJ1",
+            "ZmZFdmVudFRpbWVyEAQSFwoTQnVmZkV2ZW50U3RhY2tMYXllchAFEhgKFEJ1",
+            "ZmZFdmVudFJlbW92ZUxheWVyEAYSHgoaQnVmZkV2ZW50T25IaXRUYXJnZXRC",
+            "ZWZvcmUQBxIdChlCdWZmRXZlbnRPbkhpdFRhcmdldEFmdGVyEAgSGwoXQnVm",
+            "ZkV2ZW50T25IaXR0ZWRCZWZvcmUQCRIaChZCdWZmRXZlbnRPbkhpdHRlZEFm",
+            "dGVyEAoSHAoYQnVmZkV2ZW50T25SZWFjaE1heExheWVyEAsSFgoSQnVmZkV2",
+            "ZW50SG9zdERlYXRoEAwSHAoYQnVmZkV2ZW50T25Ta2lsbEhpdEFmdGVyEA0S",
+            "GwoXQnVmZkV2ZW50VHJpZ1RpbWluZ0F1cmEQDhIZChVCdWZmRXZlbnRCb2R5",
+            "UGFydERlYWQQDxIYChRCdWZmRXZlbnRCb2R5UGFydEhpdBAQEiAKHEJ1ZmZF",
+            "dmVudEJvZHlQYXJ0U3RhdGVDaGFuZ2UQERIfChtCdWZmRXZlbnRPblBhcnRI",
+            "aXR0ZWRCZWZvcmUQEhIeChpCdWZmRXZlbnRPblBhcnRIaXR0ZWRBZnRlchAT",
+            "EhoKFkJ1ZmZFdmVudEdyYXZpdGF0aW9uYWwQFBIbChdCdWZmRXZlbnRGaWdo",
+            "dFJlc0NoYW5nZRAVEhgKFEJ1ZmZFdmVudE9uS2lsbEFjdG9yEBcSGAoUQnVm",
+            "ZkV2ZW50QXR0cldhdGNoZXIQGBIdChlCdWZmRXZlbnRPbkhpdHRlZExIQmVm",
+            "b3JlEBkSHwobQnVmZkV2ZW50T25CZUhpdHRlZExIQmVmb3JlEBoSGAoUQnVm",
+            "ZkV2ZW50QWRkQnlUYXJnZXQQGxIbChdCdWZmRXZlbnRSZW1vdmVCeVRhcmdl",
+            "dBAcEhoKFkJ1ZmZFdmVudEluQ29tYmF0U3RhdGUQHRIbChdCdWZmRXZlbnRP",
+            "dXRDb21iYXRTdGF0ZRAeEhcKE0J1ZmZFdmVudFNraWxsQmVnaW4QHxIVChFC",
+            "dWZmRXZlbnRTa2lsbEVuZBAgEhcKE0J1ZmZFdmVudFNpbmdpbmdFbmQQIhIa",
+            "ChZCdWZmRXZlbnRTdW1tb25CdWZmQWRkECMSGQoVQnVmZkV2ZW50U3VtbW9u",
+            "RW50aXR5ECQSFQoRQnVmZkV2ZW50R3VpZGVFbmQQJRIXChNCdWZmRXZlbnRP",
+            "bkRlbGF5SGl0ECcSGAoUQnVmZkV2ZW50VGVhbUJ1ZmZBZGQQKBIdChlCdWZm",
+            "RXZlbnRDaGFuZ2VQcm9mZXNzaW9uECkSGQoVQnVmZkV2ZW50RG9kZ2VTdWNj",
+            "ZXNzECoSFwoTQnVmZkV2ZW50SGVhbEJlZm9yZRArEhYKEkJ1ZmZFdmVudEhl",
+            "YWxBZnRlchAsEh4KGkJ1ZmZFdmVudFByb2R1Y2VIZWFsQmVmb3JlEC0SHQoZ",
+            "QnVmZkV2ZW50UHJvZHVjZUhlYWxBZnRlchAuEhkKFUJ1ZmZFdmVudFNoaWVs",
+            "ZEJyb2tlbhAvEhkKFUJ1ZmZFdmVudExpbmtpbmdTdGFydBAwEhcKE0J1ZmZF",
+            "dmVudExpbmtpbmdFbmQQMRIbChdCdWZmRXZlbnRMaW5raW5nV2F0Y2hlchAy",
+            "Eh0KGUJ1ZmZFdmVudFN1cGVyQXJtb3JCcm9rZW4QMxIdChlCdWZmRXZlbnRB",
+            "ZGRlZEJ5VGFyZ2V0VGFnEDQSGwoXQnVmZkV2ZW50QWRkVG9UYXJnZXRUYWcQ",
+            "NRIcChhCdWZmRXZlbnRPbkJlSGl0TGVzc2VuSHAQORIaChZCdWZmRXZlbnRF",
+            "bnRlckJyZWFraW5nEDoSGQoVQnVmZkV2ZW50VGVsZXBvcnRCZWx0EDsSHQoZ",
+            "QnVmZkV2ZW50T25CZUhpdEFmdGVyT25seRA/EhsKF0J1ZmZFdmVudE9uSGl0",
+            "QWZ0ZXJPbmx5EEASHgoaQnVmZkV2ZW50T25CZUhlYWxBZnRlck9ubHkQQRIc",
+            "ChhCdWZmRXZlbnRPbkhlYWxBZnRlck9ubHkQQhIfChtCdWZmRXZlbnRIZWFs",
+            "Q2FsY0F0dHJCZWZvcmUQQxImCiJCdWZmRXZlbnRQcm9kdWNlSGVhbENhbGNB",
+            "dHRyQmVmb3JlEEQSHQoZQnVmZkV2ZW50UmV2aXZlU3VjY2Vzc0VuZBBFEiEK",
+            "HUJ1ZmZFdmVudEFmdGVyUmV2aXZlRmlyc3RNb3ZlEEYSHQoZQnVmZkV2ZW50",
+            "TW9uc3RlckludG9BbGVydBBHEhwKGEJ1ZmZFdmVudE1vbnN0ZXJPdXRBbGVy",
+            "dBBIEiIKHkJ1ZmZFdmVudE9uQWRkU2hpZWxkQ2FsY0JlZm9yZRBJEh4KGkJ1",
+            "ZmZFdmVudE9uQWRkU2hpZWxkQmVmb3JlEEoSHQoZQnVmZkV2ZW50T25BZGRT",
+            "aGllbGRBZnRlchBLEiYKIkJ1ZmZFdmVudE9uQmVBZGRlZFNoaWVsZENhbGNC",
+            "ZWZvcmUQTBIiCh5CdWZmRXZlbnRPbkJlQWRkZWRTaGllbGRCZWZvcmUQTRIh",
+            "Ch1CdWZmRXZlbnRPbkJlQWRkZWRTaGllbGRBZnRlchBOEhwKGEJ1ZmZFdmVu",
+            "dFByb2dyZXNzV2F0Y2hlchBPEhoKFkJ1ZmZFdmVudE9uTHVja3lEYW1hZ2UQ",
+            "UBIXChNCdWZmRXZlbnRTa2lsbENERW5kEFESFwoTQnVmZkV2ZW50TW90aW9u",
+            "bGVzcxBSEhwKGEJ1ZmZFdmVudFBhcnRpY2lwYXRlS2lsbBBTEiMKH0J1ZmZF",
+            "dmVudFByb2Zlc3Npb25CRFR5cGVDaGFuZ2UQVBIZChVCdWZmRXZlbnRTaW5n",
+            "aW5nQmVnaW4QVRIXChNCdWZmRXZlbnRHdWlkZUJlZ2luEFYSFgoSQnVmZkV2",
+            "ZW50UmFuZFRpbWVyEFcSHgoaQnVmZkV2ZW50SW50b0ZyYWN0dXJlU3RhdGUQ",
+            "WBIXChNCdWZmRXZlbnRUYWtlT25SaWRlEFkSGAoUQnVmZkV2ZW50VGFrZU9m",
+            "ZlJpZGUQWhIWChJCdWZmRXZlbnRTdGFydEp1bXAQWxIXChNCdWZmRXZlbnRQ",
+            "bGF5QWN0aW9uEFwSFgoSQnVmZkV2ZW50UGxheUVtb3RlEF0SEwoOQnVmZkV2",
+            "ZW50Q2hlY2sQ6QcSFwoSQnVmZkV2ZW50Q3VzdG9taXplEOoHEiAKG0J1ZmZF",
+            "dmVudFNoYXBlc2hpZnRFbmRFdmVudBDrBxIZChRCdWZmRXZlbnRBdHRyUmVm",
+            "cmVzaBDsBxIiCh1CdWZmRXZlbnRNb25pdG9yVGVhbUtpbGxBY3RvchDtBxIc",
+            "ChdCdWZmRXZlbnRTcGVjaWFsRWZmZWN0cxCRTio2CgxFU2tpbGxDRFR5cGUS",
+            "EgoORVNraWxsQ0ROb3JtYWwQABISCg5FU2tpbGxDRENoYXJnZRABKsgCCgtF",
+            "RW50aXR5VHlwZRIOCgpFbnRFcnJUeXBlEAASDgoKRW50TW9uc3RlchABEgoK",
+            "BkVudE5wYxACEhIKDkVudFNjZW5lT2JqZWN0EAMSCwoHRW50Wm9uZRAFEg0K",
+            "CUVudEJ1bGxldBAGEhMKD0VudENsaWVudEJ1bGxldBAHEgoKBkVudFBldBAI",
+            "EgsKB0VudENoYXIQChIMCghFbnREdW1teRALEgsKB0VudERyb3AQDBIMCghF",
+            "bnRGaWVsZBAOEgsKB0VudFRyYXAQDxIRCg1FbnRDb2xsZWN0aW9uEBASEwoP",
+            "RW50U3RhdGljT2JqZWN0EBISDgoKRW50VmVoaWNsZRATEgoKBkVudFRveRAU",
+            "EhUKEUVudENvbW11bml0eUhvdXNlEBUSEAoMRW50SG91c2VJdGVtEBYSDAoI",
+            "RW50Q291bnQQFyp1CgtFQXBwZWFyVHlwZRIPCgtQQXBwZWFyTm9uZRAAEhIK",
+            "DlBBcHBlYXJJblJhbmdlEAESFQoRUEFwcGVhclRyYW5zZmVySW4QAhIUChBQ",
+            "QXBwZWFyRmx5TGluZUluEAMSFAoQUEFwcGVhck5wY0NyZWF0ZRAFKo4BCg5F",
+            "RGlzYXBwZWFyVHlwZRISCg5FRGlzYXBwZWFyTnVsbBAAEhYKEkVEaXNhcHBl",
+            "YXJEaXN0YW5jZRABEhkKFUVEaXNhcHBlYXJUcmFuc2Zlck91dBACEiEKHUVE",
+            "aXNhcHBlYXJUcmFuc2ZlclBhc3NMaW5lT3V0EAMSEgoORURpc2FwcGVhckRl",
+            "YWQQBGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::BlueProto.EBodySize), typeof(global::BlueProto.SystemType), typeof(global::BlueProto.LaunchPlatform), typeof(global::BlueProto.EUserTransferType), typeof(global::BlueProto.ESceneLineStatus), typeof(global::BlueProto.BodyPartState), typeof(global::BlueProto.EBuffEffectLogicPbType), typeof(global::BlueProto.EDamageSource), typeof(global::BlueProto.EDamageProperty), typeof(global::BlueProto.EDamageMode), typeof(global::BlueProto.EDamageType), typeof(global::BlueProto.EBuffEventType), typeof(global::BlueProto.ESkillCDType), typeof(global::BlueProto.EEntityType), typeof(global::BlueProto.EAppearType), typeof(global::BlueProto.EDisappearType), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -680,10 +676,10 @@ namespace BlueProto {
             new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.AoiSyncToMeDelta), global::BlueProto.AoiSyncToMeDelta.Parser, new[]{ "BaseDelta", "SyncHateIds", "SyncSkillCDs", "FightResCDs", "Uuid" }, new[]{ "BaseDelta", "Uuid" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.SyncNearDeltaInfo), global::BlueProto.SyncNearDeltaInfo.Parser, new[]{ "DeltaInfos" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.SyncToMeDeltaInfo), global::BlueProto.SyncToMeDeltaInfo.Parser, new[]{ "DeltaInfo" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.SyncNearEntities), global::BlueProto.SyncNearEntities.Parser, new[]{ "Appear", "Disappear" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.MagneticQueueAppearInfo), global::BlueProto.MagneticQueueAppearInfo.Parser, new[]{ "PassengerUuidList", "IsCircle", "PathLength" }, new[]{ "IsCircle", "PathLength" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.Entity), global::BlueProto.Entity.Parser, new[]{ "Uuid", "EntType", "Attrs", "TempAttrs", "BodyPartInfos", "PassiveSkillInfos", "BuffInfos", "BuffEffect", "AppearType", "MagneticRideQueueChangeInfoDict" }, new[]{ "Uuid", "EntType", "Attrs", "TempAttrs", "BodyPartInfos", "PassiveSkillInfos", "BuffInfos", "BuffEffect", "AppearType" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
-            new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.DisappearEntity), global::BlueProto.DisappearEntity.Parser, new[]{ "Uuid", "Type" }, new[]{ "Uuid", "Type" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.MagneticQueueAppearInfo), global::BlueProto.MagneticQueueAppearInfo.Parser, new[]{ "PassengerUuidList", "IsCircle", "PathLength" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.Entity), global::BlueProto.Entity.Parser, new[]{ "Uuid", "EntType", "Attrs", "TempAttrs", "BodyPartInfos", "PassiveSkillInfos", "BuffInfos", "BuffEffect", "AppearType", "MagneticRideQueueChangeInfoDict" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.DisappearEntity), global::BlueProto.DisappearEntity.Parser, new[]{ "Uuid", "Type" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::BlueProto.SyncNearEntities), global::BlueProto.SyncNearEntities.Parser, new[]{ "Appear", "Disappear" }, null, null, null, null)
           }));
     }
     #endregion
@@ -892,7 +888,7 @@ namespace BlueProto {
   }
 
   /// <summary>
-  ///************* 枚举 *************
+  /// Entity类型
   /// </summary>
   public enum EEntityType {
     [pbr::OriginalName("EntErrType")] EntErrType = 0,
@@ -903,6 +899,9 @@ namespace BlueProto {
     [pbr::OriginalName("EntBullet")] EntBullet = 6,
     [pbr::OriginalName("EntClientBullet")] EntClientBullet = 7,
     [pbr::OriginalName("EntPet")] EntPet = 8,
+    /// <summary>
+    /// ← 你提到缺的这个
+    /// </summary>
     [pbr::OriginalName("EntChar")] EntChar = 10,
     [pbr::OriginalName("EntDummy")] EntDummy = 11,
     [pbr::OriginalName("EntDrop")] EntDrop = 12,
@@ -917,18 +916,26 @@ namespace BlueProto {
     [pbr::OriginalName("EntCount")] EntCount = 23,
   }
 
+  /// <summary>
+  /// 出现原因
+  /// </summary>
   public enum EAppearType {
-    [pbr::OriginalName("EAppearNull")] EappearNull = 0,
-    [pbr::OriginalName("EAppearTransferIn")] EappearTransferIn = 1,
-    [pbr::OriginalName("EAppearTransferPassLineIn")] EappearTransferPassLineIn = 2,
+    [pbr::OriginalName("PAppearNone")] PappearNone = 0,
+    [pbr::OriginalName("PAppearInRange")] PappearInRange = 1,
+    [pbr::OriginalName("PAppearTransferIn")] PappearTransferIn = 2,
+    [pbr::OriginalName("PAppearFlyLineIn")] PappearFlyLineIn = 3,
+    [pbr::OriginalName("PAppearNpcCreate")] PappearNpcCreate = 5,
   }
 
+  /// <summary>
+  /// 消失原因
+  /// </summary>
   public enum EDisappearType {
-    [pbr::OriginalName("EDisappearNormal")] EdisappearNormal = 0,
-    [pbr::OriginalName("EDisappearDead")] EdisappearDead = 1,
-    [pbr::OriginalName("EDisappearDestroy")] EdisappearDestroy = 2,
-    [pbr::OriginalName("EDisappearTransferLeave")] EdisappearTransferLeave = 3,
-    [pbr::OriginalName("EDisappearTransferPassLineLeave")] EdisappearTransferPassLineLeave = 4,
+    [pbr::OriginalName("EDisappearNull")] EdisappearNull = 0,
+    [pbr::OriginalName("EDisappearDistance")] EdisappearDistance = 1,
+    [pbr::OriginalName("EDisappearTransferOut")] EdisappearTransferOut = 2,
+    [pbr::OriginalName("EDisappearTransferPassLineOut")] EdisappearTransferPassLineOut = 3,
+    [pbr::OriginalName("EDisappearDead")] EdisappearDead = 4,
   }
 
   #endregion
@@ -32288,227 +32295,8 @@ namespace BlueProto {
 
   }
 
-  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class SyncNearEntities : pb::IMessage<SyncNearEntities>
-  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      , pb::IBufferMessage
-  #endif
-  {
-    private static readonly pb::MessageParser<SyncNearEntities> _parser = new pb::MessageParser<SyncNearEntities>(() => new SyncNearEntities());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<SyncNearEntities> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::BlueProto.BlueProtobufReflection.Descriptor.MessageTypes[85]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SyncNearEntities() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SyncNearEntities(SyncNearEntities other) : this() {
-      appear_ = other.appear_.Clone();
-      disappear_ = other.disappear_.Clone();
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public SyncNearEntities Clone() {
-      return new SyncNearEntities(this);
-    }
-
-    /// <summary>Field number for the "Appear" field.</summary>
-    public const int AppearFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::BlueProto.Entity> _repeated_appear_codec
-        = pb::FieldCodec.ForMessage(10, global::BlueProto.Entity.Parser);
-    private readonly pbc::RepeatedField<global::BlueProto.Entity> appear_ = new pbc::RepeatedField<global::BlueProto.Entity>();
-    /// <summary>
-    /// 附近出现的实体
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::BlueProto.Entity> Appear {
-      get { return appear_; }
-    }
-
-    /// <summary>Field number for the "Disappear" field.</summary>
-    public const int DisappearFieldNumber = 2;
-    private static readonly pb::FieldCodec<global::BlueProto.DisappearEntity> _repeated_disappear_codec
-        = pb::FieldCodec.ForMessage(18, global::BlueProto.DisappearEntity.Parser);
-    private readonly pbc::RepeatedField<global::BlueProto.DisappearEntity> disappear_ = new pbc::RepeatedField<global::BlueProto.DisappearEntity>();
-    /// <summary>
-    /// 附近消失的实体
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::RepeatedField<global::BlueProto.DisappearEntity> Disappear {
-      get { return disappear_; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override bool Equals(object other) {
-      return Equals(other as SyncNearEntities);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(SyncNearEntities other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if(!appear_.Equals(other.appear_)) return false;
-      if(!disappear_.Equals(other.disappear_)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override int GetHashCode() {
-      int hash = 1;
-      hash ^= appear_.GetHashCode();
-      hash ^= disappear_.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void WriteTo(pb::CodedOutputStream output) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      output.WriteRawMessage(this);
-    #else
-      appear_.WriteTo(output, _repeated_appear_codec);
-      disappear_.WriteTo(output, _repeated_disappear_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      appear_.WriteTo(ref output, _repeated_appear_codec);
-      disappear_.WriteTo(ref output, _repeated_disappear_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(ref output);
-      }
-    }
-    #endif
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public int CalculateSize() {
-      int size = 0;
-      size += appear_.CalculateSize(_repeated_appear_codec);
-      size += disappear_.CalculateSize(_repeated_disappear_codec);
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(SyncNearEntities other) {
-      if (other == null) {
-        return;
-      }
-      appear_.Add(other.appear_);
-      disappear_.Add(other.disappear_);
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(pb::CodedInputStream input) {
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-      input.ReadRawMessage(this);
-    #else
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            appear_.AddEntriesFrom(input, _repeated_appear_codec);
-            break;
-          }
-          case 18: {
-            disappear_.AddEntriesFrom(input, _repeated_disappear_codec);
-            break;
-          }
-        }
-      }
-    #endif
-    }
-
-    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-      if ((tag & 7) == 4) {
-        // Abort on any end group tag.
-        return;
-      }
-      switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
-            break;
-          case 10: {
-            appear_.AddEntriesFrom(ref input, _repeated_appear_codec);
-            break;
-          }
-          case 18: {
-            disappear_.AddEntriesFrom(ref input, _repeated_disappear_codec);
-            break;
-          }
-        }
-      }
-    }
-    #endif
-
-  }
-
   /// <summary>
-  /// JS 中作为 Entity 第10号字段 map 的 value
+  /// 磁悬链（载具/队列）出现信息，作为字典的value
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class MagneticQueueAppearInfo : pb::IMessage<MagneticQueueAppearInfo>
@@ -32518,7 +32306,6 @@ namespace BlueProto {
   {
     private static readonly pb::MessageParser<MagneticQueueAppearInfo> _parser = new pb::MessageParser<MagneticQueueAppearInfo>(() => new MagneticQueueAppearInfo());
     private pb::UnknownFieldSet _unknownFields;
-    private int _hasBits0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pb::MessageParser<MagneticQueueAppearInfo> Parser { get { return _parser; } }
@@ -32526,7 +32313,7 @@ namespace BlueProto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BlueProto.BlueProtobufReflection.Descriptor.MessageTypes[86]; }
+      get { return global::BlueProto.BlueProtobufReflection.Descriptor.MessageTypes[85]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -32546,7 +32333,6 @@ namespace BlueProto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public MagneticQueueAppearInfo(MagneticQueueAppearInfo other) : this() {
-      _hasBits0 = other._hasBits0;
       passengerUuidList_ = other.passengerUuidList_.Clone();
       isCircle_ = other.isCircle_;
       pathLength_ = other.pathLength_;
@@ -32565,7 +32351,7 @@ namespace BlueProto {
         = pb::FieldCodec.ForInt64(10);
     private readonly pbc::RepeatedField<long> passengerUuidList_ = new pbc::RepeatedField<long>();
     /// <summary>
-    /// packed int64[]
+    /// 乘客/队列成员UUID
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -32575,56 +32361,32 @@ namespace BlueProto {
 
     /// <summary>Field number for the "IsCircle" field.</summary>
     public const int IsCircleFieldNumber = 2;
-    private readonly static bool IsCircleDefaultValue = false;
-
     private bool isCircle_;
+    /// <summary>
+    /// 是否环线
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public bool IsCircle {
-      get { if ((_hasBits0 & 1) != 0) { return isCircle_; } else { return IsCircleDefaultValue; } }
+      get { return isCircle_; }
       set {
-        _hasBits0 |= 1;
         isCircle_ = value;
       }
-    }
-    /// <summary>Gets whether the "IsCircle" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasIsCircle {
-      get { return (_hasBits0 & 1) != 0; }
-    }
-    /// <summary>Clears the value of the "IsCircle" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearIsCircle() {
-      _hasBits0 &= ~1;
     }
 
     /// <summary>Field number for the "PathLength" field.</summary>
     public const int PathLengthFieldNumber = 3;
-    private readonly static float PathLengthDefaultValue = 0F;
-
     private float pathLength_;
+    /// <summary>
+    /// 路径长度
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public float PathLength {
-      get { if ((_hasBits0 & 2) != 0) { return pathLength_; } else { return PathLengthDefaultValue; } }
+      get { return pathLength_; }
       set {
-        _hasBits0 |= 2;
         pathLength_ = value;
       }
-    }
-    /// <summary>Gets whether the "PathLength" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasPathLength {
-      get { return (_hasBits0 & 2) != 0; }
-    }
-    /// <summary>Clears the value of the "PathLength" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearPathLength() {
-      _hasBits0 &= ~2;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -32653,8 +32415,8 @@ namespace BlueProto {
     public override int GetHashCode() {
       int hash = 1;
       hash ^= passengerUuidList_.GetHashCode();
-      if (HasIsCircle) hash ^= IsCircle.GetHashCode();
-      if (HasPathLength) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PathLength);
+      if (IsCircle != false) hash ^= IsCircle.GetHashCode();
+      if (PathLength != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(PathLength);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -32674,11 +32436,11 @@ namespace BlueProto {
       output.WriteRawMessage(this);
     #else
       passengerUuidList_.WriteTo(output, _repeated_passengerUuidList_codec);
-      if (HasIsCircle) {
+      if (IsCircle != false) {
         output.WriteRawTag(16);
         output.WriteBool(IsCircle);
       }
-      if (HasPathLength) {
+      if (PathLength != 0F) {
         output.WriteRawTag(29);
         output.WriteFloat(PathLength);
       }
@@ -32693,11 +32455,11 @@ namespace BlueProto {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
       passengerUuidList_.WriteTo(ref output, _repeated_passengerUuidList_codec);
-      if (HasIsCircle) {
+      if (IsCircle != false) {
         output.WriteRawTag(16);
         output.WriteBool(IsCircle);
       }
-      if (HasPathLength) {
+      if (PathLength != 0F) {
         output.WriteRawTag(29);
         output.WriteFloat(PathLength);
       }
@@ -32712,10 +32474,10 @@ namespace BlueProto {
     public int CalculateSize() {
       int size = 0;
       size += passengerUuidList_.CalculateSize(_repeated_passengerUuidList_codec);
-      if (HasIsCircle) {
+      if (IsCircle != false) {
         size += 1 + 1;
       }
-      if (HasPathLength) {
+      if (PathLength != 0F) {
         size += 1 + 4;
       }
       if (_unknownFields != null) {
@@ -32731,10 +32493,10 @@ namespace BlueProto {
         return;
       }
       passengerUuidList_.Add(other.passengerUuidList_);
-      if (other.HasIsCircle) {
+      if (other.IsCircle != false) {
         IsCircle = other.IsCircle;
       }
-      if (other.HasPathLength) {
+      if (other.PathLength != 0F) {
         PathLength = other.PathLength;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -32808,9 +32570,6 @@ namespace BlueProto {
 
   }
 
-  /// <summary>
-  ///************* 目标消息 *************
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Entity : pb::IMessage<Entity>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -32819,7 +32578,6 @@ namespace BlueProto {
   {
     private static readonly pb::MessageParser<Entity> _parser = new pb::MessageParser<Entity>(() => new Entity());
     private pb::UnknownFieldSet _unknownFields;
-    private int _hasBits0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pb::MessageParser<Entity> Parser { get { return _parser; } }
@@ -32827,7 +32585,7 @@ namespace BlueProto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BlueProto.BlueProtobufReflection.Descriptor.MessageTypes[87]; }
+      get { return global::BlueProto.BlueProtobufReflection.Descriptor.MessageTypes[86]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -32847,7 +32605,6 @@ namespace BlueProto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public Entity(Entity other) : this() {
-      _hasBits0 = other._hasBits0;
       uuid_ = other.uuid_;
       entType_ = other.entType_;
       attrs_ = other.attrs_ != null ? other.attrs_.Clone() : null;
@@ -32869,63 +32626,39 @@ namespace BlueProto {
 
     /// <summary>Field number for the "Uuid" field.</summary>
     public const int UuidFieldNumber = 1;
-    private readonly static long UuidDefaultValue = 0L;
-
     private long uuid_;
+    /// <summary>
+    /// 实体唯一ID
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public long Uuid {
-      get { if ((_hasBits0 & 1) != 0) { return uuid_; } else { return UuidDefaultValue; } }
+      get { return uuid_; }
       set {
-        _hasBits0 |= 1;
         uuid_ = value;
       }
-    }
-    /// <summary>Gets whether the "Uuid" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasUuid {
-      get { return (_hasBits0 & 1) != 0; }
-    }
-    /// <summary>Clears the value of the "Uuid" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearUuid() {
-      _hasBits0 &= ~1;
     }
 
     /// <summary>Field number for the "EntType" field.</summary>
     public const int EntTypeFieldNumber = 2;
-    private readonly static global::BlueProto.EEntityType EntTypeDefaultValue = global::BlueProto.EEntityType.EntErrType;
-
-    private global::BlueProto.EEntityType entType_;
+    private global::BlueProto.EEntityType entType_ = global::BlueProto.EEntityType.EntErrType;
+    /// <summary>
+    /// 实体类型
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BlueProto.EEntityType EntType {
-      get { if ((_hasBits0 & 2) != 0) { return entType_; } else { return EntTypeDefaultValue; } }
+      get { return entType_; }
       set {
-        _hasBits0 |= 2;
         entType_ = value;
       }
-    }
-    /// <summary>Gets whether the "EntType" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasEntType {
-      get { return (_hasBits0 & 2) != 0; }
-    }
-    /// <summary>Clears the value of the "EntType" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearEntType() {
-      _hasBits0 &= ~2;
     }
 
     /// <summary>Field number for the "Attrs" field.</summary>
     public const int AttrsFieldNumber = 3;
     private global::BlueProto.AttrCollection attrs_;
     /// <summary>
-    /// 以下几个在你的 proto 里应已存在
+    /// 属性
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -32939,6 +32672,9 @@ namespace BlueProto {
     /// <summary>Field number for the "TempAttrs" field.</summary>
     public const int TempAttrsFieldNumber = 4;
     private global::BlueProto.TempAttrCollection tempAttrs_;
+    /// <summary>
+    /// 临时属性
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BlueProto.TempAttrCollection TempAttrs {
@@ -32951,6 +32687,9 @@ namespace BlueProto {
     /// <summary>Field number for the "BodyPartInfos" field.</summary>
     public const int BodyPartInfosFieldNumber = 5;
     private global::BlueProto.ActorBodyPartInfos bodyPartInfos_;
+    /// <summary>
+    /// 部位信息
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BlueProto.ActorBodyPartInfos BodyPartInfos {
@@ -32963,6 +32702,9 @@ namespace BlueProto {
     /// <summary>Field number for the "PassiveSkillInfos" field.</summary>
     public const int PassiveSkillInfosFieldNumber = 6;
     private global::BlueProto.SeqPassiveSkillInfo passiveSkillInfos_;
+    /// <summary>
+    /// 被动技能开始
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BlueProto.SeqPassiveSkillInfo PassiveSkillInfos {
@@ -32975,6 +32717,9 @@ namespace BlueProto {
     /// <summary>Field number for the "BuffInfos" field.</summary>
     public const int BuffInfosFieldNumber = 7;
     private global::BlueProto.BuffInfoSync buffInfos_;
+    /// <summary>
+    /// Buff集合
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BlueProto.BuffInfoSync BuffInfos {
@@ -32987,6 +32732,9 @@ namespace BlueProto {
     /// <summary>Field number for the "BuffEffect" field.</summary>
     public const int BuffEffectFieldNumber = 8;
     private global::BlueProto.BuffEffectSync buffEffect_;
+    /// <summary>
+    /// Buff效果
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BlueProto.BuffEffectSync BuffEffect {
@@ -32998,42 +32746,30 @@ namespace BlueProto {
 
     /// <summary>Field number for the "AppearType" field.</summary>
     public const int AppearTypeFieldNumber = 9;
-    private readonly static global::BlueProto.EAppearType AppearTypeDefaultValue = global::BlueProto.EAppearType.EappearNull;
-
-    private global::BlueProto.EAppearType appearType_;
+    private global::BlueProto.EAppearType appearType_ = global::BlueProto.EAppearType.PappearNone;
+    /// <summary>
+    /// 出现方式
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BlueProto.EAppearType AppearType {
-      get { if ((_hasBits0 & 4) != 0) { return appearType_; } else { return AppearTypeDefaultValue; } }
+      get { return appearType_; }
       set {
-        _hasBits0 |= 4;
         appearType_ = value;
       }
-    }
-    /// <summary>Gets whether the "AppearType" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasAppearType {
-      get { return (_hasBits0 & 4) != 0; }
-    }
-    /// <summary>Clears the value of the "AppearType" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearAppearType() {
-      _hasBits0 &= ~4;
     }
 
     /// <summary>Field number for the "MagneticRideQueueChangeInfoDict" field.</summary>
     public const int MagneticRideQueueChangeInfoDictFieldNumber = 10;
-    private static readonly pbc::MapField<long, global::BlueProto.MagneticQueueAppearInfo>.Codec _map_magneticRideQueueChangeInfoDict_codec
-        = new pbc::MapField<long, global::BlueProto.MagneticQueueAppearInfo>.Codec(pb::FieldCodec.ForInt64(8, 0L), pb::FieldCodec.ForMessage(18, global::BlueProto.MagneticQueueAppearInfo.Parser), 82);
-    private readonly pbc::MapField<long, global::BlueProto.MagneticQueueAppearInfo> magneticRideQueueChangeInfoDict_ = new pbc::MapField<long, global::BlueProto.MagneticQueueAppearInfo>();
+    private static readonly pbc::MapField<int, global::BlueProto.MagneticQueueAppearInfo>.Codec _map_magneticRideQueueChangeInfoDict_codec
+        = new pbc::MapField<int, global::BlueProto.MagneticQueueAppearInfo>.Codec(pb::FieldCodec.ForInt32(8, 0), pb::FieldCodec.ForMessage(18, global::BlueProto.MagneticQueueAppearInfo.Parser), 82);
+    private readonly pbc::MapField<int, global::BlueProto.MagneticQueueAppearInfo> magneticRideQueueChangeInfoDict_ = new pbc::MapField<int, global::BlueProto.MagneticQueueAppearInfo>();
     /// <summary>
-    /// map&lt;int64, MagneticQueueAppearInfo>，与 JS encode/decode 完全对应
+    /// 载具/磁悬队列变化
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public pbc::MapField<long, global::BlueProto.MagneticQueueAppearInfo> MagneticRideQueueChangeInfoDict {
+    public pbc::MapField<int, global::BlueProto.MagneticQueueAppearInfo> MagneticRideQueueChangeInfoDict {
       get { return magneticRideQueueChangeInfoDict_; }
     }
 
@@ -33069,15 +32805,15 @@ namespace BlueProto {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (HasUuid) hash ^= Uuid.GetHashCode();
-      if (HasEntType) hash ^= EntType.GetHashCode();
+      if (Uuid != 0L) hash ^= Uuid.GetHashCode();
+      if (EntType != global::BlueProto.EEntityType.EntErrType) hash ^= EntType.GetHashCode();
       if (attrs_ != null) hash ^= Attrs.GetHashCode();
       if (tempAttrs_ != null) hash ^= TempAttrs.GetHashCode();
       if (bodyPartInfos_ != null) hash ^= BodyPartInfos.GetHashCode();
       if (passiveSkillInfos_ != null) hash ^= PassiveSkillInfos.GetHashCode();
       if (buffInfos_ != null) hash ^= BuffInfos.GetHashCode();
       if (buffEffect_ != null) hash ^= BuffEffect.GetHashCode();
-      if (HasAppearType) hash ^= AppearType.GetHashCode();
+      if (AppearType != global::BlueProto.EAppearType.PappearNone) hash ^= AppearType.GetHashCode();
       hash ^= MagneticRideQueueChangeInfoDict.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -33097,11 +32833,11 @@ namespace BlueProto {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (HasUuid) {
+      if (Uuid != 0L) {
         output.WriteRawTag(8);
         output.WriteInt64(Uuid);
       }
-      if (HasEntType) {
+      if (EntType != global::BlueProto.EEntityType.EntErrType) {
         output.WriteRawTag(16);
         output.WriteEnum((int) EntType);
       }
@@ -33129,7 +32865,7 @@ namespace BlueProto {
         output.WriteRawTag(66);
         output.WriteMessage(BuffEffect);
       }
-      if (HasAppearType) {
+      if (AppearType != global::BlueProto.EAppearType.PappearNone) {
         output.WriteRawTag(72);
         output.WriteEnum((int) AppearType);
       }
@@ -33144,11 +32880,11 @@ namespace BlueProto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasUuid) {
+      if (Uuid != 0L) {
         output.WriteRawTag(8);
         output.WriteInt64(Uuid);
       }
-      if (HasEntType) {
+      if (EntType != global::BlueProto.EEntityType.EntErrType) {
         output.WriteRawTag(16);
         output.WriteEnum((int) EntType);
       }
@@ -33176,7 +32912,7 @@ namespace BlueProto {
         output.WriteRawTag(66);
         output.WriteMessage(BuffEffect);
       }
-      if (HasAppearType) {
+      if (AppearType != global::BlueProto.EAppearType.PappearNone) {
         output.WriteRawTag(72);
         output.WriteEnum((int) AppearType);
       }
@@ -33191,10 +32927,10 @@ namespace BlueProto {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (HasUuid) {
+      if (Uuid != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(Uuid);
       }
-      if (HasEntType) {
+      if (EntType != global::BlueProto.EEntityType.EntErrType) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) EntType);
       }
       if (attrs_ != null) {
@@ -33215,7 +32951,7 @@ namespace BlueProto {
       if (buffEffect_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(BuffEffect);
       }
-      if (HasAppearType) {
+      if (AppearType != global::BlueProto.EAppearType.PappearNone) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) AppearType);
       }
       size += magneticRideQueueChangeInfoDict_.CalculateSize(_map_magneticRideQueueChangeInfoDict_codec);
@@ -33231,10 +32967,10 @@ namespace BlueProto {
       if (other == null) {
         return;
       }
-      if (other.HasUuid) {
+      if (other.Uuid != 0L) {
         Uuid = other.Uuid;
       }
-      if (other.HasEntType) {
+      if (other.EntType != global::BlueProto.EEntityType.EntErrType) {
         EntType = other.EntType;
       }
       if (other.attrs_ != null) {
@@ -33273,7 +33009,7 @@ namespace BlueProto {
         }
         BuffEffect.MergeFrom(other.BuffEffect);
       }
-      if (other.HasAppearType) {
+      if (other.AppearType != global::BlueProto.EAppearType.PappearNone) {
         AppearType = other.AppearType;
       }
       magneticRideQueueChangeInfoDict_.MergeFrom(other.magneticRideQueueChangeInfoDict_);
@@ -33446,7 +33182,6 @@ namespace BlueProto {
   {
     private static readonly pb::MessageParser<DisappearEntity> _parser = new pb::MessageParser<DisappearEntity>(() => new DisappearEntity());
     private pb::UnknownFieldSet _unknownFields;
-    private int _hasBits0;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pb::MessageParser<DisappearEntity> Parser { get { return _parser; } }
@@ -33454,7 +33189,7 @@ namespace BlueProto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::BlueProto.BlueProtobufReflection.Descriptor.MessageTypes[88]; }
+      get { return global::BlueProto.BlueProtobufReflection.Descriptor.MessageTypes[87]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -33474,7 +33209,6 @@ namespace BlueProto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public DisappearEntity(DisappearEntity other) : this() {
-      _hasBits0 = other._hasBits0;
       uuid_ = other.uuid_;
       type_ = other.type_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -33488,56 +33222,32 @@ namespace BlueProto {
 
     /// <summary>Field number for the "Uuid" field.</summary>
     public const int UuidFieldNumber = 1;
-    private readonly static long UuidDefaultValue = 0L;
-
     private long uuid_;
+    /// <summary>
+    /// 消失实体UUID
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public long Uuid {
-      get { if ((_hasBits0 & 1) != 0) { return uuid_; } else { return UuidDefaultValue; } }
+      get { return uuid_; }
       set {
-        _hasBits0 |= 1;
         uuid_ = value;
       }
-    }
-    /// <summary>Gets whether the "Uuid" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasUuid {
-      get { return (_hasBits0 & 1) != 0; }
-    }
-    /// <summary>Clears the value of the "Uuid" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearUuid() {
-      _hasBits0 &= ~1;
     }
 
     /// <summary>Field number for the "Type" field.</summary>
     public const int TypeFieldNumber = 2;
-    private readonly static global::BlueProto.EDisappearType TypeDefaultValue = global::BlueProto.EDisappearType.EdisappearNormal;
-
-    private global::BlueProto.EDisappearType type_;
+    private global::BlueProto.EDisappearType type_ = global::BlueProto.EDisappearType.EdisappearNull;
+    /// <summary>
+    /// 消失原因
+    /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public global::BlueProto.EDisappearType Type {
-      get { if ((_hasBits0 & 2) != 0) { return type_; } else { return TypeDefaultValue; } }
+      get { return type_; }
       set {
-        _hasBits0 |= 2;
         type_ = value;
       }
-    }
-    /// <summary>Gets whether the "Type" field is set</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool HasType {
-      get { return (_hasBits0 & 2) != 0; }
-    }
-    /// <summary>Clears the value of the "Type" field</summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void ClearType() {
-      _hasBits0 &= ~2;
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -33564,8 +33274,8 @@ namespace BlueProto {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (HasUuid) hash ^= Uuid.GetHashCode();
-      if (HasType) hash ^= Type.GetHashCode();
+      if (Uuid != 0L) hash ^= Uuid.GetHashCode();
+      if (Type != global::BlueProto.EDisappearType.EdisappearNull) hash ^= Type.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -33584,11 +33294,11 @@ namespace BlueProto {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (HasUuid) {
+      if (Uuid != 0L) {
         output.WriteRawTag(8);
         output.WriteInt64(Uuid);
       }
-      if (HasType) {
+      if (Type != global::BlueProto.EDisappearType.EdisappearNull) {
         output.WriteRawTag(16);
         output.WriteEnum((int) Type);
       }
@@ -33602,11 +33312,11 @@ namespace BlueProto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (HasUuid) {
+      if (Uuid != 0L) {
         output.WriteRawTag(8);
         output.WriteInt64(Uuid);
       }
-      if (HasType) {
+      if (Type != global::BlueProto.EDisappearType.EdisappearNull) {
         output.WriteRawTag(16);
         output.WriteEnum((int) Type);
       }
@@ -33620,10 +33330,10 @@ namespace BlueProto {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (HasUuid) {
+      if (Uuid != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(Uuid);
       }
-      if (HasType) {
+      if (Type != global::BlueProto.EDisappearType.EdisappearNull) {
         size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Type);
       }
       if (_unknownFields != null) {
@@ -33638,10 +33348,10 @@ namespace BlueProto {
       if (other == null) {
         return;
       }
-      if (other.HasUuid) {
+      if (other.Uuid != 0L) {
         Uuid = other.Uuid;
       }
-      if (other.HasType) {
+      if (other.Type != global::BlueProto.EDisappearType.EdisappearNull) {
         Type = other.Type;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -33696,6 +33406,228 @@ namespace BlueProto {
           }
           case 16: {
             Type = (global::BlueProto.EDisappearType) input.ReadEnum();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// 你要补全的这段
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class SyncNearEntities : pb::IMessage<SyncNearEntities>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<SyncNearEntities> _parser = new pb::MessageParser<SyncNearEntities>(() => new SyncNearEntities());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<SyncNearEntities> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::BlueProto.BlueProtobufReflection.Descriptor.MessageTypes[88]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SyncNearEntities() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SyncNearEntities(SyncNearEntities other) : this() {
+      appear_ = other.appear_.Clone();
+      disappear_ = other.disappear_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public SyncNearEntities Clone() {
+      return new SyncNearEntities(this);
+    }
+
+    /// <summary>Field number for the "Appear" field.</summary>
+    public const int AppearFieldNumber = 1;
+    private static readonly pb::FieldCodec<global::BlueProto.Entity> _repeated_appear_codec
+        = pb::FieldCodec.ForMessage(10, global::BlueProto.Entity.Parser);
+    private readonly pbc::RepeatedField<global::BlueProto.Entity> appear_ = new pbc::RepeatedField<global::BlueProto.Entity>();
+    /// <summary>
+    /// 进入视野/AOI的实体
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::BlueProto.Entity> Appear {
+      get { return appear_; }
+    }
+
+    /// <summary>Field number for the "Disappear" field.</summary>
+    public const int DisappearFieldNumber = 2;
+    private static readonly pb::FieldCodec<global::BlueProto.DisappearEntity> _repeated_disappear_codec
+        = pb::FieldCodec.ForMessage(18, global::BlueProto.DisappearEntity.Parser);
+    private readonly pbc::RepeatedField<global::BlueProto.DisappearEntity> disappear_ = new pbc::RepeatedField<global::BlueProto.DisappearEntity>();
+    /// <summary>
+    /// 离开视野/AOI的实体
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public pbc::RepeatedField<global::BlueProto.DisappearEntity> Disappear {
+      get { return disappear_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as SyncNearEntities);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(SyncNearEntities other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!appear_.Equals(other.appear_)) return false;
+      if(!disappear_.Equals(other.disappear_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= appear_.GetHashCode();
+      hash ^= disappear_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      appear_.WriteTo(output, _repeated_appear_codec);
+      disappear_.WriteTo(output, _repeated_disappear_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      appear_.WriteTo(ref output, _repeated_appear_codec);
+      disappear_.WriteTo(ref output, _repeated_disappear_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      size += appear_.CalculateSize(_repeated_appear_codec);
+      size += disappear_.CalculateSize(_repeated_disappear_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(SyncNearEntities other) {
+      if (other == null) {
+        return;
+      }
+      appear_.Add(other.appear_);
+      disappear_.Add(other.disappear_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            appear_.AddEntriesFrom(input, _repeated_appear_codec);
+            break;
+          }
+          case 18: {
+            disappear_.AddEntriesFrom(input, _repeated_disappear_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            appear_.AddEntriesFrom(ref input, _repeated_appear_codec);
+            break;
+          }
+          case 18: {
+            disappear_.AddEntriesFrom(ref input, _repeated_disappear_codec);
             break;
           }
         }

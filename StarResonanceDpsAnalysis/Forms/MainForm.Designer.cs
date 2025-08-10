@@ -123,10 +123,10 @@
             label_SettingTip.AutoSizeMode = AntdUI.TAutoSize.Width;
             label_SettingTip.Dock = DockStyle.Right;
             label_SettingTip.ForeColor = Color.Red;
-            label_SettingTip.Location = new Point(397, 0);
+            label_SettingTip.Location = new Point(633, 0);
             label_SettingTip.Margin = new Padding(2);
             label_SettingTip.Name = "label_SettingTip";
-            label_SettingTip.Size = new Size(168, 30);
+            label_SettingTip.Size = new Size(252, 30);
             label_SettingTip.TabIndex = 16;
             label_SettingTip.Text = "请先右上角设置网卡在启动哟！";
             label_SettingTip.TextAlign = ContentAlignment.MiddleCenter;
@@ -136,7 +136,7 @@
             checkbox_PersentData.Dock = DockStyle.Right;
             checkbox_PersentData.Location = new Point(1003, 0);
             checkbox_PersentData.Name = "checkbox_PersentData";
-            checkbox_PersentData.Size = new Size(124, 42);
+            checkbox_PersentData.Size = new Size(124, 30);
             checkbox_PersentData.TabIndex = 15;
             checkbox_PersentData.Text = "占比数据";
             checkbox_PersentData.CheckedChanged += checkbox1_CheckedChanged;
@@ -152,6 +152,8 @@
             table_DpsDataTable.Size = new Size(1127, 615);
             table_DpsDataTable.TabIndex = 13;
             table_DpsDataTable.Text = "table1";
+            table_DpsDataTable.CellClick += table_DpsDataTable_CellClick;
+            table_DpsDataTable.SortRows += table_DpsDataTable_SortRows;
             // 
             // timer_RefreshDpsTable
             // 
@@ -165,7 +167,7 @@
             label_HotKeyTips.Location = new Point(10, 0);
             label_HotKeyTips.Margin = new Padding(2);
             label_HotKeyTips.Name = "label_HotKeyTips";
-            label_HotKeyTips.Size = new Size(421, 30);
+            label_HotKeyTips.Size = new Size(631, 30);
             label_HotKeyTips.TabIndex = 14;
             label_HotKeyTips.Text = "F6：鼠标穿透 | F7：窗体透明 | F8：开启/关闭 | F9：清空数据 | F10：清空历史";
             // 
@@ -179,7 +181,7 @@
             switch_IsMonitoring.Dock = DockStyle.Right;
             switch_IsMonitoring.Location = new Point(885, 0);
             switch_IsMonitoring.Name = "switch_IsMonitoring";
-            switch_IsMonitoring.Size = new Size(118, 42);
+            switch_IsMonitoring.Size = new Size(118, 30);
             switch_IsMonitoring.TabIndex = 18;
             switch_IsMonitoring.UnCheckedText = "关闭中";
             switch_IsMonitoring.CheckedChanged += switch1_CheckedChanged;
@@ -193,10 +195,10 @@
             panel_FooterPanel.Controls.Add(switch_IsMonitoring);
             panel_FooterPanel.Controls.Add(checkbox_PersentData);
             panel_FooterPanel.Dock = DockStyle.Bottom;
-            panel_FooterPanel.Location = new Point(0, 620);
+            panel_FooterPanel.Location = new Point(0, 632);
             panel_FooterPanel.Name = "panel_FooterPanel";
             panel_FooterPanel.Padding = new Padding(10, 0, 0, 0);
-            panel_FooterPanel.Size = new Size(717, 30);
+            panel_FooterPanel.Size = new Size(1127, 30);
             panel_FooterPanel.TabIndex = 19;
             panel_FooterPanel.Text = "panel1";
             // 
@@ -211,7 +213,7 @@
             Controls.Add(pageHeader_MainHeader);
             Dark = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
-            Margin = new Padding(6, 6, 6, 6);
+            Margin = new Padding(6);
             MaximizeBox = false;
             Mode = AntdUI.TAMode.Dark;
             Name = "MainForm";

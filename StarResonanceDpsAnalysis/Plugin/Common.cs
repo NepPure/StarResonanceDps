@@ -16,9 +16,13 @@ namespace StarResonanceDpsAnalysis.Plugin
 {
     public class Common
     {
-        public static SkillDiary skillDiary;
+        public static SkillDiary skillDiary;//
 
-        public static UserUidSet userUidSet;
+        public static UserUidSet userUidSet;//用户ID设置
+
+        public static SkillDetailForm skillDetailForm;//技能详情窗体
+
+
 
 
         private static readonly Dictionary<string, List<ulong>> professionSkills = new()

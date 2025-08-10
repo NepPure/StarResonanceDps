@@ -207,8 +207,7 @@ namespace StarResonanceDpsAnalysis.Core
                   
                     if (!server_verify) return;//如果验证失败则丢弃
 
-                    CurrentServer = srcServer;
-                    ClearTcpCache();
+                  
                 }
 
                 // 通过序列号和数据进行 TCP 数据流重组（例如多个 TCP 包拼接成完整的 protobuf）
@@ -266,7 +265,11 @@ namespace StarResonanceDpsAnalysis.Core
 
                             // 解码主体结构（跳过前18字节，通常是头部结构）
                             // var body = global::Blueprotobuf.Decode(data1.AsSpan(18).ToArray());
-                          
+                          if(CurrentServer != srcServer)
+                            {
+                                CurrentServer = srcServer;
+                                ClearTcpCache();
+                            }
                                 return true; // ✅ 成功识别，立即返回
                             
                             //// 从结构中尝试获取玩家 UID（字段[1]->[5]）
@@ -303,9 +306,13 @@ namespace StarResonanceDpsAnalysis.Core
 
                     if (firstPartMatch && secondPartMatch)
                     {
-                      
-                            Console.WriteLine("Got Scene Server Address by Login Return Packet: " + srcServer);
-                            return true; // ✅ 成功识别，立即返回
+                        if (CurrentServer != srcServer)
+                        {
+                            CurrentServer = srcServer;
+                            ClearTcpCache();
+                        }
+                        Console.WriteLine("Got Scene Server Address by Login Return Packet: " + srcServer);
+                        return true; // ✅ 成功识别，立即返回
                         
                     }
                 }

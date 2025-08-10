@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 using PacketDotNet;
 using HarfBuzzSharp;
+using System.Numerics;
 namespace StarResonanceDpsAnalysis.Core
 {
     public class MessageAnalyzer
@@ -237,8 +238,8 @@ namespace StarResonanceDpsAnalysis.Core
        
             var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
 
-           
-
+    
+    
             if (syncNearEntities.Appear == null || syncNearEntities.Appear.Count == 0)
             {
                 return;
@@ -262,6 +263,7 @@ namespace StarResonanceDpsAnalysis.Core
                 // Attr 是“(Id, RawData)”这样的 Key-Value 对
                 foreach (var attr in attrCollection.Attrs)
                 {
+                
                     if (attr.Id == 0 || attr.RawData == null || attr.RawData.Length == 0) continue;
 
                     // 用 C# Protobuf 的 CodedInputStream 读取原始 wire 格式
@@ -307,7 +309,7 @@ namespace StarResonanceDpsAnalysis.Core
         {
             //var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
             var syncNearDeltaInfo = SyncNearDeltaInfo.Parser.ParseFrom(payloadBuffer);
-
+         
 
             if (syncNearDeltaInfo.DeltaInfos == null || syncNearDeltaInfo.DeltaInfos.Count == 0)
             {
@@ -397,14 +399,14 @@ namespace StarResonanceDpsAnalysis.Core
                             if (isAttackerPlayer)
                             {
                                
-                            StatisticData._manager.AddHealing(attackerUuid, damage, isCrit, isLucky);
+                            StatisticData._manager.AddHealing(attackerUuid, damage, hpLessen, isCrit, isLucky);
                             }
                         }
                         else
                         {
                      
                  
-                        StatisticData._manager.AddTakenDamage(attackerUuid, (ulong)skillId, damage);
+                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage);
                         }
                     }
                     else
@@ -414,7 +416,10 @@ namespace StarResonanceDpsAnalysis.Core
                         {
                             // 只记录“玩家造成的输出伤害”，治疗对非玩家一般不计
              
-                        StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damage,isCrit, isLucky, hpLessen);
+                            StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damage,isCrit, isLucky, hpLessen);
+    
+                   
+
                         }
                     }
                 }

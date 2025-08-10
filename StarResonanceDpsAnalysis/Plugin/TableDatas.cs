@@ -9,8 +9,8 @@ using AntdUI;
 
 namespace StarResonanceDpsAnalysis.Plugin
 {
-
-    public class TableDatas
+    #region DpsTableDatas 类
+    public class DpsTableDatas
     {
         /// <summary>
         /// 表格数据绑定
@@ -19,428 +19,580 @@ namespace StarResonanceDpsAnalysis.Plugin
         public static readonly object DpsTableLock = new();
 
     }
-
-
+    #endregion
+    #region DpsTable 类
+    /// <summary>
+    /// DPS 表格数据模型
+    /// 用于绑定 UI 表格显示单个玩家的战斗统计信息（伤害、治疗、承伤等）
+    /// 继承 NotifyProperty 以支持属性更改通知（UI 自动刷新）
+    /// </summary>
     public class DpsTable : NotifyProperty
     {
+        // —— DPS 相关私有字段（只在类内部使用） ——
+        private ulong uid;                // 玩家唯一ID
+        private string nickName;           // 玩家昵称
+        private string profession;         // 职业
+        private int combatPower;           // 战力
+        private string totalDamage;        // 总伤害
+        private string criticalDamage;     // 暴击伤害
+        private string luckyDamage;        // 幸运伤害
+        private string critLuckyDamage;    // 暴击且幸运的伤害
+        private string critRate;           // 暴击率（百分比字符串）
+        private string luckyRate;          // 幸运率（百分比字符串）
+        private string instantDps;         // 实时 DPS
+        private string maxInstantDps;      // 最大瞬时 DPS
+        private string totalDps;           // 平均 DPS
+        private CellProgress cellProgress; // 用于 UI 显示的伤害占比进度条
 
-        // —— DPS 相关私有字段 —— 
-
-        /// <summary>玩家的唯一标识 UID</summary>
-        private ulong Uid;
-        private string NickName;
-
-
-        /// <summary>玩家的职业/角色名称</summary>
-        private string Profession;
-
-        /// <summary>
-        /// 战力
-        /// </summary>
-        private int CombatPower;
-
-        /// <summary>该玩家造成的总伤害</summary>
-        private string TotalDamage;
-
-        /// <summary>该玩家通过暴击造成的伤害总量</summary>
-        private string CriticalDamage;
-
-        /// <summary>该玩家通过幸运造成的伤害总量</summary>
-        private string LuckyDamage;
-
-        /// <summary>同时满足暴击和幸运条件的伤害总量</summary>
-        private string CritLuckyDamage;
-
-        /// <summary>格式化后的暴击率（字符串，带“%”）</summary>
-        private string CritRate;
-
-        /// <summary>格式化后的幸运率（字符串，带“%”）</summary>
-        private string LuckyRate;
-
-        /// <summary>最近 1 秒内的瞬时 DPS（伤害/秒）</summary>
-        private string InstantDPS;
-
-        /// <summary>统计期间出现过的最大瞬时 DPS</summary>
-        private string MaxInstantDPS;
-
-        /// <summary>平均总 DPS（总伤害 ÷ 战斗持续秒数）</summary>
-        private string TotalDPS;
-
-        /// <summary>用于在 UI 中展示进度条的 CellProgress 对象</summary>
-        private CellProgress progress;
-
-        // —— HPS 相关私有字段 —— 
-
-        /// <summary>累计受到的伤害（该玩家受到的总伤害）</summary>
-        private string DamageTaken;
-
-        /// <summary>该玩家提供的总治疗量</summary>
-        private string TotalHealingDone;
-
-        /// <summary>该玩家通过暴击造成的治疗总量</summary>
-        private string CriticalHealingDone;
-
-        /// <summary>该玩家通过幸运造成的治疗总量</summary>
-        private string LuckyHealingDone;
-
-        /// <summary>同时满足暴击和幸运条件的治疗总量</summary>
-        private string CritLuckyHealingDone;
-
-        /// <summary>最近 1 秒内的瞬时 HPS（治疗/秒）</summary>
-        private string InstantHps;
-
-        /// <summary>统计期间出现过的最大瞬时 HPS</summary>
-        private string MaxInstantHps;
-
-        /// <summary>平均总 HPS（总治疗 ÷ 战斗持续秒数）</summary>
-        private string TotalHps;
-
-
+        // —— HPS 相关私有字段（治疗类数据） ——
+        private string damageTaken;        // 承受伤害总量
+        private string totalHealingDone;   // 总治疗量
+        private string criticalHealingDone;// 暴击治疗量
+        private string luckyHealingDone;   // 幸运治疗量
+        private string critLuckyHealingDone;// 暴击且幸运的治疗量
+        private string instantHps;         // 实时 HPS
+        private string maxInstantHps;      // 最大瞬时 HPS
+        private string totalHps;           // 平均 HPS
 
         /// <summary>
-        /// 构造一个用于展示伤害（DPS）和治疗（HPS）统计的 DpsTabel 实例（通常用于表格绑定）。
+        /// 构造函数
+        /// 初始化所有统计字段的值（UI 初次绑定时使用）
         /// </summary>
-        /// <param name="uid">角色 UID，唯一标识一个玩家。</param>
-        /// <param name="takenDamage">该玩家受到的总伤害。</param>
-        /// <param name="totalHealing">该玩家提供的总治疗量。</param>
-        /// <param name="totalCriticalHealing">该玩家暴击治疗的总量。</param>
-        /// <param name="totalLuckyHealing">该玩家幸运治疗的总量。</param>
-        /// <param name="totalCritLuckyHealing">同时满足暴击和幸运条件的治疗总量。</param>
-        /// <param name="totalInstantHps">最近 1 秒内的瞬时 HPS（治疗/秒）。</param>
-        /// <param name="totalMaxInstantHps">统计期间出现过的最大瞬时 HPS。</param>
-        /// <param name="profession">玩家的职业/角色名称。</param>
-        /// <param name="totalDamage">该玩家造成的总伤害。</param>
-        /// <param name="criticalDamage">该玩家通过暴击造成的伤害总量。</param>
-        /// <param name="luckyDamage">该玩家通过幸运造成的伤害总量。</param>
-        /// <param name="critLuckyDamage">同时满足暴击和幸运的伤害总量。</param>
-        /// <param name="critRate">暴击命中率（0～100 之间的小数，构造后会格式化为字符串并附带“%”）。</param>
-        /// <param name="luckyRate">幸运命中率（0～100 之间的小数，构造后会格式化为字符串并附带“%”）。</param>
-        /// <param name="instantDPS">最近 1 秒内的瞬时 DPS（伤害/秒）。</param>
-        /// <param name="maxInstantDPS">统计期间出现过的最大瞬时 DPS。</param>
-        /// <param name="totalDPS">平均总 DPS（总伤害 ÷ 战斗持续秒数）。</param>
-        /// <param name="totalHps">平均总 HPS（总治疗 ÷ 战斗持续秒数）。</param>
-        /// <param name="cellProgress">用于在 UI 中展示进度条的 CellProgress 对象。</param>
         public DpsTable(
             ulong uid,
             string nickname,
-            string takenDamage,
-            string totalHealing,
-            string totalCriticalHealing,
-            string totalLuckyHealing,
-            string totalCritLuckyHealing,
-            string totalInstantHps,
-            string totalMaxInstantHps,
+            ulong takenDamage,
+            ulong totalHealing,
+            ulong totalCriticalHealing,
+            ulong totalLuckyHealing,
+            ulong totalCritLuckyHealing,
+            ulong totalInstantHps,
+            ulong totalMaxInstantHps,
             string profession,
-            string totalDamage,
-            string criticalDamage,
-            string luckyDamage,
-            string critLuckyDamage,
-            string critRate,
-            string luckyRate,
-            string instantDPS,
-            string maxInstantDPS,
-            string totalDPS,
-            string totalHps,
-            CellProgress cellProgress = null,int combatPower=0)
+            ulong totalDamage,
+            ulong criticalDamage,
+            ulong luckyDamage,
+            ulong critLuckyDamage,
+            double critRate,
+            double luckyRate,
+            ulong instantDps,
+            ulong maxInstantDps,
+            double totalDps,
+            double totalHps,
+            CellProgress cellProgress = null,
+            int combatPower = 0)
         {
-            // DPS 相关
-            this.Uid = uid;
-            this.CombatPower = combatPower;
-            this.Profession = profession;
-            this.TotalDamage = totalDamage;
-            this.CriticalDamage = criticalDamage;
-            this.LuckyDamage = luckyDamage;
-            this.CritLuckyDamage = critLuckyDamage;
-            this.CritRate = @$"{critRate}%";
-        
-            this.LuckyRate = @$"{luckyRate}%";
-            this.InstantDPS = instantDPS;
-            this.MaxInstantDPS = maxInstantDPS;
-            this.TotalDPS = totalDPS;
+            // —— 基础信息 ——
+            Uid = uid;
+            NickName = nickname;
+            CombatPower = combatPower;
+            Profession = profession;
 
-            // HPS 相关
-            this.DamageTaken = takenDamage;
-            this.TotalHealingDone = totalHealing;
-            this.CriticalHealingDone = totalCriticalHealing;
-            this.LuckyHealingDone = totalLuckyHealing;
-            this.CritLuckyHealingDone = totalCritLuckyHealing;
-            this.InstantHps = totalInstantHps;
-            this.MaxInstantHps = totalMaxInstantHps;
-            this.TotalHps = totalHps;
-         
-            // UI 控件
-            this.CellProgress = cellProgress;
-            //
+            // —— 伤害相关 ——
+            TotalDamage = totalDamage.ToString();
+            CriticalDamage = criticalDamage.ToString();
+            LuckyDamage = luckyDamage.ToString();
+            CritLuckyDamage = critLuckyDamage.ToString();
+            CritRate = $"{critRate}%";
+            LuckyRate = $"{luckyRate}%";
+            InstantDps = instantDps.ToString();
+            MaxInstantDps = maxInstantDps.ToString();
+            TotalDps = totalDps.ToString();
+
+            // —— 承伤/治疗相关 ——
+            DamageTaken = takenDamage.ToString();
+            TotalHealingDone = totalHealing.ToString();
+            CriticalHealingDone = totalCriticalHealing.ToString();
+            LuckyHealingDone = totalLuckyHealing.ToString();
+            CritLuckyHealingDone = totalCritLuckyHealing.ToString();
+            InstantHps = totalInstantHps.ToString();
+            MaxInstantHps = totalMaxInstantHps.ToString();
+            TotalHps = totalHps.ToString();
+
+            // —— UI 占比进度条 ——
+            CellProgress = cellProgress;
         }
 
+        // —— 属性封装（支持 UI 绑定通知） ——
 
-        public CellProgress CellProgress
+        /// <summary>玩家唯一ID</summary>
+        public ulong Uid
         {
-            get { return progress; }
+            get => uid;
             set
             {
-                if (progress == value) return;
-                progress = value;
-                OnPropertyChanged(nameof(CellProgress));
-            }
-        }
-
-
-        // 属性封装（包含通知）
-
-        /// <summary>角色 ID</summary>
-        public ulong uid
-        {
-            get => Uid;
-            set
-            {
-                if (Uid == value) return;
-                Uid = value;
+                if (uid == value) return;
+                uid = value;
                 OnPropertyChanged(nameof(Uid));
             }
         }
 
-        public string nickname
+        /// <summary>玩家昵称</summary>
+        public string NickName
         {
-            get => NickName;
+            get => nickName;
             set
             {
-                if (NickName == value) return;
-                NickName = value;
+                if (nickName == value) return;
+                nickName = value;
                 OnPropertyChanged(nameof(NickName));
             }
         }
 
-        public int combatPower
+
+
+        /// <summary>战力</summary>
+        public int CombatPower
         {
-            get => CombatPower;
+            get => combatPower;
             set
             {
-                if (CombatPower == value) return;
-                CombatPower = value;
+                if (combatPower == value) return;
+                combatPower = value;
                 OnPropertyChanged(nameof(CombatPower));
             }
         }
 
-        /// <summary>
-        /// 职业
-        /// </summary>
-        public string profession
+        /// <summary>职业</summary>
+        public string Profession
         {
-            get => Profession;
+            get => profession;
             set
             {
-                if (Profession == value) return;
-                Profession = value;
+                if (profession == value) return;
+                profession = value;
                 OnPropertyChanged(nameof(Profession));
             }
         }
 
-        /// <summary>总伤害</summary>
-        public string totalDamage
-        {
-            get => TotalDamage;
-            set
-            {
-                if (TotalDamage == value) return;
-                TotalDamage = value;
-                OnPropertyChanged(nameof(TotalDamage));
-            }
-        }
 
-        /// <summary>纯暴击伤害</summary>
-        public string criticalDamage
+        /// <summary>
+        /// 暴击率
+        /// </summary>
+        public string CritRate
         {
-            get => CriticalDamage;
+            get => critRate;
             set
             {
-                if (CriticalDamage == value) return;
-                CriticalDamage = value;
-                OnPropertyChanged(nameof(CriticalDamage));
-            }
-        }
-
-        /// <summary>纯幸运伤害</summary>
-        public string luckyDamage
-        {
-            get => LuckyDamage;
-            set
-            {
-                if (LuckyDamage == value) return;
-                LuckyDamage = value;
-                OnPropertyChanged(nameof(LuckyDamage));
-            }
-        }
-
-        /// <summary>暴击+幸运伤害</summary>
-        public string critLuckyDamage
-        {
-            get => CritLuckyDamage;
-            set
-            {
-                if (CritLuckyDamage == value) return;
-                CritLuckyDamage = value;
-                OnPropertyChanged(nameof(CritLuckyDamage));
-            }
-        }
-
-        /// <summary>暴击率（百分比）</summary>
-        public string critRate
-        {
-            get => CritRate;
-            set
-            {
-                if (CritRate == value) return;
-                CritRate = value;
+                if (critRate == value) return;
+                critRate = value;
                 OnPropertyChanged(nameof(CritRate));
             }
         }
 
-        /// <summary>幸运率（百分比）</summary>
-        public string luckyRate
+        public string LuckyRate
         {
-            get => LuckyRate;
+            get => luckyRate;
             set
             {
-                if (LuckyRate == value) return;
-                LuckyRate = value;
+                if (luckyRate == value) return;
+                luckyRate = value;
                 OnPropertyChanged(nameof(LuckyRate));
             }
         }
 
-        /// <summary>瞬时 DPS（最近1秒）</summary>
-        public string instantDps
+        /// <summary>总伤害</summary>
+        public string TotalDamage
         {
-            get => InstantDPS;
+            get => totalDamage;
             set
             {
-                if (InstantDPS == value) return;
-                InstantDPS = value;
-                OnPropertyChanged(nameof(InstantDPS));
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (totalDamage == formatted) return;
+                totalDamage = formatted;
+                OnPropertyChanged(nameof(TotalDamage));
+            }
+        }
+
+        /// <summary>暴击伤害</summary>
+        public string CriticalDamage
+        {
+            get => criticalDamage;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (criticalDamage == formatted) return;
+                criticalDamage = formatted;
+                OnPropertyChanged(nameof(CriticalDamage));
+            }
+        }
+
+        /// <summary>幸运伤害</summary>
+        public string LuckyDamage
+        {
+            get => luckyDamage;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (luckyDamage == formatted) return;
+                luckyDamage = formatted;
+                OnPropertyChanged(nameof(LuckyDamage));
+            }
+        }
+
+        /// <summary>暴击且幸运伤害</summary>
+        public string CritLuckyDamage
+        {
+            get => critLuckyDamage;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (critLuckyDamage == formatted) return;
+                critLuckyDamage = formatted;
+                OnPropertyChanged(nameof(CritLuckyDamage));
+            }
+        }
+
+        /// <summary>实时 DPS</summary>
+        public string InstantDps
+        {
+            get => instantDps;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (instantDps == formatted) return;
+                instantDps = formatted;
+                OnPropertyChanged(nameof(InstantDps));
             }
         }
 
         /// <summary>最大瞬时 DPS</summary>
-        public string maxInstantDps
+        public string MaxInstantDps
         {
-            get => MaxInstantDPS;
+            get => maxInstantDps;
             set
             {
-                if (MaxInstantDPS == value) return;
-                MaxInstantDPS = value;
-                OnPropertyChanged(nameof(MaxInstantDPS));
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (maxInstantDps == formatted) return;
+                maxInstantDps = formatted;
+                OnPropertyChanged(nameof(MaxInstantDps));
             }
         }
 
-        /// <summary>平均总 DPS</summary>
-        public string totalDps
+        /// <summary>平均 DPS</summary>
+        public string TotalDps
         {
-            get => TotalDPS;
+            get => totalDps;
             set
             {
-                if (TotalDPS == value) return;
-                TotalDPS = value;
-                OnPropertyChanged(nameof(TotalDPS));
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+ 
+                if (totalDps == formatted) return;
+                totalDps = formatted;
+                OnPropertyChanged(nameof(TotalDps));
             }
         }
 
-        // —— 公开属性（包含通知） —— 
-
-        /// <summary>累计受到的伤害（该玩家受到的总伤害）</summary>
-        public string damageTaken
+        /// <summary>承受伤害</summary>
+        public string DamageTaken
         {
-            get => DamageTaken;
+            get => damageTaken;
             set
             {
-                if (DamageTaken == value) return;
-                DamageTaken = value;
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (damageTaken == formatted) return;
+                damageTaken = formatted;
                 OnPropertyChanged(nameof(DamageTaken));
             }
         }
 
-        /// <summary>总治疗量（该玩家提供的治疗总量）</summary>
-        public string totalHealingDone
+        /// <summary>总治疗量</summary>
+        public string TotalHealingDone
         {
-            get => TotalHealingDone;
+            get => totalHealingDone;
             set
             {
-                if (TotalHealingDone == value) return;
-                TotalHealingDone = value;
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (totalHealingDone == formatted) return;
+                totalHealingDone = formatted;
                 OnPropertyChanged(nameof(TotalHealingDone));
             }
         }
 
-        /// <summary>暴击治疗量（该玩家通过暴击造成的治疗）</summary>
-        public string criticalHealingDone
+        /// <summary>暴击治疗量</summary>
+        public string CriticalHealingDone
         {
-            get => CriticalHealingDone;
+            get => criticalHealingDone;
             set
             {
-                if (CriticalHealingDone == value) return;
-                CriticalHealingDone = value;
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (criticalHealingDone == formatted) return;
+                criticalHealingDone = formatted;
                 OnPropertyChanged(nameof(CriticalHealingDone));
             }
         }
 
-        /// <summary>幸运治疗量（该玩家通过幸运造成的治疗）</summary>
-        public string luckyHealingDone
+        /// <summary>幸运治疗量</summary>
+        public string LuckyHealingDone
         {
-            get => LuckyHealingDone;
+            get => luckyHealingDone;
             set
             {
-                if (LuckyHealingDone == value) return;
-                LuckyHealingDone = value;
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (luckyHealingDone == formatted) return;
+                luckyHealingDone = formatted;
                 OnPropertyChanged(nameof(LuckyHealingDone));
             }
         }
 
-        /// <summary>暴击+幸运治疗量（同时满足暴击和幸运条件的治疗）</summary>
-        public string critLuckyHealingDone
+        /// <summary>暴击且幸运的治疗量</summary>
+        public string CritLuckyHealingDone
         {
-            get => CritLuckyHealingDone;
+            get => critLuckyHealingDone;
             set
             {
-                if (CritLuckyHealingDone == value) return;
-                CritLuckyHealingDone = value;
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (critLuckyHealingDone == formatted) return;
+                critLuckyHealingDone = formatted;
                 OnPropertyChanged(nameof(CritLuckyHealingDone));
             }
         }
 
-        /// <summary>瞬时 HPS（最近 1 秒内的治疗/秒）</summary>
-        public string instantHps
+        /// <summary>实时 HPS</summary>
+        public string InstantHps
         {
-            get => InstantHps;
+            get => instantHps;
             set
             {
-                if (InstantHps == value) return;
-                InstantHps = value;
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (instantHps == formatted) return;
+                instantHps = formatted;
                 OnPropertyChanged(nameof(InstantHps));
             }
         }
 
-        /// <summary>最大瞬时 HPS（统计期间出现过的最大治疗/秒）</summary>
-        public string maxInstantHps
+        /// <summary>最大瞬时 HPS</summary>
+        public string MaxInstantHps
         {
-            get => MaxInstantHps;
+            get => maxInstantHps;
             set
             {
-                if (MaxInstantHps == value) return;
-                MaxInstantHps = value;
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (maxInstantHps == formatted) return;
+                maxInstantHps = formatted;
                 OnPropertyChanged(nameof(MaxInstantHps));
             }
         }
 
-        /// <summary>平均总 HPS（总治疗 ÷ 战斗持续秒数）</summary>
-        public string totalHps
+        /// <summary>平均 HPS</summary>
+        public string TotalHps
         {
-            get => TotalHps;
+            get => totalHps;
             set
             {
-                if (TotalHps == value) return;
-                TotalHps = value;
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+                if (totalHps == formatted) return;
+                totalHps = formatted;
                 OnPropertyChanged(nameof(TotalHps));
             }
         }
+
+
+        /// <summary>伤害占比进度条</summary>
+        public CellProgress CellProgress
+        {
+            get => cellProgress;
+            set
+            {
+                if (cellProgress == value) return;
+                cellProgress = value;
+                OnPropertyChanged(nameof(CellProgress));
+            }
+        }
     }
+
+
+    #endregion
+
+    #region 技能数据
+
+    public class SkillTableDatas
+    {
+
+        public static BindingList<SkillData> SkillTable = new();
+        public static readonly object SkillTableLock = new();
+    }
+    public class SkillData : NotifyProperty
+    {
+        #region 字段（私有存储）
+        private string name;       // 技能名称
+        private string icon;       // 技能图标（文件路径或URL）
+        private string damage;      // 技能总伤害
+        private int hitCount;      // 技能命中次数
+        private string critRate;   // 暴击率
+        private string luckyRate;  // 幸运率
+        private CellProgress share; // 占比（0~1）
+        private string avgPerHit;  // 平均值
+        private string totalDps;//秒伤
+        #endregion
+
+        #region 构造函数
+        public SkillData(string name, string icon, ulong damage, int hitCount, string critRate, string luckyRate, double share, double avgPerHit,double totalDps)
+        {
+            Name = name;
+            Icon = icon;
+            Damage = damage.ToString();
+            HitCount = hitCount;
+            CritRate = critRate;
+            LuckyRate = luckyRate;
+            Share = new CellProgress((float)share) { Fill = AppConfig.DpsColor ,Size = new Size(200, 10) };
+            this.AvgPerHit = avgPerHit.ToString();
+            this.TotalDps = totalDps.ToString();
+        }
+        #endregion
+
+        #region 属性封装（包含通知）
+        // —— 技能基础信息 —— 
+
+        /// <summary>
+        /// 技能名称（用于UI显示）
+        /// </summary>
+        public string Name
+        {
+            get => name;
+            set
+            {
+                if (name == value) return;
+                name = value;
+                OnPropertyChanged(nameof(Name));
+            }
+        }
+
+        /// <summary>
+        /// 技能图标（本地路径或URL）
+        /// </summary>
+        public string Icon
+        {
+            get => icon;
+            set
+            {
+                if (icon == value) return;
+                icon = value;
+                OnPropertyChanged(nameof(Icon));
+            }
+        }
+
+        // —— 技能统计数据 —— 
+
+        /// <summary>
+        /// 技能总伤害（累计值）
+        /// </summary>
+        public string Damage
+        {
+            get => damage;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+
+                if (damage == formatted) return;
+                damage = formatted;
+                OnPropertyChanged(nameof(Damage));
+            }
+        }
+
+        /// <summary>
+        /// 技能命中次数
+        /// </summary>
+        public int HitCount
+        {
+            get => hitCount;
+            set
+            {
+                if (hitCount == value) return;
+                hitCount = value;
+                OnPropertyChanged(nameof(HitCount));
+            }
+        }
+
+        /// <summary>
+        /// 暴击率（百分比字符串）
+        /// </summary>
+        public string CritRate
+        {
+            get => critRate;
+            set
+            {
+                if (critRate == value) return;
+                critRate = value;
+                OnPropertyChanged(nameof(CritRate));
+            }
+        }
+
+        /// <summary>
+        /// 幸运率（百分比字符串）
+        /// </summary>
+        public string LuckyRate
+        {
+            get => luckyRate;
+            set
+            {
+                if (luckyRate == value) return;
+                luckyRate = value;
+                OnPropertyChanged(nameof(LuckyRate));
+            }
+        }
+
+        /// <summary>
+        /// 总伤害占比（0~1 之间的小数）
+        /// </summary>
+        public CellProgress Share
+        {
+            get => share;
+            set
+            {
+                if (share == value) return;
+                share = value;
+                OnPropertyChanged(nameof(Share));
+            }
+        }
+
+        public string AvgPerHit
+        {
+            get => avgPerHit;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+
+                if (avgPerHit == formatted) return;
+                avgPerHit = formatted;
+                OnPropertyChanged(nameof(AvgPerHit));
+            }
+        }
+
+        public string TotalDps
+        {
+            get => totalDps;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value));
+                string formatted = Common.FormatWithEnglishUnits(val);
+
+                if (totalDps == formatted) return;
+                totalDps = formatted;
+                OnPropertyChanged(nameof(TotalDps));
+            }
+        }
+        #endregion
+    }
+
+    #endregion
+
 
 }

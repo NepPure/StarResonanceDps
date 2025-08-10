@@ -29,7 +29,8 @@ namespace StarResonanceDpsAnalysis
                 table_DpsDataTable.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
             }
 
-            table_DpsDataTable.Binding(TableDatas.DpsTable);
+            table_DpsDataTable.Binding(DpsTableDatas.DpsTable);
+            
         }
 
         #endregion
@@ -60,8 +61,8 @@ namespace StarResonanceDpsAnalysis
                 float percent = (float)stat.DamageStats.Total / totalDamageSum;
 
                 // 3.2 按 UID 查找已有行
-                var row = TableDatas.DpsTable
-                    .FirstOrDefault(x => x.uid == stat.Uid);
+                var row = DpsTableDatas.DpsTable
+                    .FirstOrDefault(x => x.Uid == stat.Uid);
 
                 // 3.3 计算暴击率/幸运率（以 % 计）
                 double critRate = stat.DamageStats.CountTotal > 0
@@ -75,28 +76,27 @@ namespace StarResonanceDpsAnalysis
                 if (row == null)
                 {
                     // 新增一行
-                    TableDatas.DpsTable.Add(new DpsTable(
+                    DpsTableDatas.DpsTable.Add(new DpsTable(
                          stat.Uid,
                          stat.Nickname,
-                         Common.FormatWithEnglishUnits(stat.TakenDamage),
-                         Common.FormatWithEnglishUnits(stat.HealingStats.Total),
-                         Common.FormatWithEnglishUnits(stat.HealingStats.Critical),
-                         Common.FormatWithEnglishUnits(stat.HealingStats.Lucky),
-                         Common.FormatWithEnglishUnits(stat.HealingStats.CritLucky),
-                         Common.FormatWithEnglishUnits(stat.HealingStats.RealtimeValue),
-                         Common.FormatWithEnglishUnits(stat.HealingStats.RealtimeMax),
-
+                         stat.TakenDamage,
+                         stat.HealingStats.Total,
+                         stat.HealingStats.Critical,
+                        stat.HealingStats.Lucky,
+                        stat.HealingStats.CritLucky,
+                        stat.HealingStats.RealtimeValue,
+                        stat.HealingStats.RealtimeMax,
                          stat.Profession,
-                         Common.FormatWithEnglishUnits(stat.DamageStats.Total),
-                         Common.FormatWithEnglishUnits(stat.DamageStats.Critical),
-                         Common.FormatWithEnglishUnits(stat.DamageStats.Lucky),
-                         Common.FormatWithEnglishUnits(stat.DamageStats.CritLucky),
-                         Common.FormatWithEnglishUnits(Math.Round(critRate, 1)),
-                         Common.FormatWithEnglishUnits(Math.Round(luckyRate, 1)),
-                         Common.FormatWithEnglishUnits(stat.DamageStats.RealtimeValue),     // 即时 DPS
-                         Common.FormatWithEnglishUnits(stat.DamageStats.RealtimeMax),       // 峰值 DPS
-                         Common.FormatWithEnglishUnits(Math.Round(stat.DamageStats.GetTotalPerSecond(), 1)), // 总平均 DPS
-                         Common.FormatWithEnglishUnits(Math.Round(stat.HealingStats.GetTotalPerSecond(), 1)), // 总平均 HPS
+                        stat.DamageStats.Total,
+                        stat.DamageStats.Critical,
+                         stat.DamageStats.Lucky,
+                        stat.DamageStats.CritLucky,
+                        Math.Round(critRate, 1),
+                        Math.Round(luckyRate, 1),
+                       stat.DamageStats.RealtimeValue,     // 即时 DPS
+                        stat.DamageStats.RealtimeMax,       // 峰值 DPS
+                        Math.Round(stat.DamageStats.GetTotalPerSecond(), 1), // 总平均 DPS
+                        Math.Round(stat.HealingStats.GetTotalPerSecond(), 1), // 总平均 HPS
                     new CellProgress(percent)
                         {
                             Size = new Size(200, 10),
@@ -109,29 +109,30 @@ namespace StarResonanceDpsAnalysis
                 else
                 {
                     // —— 更新 DPS 部分 —— 
-                    row.profession = stat.Profession;
-                    row.nickname = stat.Nickname;
-                    row.totalDamage = Common.FormatWithEnglishUnits(stat.DamageStats.Total);
-                    row.criticalDamage = Common.FormatWithEnglishUnits(stat.DamageStats.Critical);
-                    row.luckyDamage = Common.FormatWithEnglishUnits(stat.DamageStats.Lucky);
-                    row.critLuckyDamage = Common.FormatWithEnglishUnits(stat.DamageStats.CritLucky);
-                    row.critRate = $"{Math.Round(critRate, 1).ToString()}%";
-                    row.luckyRate = $"{Math.Round(luckyRate, 1).ToString()}%";
-                    row.instantDps = Common.FormatWithEnglishUnits(stat.DamageStats.RealtimeValue);
-                    row.maxInstantDps = Common.FormatWithEnglishUnits(stat.DamageStats.RealtimeMax);
-                    row.totalDps = Common.FormatWithEnglishUnits(Math.Round(stat.DamageStats.GetTotalPerSecond(), 1));
+                    row.Profession = stat.Profession;
+                    row.NickName = stat.Nickname;
+                    row.TotalDamage = stat.DamageStats.Total.ToString();
+                    row.CriticalDamage = stat.DamageStats.Critical.ToString();
+                    row.LuckyDamage = stat.DamageStats.Lucky.ToString();
+                    row.CritLuckyDamage = stat.DamageStats.CritLucky.ToString();
+                    row.CritRate = Math.Round(critRate, 1).ToString();
+                    row.LuckyRate = Math.Round(luckyRate, 1).ToString();
+                    row.InstantDps = stat.DamageStats.RealtimeValue.ToString();
+                    row.MaxInstantDps = stat.DamageStats.RealtimeMax.ToString();
+                    row.TotalDps = Math.Round(stat.DamageStats.GetTotalPerSecond(), 1).ToString();
 
                     // —— 更新 HPS（治疗）部分 —— 
-                    row.damageTaken = Common.FormatWithEnglishUnits(stat.TakenDamage);
-                    row.totalHealingDone = Common.FormatWithEnglishUnits(stat.HealingStats.Total);
-                    row.criticalHealingDone = Common.FormatWithEnglishUnits(stat.HealingStats.Critical);
-                    row.luckyHealingDone = Common.FormatWithEnglishUnits(stat.HealingStats.Lucky);
-                    row.critLuckyHealingDone = Common.FormatWithEnglishUnits(stat.HealingStats.CritLucky);
+                    row.DamageTaken = stat.TakenDamage.ToString();
+                    row.TotalHealingDone = stat.HealingStats.Total.ToString();
+                    row.CriticalHealingDone = stat.HealingStats.Critical.ToString();
+                    row.LuckyHealingDone = stat.HealingStats.Lucky.ToString();
+                    row.CritLuckyHealingDone = stat.HealingStats.CritLucky.ToString();
 
-                    row.instantHps = Common.FormatWithEnglishUnits(stat.HealingStats.RealtimeValue);
-                    row.maxInstantHps = Common.FormatWithEnglishUnits(stat.HealingStats.RealtimeMax);
-                    row.totalHps = Common.FormatWithEnglishUnits(Math.Round(stat.HealingStats.GetTotalPerSecond(), 1));
-                    row.combatPower = stat.CombatPower;
+                    row.InstantHps = stat.HealingStats.RealtimeValue.ToString();
+                    row.MaxInstantHps = stat.HealingStats.RealtimeMax.ToString();
+                    row.TotalHps = Math.Round(stat.HealingStats.GetTotalPerSecond(), 1).ToString();
+
+                    row.CombatPower = stat.CombatPower;
                     // —— 更新进度条 —— 
                     if (row.CellProgress is CellProgress cp)
                     {
@@ -242,14 +243,10 @@ namespace StarResonanceDpsAnalysis
 
         private void HandleClearData() 
         {
-            if (TableDatas.DpsTable.Count >= 0)
-            {
-
-                SaveCurrentDpsSnapshot();
-            }
             _combatWatch.Restart();
-            TableDatas.DpsTable.Clear();
+            DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
+            SkillTableDatas.SkillTable.Clear();
         }
 
         #endregion
