@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,28 +9,31 @@ namespace StarResonanceDpsAnalysis.Plugin
 {
     public class IniFileReader
     {
-        public Dictionary<string, Dictionary<string, string>> sections;
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
+        private static extern int GetPrivateProfileString(string section, string key, string defaultValue, StringBuilder retVal, int size, string filePath);
 
-        public IniFileReader()
-        {
-            sections = new Dictionary<string, Dictionary<string, string>>();
-        }
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
+        private static extern bool WritePrivateProfileString(
+            string section, string key, string value, string filePath);
+
+
+        public Dictionary<string, Dictionary<string, string>> sections = [];
 
         public void Load(string filePath)
         {
             sections.Clear();
 
-            string currentSection = "";
-            Dictionary<string, string> currentSectionData = null;
-            if (!System.IO.File.Exists(filePath))
+            if (!File.Exists(filePath))
             {
                 return;
             }
+
+            Dictionary<string, string> currentSectionData = null;
             foreach (string line in File.ReadLines(filePath))
             {
                 string trimmedLine = line.Trim();
 
-                if (trimmedLine.StartsWith(";") || trimmedLine.StartsWith("#"))
+                if (trimmedLine.StartsWith(';') || trimmedLine.StartsWith('#'))
                 {
                     // This line is a comment, ignore it
                     continue;
@@ -37,8 +41,8 @@ namespace StarResonanceDpsAnalysis.Plugin
                 else if (trimmedLine.StartsWith("[") && trimmedLine.EndsWith("]"))
                 {
                     // This line defines a new section
-                    currentSection = trimmedLine.Substring(1, trimmedLine.Length - 2);
-                    currentSectionData = new Dictionary<string, string>();
+                    var currentSection = trimmedLine.Substring(1, trimmedLine.Length - 2);
+                    currentSectionData = [];
                     sections[currentSection] = currentSectionData;
                 }
                 else if (currentSectionData != null && trimmedLine.Contains("="))
@@ -54,20 +58,21 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         public List<string> GetSections()
         {
-            List<string> sectionList = new List<string>(sections.Keys);
+            List<string> sectionList = [.. sections.Keys];
             return sectionList;
         }
-        public Dictionary<string, string> GetSectionData(string section)
+
+        public Dictionary<string, string>? GetSectionData(string section)
         {
-            if (sections.ContainsKey(section))
+            if (sections.TryGetValue(section, out Dictionary<string, string>? value))
             {
-                return sections[section];
+                return value;
             }
 
             return null;
         }
 
-        public string GetValue(string section, string key)
+        public string? GetValue(string section, string key, string? def = null)
         {
             if (sections.ContainsKey(section))
             {
@@ -78,7 +83,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 }
             }
 
-            return null;
+            return def;
         }
         public void SaveValue(string section, string key, string value)
         {

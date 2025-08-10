@@ -42,7 +42,7 @@ namespace StarResonanceDpsAnalysis.Control
 
         private void checkbox_CheckedChanged(object sender, BoolEventArgs e)
         {
-            if (sender is AntdUI.Checkbox cb && cb.Tag is string key)
+            if (sender is Checkbox cb && cb.Tag is string key)
             {
                 var setting = ColumnSettingsManager.AllSettings.FirstOrDefault(x => x.Key == key);
                 if (setting != null)
@@ -53,8 +53,7 @@ namespace StarResonanceDpsAnalysis.Control
                 ColumnSettingsManager.RefreshTableAction?.Invoke();
 
                 
-                AppConfig.Reader.SaveValue("TabelSet", cb.Name, cb.Checked.ToString());
-                AppConfig.Reader.Save(AppConfig.ConfigIni);
+                AppConfig.SetValue("TabelSet", cb.Name, cb.Checked.ToString());
             }
         }
     }

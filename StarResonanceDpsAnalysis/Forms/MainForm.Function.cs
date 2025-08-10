@@ -263,5 +263,15 @@ namespace StarResonanceDpsAnalysis
         }
 
         #endregion
+
+
+        #region RefreshHotKeyTips()
+
+        public void RefreshHotKeyTips() 
+        {
+            label_HotKeyTips.Text = @$"{AppConfig.MouseThroughKey}：鼠标穿透 | {AppConfig.FormTransparencyKey}：窗体透明 | {AppConfig.WindowToggleKey}：开启/关闭 | {AppConfig.ClearDataKey}：清空数据 | {AppConfig.ClearHistoryKey}：清空历史";
+        }
+
+        #endregion
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 using AntdUI;
 using PacketDotNet;
@@ -9,6 +10,7 @@ using SharpPcap;
 using SharpPcap.LibPcap;
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Core;
+using StarResonanceDpsAnalysis.Extends;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Properties;
 using ZstdNet;
@@ -20,14 +22,10 @@ namespace StarResonanceDpsAnalysis
         #region ========== 字段与常量 ==========
         #region —— 抓包设备/统计 —— 
         private ICaptureDevice? selectedDevice;
-        private ICaptureStatistics _lastStats;
-        private bool _hasAppliedFilter = false;
         private bool _isCaptureStarted = false;
         #endregion
 
         #region —— 计时器&超时控制 —— 
-        private System.Timers.Timer? _restartCaptureTimer;
-        private const double NO_PACKET_TIMEOUT_SECONDS = 5; // 无数据包超时时间（秒）
         private System.Timers.Timer? statsTimer;
         private readonly Stopwatch _combatWatch = new Stopwatch();
         #endregion
@@ -60,7 +58,7 @@ namespace StarResonanceDpsAnalysis
         #region ========== 构造与启动加载 ==========
         public MainForm()
         {
-           
+
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
 
@@ -76,98 +74,19 @@ namespace StarResonanceDpsAnalysis
             LoadNetworkDevices();
         }
 
-        private async void MainForm_Load(object sender, EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
-       
-      
-        
             #region —— 键盘钩子初始化 ——
+
             kbHook = new KeyboardHook();
             kbHook.SetHook();
             kbHook.OnKeyDownEvent += kbHook_OnKeyDownEvent;
+
             #endregion
-
-            #region —— 配置读取（网卡/透明度/颜色/主题/热键） ——
-            AppConfig.Reader.Load(AppConfig.ConfigIni);//加载配置文件
-            if (!string.IsNullOrEmpty(AppConfig.Reader.GetValue("SetUp", "NetworkCard")))
-            {
-                AppConfig.NetworkCard = Convert.ToInt32(Convert.ToInt32(AppConfig.Reader.GetValue("SetUp", "NetworkCard")));
-                label_SettingTip.Visible = false;
-            }
-            else
-            {
-                AppConfig.NetworkCard = -1;
-            }
-
-            if (!string.IsNullOrEmpty(AppConfig.Reader.GetValue("SetUp", "Transparency")))
-                AppConfig.Transparency = Convert.ToInt32(AppConfig.Reader.GetValue("SetUp", "Transparency"));
-            else
-                AppConfig.Transparency = 100;
-
-            var colorStr = AppConfig.Reader.GetValue("SetUp", "DpsColor");
-            if (!string.IsNullOrWhiteSpace(colorStr))
-            {
-                var match = System.Text.RegularExpressions.Regex.Match(
-                    colorStr,
-                    @"A=(\d+), R=(\d+), G=(\d+), B=(\d+)"
-                );
-
-                if (match.Success &&
-                    byte.TryParse(match.Groups[1].Value, out byte a) &&
-                    byte.TryParse(match.Groups[2].Value, out byte r) &&
-                    byte.TryParse(match.Groups[3].Value, out byte g) &&
-                    byte.TryParse(match.Groups[4].Value, out byte b))
-                {
-                    AppConfig.DpsColor = Color.FromArgb(a, r, g, b);
-                }
-                else
-                {
-                    AppConfig.DpsColor = Color.FromArgb(252, 227, 138);
-                }
-            }
-            else
-            {
-                AppConfig.DpsColor = Color.FromArgb(252, 227, 138);
-            }
-
-            AppConfig.Reader.Load(AppConfig.ConfigIni);//加载配置文件
-            AppConfig.IsLight = AppConfig.Reader.GetValue("SetUp", "IsLight") == "True";
 
             FormGui.SetColorMode(this, AppConfig.IsLight);
-            button_ThemeSwitch.Toggle = !AppConfig.IsLight;
 
-            AppConfig.Reader.Load(AppConfig.ConfigIni);
-
-            string raw;
-            if (!string.IsNullOrWhiteSpace(raw = AppConfig.Reader.GetValue("SetKey", "MouseThroughKey"))
-                 && Enum.TryParse(raw, out Keys k1))
-            {
-                AppConfig.MouseThroughKey = k1;
-            }
-            if (!string.IsNullOrWhiteSpace(raw = AppConfig.Reader.GetValue("SetKey", "FormTransparencyKey"))
-                 && Enum.TryParse(raw, out Keys k2))
-            {
-                AppConfig.FormTransparencyKey = k2;
-            }
-            if (!string.IsNullOrWhiteSpace(raw = AppConfig.Reader.GetValue("SetKey", "WindowToggleKey"))
-                 && Enum.TryParse(raw, out Keys k3))
-            {
-                AppConfig.WindowToggleKey = k3;
-            }
-            if (!string.IsNullOrWhiteSpace(raw = AppConfig.Reader.GetValue("SetKey", "ClearDataKey"))
-                 && Enum.TryParse(raw, out Keys k4))
-            {
-                AppConfig.ClearDataKey = k4;
-            }
-            if (!string.IsNullOrWhiteSpace(raw = AppConfig.Reader.GetValue("SetKey", "ClearHistoryKey"))
-                 && Enum.TryParse(raw, out Keys k5))
-            {
-                AppConfig.ClearHistoryKey = k5;
-            }
-
-            string labe = @$"{AppConfig.MouseThroughKey}：鼠标穿透 | {AppConfig.FormTransparencyKey}：窗体透明 | {AppConfig.WindowToggleKey}：开启/关闭 | {AppConfig.ClearDataKey}：清空数据 | {AppConfig.ClearHistoryKey}：清空历史";
-            label_HotKeyTips.Text = labe;
-            #endregion
+            RefreshHotKeyTips();
         }
         #endregion
 
@@ -195,17 +114,15 @@ namespace StarResonanceDpsAnalysis
             }
         }
 
-        /// <summary>用于加载数据记录表格列名</summary>
+        /// <summary>
+        /// 用于加载数据记录表格列名
+        /// </summary>
         private void LoadTableColumnVisibilitySettings()
         {
             foreach (var item in ColumnSettingsManager.AllSettings)
             {
-                AppConfig.Reader.Load(AppConfig.ConfigIni);
-                string? strValue = AppConfig.Reader.GetValue("TabelSet", item.Key);
-                if (strValue != null)
-                {
-                    item.IsVisible = strValue == "True";
-                }
+                string strValue = AppConfig.GetValue("TableSet", item.Key, string.Empty);
+                item.IsVisible = strValue == "True";
             }
         }
         #endregion
@@ -227,14 +144,12 @@ namespace StarResonanceDpsAnalysis
         private void button2_Click(object sender, EventArgs e)
         {
             AppConfig.IsLight = !AppConfig.IsLight;
+
             button_ThemeSwitch.Toggle = !AppConfig.IsLight;
+
             FormGui.SetColorMode(this, AppConfig.IsLight);
             FormGui.SetColorMode(Common.skillDiary, AppConfig.IsLight);
             FormGui.SetColorMode(Common.userUidSet, AppConfig.IsLight);
-
-            AppConfig.Reader.Load(AppConfig.ConfigIni);
-            AppConfig.Reader.SaveValue("SetUp", "IsLight", AppConfig.IsLight.ToString());
-            AppConfig.Reader.Save(AppConfig.ConfigIni);
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -439,7 +354,7 @@ namespace StarResonanceDpsAnalysis
         private void StartCapture()
         {
             Volatile.Write(ref _stopping, 0);
-      
+
             #region —— 前置校验与设备打开 —— 
             if (AppConfig.NetworkCard < 0)
             {
@@ -449,7 +364,7 @@ namespace StarResonanceDpsAnalysis
                 }
                 MessageBox.Show("请选择一个网卡设备");
                 pageHeader_MainHeader.SubText = "监控已关闭";
-              
+
                 return;
             }
 
@@ -490,9 +405,9 @@ namespace StarResonanceDpsAnalysis
         /// <summary>停止抓包</summary>
         private async void StopCapture()
         {
-            
+
             Volatile.Write(ref _stopping, 1);
-           
+
             #region —— 保存快照 —— 
             if (TableDatas.DpsTable.Count > 0)
             {
@@ -517,7 +432,7 @@ namespace StarResonanceDpsAnalysis
                 }
                 selectedDevice = null;
             }
-   
+
             #endregion
 
             #region —— 停止统计定时器 —— 
@@ -566,13 +481,12 @@ namespace StarResonanceDpsAnalysis
                 {
                     cts.Dispose();
                     _cancellationTokenSource = null;
-                    _workerTasks = Array.Empty<Task>();
+                    _workerTasks = [];
                 }
             }
             #endregion
 
             #region —— 状态复位/计时器复位 —— 
-            _hasAppliedFilter = false;
             _isCaptureStarted = false;
             label_SettingTip.Text = "00:00";
             timer_RefreshDpsTable.Enabled = false;
@@ -602,7 +516,7 @@ namespace StarResonanceDpsAnalysis
             #region —— 注册抓包事件并启动 —— 
             selectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
             selectedDevice.StartCapture();
-         
+
 
 
             if (!_isCaptureStarted)
@@ -647,22 +561,9 @@ namespace StarResonanceDpsAnalysis
             {
                 Console.WriteLine($"[数据包入队异常] {ex}");
             }
-            //try
-            //{
-            //    // 提取数据包并包装后添加到队列中，由工作线程处理
-            //    _ = new PacketAnalyzer(selectedDevice, e.GetPacket()).Start();
-            //}
-            //catch (OperationCanceledException)
-            //{
-            //    // 预期的取消操作，不记录异常
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"[数据包入队异常] {ex}");
-            //}
         }
 
- 
+
         #endregion
 
         #region ========== 计时器Tick事件 ==========
@@ -681,47 +582,33 @@ namespace StarResonanceDpsAnalysis
         /// <summary>打开基础设置面板</summary>
         private void OpenSettingsDialog()
         {
-            using (var form = new Setup(this))
+            using var form = new Setup(this);
+            form.inputNumber1.Value = (decimal)AppConfig.Transparency;
+            form.colorPicker1.Value = AppConfig.DpsColor;
+
+            var title = Localization.Get("systemset", "请选择网卡");
+            AntdUI.Modal.open(new Modal.Config(this, title, form, TType.Info)
             {
-                form.inputNumber1.Value = (decimal)AppConfig.Transparency;
-                form.colorPicker1.Value = AppConfig.DpsColor;
-                string title = AntdUI.Localization.Get("systemset", "请选择网卡");
-                AntdUI.Modal.open(new AntdUI.Modal.Config(this, title, form, TType.Info)
-                {
-                    CloseIcon = true,
-                    BtnHeight = 0,
-                });
+                CloseIcon = true,
+                BtnHeight = 0,
+            });
 
-                AppConfig.Transparency = (double)form.inputNumber1.Value;
-                if (AppConfig.Transparency < 10)
-                {
-                    AppConfig.Transparency = 100;
-                    MessageBox.Show("透明度不能低于10%，已自动设置为100%");
-                }
-
-                string labe = @$"{AppConfig.MouseThroughKey}：鼠标穿透 | {AppConfig.FormTransparencyKey}：窗体透明 | {AppConfig.WindowToggleKey}：开启/关闭 | {AppConfig.ClearDataKey}：清空数据 | {AppConfig.ClearHistoryKey}：清空历史";
-                label_HotKeyTips.Text = labe;
-
-                AppConfig.Reader.Load(AppConfig.ConfigIni);
-                AppConfig.Reader.SaveValue("SetUp", "NetworkCard", AppConfig.NetworkCard.ToString());
-                AppConfig.Reader.SaveValue("SetUp", "Transparency", form.inputNumber1.Value.ToString());
-                AppConfig.Reader.SaveValue("SetUp", "DpsColor", AppConfig.DpsColor.ToString());
-                AppConfig.Reader.SaveValue("SetKey", "MouseThroughKey", AppConfig.MouseThroughKey.ToString());
-                AppConfig.Reader.SaveValue("SetKey", "FormTransparencyKey", AppConfig.FormTransparencyKey.ToString());
-                AppConfig.Reader.SaveValue("SetKey", "WindowToggleKey", AppConfig.WindowToggleKey.ToString());
-                AppConfig.Reader.SaveValue("SetKey", "ClearDataKey", AppConfig.ClearDataKey.ToString());
-                AppConfig.Reader.SaveValue("SetKey", "ClearHistoryKey", AppConfig.ClearHistoryKey.ToString());
-                AppConfig.Reader.Save(AppConfig.ConfigIni);
-
-                label_SettingTip.Visible = false;
+            AppConfig.Transparency = (double)form.inputNumber1.Value;
+            if (AppConfig.Transparency < 10)
+            {
+                AppConfig.Transparency = 100;
+                MessageBox.Show("透明度不能低于10%，已自动设置为100%");
             }
+
+            RefreshHotKeyTips();
+
+            label_SettingTip.Visible = false;
         }
 
         private void dataDisplay()
         {
             using (var form = new DataDisplaySettings(this))
             {
-                AppConfig.Reader.Load(AppConfig.ConfigIni);
                 string title = Localization.Get("DataDisplaySettings", "请勾选需要显示的统计");
                 AntdUI.Modal.open(new Modal.Config(this, title, form, TType.Info)
                 {

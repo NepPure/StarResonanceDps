@@ -16,8 +16,7 @@ namespace StarResonanceDpsAnalysis.Core
     public class PacketAnalyzer()
     {
         #region ====== 字段定义 ======
-        private readonly BlockingCollection<(ICaptureDevice dev, RawCapture raw)> _queue
-        = new(8192);
+        private readonly BlockingCollection<(ICaptureDevice dev, RawCapture raw)> _queue = new(8192);
         // 启动 N 个工作线程（放到 PacketAnalyzer 里）
         private readonly List<Thread> _threads = new();
 
@@ -50,7 +49,6 @@ namespace StarResonanceDpsAnalysis.Core
         private MemoryStream TcpStream { get; } = new();
         public Exception? LastException { get; private set; } = null;
 
-        private int workerCount;
         #endregion
 
         #region ====== 静态辅助方法 ======
