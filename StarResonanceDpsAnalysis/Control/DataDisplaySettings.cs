@@ -33,7 +33,7 @@ namespace StarResonanceDpsAnalysis.Control
                     Checked = item.IsVisible,
                     AutoSize = true,
                     Tag = item.Key, // 标记 key 方便操作
-                   
+
                 };
                 cb.CheckedChanged += checkbox_CheckedChanged;
                 flowPanel1.Controls.Add(cb);
@@ -42,7 +42,7 @@ namespace StarResonanceDpsAnalysis.Control
 
         private void checkbox_CheckedChanged(object sender, BoolEventArgs e)
         {
-            if (sender is AntdUI.Checkbox cb && cb.Tag is string key)
+            if (sender is Checkbox cb && cb.Tag is string key)
             {
                 var setting = ColumnSettingsManager.AllSettings.FirstOrDefault(x => x.Key == key);
                 if (setting != null)
@@ -52,10 +52,14 @@ namespace StarResonanceDpsAnalysis.Control
                 }
                 ColumnSettingsManager.RefreshTableAction?.Invoke();
 
-                
-                AppConfig.Reader.SaveValue("TabelSet", cb.Name, cb.Checked.ToString());
-                AppConfig.Reader.Save(AppConfig.ConfigIni);
+
+                AppConfig.SetValue("TableSet", cb.Name, cb.Checked.ToString());
             }
+        }
+
+        private void flowPanel1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

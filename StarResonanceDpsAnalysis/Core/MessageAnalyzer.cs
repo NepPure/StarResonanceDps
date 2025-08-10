@@ -48,6 +48,11 @@ namespace StarResonanceDpsAnalysis.Core
                         return; // 丢掉剩余，避免死循环
                     }
 
+                    if (packetSize > packetsReader.Remaining) 
+                    {
+                        return;
+                    }
+
                     // —— 切出一个完整包，交给独立 reader 解析 —— 
                     var packetReader = new ByteReader(packetsReader.ReadBytes((int)packetSize));
 
@@ -70,14 +75,14 @@ namespace StarResonanceDpsAnalysis.Core
                     var flag = MessageHandlers.TryGetValue(msgTypeId, out var handler);
                     if (!flag)
                     {
-                        //Console.WriteLine($"Ignore packet with message type {msgTypeId}.");
+                        Console.WriteLine($"Ignore packet with message type {msgTypeId}.");
                         return;
                     }
               
                     handler!(packetReader, isZstdCompressed);
                 }
             }
-            catch (EndOfStreamException)
+            catch (EndOfStreamException ex)
             {
                 // 统一吞掉越界异常，便于持续解析
                 Console.WriteLine("Unexpected end of buffer while reading a packet.");
@@ -119,7 +124,7 @@ namespace StarResonanceDpsAnalysis.Core
           
             if (serviceUuid != 0x0000000063335342UL)
             {
-               // Console.WriteLine($"Skipping NotifyMsg with serviceId {serviceUuid}");
+                Console.WriteLine($"Skipping NotifyMsg with serviceId {serviceUuid}");
                 return;
             }
 
@@ -190,7 +195,7 @@ namespace StarResonanceDpsAnalysis.Core
             var flag = ProcessMethods.TryGetValue(methodId, out var processMethod);
             if (!flag)
             {
-               // Console.WriteLine($"Skipping NotifyMsg with methodId {methodId}");
+                Console.WriteLine($"Skipping NotifyMsg with methodId {methodId}");
                 return;
             }
 
@@ -227,6 +232,28 @@ namespace StarResonanceDpsAnalysis.Core
             z.CopyTo(output);
 
             return output.ToArray();
+
+            //if (body == null || body.Length == 0) return Array.Empty<byte>();
+
+            //// 只做一个极简保险：不是 zstd 魔数就直接返回原文
+            //// 魔数（小端）0xFD2FB528 => 字节序 28-B5-2F-FD
+            //if (body.Length < 4 || BitConverter.ToUInt32(body, 0) != 0xFD2FB528)
+            //    return body;
+
+            //try
+            //{
+            //    using var inputStream = new MemoryStream(body, writable: false);
+            //    using var decompressionStream = new DecompressionStream(inputStream);
+            //    using var outputStream = new MemoryStream(Math.Min(body.Length * 6, 8 * 1024 * 1024));
+            //    decompressionStream.CopyTo(outputStream);
+            //    return outputStream.ToArray();
+            //}
+            //catch (ZstdException ex)
+            //{
+            //    // 保留你原来的调试信息
+            //    string head = BitConverter.ToString(body.Take(16).ToArray());
+            //    throw new InvalidDataException($"Zstd 解压失败: {ex.Message}, head={head}, len={body.Length}", ex);
+            //}
         }
 
         /// <summary>
@@ -399,7 +426,7 @@ namespace StarResonanceDpsAnalysis.Core
                             if (isAttackerPlayer)
                             {
                                
-                            StatisticData._manager.AddHealing(attackerUuid, damage, hpLessen, isCrit, isLucky);
+                                StatisticData._manager.AddHealing(attackerUuid, (ulong)skillId, hpLessen, isCrit, isLucky);
                             }
                         }
                         else

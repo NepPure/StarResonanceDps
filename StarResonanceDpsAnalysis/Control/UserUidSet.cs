@@ -29,29 +29,29 @@ namespace StarResonanceDpsAnalysis.Control
                 new Column("uid","用户UID"),
                  new Column("name","用户昵称"),
             };
-            table1.Binding(user_tabel);
+            table1.Binding(user_table);
         }
 
         private async void table1_CellEditComplete(object sender, ITableEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(user_tabel[e.ColumnIndex - 1].name))
+            if (string.IsNullOrWhiteSpace(user_table[e.ColumnIndex - 1].name))
                 return;
 
             string url = "https://api.jx3rec.com/add_player_uid_map";
             var query = new
             {
-                uid = user_tabel[e.ColumnIndex - 1].uid,
-                name = user_tabel[e.ColumnIndex - 1].name,
+                uid = user_table[e.ColumnIndex - 1].uid,
+                name = user_table[e.ColumnIndex - 1].name,
             };
             var data = await Common.RequestGet(url, query);
         }
 
-        public static AntdUI.AntList<UserTabel> user_tabel = new AntdUI.AntList<UserTabel>();
+        public static AntdUI.AntList<UserTable> user_table = new AntdUI.AntList<UserTable>();
 
 
-        public class UserTabel : AntdUI.NotifyProperty
+        public class UserTable : AntdUI.NotifyProperty
         {
-            public UserTabel(ulong uid, string name = null)
+            public UserTable(ulong uid, string name = null)
             {
                 Uid = uid;
                 Name = name;
@@ -92,15 +92,15 @@ namespace StarResonanceDpsAnalysis.Control
 
             foreach (var item in statsList)
             {
-                if (!user_tabel.Any(x => x.Uid == item.Uid))
+                if (!user_table.Any(x => x.Uid == item.Uid))
                 {
                     if (!string.IsNullOrWhiteSpace(item.Nickname) && item.Nickname != "未知")
                     {
-                        user_tabel.Add(new UserTabel(item.Uid, item.Nickname));
+                        user_table.Add(new UserTable(item.Uid, item.Nickname));
                     }
                     else
                     {
-                        user_tabel.Add(new UserTabel(item.Uid));
+                        user_table.Add(new UserTable(item.Uid));
                     }
                 }
             }
@@ -109,7 +109,7 @@ namespace StarResonanceDpsAnalysis.Control
 
         private async void button2_Click(object sender, EventArgs e)
         {
-            if (!user_tabel.Any(x => x.Uid == inputNumber1.Value))
+            if (!user_table.Any(x => x.Uid == inputNumber1.Value))
             {
 
                 if (inputNumber1.Value == null || input2.Text == null)
@@ -126,11 +126,11 @@ namespace StarResonanceDpsAnalysis.Control
                 var data = await Common.RequestGet(url, query);
                 if (data["code"].ToString() == "200")
                 {
-                    user_tabel.Add(new UserTabel(Convert.ToUInt64(inputNumber1.Value), input2.Text));
+                    user_table.Add(new UserTable(Convert.ToUInt64(inputNumber1.Value), input2.Text));
                 }
                 else
                 {
-                    user_tabel.Add(new UserTabel(Convert.ToUInt64(inputNumber1.Value), input2.Text));
+                    user_table.Add(new UserTable(Convert.ToUInt64(inputNumber1.Value), input2.Text));
                 }
             }
             else
@@ -147,12 +147,12 @@ namespace StarResonanceDpsAnalysis.Control
 
         private void button3_Click(object sender, EventArgs e)
         {
-            user_tabel.Clear();
+            user_table.Clear();
         }
 
         private void UserUidSet_FormClosed(object sender, FormClosedEventArgs e)
         {
-            user_tabel.Clear();
+            user_table.Clear();
         }
     }
 }

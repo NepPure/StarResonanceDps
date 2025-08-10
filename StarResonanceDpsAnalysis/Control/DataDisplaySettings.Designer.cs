@@ -39,6 +39,7 @@
             flowPanel1.Size = new Size(599, 437);
             flowPanel1.TabIndex = 0;
             flowPanel1.Text = "flowPanel1";
+            flowPanel1.Click += flowPanel1_Click;
             // 
             // DataDisplaySettings
             // 
