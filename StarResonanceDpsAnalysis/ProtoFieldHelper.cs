@@ -52,17 +52,6 @@ namespace StarResonanceDpsAnalysis
             }
             return false;
         }
-
-        /// <summary>
-        /// 从 4 字节数组读取大端序 32 位整数
-        /// </summary>
-        public static int ReadInt32BigEndian(byte[] buf)
-        {
-            if (buf.Length != 4)
-                throw new ArgumentException("必须是4字节");
-
-            return (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
-        }
     }
 
 }

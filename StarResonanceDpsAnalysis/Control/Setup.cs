@@ -49,7 +49,6 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 InterfaceComboBox.SelectedIndex = targetIndex;
                 AppConfig.NetworkCard = targetIndex;
-                SaveConfig("SetUp", "NetworkCard", targetIndex.ToString());
                 Log($"选择网卡: {devices[targetIndex].Description} (索引: {targetIndex})");
             }
             else
@@ -88,12 +87,6 @@ namespace StarResonanceDpsAnalysis.Control
             return bestIndex;
         }
 
-        private void SaveConfig(string section, string key, string value)
-        {
-            AppConfig.Reader.Load(AppConfig.ConfigIni);
-            AppConfig.Reader.SaveValue(section, key, value);
-            AppConfig.Reader.Save(AppConfig.ConfigIni);
-        }
         private void InterfaceComboBox_SelectedIndexChanged(object sender, IntEventArgs e)
         {
             if (combox_changed)
