@@ -254,6 +254,10 @@ namespace StarResonanceDpsAnalysis.Plugin
             }
         }
 
+        public static bool GetConfigExists()
+        {
+            return File.Exists(FilePath);
+        }
 
         public static string GetValue(string section, string key, string def)
         {

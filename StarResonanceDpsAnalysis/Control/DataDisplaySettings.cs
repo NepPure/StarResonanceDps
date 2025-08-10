@@ -53,7 +53,7 @@ namespace StarResonanceDpsAnalysis.Control
                 ColumnSettingsManager.RefreshTableAction?.Invoke();
 
                 
-                AppConfig.SetValue("TabelSet", cb.Name, cb.Checked.ToString());
+                AppConfig.SetValue("TableSet", cb.Name, cb.Checked.ToString());
             }
         }
     }

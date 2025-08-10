@@ -98,7 +98,7 @@ namespace StarResonanceDpsAnalysis.Plugin
 
 
         /// <summary>
-        /// 构造一个用于展示伤害（DPS）和治疗（HPS）统计的 DpsTabel 实例（通常用于表格绑定）。
+        /// 构造一个用于展示伤害（DPS）和治疗（HPS）统计的 DpsTable 实例（通常用于表格绑定）。
         /// </summary>
         /// <param name="uid">角色 UID，唯一标识一个玩家。</param>
         /// <param name="takenDamage">该玩家受到的总伤害。</param>

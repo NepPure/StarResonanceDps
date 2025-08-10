@@ -17,6 +17,24 @@ namespace StarResonanceDpsAnalysis
 {
     public partial class MainForm
     {
+        #region InitTableColumnsConfigAtFirstRun() 首次运行时初始化表头配置
+
+        private void InitTableColumnsConfigAtFirstRun() 
+        {
+            if (AppConfig.GetConfigExists())
+            {
+                return;
+            }
+
+            foreach (var column in ColumnSettingsManager.AllSettings)
+            {
+                AppConfig.SetValue("TableSet", column.Key, column.IsVisible ? "1" : "0");
+            }
+        }
+
+        #endregion
+
+
         #region TableLoad() 初始化Table表头
 
         /// <summary>
@@ -210,33 +228,9 @@ namespace StarResonanceDpsAnalysis
 
         #region HandleSwitchMonitoring() 响应监控切换
 
-        /// <summary>
-        /// 监控开关
-        /// </summary>
-        bool monitor = false;
-
         private void HandleSwitchMonitoring()
         {
-
-            if (!monitor)
-            {
-                switch_IsMonitoring.Checked = true;
-                //开始监控
-                //StartCapture();
-
-            }
-            else
-            {
-                pageHeader_MainHeader.SubText = "监控已关闭";
-
-                switch_IsMonitoring.Checked = false;
-                //关闭监控
-                //StopCapture();
-
-
-
-            }
-
+            switch_IsMonitoring.Checked = !switch_IsMonitoring.Checked;
         }
 
         #endregion
@@ -376,20 +370,22 @@ namespace StarResonanceDpsAnalysis
 
         #region StartCapture() 抓包：开始/停止/事件/统计
 
-        /// <summary>开始抓包</summary>
+        /// <summary>
+        /// 是否开始抓包
+        /// </summary>
+        private bool IsCaptureStarted { get; set; } = false;
+
+        /// <summary>
+        /// 开始抓包
+        /// </summary>
         private void StartCapture()
         {
-            #region —— 前置校验与设备打开 —— 
-
+            // 前置校验 ——
             if (AppConfig.NetworkCard < 0)
             {
-                if (switch_IsMonitoring.Checked)
-                {
-                    switch_IsMonitoring.Checked = false;
-                }
                 MessageBox.Show("请选择一个网卡设备");
-                pageHeader_MainHeader.SubText = "监控已关闭";
 
+                switch_IsMonitoring.Checked = false;
                 return;
             }
 
@@ -404,46 +400,42 @@ namespace StarResonanceDpsAnalysis
             if (SelectedDevice == null)
                 throw new InvalidOperationException($"无法获取网络设备，索引: {AppConfig.NetworkCard}");
 
-            SelectedDevice.Open(DeviceModes.Promiscuous, 1000);
 
-            #endregion
-
-            #region —— 清空当前统计 —— 
-
+            // 清空当前统计 ——
             TableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
 
-            #endregion
 
-            #region —— 启动统计/事件注册 —— 
+            // 事件注册与启动监听 --
+            SelectedDevice.Open(DeviceModes.Promiscuous, 1000);
+            SelectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
+            SelectedDevice.StartCapture();
 
-            InitStatsTimer();
+            IsCaptureStarted = true;
+            Console.WriteLine("开始抓包...");
+
+
+            // 启动统计 --
             timer_RefreshDpsTable.Enabled = true;
             pageHeader_MainHeader.SubText = "监控已开启";
-            monitor = true;
+            label_SettingTip.Visible = true;
+            label_SettingTip.Text = "00:00";
             CombatWatch.Restart();
             timer_RefreshRunningTime.Start();
-
-            if (!label_SettingTip.Visible)
-            {
-                label_SettingTip.Visible = true;
-                label_SettingTip.Text = "00:00";
-            }
-
-            #endregion
         }
 
-        /// <summary>停止抓包</summary>
-        private async void StopCapture()
+        /// <summary>
+        /// 停止抓包
+        /// </summary>
+        private void StopCapture()
         {
-            #region —— 保存快照 —— 
+            // 保存快照 ——
             if (TableDatas.DpsTable.Count > 0)
             {
                 SaveCurrentDpsSnapshot();
             }
-            #endregion
 
-            #region —— 停止设备与事件反注册 —— 
+            // 停止设备与事件反注册 ——
             if (SelectedDevice != null)
             {
                 try
@@ -451,51 +443,26 @@ namespace StarResonanceDpsAnalysis
                     SelectedDevice.OnPacketArrival -= Device_OnPacketArrival;
                     SelectedDevice.StopCapture();
                     SelectedDevice.Close();
+                    SelectedDevice.Dispose();
+
                     Console.WriteLine("停止抓包");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"停止抓包异常: {ex.Message}");
+                    Console.WriteLine($"停止抓包异常: {ex.Message}\r\n{ex.StackTrace}");
                 }
 
                 SelectedDevice = null;
             }
 
-            #endregion
-
-            #region —— 状态复位/计时器复位 —— 
             IsCaptureStarted = false;
-            label_SettingTip.Text = "00:00";
+
+            // 状态复位/计时器复位 ——
             timer_RefreshDpsTable.Enabled = false;
-            monitor = false;
-            timer_RefreshRunningTime.Stop();
+            pageHeader_MainHeader.SubText = string.Empty;
+            label_SettingTip.Text = "00:00";
             CombatWatch.Stop();
-            #endregion
-        }
-
-        /// <summary>初始化统计/注册回调并启动</summary>
-        private void InitStatsTimer()
-        {
-            #region —— 丢包统计（保留注释块原样） —— 
-            //statsTimer = new System.Timers.Timer(statsInterval);
-            //statsTimer.AutoReset = true;  // 设置为自动重置，定期触发
-            //lastStatsTime = DateTime.Now;
-            //statsTimer.Elapsed += (s, e) => { ... };
-            //statsTimer.Start();
-            #endregion
-
-            #region —— 注册抓包事件并启动 —— 
-            SelectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
-            SelectedDevice.StartCapture();
-
-
-
-            if (!IsCaptureStarted)
-            {
-                Console.WriteLine("开始抓包...");
-                IsCaptureStarted = true;
-            }
-            #endregion
+            timer_RefreshRunningTime.Stop();
         }
 
         #endregion

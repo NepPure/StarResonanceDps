@@ -25,7 +25,6 @@ namespace StarResonanceDpsAnalysis
         #region —— 抓包设备/统计 —— 
 
         private ICaptureDevice? SelectedDevice { get; set; } = null;
-        private bool IsCaptureStarted { get; set; } = false;
 
         #endregion
 
@@ -71,6 +70,7 @@ namespace StarResonanceDpsAnalysis
              * * * * * * * * * * * * * * * * * * * * * * * * * * * */
             pageHeader_MainHeader.Text += $" v{Application.ProductVersion.Split('+')[0]}";
 
+            InitTableColumnsConfigAtFirstRun();
             LoadTableColumnVisibilitySettings();
             ToggleTableView();
            
@@ -78,12 +78,11 @@ namespace StarResonanceDpsAnalysis
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            #region —— 键盘钩子初始化 ——
-
+            // 键盘钩子初始化
             KbHook.SetHook();
             KbHook.OnKeyDownEvent += kbHook_OnKeyDownEvent;
 
-            #endregion
+            LoadNetworkDevices();
 
             FormGui.SetColorMode(this, AppConfig.IsLight);
 
@@ -124,7 +123,7 @@ namespace StarResonanceDpsAnalysis
             foreach (var item in ColumnSettingsManager.AllSettings)
             {
                 string strValue = AppConfig.GetValue("TableSet", item.Key, string.Empty);
-                item.IsVisible = strValue == "True";
+                item.IsVisible = strValue == "1";
             }
         }
 
@@ -169,7 +168,7 @@ namespace StarResonanceDpsAnalysis
 
         private void dropdown_History_SelectedValueChanged(object sender, ObjectNEventArgs e)
         {
-            if (monitor)
+            if (IsCaptureStarted)
             {
                 MessageBox.Show("请先停止监控后再查看历史数据");
                 return;
@@ -194,30 +193,13 @@ namespace StarResonanceDpsAnalysis
 
         private void switch_IsMonitoring_CheckedChanged(object sender, BoolEventArgs e)
         {
-            if (monitor == false)
+            if (IsCaptureStarted)
             {
-                StartCapture();
-
-                if (AppConfig.NetworkCard == -1) return;
-
-                timer_RefreshDpsTable.Enabled = true;
-                pageHeader_MainHeader.SubText = "监控已开启";
-                monitor = true;
-                CombatWatch.Restart();
-                timer_RefreshRunningTime.Start();
-
-                TableDatas.DpsTable.Clear();
-                StatisticData._manager.ClearAll();
+                StopCapture();
             }
             else
             {
-                pageHeader_MainHeader.SubText = "监控已关闭";
-                StopCapture();
-                label_SettingTip.Text = "00:00";
-                timer_RefreshDpsTable.Enabled = false;
-                monitor = false;
-                timer_RefreshRunningTime.Stop();
-                CombatWatch.Stop();
+                StartCapture();
             }
         }
 
