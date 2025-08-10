@@ -69,7 +69,6 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <summary>用于在 UI 中展示进度条的 CellProgress 对象</summary>
         private CellProgress progress;
 
-
         // —— HPS 相关私有字段 —— 
 
         /// <summary>累计受到的伤害（该玩家受到的总伤害）</summary>

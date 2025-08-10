@@ -396,20 +396,15 @@ namespace StarResonanceDpsAnalysis.Core
                             // “玩家被治疗”场景下，只记录“玩家造成的治疗”（奶妈是玩家时才记）
                             if (isAttackerPlayer)
                             {
-                                var attacker = StatisticData._manager.GetOrCreate(attackerUuid);
-                                attacker.AddHealing(damage, isCrit, isLucky);
+                               
+                            StatisticData._manager.AddHealing(attackerUuid, damage, isCrit, isLucky);
                             }
                         }
                         else
                         {
                      
-                            // 玩家受到伤害 → 统计“被打量”
-                            var victim = StatisticData._manager.GetOrCreate(targetUuid);
-
-                            // NOTE: JS 的 addTakenDamage 只传伤害值。如果你的 C# 方法签名是 (ulong damage)，
-                            // 请改为：victim.AddTakenDamage(damage);
-                            // 目前按你代码保留 (skillId, damage)，确保签名匹配你自己的实现。
-                            victim.AddTakenDamage((ulong)skillId, damage);
+                 
+                        StatisticData._manager.AddTakenDamage(attackerUuid, (ulong)skillId, damage);
                         }
                     }
                     else
@@ -418,8 +413,8 @@ namespace StarResonanceDpsAnalysis.Core
                         if (!isHeal && isAttackerPlayer)
                         {
                             // 只记录“玩家造成的输出伤害”，治疗对非玩家一般不计
-                            var attacker = StatisticData._manager.GetOrCreate(attackerUuid);
-                            attacker.AddDamage((ulong)skillId, damage, isCrit, isLucky, hpLessen);
+             
+                        StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damage,isCrit, isLucky, hpLessen);
                         }
                     }
                 }
