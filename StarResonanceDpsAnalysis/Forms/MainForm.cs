@@ -88,6 +88,7 @@ namespace StarResonanceDpsAnalysis
 
             RefreshHotKeyTips();
         }
+
         #endregion
 
         #region ========== 启动时设备/表格配置 ==========

@@ -3,27 +3,81 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using PacketDotNet;
 using SharpPcap;
+using StarResonanceDpsAnalysis.Extends;
 using StarResonanceDpsAnalysis.Plugin;
 using ZstdNet;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace StarResonanceDpsAnalysis.Core
 {
     public class PacketAnalyzer()
     {
+        #region ====== 常量定义 ======
+
+        /// <summary>
+        /// 服务器签名
+        /// </summary>
+        /// <remarks>
+        /// 不确定是不是服务器签名, StarResonanceDamageCounter 中, 后面还跟了 //c3SB?? 这样的注释
+        /// </remarks>
+        private readonly byte[] ServerSignature = [0x00, 0x63, 0x33, 0x53, 0x42, 0x00];
+
+        /// <summary>
+        /// 切换服务器时的登录返回包签名
+        /// </summary>
+        private readonly byte[] LoginReturnSignature =
+        [
+            0x00, 0x00, 0x00, 0x62,
+            0x00, 0x03,
+            0x00, 0x00, 0x00, 0x01,
+            0x00, 0x11, 0x45, 0x14, // seq?
+            0x00, 0x00, 0x00, 0x00,
+            0x0a, 0x4e, 0x08, 0x01, 0x22, 0x24
+        ];
+
+        #endregion
+
+        #region ====== 公共属性与状态 ======
+
+        /// <summary>
+        /// 当前连接的服务器地址
+        /// </summary>
+        public string CurrentServer { get; set; } = string.Empty;
+        /// <summary>
+        /// 期望的下一个 TCP 序列号
+        /// </summary>
+        private uint? TcpNextSeq { get; set; } = null;
+        /// <summary>
+        /// TCP 分片缓存
+        /// </summary>
+        /// <remarks>
+        /// Key 是 TCP 序列号, Value 是对应的分片数据, 用于重组多段 TCP 数据流 (比如一个完整的 protobuf 消息被拆分在多个包里)
+        /// </remarks>
+        private ConcurrentDictionary<uint, byte[]> TcpCache { get; } = new();
+        private DateTime TcpLastTime { get; set; } = DateTime.MinValue;
+        private object TcpLock { get; } = new();
+
+        private MemoryStream TcpStream { get; } = new();
+        private ConcurrentDictionary<uint, DateTime> TcpCacheTime { get; } = new();
+
+
+        private ulong UserUid { get; set; } = 0;
+
+        #endregion
+
         #region ========== 启用新分析 ==========
 
         public void StartNewAnalyzer(ICaptureDevice device, RawCapture raw)
         {
-            Task.Run(() => 
+            Task.Run(() =>
             {
-                var sw = Stopwatch.StartNew();
-
                 try
                 {
                     HandleRaw(device, raw);
@@ -40,45 +94,9 @@ namespace StarResonanceDpsAnalysis.Core
 
                         """);
                 }
-                finally 
-                {
-                    sw.Stop();
-                    Console.WriteLine($"ThreadID({Task.CurrentId}) 封包分析完成, 耗时 {sw.ElapsedMilliseconds}ms");
-                }
             });
         }
 
-        #endregion
-
-        #region ====== 公共属性与状态 ======
-        public AnalyzerState State { get; private set; } = AnalyzerState.NeverStarted;
-
-        // TCP 分片缓存：Key 是 TCP 序列号，Value 是对应的分片数据
-        // 用于重组多段 TCP 数据流（比如一个完整的 protobuf 消息被拆分在多个包里）
-        private static ConcurrentDictionary<uint, byte[]> TcpCache { get; } = new();
-
-        /// <summary>期望的下一个 TCP 序列号</summary>
-        private uint TcpNextSeq { get; set; } = 0;
-
-        /// <summary>上一次接收到数据包的时间</summary>
-        public static DateTime LastPacketTime { get; private set; } = DateTime.MinValue;
-
-        // private ICaptureDevice? SelectedDevice { get; init; } = null;
-        // private RawCapture Raw { get; init; } = null;
-        private bool HasAppliedFilter { get; set; } = false;
-        public static string CurrentServer { get; set; } = string.Empty;
-        private ulong UserUid { get; set; } = 0;
-        private ConcurrentDictionary<uint, DateTime> TcpCacheTime { get; } = new();
-        private MemoryStream TcpStream { get; } = new();
-        public Exception? LastException { get; private set; } = null;
-
-        #endregion
-
-        #region ====== 静态辅助方法 ======
-        public static void Recaptured()
-        {
-            LastPacketTime = DateTime.Now;
-        }
         #endregion
 
         #region ========== Stage 1: 逐包解析入口 ==========
@@ -96,315 +114,189 @@ namespace StarResonanceDpsAnalysis.Core
 
                 // 提取 TCP 数据包（如果不是 TCP，会返回 null）
                 var tcpPacket = packet.Extract<TcpPacket>();
+                if (tcpPacket == null) return;
 
                 // 提取 IPv4 数据包（如果不是 IPv4，也会返回 null）
-                var ipPacket = packet.Extract<IPv4Packet>();
-
-                // 如果不是 TCP 或 IP 包，忽略
-                if (tcpPacket == null || ipPacket == null) return;
+                var ipv4Packet = packet.Extract<IPv4Packet>();
+                if (ipv4Packet == null) return;
 
                 // 获取 TCP 负载（即应用层数据）
                 var payload = tcpPacket.PayloadData;
                 if (payload == null || payload.Length == 0) return;
 
-
                 // 构造当前包的源 -> 目的 IP 和端口的字符串，作为唯一标识
-                var srcServer = $"{ipPacket.SourceAddress}:{tcpPacket.SourcePort} -> {ipPacket.DestinationAddress}:{tcpPacket.DestinationPort}";
-               
-                // 更新数据包来源
-                if (!HasAppliedFilter)
+                var srcServer = $"{ipv4Packet.SourceAddress}:{tcpPacket.SourcePort} -> {ipv4Packet.DestinationAddress}:{tcpPacket.DestinationPort}";
+
+                lock (TcpLock)
                 {
-                    ApplyDynamicFilter(device, srcServer);
-                    HasAppliedFilter = true;
+                    if (CurrentServer != srcServer)
+                    {
+                        try
+                        {
+                            // 尝试通过小包识别服务器
+                            if (payload.Length > 10 && payload[4] == 0)
+                            {
+                                var data = payload.AsSpan(10);
+                                if (data.Length > 0)
+                                {
+                                    using var payloadMs = new MemoryStream(data.ToArray());
+                                    byte[] tmp;
+                                    do
+                                    {
+                                        var lenBuffer = new byte[4];
+                                        if (payloadMs.Read(lenBuffer, 0, 4) != 4)
+                                            break;
+
+                                        var len = lenBuffer.ReadInt32BigEndian();
+                                        if (len < 4 || len > payloadMs.Length - 4)
+                                        {
+                                            break;
+                                        }
+
+                                        tmp = new byte[len - 4];
+                                        if (payloadMs.Read(tmp, 0, tmp.Length) != tmp.Length)
+                                        {
+                                            break;
+                                        }
+
+                                        if (!tmp.Skip(5).Take(ServerSignature.Length).SequenceEqual(ServerSignature))
+                                        {
+                                            break;
+                                        }
+
+                                        try
+                                        {
+                                            if (CurrentServer != srcServer)
+                                            {
+                                                CurrentServer = srcServer;
+                                                ClearTcpCache();
+                                                TcpNextSeq = tcpPacket.SequenceNumber + (uint)payload.Length;
+                                                Console.WriteLine($"Got Scene Server Address: {srcServer}");
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Console.WriteLine($"""
+
+                                                =======================
+                                                HandleRaw 检测场景服务器时遇到关键性崩溃: {ex.Message}
+                                                {ex.StackTrace}
+                                                =======================
+
+                                                """);
+                                        }
+                                    }
+                                    while (tmp.Length > 0);
+                                }
+                            }
+
+                            // 尝试通过登录返回包识别服务器(仍需测试)
+                            if (payload.Length == 0x62)
+                            {
+                                if (payload.AsSpan(0, 10).SequenceEqual(LoginReturnSignature.AsSpan(0, 10)) &&
+                                    payload.AsSpan(14, 6).SequenceEqual(LoginReturnSignature.AsSpan(14, 6)))
+                                {
+                                    if (CurrentServer != srcServer)
+                                    {
+                                        CurrentServer = srcServer;
+                                        ClearTcpCache();
+                                        TcpNextSeq = tcpPacket.SequenceNumber + (uint)payload.Length;
+
+                                        Console.WriteLine($"Got Scene Server Address by Login Return Packet: {srcServer}");
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"""
+
+                                =======================
+                                HandleRaw 中遇到关键性崩溃: {ex.Message}
+                                {ex.StackTrace}
+                                =======================
+
+                                """);
+                        }
+
+                        return;
+                    }
+
+                    // 这里已经是识别到的服务器的包了
+                    if (TcpNextSeq == null)
+                    {
+                        Console.WriteLine("Unexpected TCP capture error! tcp_next_seq is NULL");
+                        if (payload.Length > 4 && payload.ReadUInt32BigEndian() < 0x0fffff)
+                        {
+                            TcpNextSeq = tcpPacket.SequenceNumber;
+                        }
+                    }
+                    if (TcpNextSeq == null || (int)(TcpNextSeq - tcpPacket.SequenceNumber) <= 0)
+                    {
+                        TcpCache[tcpPacket.SequenceNumber] = payload;
+                    }
+
+                    using var messageMs = new MemoryStream();
+                    while (TcpNextSeq != null && TcpCache.Remove(TcpNextSeq.Value, out var cachedTcpData))
+                    {
+                        messageMs.Write(cachedTcpData, 0, cachedTcpData.Length);
+                        TcpNextSeq += (uint)cachedTcpData.Length;
+                        TcpLastTime = DateTime.Now;
+                    }
+
+                    messageMs.Position = 0;
+                    messageMs.CopyTo(TcpStream);
+                    TcpStream.Position = 0;
+
+                    while (true)
+                    {
+                        if (TcpStream.Length - TcpStream.Position < 4) break;
+
+                        var packetSizeBytes = new byte[4];
+                        TcpStream.Read(packetSizeBytes, 0, 4);
+
+                        TcpStream.Position -= 4;
+
+                        var packetSize = packetSizeBytes.ReadInt32BigEndian();
+                        if (packetSize <= 0 || packetSize > 0x0fffff)
+                        {
+                            // Console.WriteLine($"Invalid Length!! TcpNextSeq({TcpNextSeq}): size={packetSize}");
+                            break;
+                        }
+
+                        if (TcpStream.Length - TcpStream.Position < packetSize)
+                        {
+                            TcpStream.Position -= 4;
+                            break;
+                        }
+
+                        var messageBytes = new byte[packetSize];
+                        TcpStream.Read(messageBytes, 0, packetSize);
+
+                        Console.WriteLine($"<Buffer {string.Join(' ', messageBytes.Select(e => e.ToString("X2")))}>");
+
+                        MessageAnalyzer.Process(messageBytes);
+
+                    }
+
+                    if (TcpStream.Position > 0)
+                    {
+                        var remain = (int)(TcpStream.Length - TcpStream.Position);
+                        var tmp = new byte[remain];
+                        TcpStream.Read(tmp, 0, remain);
+                        TcpStream.SetLength(0);
+                        TcpStream.Position = 0;
+                        TcpStream.Write(tmp, 0, remain);
+                    }
                 }
-
-
-                // 如果距离上次收到包的时间超过 30 秒，认为可能断线，清除缓存
-                if (LastPacketTime != DateTime.MinValue && (DateTime.Now - LastPacketTime).TotalSeconds > 30)
-                {
-                    Console.WriteLine("长时间未收到包，可能已断线");
-                    CurrentServer = "";
-                    ClearTcpCache(); // 清除 TCP 缓存数据
-                }
-
-                //如果当前服务器（源地址）发生变化，进行验证
-               
-                if (CurrentServer != srcServer)
-                {
-
-                    // 尝试验证是否为目标服务器（例如游戏服务器）
-                    bool server_verify = VerifyServer(srcServer, payload);
-                  
-                    if (!server_verify) return;//如果验证失败则丢弃
-
-                    CurrentServer = srcServer;
-                    ClearTcpCache();
-                }
-
-                // 通过序列号和数据进行 TCP 数据流重组（例如多个 TCP 包拼接成完整的 protobuf）
-                ReassembleTcp(tcpPacket, payload);
             }
             catch (Exception ex)
             {
                 // 捕获异常，避免程序崩溃，同时打印异常信息
-                Console.WriteLine("抓包异常: " + ex.Message);
+                Console.WriteLine($"包处理异常: {ex.Message}\r\n{ex.StackTrace}");
             }
         }
         #endregion
-
-        #region ========== Stage 1.1: 服务器识别 / 过滤器应用 ==========
-        /// <summary>
-        /// 尝试识别当前 TCP 包是否来自目标服务器，并提取玩家 UID（只在首次识别时调用）
-        /// </summary>
-        /// <param name="srcServer">格式为“IP:端口 -> IP:端口”的源描述</param>
-        /// <param name="buf">TCP 包的 Payload 内容</param>
-        /// <returns>如果识别成功，返回 true；否则返回 false</returns>
-        private bool VerifyServer(string srcServer, byte[] buf)
-        {
-            try
-            {
-                // 第 5 字节不为 0，则不是“小包”格式（协议约定）
-                if (buf.Length >= 10 && buf[4] == 0)
-                {
-                    // 提取去掉前10字节后的内容（通常前面是包头或控制信息）
-                    var data = buf.AsSpan(10);
-                    if (data.Length > 0)
-                    {
-                        // 将数据包装为流，逐个解析其中的 protobuf 消息结构
-                        using var ms = new MemoryStream(data.ToArray());
-                        while (ms.Position < ms.Length)
-                        {
-                            // 读取消息长度（4字节大端序）
-                            byte[] lenBuf = new byte[4];
-                            if (ms.Read(lenBuf, 0, 4) != 4)
-                                break;
-
-                            int len = ProtoFieldHelper.ReadInt32BigEndian(lenBuf);
-                            if (len < 4 || len > 1024 * 1024) // 防止异常长度（小于最小值或超大）
-                                break;
-
-                            // 读取真正的数据体（减去4字节长度头）
-                            byte[] data1 = new byte[len - 4];
-                            if (ms.Read(data1, 0, data1.Length) != data1.Length)
-                                break;
-
-                            // 签名校验，确认是目标游戏协议的数据包
-                            byte[] signature = new byte[] { 0x00, 0x63, 0x33, 0x53, 0x42, 0x00 };
-                            //Console.WriteLine(!data1.Skip(5).Take(signature.Length).SequenceEqual(signature));
-                            if (!data1.Skip(5).Take(signature.Length).SequenceEqual(signature))
-                                break;
-
-                            // 解码主体结构（跳过前18字节，通常是头部结构）
-                            // var body = global::Blueprotobuf.Decode(data1.AsSpan(18).ToArray());
-                          
-                                return true; // ✅ 成功识别，立即返回
-                            
-                            //// 从结构中尝试获取玩家 UID（字段[1]->[5]）
-                            //if (data1.Length >= 17 && data1[17] == 0x2E) // 特定标志字节 0x2E
-                            //{
-                            //    var b1 = ProtoFieldHelper.TryGetDecoded(body, 1); // 获取字段 1 的子结构
-                            //    if (b1 != null && ProtoFieldHelper.TryGetU64(b1, 5) is ulong rawUid && rawUid != 0)
-                            //    {
-                            //        UserUid = rawUid >> 16; // 截断低16位，仅保留玩家 UID 主体
-                            //        Console.WriteLine($"识别玩家UID: {UserUid}");
-
-                            //    }
-                            //}
-
-                        }
-
-                    }
-
-                }
-                if (buf.Length == 0x62)
-                {
-                    byte[] signature_ = new byte[]
-                    {
-                                0x00, 0x00, 0x00, 0x62,
-                                0x00, 0x03,
-                                0x00, 0x00, 0x00, 0x01,
-                                0x00, 0x11, 0x45, 0x14, // seq?
-                                0x00, 0x00, 0x00, 0x00,
-                                0x0a, 0x4e, 0x08, 0x01, 0x22, 0x24
-                    };
-
-                    bool firstPartMatch = buf.AsSpan(0, 10).SequenceEqual(signature_.AsSpan(0, 10));
-                    bool secondPartMatch = buf.AsSpan(14, 6).SequenceEqual(signature_.AsSpan(14, 6));
-
-                    if (firstPartMatch && secondPartMatch)
-                    {
-                      
-                            Console.WriteLine("Got Scene Server Address by Login Return Packet: " + srcServer);
-                            return true; // ✅ 成功识别，立即返回
-                        
-                    }
-                }
-
-
-
-            }
-            catch (Exception ex)
-            {
-                // 捕获所有异常，避免崩溃
-                //Console.WriteLine($"[VerifyServer 异常] {ex}");
-            }
-
-            return false; // 无法识别为目标服务器
-        }
-
-        private void ApplyDynamicFilter(ICaptureDevice? device, string srcServer)
-        {
-            if (device == null)
-            {
-                Console.WriteLine("[错误] selectedDevice为null，无法应用过滤器");
-                return;
-            }
-
-            // 拆出服务器那半
-            var serverPart = srcServer.Split("->")[0].Trim();       // "36.152.0.122:16125"
-            var parts = serverPart.Split(':');
-            var serverIp = parts[0];
-            var serverPort = parts[1];
-
-            device.Filter = $"tcp and host {serverIp}";
-            // Console.WriteLine($"【Filter 已更新】 tcp and host {serverIp} and port {serverPort}");
-        }
-        #endregion
-
-        #region ========== Stage 2: TCP 重组 ==========
-        private void ReassembleTcp(TcpPacket tcpPacket, byte[] payload)
-        {
-            var seq = tcpPacket.SequenceNumber;
-
-            lock (TcpCache)
-            {
-                // 尝试初始化 tcpNextSeq（只有第一次设置）
-                if (TcpNextSeq == 0 && payload.Length > 4)
-                {
-                    int len = (payload[0] << 24) | (payload[1] << 16) | (payload[2] << 8) | payload[3];
-                    if (len < 999999) // 判断为合理包头
-                    {
-                        TcpNextSeq = seq;
-                    }
-                }
-
-                // 缓存当前段
-                TcpCache[seq] = payload;
-                TcpCacheTime[seq] = DateTime.Now;
-
-                // 清理超时缓存（超过10秒）
-                var expired = TcpCacheTime
-                    .Where(kv => (DateTime.Now - kv.Value).TotalSeconds > 10)
-                    .Select(kv => kv.Key)
-                    .ToList();
-
-                foreach (var key in expired)
-                {
-                    TcpCache.Remove(key, out var v1);
-                    TcpCacheTime.Remove(key, out var v2);
-
-
-                }
-
-                // —— 关键：处理拼接 —— 
-                int skipTimeoutMs = 200;
-
-                // 找到当前可用的最小 Seq
-                var sortedSeqs = TcpCache.Keys.OrderBy(k => k).ToList();
-
-                while (true)
-                {
-                    if (TcpCache.TryGetValue(TcpNextSeq, out var chunk))
-                    {
-                        // 找到了当前需要的段，正常拼接
-                        TcpStream.Seek(0, SeekOrigin.End);
-                        TcpStream.Write(chunk, 0, chunk.Length);
-
-                        TcpCache.Remove(TcpNextSeq, out var v1);
-                        TcpCacheTime.Remove(TcpNextSeq, out var v2);
-                        TcpNextSeq += (uint)chunk.Length;
-                        LastPacketTime = DateTime.Now;
-                    }
-                    else
-                    {
-                        // 当前段还没到，判断是否跳过等待
-                        var delayed = sortedSeqs
-                            .Where(k => k > TcpNextSeq && TcpCacheTime.ContainsKey(k))
-                            .FirstOrDefault(k => (DateTime.Now - TcpCacheTime[k]).TotalMilliseconds > skipTimeoutMs);
-
-                        if (delayed != 0)
-                        {
-                            // 跳过迟迟不到的 tcpNextSeq，跳到新的 delayed
-                            TcpNextSeq = delayed;
-
-
-
-
-                            continue;
-                        }
-                        break;
-                    }
-                }
-
-                TryParseTcpStream();
-            }
-        }
-
-        private void TryParseTcpStream()
-        {
-            TcpStream.Seek(0, SeekOrigin.Begin);
-
-            while (TcpStream.Length - TcpStream.Position >= 4)
-            {
-                byte[] lenBytes = new byte[4];
-                TcpStream.Read(lenBytes, 0, 4);
-                int len = (lenBytes[0] << 24) | (lenBytes[1] << 16) | (lenBytes[2] << 8) | lenBytes[3];
-
-                if (len > 999999)
-                {
-                    // 非法长度，清空整个缓冲区
-                    TcpStream.SetLength(0);
-                    return;
-                }
-
-                long remain = TcpStream.Length - TcpStream.Position;
-                if (remain >= len - 4)  // 剩余是否够“包体”的长度
-                {
-                    // 数据够一个完整包
-                    byte[] packet = new byte[len];
-                    Array.Copy(lenBytes, 0, packet, 0, 4);
-                    TcpStream.Read(packet, 4, len - 4);
-                   
-                    //开解码
-                    MessageAnalyzer.Process(packet);
-                  
-                    // 异步处理，防止 UI 卡顿
-                    //AnalyzePacket(packet);
-                }
-                else
-                {
-                    // 不够，回退4字节
-                    TcpStream.Position -= 4;
-                    break;
-                }
-            }
-
-            // 剩余未读部分保留到新缓冲区
-            long unread = TcpStream.Length - TcpStream.Position;
-            if (unread > 0)
-            {
-                byte[] remain = new byte[unread];
-                TcpStream.Read(remain, 0, (int)unread);
-                TcpStream.SetLength(0);
-                TcpStream.Write(remain, 0, remain.Length);
-            }
-            else
-            {
-                TcpStream.SetLength(0);
-            }
-        }
-        #endregion
-
 
         #region ====== TCP 缓存清理 ======
         /// <summary>
@@ -412,23 +304,11 @@ namespace StarResonanceDpsAnalysis.Core
         /// </summary>
         private void ClearTcpCache()
         {
-            // 重置下一个期望的 TCP 序列号为 0（重新开始拼接）
-            TcpNextSeq = 0;
-            HasAppliedFilter = false;
-            // 清空缓存的 TCP 分片数据（已收到但未处理的包）
+            TcpNextSeq = null;
+            TcpLastTime = DateTime.MinValue;
             TcpCache.Clear();
         }
         #endregion
     }
 
-    #region ====== 枚举定义 ======
-    public enum AnalyzerState
-    {
-        Errored = -1,
-
-        NeverStarted = 0,
-        Running = 1,
-        Completed = 2,
-    }
-    #endregion
 }

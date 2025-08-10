@@ -19,7 +19,7 @@ namespace StarResonanceDpsAnalysis
     {
         #region InitTableColumnsConfigAtFirstRun() 首次运行时初始化表头配置
 
-        private void InitTableColumnsConfigAtFirstRun() 
+        private void InitTableColumnsConfigAtFirstRun()
         {
             if (AppConfig.GetConfigExists())
             {
@@ -407,7 +407,14 @@ namespace StarResonanceDpsAnalysis
 
 
             // 事件注册与启动监听 --
-            SelectedDevice.Open(DeviceModes.Promiscuous, 1000);
+            SelectedDevice.Open(new DeviceConfiguration
+            {
+                Mode = DeviceModes.Promiscuous,
+                Immediate = true,
+                ReadTimeout = 1000,
+                BufferSize = 1024 * 1024 * 4
+            });
+            SelectedDevice.Filter = "ip and tcp";
             SelectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
             SelectedDevice.StartCapture();
 
