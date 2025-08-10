@@ -34,13 +34,13 @@ namespace StarResonanceDpsAnalysis.Plugin
             if (window == null || window.IsDisposed) return;
             if (isLight)
             {
-                AntdUI.Config.IsLight = true;
+                Config.IsLight = true;
                 window.BackColor = Color.White;
                 window.ForeColor = Color.Black;
             }
             else
             {
-                AntdUI.Config.IsDark = true;// 设置为深色模式
+                Config.IsDark = true;// 设置为深色模式
                 window.BackColor = Color.FromArgb(31, 31, 31);
                 window.ForeColor = Color.White;
             }
@@ -55,17 +55,14 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <param name="type"></param>
         public static void Modal(Form from, string title, string content, string okText = "确定", string cancelText = "取消", TType type = TType.Info)
         {
-            AntdUI.Modal.Config config = new Modal.Config(from, title, content)
+            AntdUI.Modal.open(new Modal.Config(from, title, content)
             {
                 CloseIcon = true,
                 Icon = type,
                 CancelText = cancelText,
                 OkText = okText,
                 MaskClosable = false,
-
-
-            };
-            AntdUI.Modal.open(config);
+            });
 
         }
     }

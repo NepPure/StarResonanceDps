@@ -66,7 +66,7 @@
             button_SkillDiary.Size = new Size(49, 47);
             button_SkillDiary.TabIndex = 17;
             button_SkillDiary.ToggleIconSvg = "";
-            button_SkillDiary.Click += button1_Click;
+            button_SkillDiary.Click += button_SkillDiary_Click;
             // 
             // dropdown_History
             // 
@@ -79,7 +79,7 @@
             dropdown_History.Size = new Size(39, 47);
             dropdown_History.TabIndex = 16;
             dropdown_History.Trigger = AntdUI.Trigger.Hover;
-            dropdown_History.SelectedValueChanged += dropdown1_SelectedValueChanged;
+            dropdown_History.SelectedValueChanged += dropdown_History_SelectedValueChanged;
             // 
             // button_AlwaysOnTop
             // 
@@ -91,7 +91,7 @@
             button_AlwaysOnTop.Size = new Size(49, 47);
             button_AlwaysOnTop.TabIndex = 1;
             button_AlwaysOnTop.ToggleIconSvg = resources.GetString("button_AlwaysOnTop.ToggleIconSvg");
-            button_AlwaysOnTop.Click += button3_Click;
+            button_AlwaysOnTop.Click += button_AlwaysOnTop_Click;
             // 
             // button_ThemeSwitch
             // 
@@ -103,7 +103,7 @@
             button_ThemeSwitch.Size = new Size(49, 47);
             button_ThemeSwitch.TabIndex = 0;
             button_ThemeSwitch.ToggleIconSvg = "MoonOutlined";
-            button_ThemeSwitch.Click += button2_Click;
+            button_ThemeSwitch.Click += button_ThemeSwitch_Click;
             // 
             // button_Settings
             // 
@@ -116,7 +116,7 @@
             button_Settings.Size = new Size(49, 47);
             button_Settings.TabIndex = 2;
             button_Settings.ToggleIconSvg = "";
-            button_Settings.MouseClick += button4_MouseClick;
+            button_Settings.MouseClick += button_Settings_MouseClick;
             // 
             // label_SettingTip
             // 
@@ -139,7 +139,7 @@
             checkbox_PersentData.Size = new Size(124, 30);
             checkbox_PersentData.TabIndex = 15;
             checkbox_PersentData.Text = "占比数据";
-            checkbox_PersentData.CheckedChanged += checkbox1_CheckedChanged;
+            checkbox_PersentData.CheckedChanged += checkbox_PersentData_CheckedChanged;
             // 
             // table_DpsDataTable
             // 
@@ -158,7 +158,7 @@
             // timer_RefreshDpsTable
             // 
             timer_RefreshDpsTable.Interval = 600;
-            timer_RefreshDpsTable.Tick += timer1_Tick;
+            timer_RefreshDpsTable.Tick += timer_RefreshDpsTable_Tick;
             // 
             // label_HotKeyTips
             // 
@@ -173,7 +173,7 @@
             // 
             // timer_RefreshRunningTime
             // 
-            timer_RefreshRunningTime.Tick += timer2_Tick;
+            timer_RefreshRunningTime.Tick += timer_RefreshRunningTime_Tick;
             // 
             // switch_IsMonitoring
             // 
@@ -184,7 +184,7 @@
             switch_IsMonitoring.Size = new Size(118, 30);
             switch_IsMonitoring.TabIndex = 18;
             switch_IsMonitoring.UnCheckedText = "关闭中";
-            switch_IsMonitoring.CheckedChanged += switch1_CheckedChanged;
+            switch_IsMonitoring.CheckedChanged += switch_IsMonitoring_CheckedChanged;
             // 
             // panel_FooterPanel
             // 

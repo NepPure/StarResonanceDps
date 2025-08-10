@@ -48,6 +48,11 @@ namespace StarResonanceDpsAnalysis.Core
                         return; // 丢掉剩余，避免死循环
                     }
 
+                    if (packetSize > packetsReader.Remaining) 
+                    {
+                        return;
+                    }
+
                     // —— 切出一个完整包，交给独立 reader 解析 —— 
                     var packetReader = new ByteReader(packetsReader.ReadBytes((int)packetSize));
 
@@ -70,14 +75,14 @@ namespace StarResonanceDpsAnalysis.Core
                     var flag = MessageHandlers.TryGetValue(msgTypeId, out var handler);
                     if (!flag)
                     {
-                        //Console.WriteLine($"Ignore packet with message type {msgTypeId}.");
+                        Console.WriteLine($"Ignore packet with message type {msgTypeId}.");
                         return;
                     }
               
                     handler!(packetReader, isZstdCompressed);
                 }
             }
-            catch (EndOfStreamException)
+            catch (EndOfStreamException ex)
             {
                 // 统一吞掉越界异常，便于持续解析
                 Console.WriteLine("Unexpected end of buffer while reading a packet.");
@@ -119,7 +124,7 @@ namespace StarResonanceDpsAnalysis.Core
           
             if (serviceUuid != 0x0000000063335342UL)
             {
-               // Console.WriteLine($"Skipping NotifyMsg with serviceId {serviceUuid}");
+                Console.WriteLine($"Skipping NotifyMsg with serviceId {serviceUuid}");
                 return;
             }
 
@@ -190,7 +195,7 @@ namespace StarResonanceDpsAnalysis.Core
             var flag = ProcessMethods.TryGetValue(methodId, out var processMethod);
             if (!flag)
             {
-               // Console.WriteLine($"Skipping NotifyMsg with methodId {methodId}");
+                Console.WriteLine($"Skipping NotifyMsg with methodId {methodId}");
                 return;
             }
 
