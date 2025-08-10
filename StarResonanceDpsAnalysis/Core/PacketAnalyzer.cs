@@ -85,8 +85,8 @@ namespace StarResonanceDpsAnalysis.Core
         {
             _queue.Add((dev, raw));
       
-           // int count = _queue.Count;
-           // Console.WriteLine($"当前队列长度: {count}");
+            int count = _queue.Count;
+            Console.WriteLine($"当前队列长度: {count}");
         }
 
         public void Stop(bool drain = true, int maxWaitMs = 10000)
@@ -447,9 +447,10 @@ namespace StarResonanceDpsAnalysis.Core
                     byte[] packet = new byte[len];
                     Array.Copy(lenBytes, 0, packet, 0, 4);
                     TcpStream.Read(packet, 4, len - 4);
-
+                   
+                    //开解码
                     MessageAnalyzer.Process(packet);
-
+                  
                     // 异步处理，防止 UI 卡顿
                     //AnalyzePacket(packet);
                 }
