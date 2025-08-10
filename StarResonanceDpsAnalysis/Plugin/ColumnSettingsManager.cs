@@ -120,7 +120,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 : [];
         }
 
-        public static ColumnCollection BuildColumns(bool includeExtraColumns)
+        public static ColumnCollection BuildColumns()
         {
             var columns = new List<Column>
             {
@@ -135,17 +135,12 @@ namespace StarResonanceDpsAnalysis.Plugin
                 new("NickName", "角色昵称",ColumnAlign.Center){ SortOrder = true },
                 new("Profession", "职业",ColumnAlign.Center),
             };
-            if (!includeExtraColumns)
-            {
-                columns.AddRange(AllSettings.Where(s => s.IsVisible).Select(s => s.Builder()));
-            }
-            else
-            {
-                columns.Add(new Column("CellProgress", "团队总伤害占比", ColumnAlign.Center));
-                columns.Add(new Column("TotalDps", "DPS", ColumnAlign.Center) { SortOrder = true });
-                columns.Add(new Column("TotalHps", "HPS", ColumnAlign.Center) { SortOrder = true });
-            }
+            
+            
+            columns.AddRange(AllSettings.Where(s => s.IsVisible).Select(s => s.Builder()));
 
+
+          
             return [.. columns];
         }
 

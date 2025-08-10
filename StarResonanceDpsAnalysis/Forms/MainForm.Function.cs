@@ -26,6 +26,8 @@ namespace StarResonanceDpsAnalysis
                 return;
             }
 
+            AppConfig.NickName =  AppConfig.GetValue("UserConfig", "NickName","未知昵称");
+            AppConfig.Uid =Convert.ToUInt64(AppConfig.GetValue("UserConfig", "Uid", "0"));
             //因为已经初始化的，默认的
         }
 
@@ -42,11 +44,10 @@ namespace StarResonanceDpsAnalysis
             table_DpsDataTable.Columns.Clear();
 
 
-            table_DpsDataTable.Columns = ColumnSettingsManager.BuildColumns(checkbox_PersentData.Checked);
-            if (!checkbox_PersentData.Checked)
-            {
-                table_DpsDataTable.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
-            }
+            table_DpsDataTable.Columns = ColumnSettingsManager.BuildColumns();
+          
+            table_DpsDataTable.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
+            
 
             table_DpsDataTable.Binding(DpsTableDatas.DpsTable);
 
@@ -478,12 +479,13 @@ namespace StarResonanceDpsAnalysis
             using var form = new Setup(this);
             form.inputNumber1.Value = (decimal)AppConfig.Transparency;
             form.colorPicker1.Value = AppConfig.DpsColor;
-
+           
             var title = Localization.Get("systemset", "请选择网卡");
             AntdUI.Modal.open(new Modal.Config(this, title, form, TType.Info)
             {
                 CloseIcon = true,
                 BtnHeight = 0,
+                
             });
 
             AppConfig.Transparency = (double)form.inputNumber1.Value;
@@ -509,11 +511,24 @@ namespace StarResonanceDpsAnalysis
                     BtnHeight = 0,
                 });
 
-                table_DpsDataTable.Columns = ColumnSettingsManager.BuildColumns(checkbox_PersentData.Checked);
-                if (!checkbox_PersentData.Checked)
+                table_DpsDataTable.Columns = ColumnSettingsManager.BuildColumns();
+              
+                table_DpsDataTable.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
+                
+            }
+        }
+
+        private void SetUserUid()
+        {
+            using (var form = new UserUidSet(this))
+            {
+                string title = Localization.Get("UserUidSet", "");
+                AntdUI.Modal.open(new Modal.Config(this, title, form, TType.Info)
                 {
-                    table_DpsDataTable.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
-                }
+                    CloseIcon = false,
+                    BtnHeight = 0,
+                });
+
             }
         }
         #endregion

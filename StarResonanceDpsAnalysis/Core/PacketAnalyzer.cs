@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Threading;
@@ -100,6 +102,10 @@ namespace StarResonanceDpsAnalysis.Core
         #endregion
 
         #region ========== Stage 1: 逐包解析入口 ==========
+        // 统一的 TCP 序号比较（考虑 32 位回绕）
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static int SeqCmp(uint a, uint b) => unchecked((int)(a - b)); // a>=b => 非负；a<b（跨回绕）=> 负
+
 
         /// <summary>
         /// 处理单个数据包
@@ -221,72 +227,94 @@ namespace StarResonanceDpsAnalysis.Core
 
                         return;
                     }
-
                     // 这里已经是识别到的服务器的包了
                     if (TcpNextSeq == null)
                     {
                         Console.WriteLine("Unexpected TCP capture error! tcp_next_seq is NULL");
-                        if (payload.Length > 4 && payload.ReadUInt32BigEndian() < 0x0fffff)
+                        if (payload.Length > 4 && BinaryPrimitives.ReadUInt32BigEndian(payload) < 0x0fffff)
                         {
                             TcpNextSeq = tcpPacket.SequenceNumber;
                         }
                     }
-                    if (TcpNextSeq == null || (int)(TcpNextSeq - tcpPacket.SequenceNumber) <= 0)
+
+                    // 缓存策略：只收“当前/未来”的段（避免重复旧段占用内存）
+                    if (TcpNextSeq == null || SeqCmp(tcpPacket.SequenceNumber, TcpNextSeq.Value) >= 0)
                     {
-                        TcpCache[tcpPacket.SequenceNumber] = payload;
+                        TcpCache[tcpPacket.SequenceNumber] = payload.ToArray(); // 注意持有拷贝
+                        //ScheduleEvictAfter(tcpPacket.SequenceNumber);
                     }
 
-                    using var messageMs = new MemoryStream();
+                    // 顺序拼接到一个临时缓冲（减少多次 ToArray）
+                    using var messageMs = new MemoryStream(capacity: 4096);
+
                     while (TcpNextSeq != null && TcpCache.Remove(TcpNextSeq.Value, out var cachedTcpData))
                     {
                         messageMs.Write(cachedTcpData, 0, cachedTcpData.Length);
-                        TcpNextSeq += (uint)cachedTcpData.Length;
+                        unchecked { TcpNextSeq += (uint)cachedTcpData.Length; }
                         TcpLastTime = DateTime.Now;
                     }
 
-                    messageMs.Position = 0;
-                    messageMs.CopyTo(TcpStream);
-                    TcpStream.Position = 0;
-
-                    while (true)
+                    // 直接把本次拼好的字节“追加”到 TcpStream 末尾，避免 CopyTo 的中间拷贝
+                    if (messageMs.Length > 0)
                     {
-                        if (TcpStream.Length - TcpStream.Position < 4) break;
-
-                        var packetSizeBytes = new byte[4];
-                        TcpStream.Read(packetSizeBytes, 0, 4);
-
-                        TcpStream.Position -= 4;
-                        
-                        var packetSize = packetSizeBytes.ReadInt32BigEndian();
-                        if (packetSize <= 0 || packetSize > 0x0fffff)
-                        {
-                            // Console.WriteLine($"Invalid Length!! TcpNextSeq({TcpNextSeq}): size={packetSize}");
-                            break;
-                        }
-
-                        if (TcpStream.Length - TcpStream.Position < packetSize)
-                        {
-                            TcpStream.Position -= 4;
-                            break;
-                        }
-
-                        var messageBytes = new byte[packetSize];
-                        TcpStream.Read(messageBytes, 0, packetSize);
-
-                        Console.WriteLine($"<Buffer {string.Join(' ', messageBytes.Select(e => e.ToString("X2")))}>");
-
-                        MessageAnalyzer.Process(messageBytes);
-
+                        long endPos = TcpStream.Length;
+                        TcpStream.Position = endPos;
+                        messageMs.Position = 0;
+                        messageMs.CopyTo(TcpStream);
                     }
 
+                    // 解析：把 Position 设到当前未消费起点（即 0），循环取包
+                    TcpStream.Position = 0;
+                    while (true)
+                    {
+                        long start = TcpStream.Position;
+                        if (TcpStream.Length - start < 4) break; // 不足 4 字节长度头
+
+                        Span<byte> lenBuf = stackalloc byte[4];
+                        int n = TcpStream.Read(lenBuf);
+                        if (n < 4) { TcpStream.Position = start; break; }
+
+                        int packetSize = BinaryPrimitives.ReadInt32BigEndian(lenBuf);
+
+                        // 协议约定：长度为“总长（含 4B 头）”
+                        if (packetSize <= 4 || packetSize > 0x0FFFFF)
+                        {
+                            TcpStream.Position = start; // 回滚，留待上层/后续处理
+                            break;
+                        }
+
+                        if (TcpStream.Length - start < packetSize)
+                        {
+                            TcpStream.Position = start; // 包未齐，一个字节都不消费
+                            break;
+                        }
+
+                        // 够完整包：读出 [4B长度头 + 负载]
+                        TcpStream.Position = start;
+                        byte[] messagePacket = new byte[packetSize];
+                        int read = TcpStream.Read(messagePacket, 0, packetSize);
+                        if (read != packetSize) { TcpStream.Position = start; break; }
+
+                        MessageAnalyzer.Process(messagePacket);
+                    }
+
+                    // 压实剩余未解析数据到流头（零拷贝尽量减少临时数组）
                     if (TcpStream.Position > 0)
                     {
-                        var remain = (int)(TcpStream.Length - TcpStream.Position);
-                        var tmp = new byte[remain];
-                        TcpStream.Read(tmp, 0, remain);
-                        TcpStream.SetLength(0);
-                        TcpStream.Position = 0;
-                        TcpStream.Write(tmp, 0, remain);
+                        long remain = TcpStream.Length - TcpStream.Position;
+                        if (remain > 0)
+                        {
+                            // 把剩余数据搬到前面
+                            var buffer = TcpStream.GetBuffer(); // 需要确保 TcpStream 是可公开缓冲的 MemoryStream
+                            Buffer.BlockCopy(buffer, (int)TcpStream.Position, buffer, 0, (int)remain);
+                            TcpStream.Position = 0;
+                            TcpStream.SetLength(remain);
+                        }
+                        else
+                        {
+                            TcpStream.SetLength(0);
+                            TcpStream.Position = 0;
+                        }
                     }
                 }
             }

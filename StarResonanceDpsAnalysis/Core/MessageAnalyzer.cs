@@ -11,6 +11,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
 using PacketDotNet;
 using HarfBuzzSharp;
 using System.Numerics;
+using ZstdSharp;
 namespace StarResonanceDpsAnalysis.Core
 {
     public class MessageAnalyzer
@@ -75,7 +76,7 @@ namespace StarResonanceDpsAnalysis.Core
                     var flag = MessageHandlers.TryGetValue(msgTypeId, out var handler);
                     if (!flag)
                     {
-                        Console.WriteLine($"Ignore packet with message type {msgTypeId}.");
+                        //Console.WriteLine($"Ignore packet with message type {msgTypeId}.");
                         return;
                     }
               
@@ -124,7 +125,7 @@ namespace StarResonanceDpsAnalysis.Core
           
             if (serviceUuid != 0x0000000063335342UL)
             {
-                Console.WriteLine($"Skipping NotifyMsg with serviceId {serviceUuid}");
+                //Console.WriteLine($"Skipping NotifyMsg with serviceId {serviceUuid}");
                 return;
             }
 
@@ -195,7 +196,7 @@ namespace StarResonanceDpsAnalysis.Core
             var flag = ProcessMethods.TryGetValue(methodId, out var processMethod);
             if (!flag)
             {
-                Console.WriteLine($"Skipping NotifyMsg with methodId {methodId}");
+               // Console.WriteLine($"Skipping NotifyMsg with methodId {methodId}");
                 return;
             }
 
@@ -222,38 +223,63 @@ namespace StarResonanceDpsAnalysis.Core
                 Process(nestedPacket);
             }
         }
-
-        private static byte[] DecompressZstdIfNeeded(byte[] body)
+        private static readonly uint ZSTD_MAGIC = 0xFD2FB528;          // 小端: 28 B5 2F FD
+        private static readonly uint SKIPPABLE_MAGIC_MIN = 0x184D2A50; // 小端: 50 2A 4D 18
+        private static readonly uint SKIPPABLE_MAGIC_MAX = 0x184D2A5F;
+        private static byte[] DecompressZstdIfNeeded(byte[] buffer)
         {
-            using var input = new MemoryStream(body);
-            using var z = new DecompressionStream(input);
+            //using var input = new MemoryStream(body);
+            //using var z = new DecompressionStream(input);
+            //using var output = new MemoryStream();
+
+            //z.CopyTo(output);
+
+            //return output.ToArray();
+            if (buffer == null || buffer.Length < 4) return Array.Empty<byte>();
+
+            int off = 0;
+
+            // 1) 找到真正的 zstd 帧开头，同时跳过 skippable 帧
+            while (off + 4 <= buffer.Length)
+            {
+                uint magic = BitConverter.ToUInt32(buffer, off);
+                if (magic == ZSTD_MAGIC) break;
+
+                if (magic >= SKIPPABLE_MAGIC_MIN && magic <= SKIPPABLE_MAGIC_MAX)
+                {
+                    if (off + 8 > buffer.Length) throw new InvalidDataException("Incomplete skippable frame header");
+                    uint size = BitConverter.ToUInt32(buffer, off + 4);
+                    if (off + 8 + size > buffer.Length) throw new InvalidDataException("Incomplete skippable frame payload");
+                    off += 8 + (int)size;
+                    continue;
+                }
+
+                off++; // 继续扫描
+            }
+
+            if (off + 4 > buffer.Length)
+                return buffer; // 没有 zstd 魔数，当作未压缩返回
+
+            // 2) 用解码流读取“第一帧”，不要传不存在的 MaxFrameSize
+            using var input = new MemoryStream(buffer, off, buffer.Length - off, writable: false);
+            using var decoder = new DecompressionStream(input); // <- 不要 DecompressionOptions.MaxFrameSize
             using var output = new MemoryStream();
 
-            z.CopyTo(output);
+            // 可选：手动限制最大解压大小（例如 32MB）
+            const long MAX_OUT = 32L * 1024 * 1024;
+            var temp = new byte[8192];
+            long total = 0;
+            int read;
+            while ((read = decoder.Read(temp, 0, temp.Length)) > 0)
+            {
+                total += read;
+                if (total > MAX_OUT)
+                    throw new InvalidDataException("Zstd frame exceeds safety limit");
+                output.Write(temp, 0, read);
+            }
 
             return output.ToArray();
 
-            //if (body == null || body.Length == 0) return Array.Empty<byte>();
-
-            //// 只做一个极简保险：不是 zstd 魔数就直接返回原文
-            //// 魔数（小端）0xFD2FB528 => 字节序 28-B5-2F-FD
-            //if (body.Length < 4 || BitConverter.ToUInt32(body, 0) != 0xFD2FB528)
-            //    return body;
-
-            //try
-            //{
-            //    using var inputStream = new MemoryStream(body, writable: false);
-            //    using var decompressionStream = new DecompressionStream(inputStream);
-            //    using var outputStream = new MemoryStream(Math.Min(body.Length * 6, 8 * 1024 * 1024));
-            //    decompressionStream.CopyTo(outputStream);
-            //    return outputStream.ToArray();
-            //}
-            //catch (ZstdException ex)
-            //{
-            //    // 保留你原来的调试信息
-            //    string head = BitConverter.ToString(body.Take(16).ToArray());
-            //    throw new InvalidDataException($"Zstd 解压失败: {ex.Message}, head={head}, len={body.Length}", ex);
-            //}
         }
 
         /// <summary>
@@ -295,16 +321,16 @@ namespace StarResonanceDpsAnalysis.Core
 
                     // 用 C# Protobuf 的 CodedInputStream 读取原始 wire 格式
                     var reader = new Google.Protobuf.CodedInputStream(attr.RawData.ToByteArray());
-
+    
                     switch (attr.Id)
                     {
                         case (int)AttrType.AttrName:
                             // protobuf string: 先读长度（varint），后读 UTF-8 bytes
                             string playerName = reader.ReadString();
                             StatisticData._manager.SetNickname((ulong)playerUuid, playerName);
-                 
+                        
                             //this.userDataManager.setName((long)playerUuid, playerName);
-                           // Console.WriteLine($"Found player name {playerName} for uuid {playerUuid}");
+                             Console.WriteLine($"昵称： {playerName}UID：{playerUuid}");
                             break;
 
                         case (int)AttrType.AttrProfessionId:
@@ -312,14 +338,15 @@ namespace StarResonanceDpsAnalysis.Core
                             string professionName = GetProfessionNameFromId(professionId);
                             //this.userDataManager.setProfession((long)playerUuid, professionName);
                             StatisticData._manager.SetProfession((ulong)playerUuid, professionName);
-                           // Console.WriteLine($"Found profession {professionName} for uuid {playerUuid}");
+
+                            Console.WriteLine($"职业ID：{professionId}职业： {professionName} UID： {playerUuid}");
                             break;
 
                         case (int)AttrType.AttrFightPoint:
                             int playerFightPoint = reader.ReadInt32();
                             //this.userDataManager.setFightPoint((long)playerUuid, playerFightPoint);
                             StatisticData._manager.SetCombatPower((ulong)playerUuid, playerFightPoint);
-                            //Console.WriteLine($"Found player fight point {playerFightPoint} for uuid {playerUuid}");
+                            Console.WriteLine($"战力： {playerFightPoint} UID：{playerUuid}");
                             break;
 
                         default:
@@ -433,7 +460,7 @@ namespace StarResonanceDpsAnalysis.Core
                         {
                      
                  
-                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage);
+                            StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage);
                         }
                     }
                     else
@@ -442,11 +469,10 @@ namespace StarResonanceDpsAnalysis.Core
                         if (!isHeal && isAttackerPlayer)
                         {
                             // 只记录“玩家造成的输出伤害”，治疗对非玩家一般不计
-             
+                            //Console.WriteLine(@$"玩家{attackerUuid} 使用技能{skillId}对非玩家{targetUuid}造成伤害{damage}");
+                            //最右侧木桩ID为75
                             StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damage,isCrit, isLucky, hpLessen);
     
-                   
-
                         }
                     }
                 }
@@ -499,6 +525,8 @@ namespace StarResonanceDpsAnalysis.Core
                 9 => "神射手",
                 10 => "神盾骑士",
                 11 => "灵魂乐手",
+                12 => "神盾骑士",
+                13 => "灵魂乐手",
                 _ => string.Empty,// 未知职业
             };
         }

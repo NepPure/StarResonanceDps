@@ -15,6 +15,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Control\UserUidSet.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\DpsStatistics.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\MainForm.cs">

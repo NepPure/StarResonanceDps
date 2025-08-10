@@ -18,7 +18,7 @@ namespace StarResonanceDpsAnalysis.Plugin
     {
         public static SkillDiary skillDiary;//
 
-        public static UserUidSet userUidSet;//用户ID设置
+ 
 
         public static SkillDetailForm skillDetailForm;//技能详情窗体
 

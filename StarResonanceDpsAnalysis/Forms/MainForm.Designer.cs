@@ -24,7 +24,6 @@
             button_ThemeSwitch = new AntdUI.Button();
             button_Settings = new AntdUI.Button();
             label_SettingTip = new AntdUI.Label();
-            checkbox_PersentData = new AntdUI.Checkbox();
             table_DpsDataTable = new AntdUI.Table();
             timer_RefreshDpsTable = new System.Windows.Forms.Timer(components);
             label_HotKeyTips = new AntdUI.Label();
@@ -50,7 +49,7 @@
             pageHeader_MainHeader.MaximizeBox = false;
             pageHeader_MainHeader.Name = "pageHeader_MainHeader";
             pageHeader_MainHeader.ShowButton = true;
-            pageHeader_MainHeader.Size = new Size(1127, 47);
+            pageHeader_MainHeader.Size = new Size(1191, 47);
             pageHeader_MainHeader.SubText = "";
             pageHeader_MainHeader.TabIndex = 8;
             pageHeader_MainHeader.Text = "DPS统计 - by: 惊奇猫猫盒 [别查我DPS]";
@@ -61,7 +60,7 @@
             button_SkillDiary.Ghost = true;
             button_SkillDiary.IconRatio = 1F;
             button_SkillDiary.IconSvg = resources.GetString("button_SkillDiary.IconSvg");
-            button_SkillDiary.Location = new Point(748, 0);
+            button_SkillDiary.Location = new Point(812, 0);
             button_SkillDiary.Name = "button_SkillDiary";
             button_SkillDiary.Size = new Size(49, 47);
             button_SkillDiary.TabIndex = 17;
@@ -73,7 +72,7 @@
             dropdown_History.Dock = DockStyle.Right;
             dropdown_History.IconRatio = 1F;
             dropdown_History.IconSvg = resources.GetString("dropdown_History.IconSvg");
-            dropdown_History.Location = new Point(797, 0);
+            dropdown_History.Location = new Point(861, 0);
             dropdown_History.MaxCount = 100;
             dropdown_History.Name = "dropdown_History";
             dropdown_History.Size = new Size(39, 47);
@@ -86,7 +85,7 @@
             button_AlwaysOnTop.Dock = DockStyle.Right;
             button_AlwaysOnTop.Ghost = true;
             button_AlwaysOnTop.IconSvg = resources.GetString("button_AlwaysOnTop.IconSvg");
-            button_AlwaysOnTop.Location = new Point(836, 0);
+            button_AlwaysOnTop.Location = new Point(900, 0);
             button_AlwaysOnTop.Name = "button_AlwaysOnTop";
             button_AlwaysOnTop.Size = new Size(49, 47);
             button_AlwaysOnTop.TabIndex = 1;
@@ -98,7 +97,7 @@
             button_ThemeSwitch.Dock = DockStyle.Right;
             button_ThemeSwitch.Ghost = true;
             button_ThemeSwitch.IconSvg = "SunOutlined";
-            button_ThemeSwitch.Location = new Point(885, 0);
+            button_ThemeSwitch.Location = new Point(949, 0);
             button_ThemeSwitch.Name = "button_ThemeSwitch";
             button_ThemeSwitch.Size = new Size(49, 47);
             button_ThemeSwitch.TabIndex = 0;
@@ -111,7 +110,7 @@
             button_Settings.Ghost = true;
             button_Settings.IconRatio = 1F;
             button_Settings.IconSvg = resources.GetString("button_Settings.IconSvg");
-            button_Settings.Location = new Point(934, 0);
+            button_Settings.Location = new Point(998, 0);
             button_Settings.Name = "button_Settings";
             button_Settings.Size = new Size(49, 47);
             button_Settings.TabIndex = 2;
@@ -123,23 +122,13 @@
             label_SettingTip.AutoSizeMode = AntdUI.TAutoSize.Width;
             label_SettingTip.Dock = DockStyle.Right;
             label_SettingTip.ForeColor = Color.Red;
-            label_SettingTip.Location = new Point(633, 0);
+            label_SettingTip.Location = new Point(826, 0);
             label_SettingTip.Margin = new Padding(2);
             label_SettingTip.Name = "label_SettingTip";
             label_SettingTip.Size = new Size(252, 30);
             label_SettingTip.TabIndex = 16;
             label_SettingTip.Text = "请先右上角设置网卡在启动哟！";
             label_SettingTip.TextAlign = ContentAlignment.MiddleCenter;
-            // 
-            // checkbox_PersentData
-            // 
-            checkbox_PersentData.Dock = DockStyle.Right;
-            checkbox_PersentData.Location = new Point(1003, 0);
-            checkbox_PersentData.Name = "checkbox_PersentData";
-            checkbox_PersentData.Size = new Size(124, 30);
-            checkbox_PersentData.TabIndex = 15;
-            checkbox_PersentData.Text = "占比数据";
-            checkbox_PersentData.CheckedChanged += checkbox_PersentData_CheckedChanged;
             // 
             // table_DpsDataTable
             // 
@@ -149,7 +138,7 @@
             table_DpsDataTable.Gaps = new Size(8, 8);
             table_DpsDataTable.Location = new Point(0, 47);
             table_DpsDataTable.Name = "table_DpsDataTable";
-            table_DpsDataTable.Size = new Size(1127, 615);
+            table_DpsDataTable.Size = new Size(1191, 615);
             table_DpsDataTable.TabIndex = 13;
             table_DpsDataTable.Text = "table1";
             table_DpsDataTable.CellClick += table_DpsDataTable_CellClick;
@@ -179,9 +168,9 @@
             // 
             switch_IsMonitoring.CheckedText = "开启中";
             switch_IsMonitoring.Dock = DockStyle.Right;
-            switch_IsMonitoring.Location = new Point(885, 0);
+            switch_IsMonitoring.Location = new Point(1078, 0);
             switch_IsMonitoring.Name = "switch_IsMonitoring";
-            switch_IsMonitoring.Size = new Size(118, 30);
+            switch_IsMonitoring.Size = new Size(113, 30);
             switch_IsMonitoring.TabIndex = 18;
             switch_IsMonitoring.UnCheckedText = "关闭中";
             switch_IsMonitoring.CheckedChanged += switch_IsMonitoring_CheckedChanged;
@@ -193,12 +182,11 @@
             panel_FooterPanel.Controls.Add(label_HotKeyTips);
             panel_FooterPanel.Controls.Add(label_SettingTip);
             panel_FooterPanel.Controls.Add(switch_IsMonitoring);
-            panel_FooterPanel.Controls.Add(checkbox_PersentData);
             panel_FooterPanel.Dock = DockStyle.Bottom;
             panel_FooterPanel.Location = new Point(0, 632);
             panel_FooterPanel.Name = "panel_FooterPanel";
             panel_FooterPanel.Padding = new Padding(10, 0, 0, 0);
-            panel_FooterPanel.Size = new Size(1127, 30);
+            panel_FooterPanel.Size = new Size(1191, 30);
             panel_FooterPanel.TabIndex = 19;
             panel_FooterPanel.Text = "panel1";
             // 
@@ -207,7 +195,7 @@
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1127, 662);
+            ClientSize = new Size(1191, 662);
             Controls.Add(panel_FooterPanel);
             Controls.Add(table_DpsDataTable);
             Controls.Add(pageHeader_MainHeader);
@@ -232,7 +220,6 @@
         private AntdUI.Button button_AlwaysOnTop;
         private AntdUI.Button button_Settings;
         private AntdUI.Label label_HotKeyTips;
-        private AntdUI.Checkbox checkbox_PersentData;
         public AntdUI.Label label_SettingTip;
         private AntdUI.Dropdown dropdown_History;
         private AntdUI.Button button_SkillDiary;

@@ -31,6 +31,9 @@ namespace StarResonanceDpsAnalysis.Plugin
         private static Keys? _clearDataKey = null;
         private static Keys? _clearHistoryKey = null;
 
+        public static string NickName= "未设置昵称";
+        public static ulong Uid=0;
+
         /// <summary>
         /// 网卡顺序
         /// </summary>
@@ -72,6 +75,8 @@ namespace StarResonanceDpsAnalysis.Plugin
                 _transparency = value;
             }
         }
+
+  
 
         /// <summary>
         /// DPS占比条颜色
@@ -254,17 +259,34 @@ namespace StarResonanceDpsAnalysis.Plugin
             return File.Exists(FilePath);
         }
 
+        /// <summary>
+        /// 从 INI 配置文件中读取指定 Section 和 Key 的值。
+        /// </summary>
+        /// <param name="section">配置节名称（Section）</param>
+        /// <param name="key">键名称（Key）</param>
+        /// <param name="def">如果找不到该键时返回的默认值</param>
+        /// <returns>读取到的值（字符串）</returns>
         public static string GetValue(string section, string key, string def)
         {
+            // 用于存储读取结果的缓冲区
             var buffer = new StringBuilder(64);
+            // 调用 WinAPI GetPrivateProfileString 读取 INI 文件内容
             _ = GetPrivateProfileString(section, key, def, buffer, buffer.Capacity, FilePath);
 
             return buffer.ToString();
         }
 
+        /// <summary>
+        /// 将指定的值写入到 INI 配置文件的指定 Section 和 Key 中。
+        /// </summary>
+        /// <param name="section">配置节名称（Section）</param>
+        /// <param name="key">键名称（Key）</param>
+        /// <param name="value">要写入的值</param>
         public static void SetValue(string section, string key, string value)
         {
+            // 调用 WinAPI WritePrivateProfileString 写入 INI 文件
             WritePrivateProfileString(section, key, value, FilePath);
         }
+
     }
 }

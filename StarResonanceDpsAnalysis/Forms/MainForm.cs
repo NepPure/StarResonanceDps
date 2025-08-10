@@ -8,6 +8,7 @@ using AntdUI;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Core;
+using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Properties;
 using ZstdNet;
@@ -208,7 +209,7 @@ namespace StarResonanceDpsAnalysis
 
             FormGui.SetColorMode(this, AppConfig.IsLight);
             FormGui.SetColorMode(Common.skillDiary, AppConfig.IsLight);
-            FormGui.SetColorMode(Common.userUidSet, AppConfig.IsLight);
+            
             FormGui.SetColorMode(Common.skillDetailForm, AppConfig.IsLight);
         }
 
@@ -221,7 +222,7 @@ namespace StarResonanceDpsAnalysis
 
         private void checkbox_PersentData_CheckedChanged(object sender, BoolEventArgs e)
         {
-            ToggleTableView();
+         
         }
 
         private void dropdown_History_SelectedValueChanged(object sender, ObjectNEventArgs e)
@@ -241,7 +242,8 @@ namespace StarResonanceDpsAnalysis
         private void button_SkillDiary_Click(object sender, EventArgs e)
         {
 
-
+            DpsStatistics DpsStatistics = new DpsStatistics();
+            DpsStatistics.Show();
 
             //var teamShare = StatisticData._manager.GetTeamSkillDamageShareTotal(topN: 15, includeOthers: true);
             //// 绑定表格或打印
@@ -290,11 +292,8 @@ namespace StarResonanceDpsAnalysis
                     case "数据显示设置":
                         dataDisplay(); break;
                     case "用户UID设置":
-                        if (Common.userUidSet == null || Common.userUidSet.IsDisposed)
-                        {
-                            Common.userUidSet = new UserUidSet();
-                        }
-                        Common.userUidSet.Show();
+                        SetUserUid();
+            
                         break;
                 }
             }, menulist);
