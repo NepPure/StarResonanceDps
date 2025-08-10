@@ -24,7 +24,14 @@ namespace StarResonanceDpsAnalysis.Plugin
         public static Action? RefreshTableAction { get; set; }
         public static List<ColumnSetting> AllSettings = new List<ColumnSetting>
         {
-          
+            new ColumnSetting {
+                Key = "combatPower", Title = "战力", IsVisible = true,
+                Builder = () => new Column("combatPower", "战力", ColumnAlign.Center) { SortOrder = true }
+            },
+            new ColumnSetting {
+                Key = "totalDamage", Title = "总伤害", IsVisible = true,
+                Builder = () =>  new AntdUI.Column("totalDamage", "总伤害",ColumnAlign.Center){ SortOrder=true}
+            },
             new ColumnSetting {
                 Key = "damageTaken", Title = "承伤", IsVisible = true,
                 Builder = () => new Column("damageTaken", "承伤", ColumnAlign.Center) { SortOrder = true }
@@ -131,7 +138,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 new AntdUI.Column("uid", "角色ID",ColumnAlign.Center){ SortOrder=true},
                 new AntdUI.Column("nickname", "角色昵称",ColumnAlign.Center){ SortOrder=true},
                 new AntdUI.Column("profession", "职业",ColumnAlign.Center),
-                new AntdUI.Column("totalDamage", "总伤害",ColumnAlign.Center){ SortOrder=true},
+              
             };
             if(!includeExtraColumns)
             {

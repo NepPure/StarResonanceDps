@@ -2,6 +2,7 @@
 using SharpPcap;
 using System.Windows.Forms;
 using StarResonanceDpsAnalysis.Plugin;
+using System.Text;
 
 namespace StarResonanceDpsAnalysis.Control
 {
@@ -22,35 +23,40 @@ namespace StarResonanceDpsAnalysis.Control
         /// <summary>
         /// 加载本机所有网卡到下拉框
         /// </summary>
+        private const bool DEBUG_LOG = true;
+        private static readonly string LogFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"{DateTime.Now:yyyy-MM-dd}.log");
+
+        private void Log(string msg)
+        {
+            if (!DEBUG_LOG) return;
+            string text = $"[{DateTime.Now:HH:mm:ss}] {msg}";
+            Console.WriteLine(text);
+            try { File.AppendAllText(LogFile, text + Environment.NewLine, Encoding.UTF8); } catch { }
+        }
+
         public void LoadDevices()
         {
-
             var devices = CaptureDeviceList.Instance;
-            foreach (var dev in devices)
+            InterfaceComboBox.Items.Clear();
+            foreach (var d in devices) InterfaceComboBox.Items.Add(d.Description);
+
+            // 自动选择或按配置选择
+            int targetIndex = (AppConfig.NetworkCard >= 0 && AppConfig.NetworkCard < devices.Count)
+                ? AppConfig.NetworkCard
+                : GetBestNetworkCardIndex(devices);
+
+            if (targetIndex >= 0)
             {
-                InterfaceComboBox.Items.Add(dev.Description);
-            }
-            if (AppConfig.NetworkCard == -1)
-            {
-                SelectActiveNetworkCard();
-                //InterfaceComboBox.SelectedIndex = AppConfig.NetworkCard;
+                InterfaceComboBox.SelectedIndex = targetIndex;
+                AppConfig.NetworkCard = targetIndex;
+                Log($"选择网卡: {devices[targetIndex].Description} (索引: {targetIndex})");
             }
             else
             {
-                Console.WriteLine($"LoadDevices: 配置中指定的网卡索引: {AppConfig.NetworkCard}");
-                InterfaceComboBox.SelectedIndex = AppConfig.NetworkCard;
-                if (InterfaceComboBox.SelectedIndex >= 0 && InterfaceComboBox.Items.Count > InterfaceComboBox.SelectedIndex)
-                {
-                    string selectedCard = InterfaceComboBox.Items[InterfaceComboBox.SelectedIndex]?.ToString() ?? "未知网卡";
-                    Console.WriteLine($"LoadDevices: 配置中指定的网卡: {selectedCard} (索引: {AppConfig.NetworkCard})");
-                }
-                else
-                {
-                    Console.WriteLine($"LoadDevices: 配置中指定的网卡索引无效: {AppConfig.NetworkCard}");
-                }
+                Log("未找到可用网卡");
             }
-            combox_changed = true;
 
+            combox_changed = true;
             input1.Text = AppConfig.MouseThroughKey.ToString();
             input2.Text = AppConfig.FormTransparencyKey.ToString();
             input3.Text = AppConfig.WindowToggleKey.ToString();
@@ -58,91 +64,27 @@ namespace StarResonanceDpsAnalysis.Control
             input5.Text = AppConfig.ClearHistoryKey.ToString();
         }
 
-        /// <summary>
-        /// 自动选择当前活动的网卡（优先选择有网络连接的网卡）
-        /// </summary>
-        private void SelectActiveNetworkCard()
+        private int GetBestNetworkCardIndex(CaptureDeviceList devices)
         {
-            try
+            var active = System.Net.NetworkInformation.NetworkInterface
+                .GetAllNetworkInterfaces()
+                .Where(ni => ni.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up &&
+                             ni.GetIPProperties().UnicastAddresses.Any(ua => ua.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
+                .OrderByDescending(ni => ni.GetIPProperties().GatewayAddresses.Any()) // 网关优先
+                .FirstOrDefault();
+
+            if (active == null) return devices.Count > 0 ? 0 : -1;
+
+            // 匹配分数最高的设备
+            int bestIndex = -1, bestScore = -1;
+            for (int i = 0; i < devices.Count; i++)
             {
-                // 获取所有网络接口和SharpPcap设备
-                var networkInterfaces = System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces();
-                var sharpPcapDevices = CaptureDeviceList.Instance;
-
-                Console.WriteLine("开始自动选择活动网卡...");
-                Console.WriteLine($"找到 {networkInterfaces.Length} 个网络接口");
-                Console.WriteLine($"SharpPcap设备数量: {sharpPcapDevices.Count}");
-
-                // 筛选运行中且有IPv4地址的活动网卡
-                var activeInterfaces = networkInterfaces
-                    .Where(ni => ni.OperationalStatus == System.Net.NetworkInformation.OperationalStatus.Up &&
-                                ni.GetIPProperties().UnicastAddresses.Any(ua => ua.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork))
-                    .ToList();
-
-                Console.WriteLine($"活动网卡数量: {activeInterfaces.Count}");
-
-                // 优先选择有默认网关的网卡（通常表示有Internet连接）
-                var preferredInterface = activeInterfaces
-                    .FirstOrDefault(ni => ni.GetIPProperties().GatewayAddresses.Any());
-
-                if (preferredInterface != null)
-                {
-                    Console.WriteLine($"找到有默认网关的网卡: {preferredInterface.Name} ({preferredInterface.Description})");
-
-                    // 尝试匹配SharpPcap设备（不区分大小写）
-                    for (int i = 0; i < sharpPcapDevices.Count; i++)
-                    {
-                        if (sharpPcapDevices[i].Description.IndexOf(preferredInterface.Name, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                            sharpPcapDevices[i].Description.IndexOf(preferredInterface.Description, StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            Console.WriteLine($"匹配到SharpPcap设备: {sharpPcapDevices[i].Description}");
-                            InterfaceComboBox.SelectedIndex = i;
-                            AppConfig.NetworkCard = i;
-                            string selectedCard = sharpPcapDevices[i].Description;
-                            Console.WriteLine($"已自动选择有网络连接的网卡: {selectedCard} (索引: {i})");
-                            return;
-                        }
-                    }
-                }
-
-                // 如果没有找到有默认网关的网卡，检查所有活动网卡
-                Console.WriteLine("未找到有默认网关的网卡，检查所有活动网卡");
-                foreach (var ni in activeInterfaces)
-                {
-                    Console.WriteLine($"检查活动网卡: {ni.Name} ({ni.Description})");
-
-                    // 尝试匹配SharpPcap设备（不区分大小写）
-                    for (int i = 0; i < sharpPcapDevices.Count; i++)
-                    {
-                        if (sharpPcapDevices[i].Description.IndexOf(ni.Name, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                            sharpPcapDevices[i].Description.IndexOf(ni.Description, StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            Console.WriteLine($"匹配到SharpPcap设备: {sharpPcapDevices[i].Description}");
-                            InterfaceComboBox.SelectedIndex = i;
-                            AppConfig.NetworkCard = i;
-                            string selectedCard = sharpPcapDevices[i].Description;
-                            Console.WriteLine($"已自动选择活动网卡: {selectedCard} (索引: {i})");
-                            return;
-                        }
-                    }
-                }
-
-                // 如果没有找到匹配的活动网卡，选择第一个可用网卡
-                if (InterfaceComboBox.Items.Count > 0)
-                {
-                    Console.WriteLine("未找到活动网卡，选择第一个可用网卡");
-                    InterfaceComboBox.SelectedIndex = 0;
-                    AppConfig.NetworkCard = 0;
-                }
-                else
-                {
-                    Console.WriteLine("没有可用的网卡");
-                }
+                int score = 0;
+                if (devices[i].Description.Contains(active.Name, StringComparison.OrdinalIgnoreCase)) score += 2;
+                if (devices[i].Description.Contains(active.Description, StringComparison.OrdinalIgnoreCase)) score += 3;
+                if (score > bestScore) { bestScore = score; bestIndex = i; }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"自动选择网卡失败: {ex.Message}");
-            }
+            return bestIndex;
         }
 
         private void InterfaceComboBox_SelectedIndexChanged(object sender, IntEventArgs e)

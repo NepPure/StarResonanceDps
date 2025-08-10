@@ -74,7 +74,7 @@ namespace StarResonanceDpsAnalysis
                 double luckyRate = stat.DamageStats.CountTotal > 0
                                  ? (double)stat.DamageStats.CountLucky / stat.DamageStats.CountTotal * 100
                                  : 0.0;
-               
+
 
                 if (row == null)
                 {
@@ -102,10 +102,11 @@ namespace StarResonanceDpsAnalysis
                          Common.FormatWithEnglishUnits(Math.Round(stat.DamageStats.GetTotalPerSecond(), 1)), // 总平均 DPS
                          Common.FormatWithEnglishUnits(Math.Round(stat.HealingStats.GetTotalPerSecond(), 1)), // 总平均 HPS
                     new CellProgress(percent)
-                        {
-                            Size = new Size(200, 10),
-                            Fill = AppConfig.DpsColor
-                        }
+                    {
+                        Size = new Size(200, 10),
+                        Fill = AppConfig.DpsColor
+                    },
+                    stat.CombatPower
 
                     ));
                 }
@@ -134,7 +135,7 @@ namespace StarResonanceDpsAnalysis
                     row.instantHps = Common.FormatWithEnglishUnits(stat.HealingStats.RealtimeValue);
                     row.maxInstantHps = Common.FormatWithEnglishUnits(stat.HealingStats.RealtimeMax);
                     row.totalHps = Common.FormatWithEnglishUnits(Math.Round(stat.HealingStats.GetTotalPerSecond(), 1));
-
+                    row.combatPower = stat.CombatPower;
                     // —— 更新进度条 —— 
                     if (row.CellProgress is CellProgress cp)
                     {
@@ -216,7 +217,7 @@ namespace StarResonanceDpsAnalysis
 
         private void HandleSwitchMonitoring()
         {
-            
+
             if (!monitor)
             {
                 switch_IsMonitoring.Checked = true;
@@ -235,7 +236,7 @@ namespace StarResonanceDpsAnalysis
 
 
             }
-       
+
         }
 
         #endregion
@@ -243,14 +244,14 @@ namespace StarResonanceDpsAnalysis
 
         #region HandleClearData() 响应清空数据
 
-        private void HandleClearData() 
+        private void HandleClearData()
         {
             if (TableDatas.DpsTable.Count >= 0)
             {
 
                 SaveCurrentDpsSnapshot();
             }
-            _combatWatch.Restart();
+            CombatWatch.Restart();
             TableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
         }
@@ -260,7 +261,7 @@ namespace StarResonanceDpsAnalysis
 
         #region HandleClearHistory() 响应清空历史
 
-        private void HandleClearHistory() 
+        private void HandleClearHistory()
         {
             dropdown_History.Items.Clear();
             HistoricalRecords.Clear();
@@ -271,7 +272,7 @@ namespace StarResonanceDpsAnalysis
 
         #region RefreshHotKeyTips() 更新热键提示
 
-        public void RefreshHotKeyTips() 
+        public void RefreshHotKeyTips()
         {
             label_HotKeyTips.Text = @$"{AppConfig.MouseThroughKey}：鼠标穿透 | {AppConfig.FormTransparencyKey}：窗体透明 | {AppConfig.WindowToggleKey}：开启/关闭 | {AppConfig.ClearDataKey}：清空数据 | {AppConfig.ClearHistoryKey}：清空历史";
         }
@@ -378,9 +379,8 @@ namespace StarResonanceDpsAnalysis
         /// <summary>开始抓包</summary>
         private void StartCapture()
         {
-            Volatile.Write(ref _stopping, 0);
-
             #region —— 前置校验与设备打开 —— 
+
             if (AppConfig.NetworkCard < 0)
             {
                 if (switch_IsMonitoring.Checked)
@@ -400,39 +400,42 @@ namespace StarResonanceDpsAnalysis
             if (AppConfig.NetworkCard < 0 || AppConfig.NetworkCard >= devices.Count)
                 throw new InvalidOperationException($"无效的网络设备索引: {AppConfig.NetworkCard}");
 
-            selectedDevice = devices[AppConfig.NetworkCard];
-            if (selectedDevice == null)
+            SelectedDevice = devices[AppConfig.NetworkCard];
+            if (SelectedDevice == null)
                 throw new InvalidOperationException($"无法获取网络设备，索引: {AppConfig.NetworkCard}");
 
-            selectedDevice.Open(DeviceModes.Promiscuous, 1000);
+            SelectedDevice.Open(DeviceModes.Promiscuous, 1000);
+
+            #endregion
+
+            #region —— 清空当前统计 —— 
+
+            TableDatas.DpsTable.Clear();
+            StatisticData._manager.ClearAll();
+
             #endregion
 
             #region —— 启动统计/事件注册 —— 
+
             InitStatsTimer();
             timer_RefreshDpsTable.Enabled = true;
             pageHeader_MainHeader.SubText = "监控已开启";
             monitor = true;
-            _combatWatch.Restart();
+            CombatWatch.Restart();
             timer_RefreshRunningTime.Start();
-            if (label_SettingTip.Visible == false)
+
+            if (!label_SettingTip.Visible)
             {
                 label_SettingTip.Visible = true;
                 label_SettingTip.Text = "00:00";
             }
-            #endregion
 
-            #region —— 清空当前统计 —— 
-            TableDatas.DpsTable.Clear();
-            StatisticData._manager.ClearAll();
             #endregion
         }
 
         /// <summary>停止抓包</summary>
         private async void StopCapture()
         {
-
-            Volatile.Write(ref _stopping, 1);
-
             #region —— 保存快照 —— 
             if (TableDatas.DpsTable.Count > 0)
             {
@@ -441,95 +444,38 @@ namespace StarResonanceDpsAnalysis
             #endregion
 
             #region —— 停止设备与事件反注册 —— 
-            _packetAnalyzer.Stop();
-            if (selectedDevice != null)
+            if (SelectedDevice != null)
             {
                 try
                 {
-                    selectedDevice.OnPacketArrival -= Device_OnPacketArrival;
-                    selectedDevice.StopCapture();
-                    selectedDevice.Close();
+                    SelectedDevice.OnPacketArrival -= Device_OnPacketArrival;
+                    SelectedDevice.StopCapture();
+                    SelectedDevice.Close();
                     Console.WriteLine("停止抓包");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"停止抓包异常: {ex.Message}");
                 }
-                selectedDevice = null;
+
+                SelectedDevice = null;
             }
 
-            #endregion
-
-            #region —— 停止统计定时器 —— 
-            if (statsTimer != null)
-            {
-                statsTimer.Stop();
-                statsTimer.Dispose();
-                statsTimer = null;
-            }
-            #endregion
-
-            #region —— 停止工作线程（带超时） —— 
-            if (_cancellationTokenSource != null)
-            {
-                var cts = _cancellationTokenSource;
-                var tasks = _workerTasks;
-
-                cts.Cancel();
-                try
-                {
-                    var pending = tasks?
-                        .Where(t => t != null && !t.IsCompleted)
-                        .ToArray() ?? Array.Empty<Task>();
-
-                    if (pending.Length > 0)
-                    {
-                        var all = Task.WhenAll(pending);
-                        var finished = await Task.WhenAny(all, Task.Delay(3000));
-                        if (finished != all)
-                        {
-                            Console.WriteLine("[关闭] 等待任务超时（>3s），后续让任务自行收尾。");
-                        }
-                        else
-                        {
-                            await all;
-                        }
-                    }
-                }
-                catch (OperationCanceledException) { }
-                catch (AggregateException aex)
-                {
-                    foreach (var inner in aex.Flatten().InnerExceptions)
-                        Console.WriteLine($"[线程终止异常] {inner.Message}");
-                }
-                finally
-                {
-                    cts.Dispose();
-                    _cancellationTokenSource = null;
-                    _workerTasks = [];
-                }
-            }
             #endregion
 
             #region —— 状态复位/计时器复位 —— 
-            _isCaptureStarted = false;
+            IsCaptureStarted = false;
             label_SettingTip.Text = "00:00";
             timer_RefreshDpsTable.Enabled = false;
             monitor = false;
             timer_RefreshRunningTime.Stop();
-            _combatWatch.Stop();
+            CombatWatch.Stop();
             #endregion
         }
 
         /// <summary>初始化统计/注册回调并启动</summary>
         private void InitStatsTimer()
         {
-            if (statsTimer != null)
-            {
-                statsTimer.Stop();
-                statsTimer.Dispose();
-            }
-
             #region —— 丢包统计（保留注释块原样） —— 
             //statsTimer = new System.Timers.Timer(statsInterval);
             //statsTimer.AutoReset = true;  // 设置为自动重置，定期触发
@@ -539,19 +485,15 @@ namespace StarResonanceDpsAnalysis
             #endregion
 
             #region —— 注册抓包事件并启动 —— 
-            selectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
-            selectedDevice.StartCapture();
+            SelectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
+            SelectedDevice.StartCapture();
 
 
 
-            if (!_isCaptureStarted)
+            if (!IsCaptureStarted)
             {
                 Console.WriteLine("开始抓包...");
-                // 启动抓包的时候创建一次
-                _packetAnalyzer = new PacketAnalyzer();
-                _packetAnalyzer.Start();
-                // Console.WriteLine($"已启动 {_workerCount} 个工作线程处理数据包");
-                _isCaptureStarted = true;
+                IsCaptureStarted = true;
             }
             #endregion
         }

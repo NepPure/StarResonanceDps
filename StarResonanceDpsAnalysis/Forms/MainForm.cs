@@ -17,39 +17,31 @@ namespace StarResonanceDpsAnalysis
     {
         #region ========== 字段与常量 ==========
 
+        /// <summary>
+        /// 分析器
+        /// </summary>
+        private PacketAnalyzer PacketAnalyzer { get; } = new();
+
         #region —— 抓包设备/统计 —— 
 
-        private ICaptureDevice? selectedDevice;
-        private bool _isCaptureStarted = false;
+        private ICaptureDevice? SelectedDevice { get; set; } = null;
+        private bool IsCaptureStarted { get; set; } = false;
 
         #endregion
 
-        #region —— 计时器&超时控制 —— 
+        /// <summary>
+        /// 计时器&超时控制
+        /// </summary>
+        private Stopwatch CombatWatch { get; } = new();
 
-        private System.Timers.Timer? statsTimer;
-        private readonly Stopwatch _combatWatch = new Stopwatch();
-
-        #endregion
-
-        #region —— 键盘钩子/UI状态 —— 
-
-        private KeyboardHook? kbHook;
-        private bool Top = false;
-
-        #endregion
+        /// <summary>
+        /// 键盘钩子
+        /// </summary>
+        private KeyboardHook KbHook { get; } = new();
 
         #region —— 历史记录/数据结构 —— 
 
         Dictionary<string, BindingList<DpsTable>> HistoricalRecords = [];
-        private readonly BlockingCollection<(ICaptureDevice? dev, RawCapture raw)> _queue = new(8192);
-
-        #endregion
-
-        #region —— 多线程处理 —— 
-
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private Task[] _workerTasks = Array.Empty<Task>();
-        // private readonly int _workerCount = Math.Max(2, Environment.ProcessorCount / 2);
 
         #endregion
 
@@ -81,16 +73,15 @@ namespace StarResonanceDpsAnalysis
 
             LoadTableColumnVisibilitySettings();
             ToggleTableView();
-            LoadNetworkDevices();
+           
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
             #region —— 键盘钩子初始化 ——
 
-            kbHook = new KeyboardHook();
-            kbHook.SetHook();
-            kbHook.OnKeyDownEvent += kbHook_OnKeyDownEvent;
+            KbHook.SetHook();
+            KbHook.OnKeyDownEvent += kbHook_OnKeyDownEvent;
 
             #endregion
 
@@ -114,8 +105,8 @@ namespace StarResonanceDpsAnalysis
                 var devices = CaptureDeviceList.Instance;
                 if (AppConfig.NetworkCard < devices.Count)
                 {
-                    selectedDevice = devices[AppConfig.NetworkCard];
-                    Console.WriteLine($"启动时已选择网卡: {selectedDevice.Description} (索引: {AppConfig.NetworkCard})");
+                    SelectedDevice = devices[AppConfig.NetworkCard];
+                    Console.WriteLine($"启动时已选择网卡: {SelectedDevice.Description} (索引: {AppConfig.NetworkCard})");
                 }
             }
             else
@@ -166,10 +157,9 @@ namespace StarResonanceDpsAnalysis
 
         private void button_AlwaysOnTop_Click(object sender, EventArgs e)
         {
-            Top = !Top;
+            TopMost = !TopMost;
 
-            button_AlwaysOnTop.Toggle = Top;
-            TopMost = Top;
+            button_AlwaysOnTop.Toggle = TopMost;
         }
 
         private void checkbox_PersentData_CheckedChanged(object sender, BoolEventArgs e)
@@ -213,7 +203,7 @@ namespace StarResonanceDpsAnalysis
                 timer_RefreshDpsTable.Enabled = true;
                 pageHeader_MainHeader.SubText = "监控已开启";
                 monitor = true;
-                _combatWatch.Restart();
+                CombatWatch.Restart();
                 timer_RefreshRunningTime.Start();
 
                 TableDatas.DpsTable.Clear();
@@ -227,13 +217,13 @@ namespace StarResonanceDpsAnalysis
                 timer_RefreshDpsTable.Enabled = false;
                 monitor = false;
                 timer_RefreshRunningTime.Stop();
-                _combatWatch.Stop();
+                CombatWatch.Stop();
             }
         }
 
         private void button_Settings_MouseClick(object sender, MouseEventArgs e)
         {
-            IContextMenuStripItem[] menulist = new AntdUI.IContextMenuStripItem[]
+            var menulist = new IContextMenuStripItem[]
             {
                 new ContextMenuStripItem("基础设置"){ IconSvg = Resources.set_up, },
                 new ContextMenuStripItem("数据显示设置"){ IconSvg = Resources.data_display, },
@@ -262,34 +252,21 @@ namespace StarResonanceDpsAnalysis
         #endregion
         #endregion
 
-        private PacketAnalyzer _packetAnalyzer;
-        private volatile int _stopping = 0; // 0=运行,1=停止中
 
         /// <summary>
         /// 数据包到达事件
         /// </summary>
         private void Device_OnPacketArrival(object sender, PacketCapture e)
         {
-            if (Volatile.Read(ref _stopping) == 1) return; // 停止中，丢包
-
             try
             {
                 var dev = (ICaptureDevice)sender;
-                _packetAnalyzer.Enqueue(dev, e.GetPacket()); // 只入队
-                //ServerAddressResolver.OnAnyPacketArrived(); // 记录最后到包时间
+                PacketAnalyzer.StartNewAnalyzer(dev, e.GetPacket());
 
-            }
-            catch (InvalidOperationException)
-            {
-                // _queue 已 CompleteAdding，正常关闭过程
-            }
-            catch (OperationCanceledException)
-            {
-                // 正常取消
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[数据包入队异常] {ex}");
+                Console.WriteLine($"数据包到达后进行处理时发生异常 {ex.Message}\r\n{ex.StackTrace}");
             }
         }
 
@@ -302,7 +279,7 @@ namespace StarResonanceDpsAnalysis
 
         private void timer_RefreshRunningTime_Tick(object sender, EventArgs e)
         {
-            label_SettingTip.Text = _combatWatch.Elapsed.ToString(@"mm\:ss");
+            label_SettingTip.Text = CombatWatch.Elapsed.ToString(@"mm\:ss");
         }
 
         #endregion
