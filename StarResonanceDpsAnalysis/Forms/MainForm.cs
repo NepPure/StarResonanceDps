@@ -141,6 +141,41 @@ namespace StarResonanceDpsAnalysis
             FormGui.SetColorMode(this, AppConfig.IsLight);
 
             RefreshHotKeyTips();
+
+            textProgressBar1.ProgressBarCornerRadius = 20;
+            textProgressBar1.ProgressBarValue = 1;
+            textProgressBar1.Text = "0.00";
+            var value = 0d;
+
+            // 自动测试
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    var now = DateTime.Now;
+
+                    // 完整测试
+                    value = (now.Second % 5 * 1000 + now.Millisecond) / 5000d;
+
+                    //// 微值圆角测试
+                    //value = (now.Second % 5 * 1000 + now.Millisecond) / 50000d;
+
+                    textProgressBar1.ProgressBarValue = value;
+                    textProgressBar1.Text = value.ToString();
+                    Thread.Sleep(0);
+                }
+            });
+
+            //// 鼠标步进测试
+            //table_DpsDataTable.Click += (s, e) =>
+            //{
+            //    value += 0.01d;
+            //    value = value % 0.1d;
+            //    textProgressBar1.ProgressBarValue = value;
+            //    textProgressBar1.Text = value.ToString();
+            //};
+
+            textProgressBar1.Text = "测试名称";
         }
 
         #endregion
@@ -209,7 +244,7 @@ namespace StarResonanceDpsAnalysis
 
             FormGui.SetColorMode(this, AppConfig.IsLight);
             FormGui.SetColorMode(Common.skillDiary, AppConfig.IsLight);
-            
+
             FormGui.SetColorMode(Common.skillDetailForm, AppConfig.IsLight);
         }
 
@@ -222,7 +257,7 @@ namespace StarResonanceDpsAnalysis
 
         private void checkbox_PersentData_CheckedChanged(object sender, BoolEventArgs e)
         {
-         
+
         }
 
         private void dropdown_History_SelectedValueChanged(object sender, ObjectNEventArgs e)
@@ -293,7 +328,7 @@ namespace StarResonanceDpsAnalysis
                         dataDisplay(); break;
                     case "用户UID设置":
                         SetUserUid();
-            
+
                         break;
                 }
             }, menulist);
@@ -337,12 +372,13 @@ namespace StarResonanceDpsAnalysis
         private void table_DpsDataTable_CellClick(object sender, TableClickEventArgs e)
         {
             ulong uid = 0;
-           
-            if(sort != null)
+
+            if (sort != null)
             {
                 uid = DpsTableDatas.DpsTable[sort[e.RowIndex - 1]].Uid;
 
-            }else
+            }
+            else
             {
                 uid = DpsTableDatas.DpsTable[e.RowIndex - 1].Uid;
             }

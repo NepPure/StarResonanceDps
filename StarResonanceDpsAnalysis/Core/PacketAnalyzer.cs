@@ -265,12 +265,13 @@ namespace StarResonanceDpsAnalysis.Core
 
                     // 解析：把 Position 设到当前未消费起点（即 0），循环取包
                     TcpStream.Position = 0;
+
+                    Span<byte> lenBuf = stackalloc byte[4];
                     while (true)
                     {
                         long start = TcpStream.Position;
                         if (TcpStream.Length - start < 4) break; // 不足 4 字节长度头
 
-                        Span<byte> lenBuf = stackalloc byte[4];
                         int n = TcpStream.Read(lenBuf);
                         if (n < 4) { TcpStream.Position = start; break; }
 
