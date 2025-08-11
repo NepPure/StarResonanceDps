@@ -178,11 +178,18 @@ namespace StarResonanceDpsAnalysis
             foreach (var item in ColumnSettingsManager.AllSettings)
             {
                 string strValue = AppConfig.GetValue("TableSet", item.Key, string.Empty);
-                Console.WriteLine(strValue);
-                item.IsVisible = string.Equals(strValue, "true", StringComparison.OrdinalIgnoreCase);
-                // Console.WriteLine(item.IsVisible = strValue == "true");
 
+                // 如果没有保存记录（为空），默认显示（true）
+                if (string.IsNullOrEmpty(strValue))
+                {
+                    item.IsVisible = true;
+                }
+                else
+                {
+                    item.IsVisible = string.Equals(strValue, "true", StringComparison.OrdinalIgnoreCase);
+                }
             }
+
         }
 
         #endregion

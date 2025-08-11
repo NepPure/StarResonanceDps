@@ -31,18 +31,19 @@
             button2 = new AntdUI.Button();
             input2 = new AntdUI.Input();
             inputNumber1 = new AntdUI.InputNumber();
+            input1 = new AntdUI.Input();
             SuspendLayout();
             // 
             // button2
             // 
             button2.BorderWidth = 1F;
             button2.DefaultBack = Color.FromArgb(153, 204, 255);
-            button2.Location = new Point(49, 202);
+            button2.Location = new Point(49, 262);
             button2.Name = "button2";
             button2.Radius = 0;
             button2.Size = new Size(211, 52);
             button2.TabIndex = 5;
-            button2.Text = "设置昵称";
+            button2.Text = "设置信息";
             button2.Click += button2_Click;
             // 
             // input2
@@ -68,16 +69,29 @@
             inputNumber1.TabIndex = 7;
             inputNumber1.Text = "0";
             // 
+            // input1
+            // 
+            input1.Font = new Font("阿里妈妈数黑体", 8F, FontStyle.Bold);
+            input1.Location = new Point(22, 188);
+            input1.Name = "input1";
+            input1.PrefixText = "职业：";
+            input1.SelectionColor = Color.FromArgb(143, 176, 229);
+            input1.SelectionStart = 1;
+            input1.Size = new Size(264, 57);
+            input1.TabIndex = 8;
+            input1.Text = " ";
+            // 
             // UserUidSet
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Transparent;
+            Controls.Add(input1);
             Controls.Add(inputNumber1);
             Controls.Add(input2);
             Controls.Add(button2);
             Name = "UserUidSet";
-            Size = new Size(358, 308);
+            Size = new Size(358, 341);
             Load += UserUidSet_Load;
             ResumeLayout(false);
         }
@@ -86,5 +100,6 @@
         private AntdUI.Button button2;
         private AntdUI.Input input2;
         private AntdUI.InputNumber inputNumber1;
+        private AntdUI.Input input1;
     }
 }
