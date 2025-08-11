@@ -43,12 +43,4 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- 把任意 *.Function.cs 折叠到去掉 .Function 后的同名 .cs 下 -->
-    <Compile Update="**/*.Function.cs">
-      <!-- %(Filename) 不带扩展名 -->
-      <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.Function','')).cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
 </Project>
