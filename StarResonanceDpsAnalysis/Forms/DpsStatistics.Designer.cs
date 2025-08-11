@@ -55,12 +55,12 @@
             pageHeader1.MinimizeBox = false;
             pageHeader1.Mode = AntdUI.TAMode.Dark;
             pageHeader1.Name = "pageHeader1";
-            pageHeader1.ShowBack = true;
             pageHeader1.Size = new Size(691, 45);
             pageHeader1.SubFont = new Font("Microsoft YaHei UI", 7F, FontStyle.Bold);
+            pageHeader1.SubGap = 0;
             pageHeader1.SubText = "秒伤";
             pageHeader1.TabIndex = 16;
-            pageHeader1.Text = "Damage Per Second";
+            pageHeader1.Text = "     Damage Per Second |";
             // 
             // button2
             // 
@@ -117,7 +117,7 @@
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.FromArgb(230, 230, 230);
+            BackColor = Color.White;
             BorderWidth = 0;
             ClientSize = new Size(691, 364);
             Controls.Add(pageHeader1);

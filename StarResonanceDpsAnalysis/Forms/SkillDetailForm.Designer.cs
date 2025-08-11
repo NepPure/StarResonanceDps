@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            AntdUI.SegmentedItem segmentedItem1 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem2 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem3 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem4 = new AntdUI.SegmentedItem();
             table_DpsDetailDataTable = new AntdUI.Table();
             pageHeader1 = new AntdUI.PageHeader();
             TitleText = new AntdUI.Label();
@@ -69,7 +69,6 @@
             button2 = new AntdUI.Button();
             button1 = new AntdUI.Button();
             panel4 = new AntdUI.Panel();
-            panel7 = new AntdUI.Panel();
             pageHeader1.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
@@ -91,7 +90,7 @@
             table_DpsDetailDataTable.Location = new Point(0, 218);
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
-            table_DpsDetailDataTable.Size = new Size(1644, 784);
+            table_DpsDetailDataTable.Size = new Size(1225, 807);
             table_DpsDetailDataTable.TabIndex = 14;
             table_DpsDetailDataTable.Text = "table1";
             // 
@@ -107,7 +106,7 @@
             pageHeader1.MaximizeBox = false;
             pageHeader1.Mode = AntdUI.TAMode.Dark;
             pageHeader1.Name = "pageHeader1";
-            pageHeader1.Size = new Size(1644, 52);
+            pageHeader1.Size = new Size(1225, 52);
             pageHeader1.TabIndex = 15;
             pageHeader1.Text = "";
             // 
@@ -119,7 +118,7 @@
             TitleText.Font = new Font("SAO Welcome TT", 12F, FontStyle.Bold);
             TitleText.Location = new Point(0, 0);
             TitleText.Name = "TitleText";
-            TitleText.Size = new Size(1644, 52);
+            TitleText.Size = new Size(1225, 52);
             TitleText.TabIndex = 26;
             TitleText.Text = "Skill Breakdown";
             TitleText.TextAlign = ContentAlignment.MiddleCenter;
@@ -134,13 +133,13 @@
             segmented1.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             segmented1.Full = true;
             segmented1.IconGap = 0F;
-            segmentedItem1.Text = "技能伤害分析";
-            segmentedItem2.Text = "技能治疗分析";
-            segmented1.Items.Add(segmentedItem1);
-            segmented1.Items.Add(segmentedItem2);
-            segmented1.Location = new Point(9, 9);
+            segmentedItem3.Text = "技能伤害分析";
+            segmentedItem4.Text = "技能治疗分析";
+            segmented1.Items.Add(segmentedItem3);
+            segmented1.Items.Add(segmentedItem4);
+            segmented1.Location = new Point(9, 8);
             segmented1.Name = "segmented1";
-            segmented1.Round = true;
+            segmented1.Radius = 3;
             segmented1.SelectIndex = 0;
             segmented1.Size = new Size(336, 47);
             segmented1.TabIndex = 16;
@@ -151,7 +150,7 @@
             // 
             NickNameText.BackColor = Color.Transparent;
             NickNameText.Font = new Font("阿里妈妈数黑体", 12F);
-            NickNameText.Location = new Point(24, 36);
+            NickNameText.Location = new Point(24, 22);
             NickNameText.Name = "NickNameText";
             NickNameText.Size = new Size(180, 45);
             NickNameText.TabIndex = 17;
@@ -184,7 +183,7 @@
             panel1.Controls.Add(label1);
             panel1.Controls.Add(divider1);
             panel1.Controls.Add(label3);
-            panel1.Location = new Point(1, 7);
+            panel1.Location = new Point(1, 6);
             panel1.Name = "panel1";
             panel1.Shadow = 6;
             panel1.Size = new Size(608, 190);
@@ -310,7 +309,7 @@
             panel2.Controls.Add(label6);
             panel2.Controls.Add(divider2);
             panel2.Controls.Add(label19);
-            panel2.Location = new Point(1034, 7);
+            panel2.Location = new Point(615, 6);
             panel2.Name = "panel2";
             panel2.Shadow = 6;
             panel2.Size = new Size(608, 190);
@@ -444,7 +443,7 @@
             // 
             UidText.BackColor = Color.Transparent;
             UidText.Font = new Font("HarmonyOS Sans SC", 9F);
-            UidText.Location = new Point(210, 37);
+            UidText.Location = new Point(210, 22);
             UidText.Name = "UidText";
             UidText.Prefix = "UID:";
             UidText.Size = new Size(157, 45);
@@ -455,7 +454,7 @@
             // 
             PowerText.BackColor = Color.Transparent;
             PowerText.Font = new Font("HarmonyOS Sans SC", 9F);
-            PowerText.Location = new Point(373, 37);
+            PowerText.Location = new Point(373, 22);
             PowerText.Name = "PowerText";
             PowerText.Prefix = "战力：";
             PowerText.Size = new Size(168, 45);
@@ -464,6 +463,7 @@
             // 
             // divider3
             // 
+            divider3.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             divider3.BackColor = Color.Transparent;
             divider3.Location = new Point(3, 195);
             divider3.Name = "divider3";
@@ -477,9 +477,9 @@
             panel3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             panel3.BackColor = Color.Transparent;
             panel3.Controls.Add(segmented1);
-            panel3.Location = new Point(1279, 28);
+            panel3.Location = new Point(860, 12);
             panel3.Name = "panel3";
-            panel3.Radius = 500;
+            panel3.Radius = 1;
             panel3.Shadow = 6;
             panel3.ShadowOpacityHover = 0F;
             panel3.Size = new Size(354, 65);
@@ -497,7 +497,7 @@
             panel5.Name = "panel5";
             panel5.Shadow = 6;
             panel5.ShadowAlign = AntdUI.TAlignMini.Bottom;
-            panel5.Size = new Size(1644, 123);
+            panel5.Size = new Size(1225, 100);
             panel5.TabIndex = 29;
             panel5.Text = "panel5";
             // 
@@ -506,9 +506,10 @@
             select1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             select1.DropDownTextAlign = AntdUI.TAlign.Top;
             select1.List = true;
-            select1.Location = new Point(1414, 25);
+            select1.Location = new Point(1010, 26);
             select1.Name = "select1";
-            select1.Size = new Size(197, 47);
+            select1.Radius = 0;
+            select1.Size = new Size(204, 47);
             select1.TabIndex = 27;
             select1.SelectedIndexChanged += select1_SelectedIndexChanged;
             // 
@@ -522,7 +523,7 @@
             panel6.Name = "panel6";
             panel6.Shadow = 6;
             panel6.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel6.Size = new Size(1644, 86);
+            panel6.Size = new Size(1225, 86);
             panel6.TabIndex = 30;
             panel6.Text = "panel6";
             // 
@@ -534,7 +535,7 @@
             button2.IconHover = Properties.Resources.cancel_hover;
             button2.IconPosition = AntdUI.TAlignMini.None;
             button2.IconRatio = 1.5F;
-            button2.Location = new Point(903, 25);
+            button2.Location = new Point(693, 25);
             button2.Name = "button2";
             button2.Size = new Size(57, 49);
             button2.TabIndex = 1;
@@ -548,7 +549,7 @@
             button1.IconHover = Properties.Resources.flushed_hover;
             button1.IconPosition = AntdUI.TAlignMini.None;
             button1.IconRatio = 1.5F;
-            button1.Location = new Point(686, 25);
+            button1.Location = new Point(476, 25);
             button1.Name = "button1";
             button1.Size = new Size(57, 49);
             button1.TabIndex = 0;
@@ -556,34 +557,25 @@
             // 
             // panel4
             // 
-            panel4.Controls.Add(panel7);
             panel4.Controls.Add(panel2);
             panel4.Controls.Add(panel1);
             panel4.Controls.Add(divider3);
             panel4.Controls.Add(table_DpsDetailDataTable);
             panel4.Dock = DockStyle.Fill;
-            panel4.Location = new Point(0, 175);
+            panel4.Location = new Point(0, 152);
             panel4.Name = "panel4";
             panel4.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel4.Size = new Size(1644, 996);
+            panel4.Size = new Size(1225, 1019);
             panel4.TabIndex = 31;
             panel4.Text = "panel4";
             panel4.Click += panel4_Click;
-            // 
-            // panel7
-            // 
-            panel7.Location = new Point(627, 16);
-            panel7.Name = "panel7";
-            panel7.Size = new Size(408, 170);
-            panel7.TabIndex = 26;
-            panel7.Text = "panel7";
             // 
             // SkillDetailForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(251, 251, 251);
-            ClientSize = new Size(1644, 1257);
+            ClientSize = new Size(1225, 1257);
             Controls.Add(panel4);
             Controls.Add(panel6);
             Controls.Add(panel5);
@@ -646,6 +638,5 @@
         private AntdUI.Button button1;
         private AntdUI.Button button2;
         private AntdUI.Select select1;
-        private AntdUI.Panel panel7;
     }
 }

@@ -141,6 +141,22 @@ namespace StarResonanceDpsAnalysis
             FormGui.SetColorMode(this, AppConfig.IsLight);
 
             RefreshHotKeyTips();
+
+    
+      
+
+            // 自动测试
+
+            //// 鼠标步进测试
+            //table_DpsDataTable.Click += (s, e) =>
+            //{
+            //    value += 0.01d;
+            //    value = value % 0.1d;
+            //    textProgressBar1.ProgressBarValue = value;
+            //    textProgressBar1.Text = value.ToString();
+            //};
+
+       
         }
 
         #endregion
@@ -216,7 +232,7 @@ namespace StarResonanceDpsAnalysis
 
             FormGui.SetColorMode(this, AppConfig.IsLight);
             FormGui.SetColorMode(Common.skillDiary, AppConfig.IsLight);
-            
+
             FormGui.SetColorMode(Common.skillDetailForm, AppConfig.IsLight);
         }
 
@@ -295,7 +311,7 @@ namespace StarResonanceDpsAnalysis
                         dataDisplay(); break;
                     case "用户UID设置":
                         SetUserUid();
-            
+
                         break;
                 }
             }, menulist);
@@ -340,12 +356,13 @@ namespace StarResonanceDpsAnalysis
         {
             if (e.RowIndex == 0) return;
             ulong uid = 0;
-           
-            if(sort != null)
+
+            if (sort != null)
             {
                 uid = DpsTableDatas.DpsTable[sort[e.RowIndex - 1]].Uid;
 
-            }else
+            }
+            else
             {
                 uid = DpsTableDatas.DpsTable[e.RowIndex - 1].Uid;
             }

@@ -44,15 +44,16 @@
             pageHeader_MainHeader.DividerShow = true;
             pageHeader_MainHeader.DividerThickness = 2F;
             pageHeader_MainHeader.Dock = DockStyle.Top;
+            pageHeader_MainHeader.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             pageHeader_MainHeader.Icon = (Image)resources.GetObject("pageHeader_MainHeader.Icon");
             pageHeader_MainHeader.Location = new Point(0, 0);
             pageHeader_MainHeader.MaximizeBox = false;
             pageHeader_MainHeader.Name = "pageHeader_MainHeader";
             pageHeader_MainHeader.ShowButton = true;
-            pageHeader_MainHeader.Size = new Size(1191, 47);
-            pageHeader_MainHeader.SubText = "";
+            pageHeader_MainHeader.Size = new Size(1191, 43);
+            pageHeader_MainHeader.SubText = "2.0";
             pageHeader_MainHeader.TabIndex = 8;
-            pageHeader_MainHeader.Text = "DPS统计 - by: 惊奇猫猫盒 [别查我DPS]";
+            pageHeader_MainHeader.Text = "别查我DPS";
             // 
             // button_SkillDiary
             // 
@@ -62,7 +63,7 @@
             button_SkillDiary.IconSvg = resources.GetString("button_SkillDiary.IconSvg");
             button_SkillDiary.Location = new Point(812, 0);
             button_SkillDiary.Name = "button_SkillDiary";
-            button_SkillDiary.Size = new Size(49, 47);
+            button_SkillDiary.Size = new Size(49, 43);
             button_SkillDiary.TabIndex = 17;
             button_SkillDiary.ToggleIconSvg = "";
             button_SkillDiary.Click += button_SkillDiary_Click;
@@ -75,7 +76,7 @@
             dropdown_History.Location = new Point(861, 0);
             dropdown_History.MaxCount = 100;
             dropdown_History.Name = "dropdown_History";
-            dropdown_History.Size = new Size(39, 47);
+            dropdown_History.Size = new Size(39, 43);
             dropdown_History.TabIndex = 16;
             dropdown_History.Trigger = AntdUI.Trigger.Hover;
             dropdown_History.SelectedValueChanged += dropdown_History_SelectedValueChanged;
@@ -87,7 +88,7 @@
             button_AlwaysOnTop.IconSvg = resources.GetString("button_AlwaysOnTop.IconSvg");
             button_AlwaysOnTop.Location = new Point(900, 0);
             button_AlwaysOnTop.Name = "button_AlwaysOnTop";
-            button_AlwaysOnTop.Size = new Size(49, 47);
+            button_AlwaysOnTop.Size = new Size(49, 43);
             button_AlwaysOnTop.TabIndex = 1;
             button_AlwaysOnTop.ToggleIconSvg = resources.GetString("button_AlwaysOnTop.ToggleIconSvg");
             button_AlwaysOnTop.Click += button_AlwaysOnTop_Click;
@@ -99,7 +100,7 @@
             button_ThemeSwitch.IconSvg = "SunOutlined";
             button_ThemeSwitch.Location = new Point(949, 0);
             button_ThemeSwitch.Name = "button_ThemeSwitch";
-            button_ThemeSwitch.Size = new Size(49, 47);
+            button_ThemeSwitch.Size = new Size(49, 43);
             button_ThemeSwitch.TabIndex = 0;
             button_ThemeSwitch.ToggleIconSvg = "MoonOutlined";
             button_ThemeSwitch.Click += button_ThemeSwitch_Click;
@@ -112,7 +113,7 @@
             button_Settings.IconSvg = resources.GetString("button_Settings.IconSvg");
             button_Settings.Location = new Point(998, 0);
             button_Settings.Name = "button_Settings";
-            button_Settings.Size = new Size(49, 47);
+            button_Settings.Size = new Size(49, 43);
             button_Settings.TabIndex = 2;
             button_Settings.ToggleIconSvg = "";
             button_Settings.MouseClick += button_Settings_MouseClick;
@@ -123,7 +124,7 @@
             label_SettingTip.Dock = DockStyle.Right;
             label_SettingTip.ForeColor = Color.Red;
             label_SettingTip.Location = new Point(826, 0);
-            label_SettingTip.Margin = new Padding(2);
+            label_SettingTip.Margin = new Padding(2, 1, 2, 1);
             label_SettingTip.Name = "label_SettingTip";
             label_SettingTip.Size = new Size(252, 30);
             label_SettingTip.TabIndex = 16;
@@ -136,9 +137,9 @@
             table_DpsDataTable.FixedHeader = false;
             table_DpsDataTable.Gap = 8;
             table_DpsDataTable.Gaps = new Size(8, 8);
-            table_DpsDataTable.Location = new Point(0, 47);
+            table_DpsDataTable.Location = new Point(0, 43);
             table_DpsDataTable.Name = "table_DpsDataTable";
-            table_DpsDataTable.Size = new Size(1191, 615);
+            table_DpsDataTable.Size = new Size(1191, 619);
             table_DpsDataTable.TabIndex = 13;
             table_DpsDataTable.Text = "table1";
             table_DpsDataTable.CellClick += table_DpsDataTable_CellClick;
@@ -153,8 +154,8 @@
             // 
             label_HotKeyTips.AutoSizeMode = AntdUI.TAutoSize.Width;
             label_HotKeyTips.Dock = DockStyle.Left;
-            label_HotKeyTips.Location = new Point(10, 0);
-            label_HotKeyTips.Margin = new Padding(2);
+            label_HotKeyTips.Location = new Point(9, 0);
+            label_HotKeyTips.Margin = new Padding(2, 1, 2, 1);
             label_HotKeyTips.Name = "label_HotKeyTips";
             label_HotKeyTips.Size = new Size(631, 30);
             label_HotKeyTips.TabIndex = 14;
@@ -185,7 +186,7 @@
             panel_FooterPanel.Dock = DockStyle.Bottom;
             panel_FooterPanel.Location = new Point(0, 632);
             panel_FooterPanel.Name = "panel_FooterPanel";
-            panel_FooterPanel.Padding = new Padding(10, 0, 0, 0);
+            panel_FooterPanel.Padding = new Padding(9, 0, 0, 0);
             panel_FooterPanel.Size = new Size(1191, 30);
             panel_FooterPanel.TabIndex = 19;
             panel_FooterPanel.Text = "panel1";

@@ -25,7 +25,7 @@ namespace StarResonanceDpsAnalysis.Control
             ToggleTableView();
         }
 
-        private int fixedWidth = 1644;//窗体宽度
+        private int fixedWidth = 1225;//窗体宽度
         private void SkillDetailForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
@@ -36,8 +36,7 @@ namespace StarResonanceDpsAnalysis.Control
             isSelect = false;
 
         
-            FlatLineChart _dpsTrendChart = ChartVisualizationService.CreateDpsTrendChart();
-            panel7.Controls.Add(_dpsTrendChart);
+      
          
 
         }

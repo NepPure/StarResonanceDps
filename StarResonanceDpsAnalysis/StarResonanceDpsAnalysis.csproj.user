@@ -8,14 +8,32 @@
     <Compile Update="Control\Setup.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Control\SkillDetailForm.cs">
+    <Compile Update="Control\TextProgressBar.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Control\SkillDetailForm.Function.cs">
+    <Compile Update="Forms\RankingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\RankingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.Function.cs">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Control\TextProgressBar.Function.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Control\TextProgressBar.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Control\UserUidSet.cs">
       <SubType>UserControl</SubType>
@@ -24,6 +42,12 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\SkillDiary.cs">
@@ -48,8 +72,11 @@
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
-
-  
+  <ItemGroup>
+    <Compile Update="**/*.Function.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
   <ItemGroup>
     <!-- 把任意 *.Function.cs 折叠到去掉 .Function 后的同名 .cs 下 -->
     <Compile Update="**/*.Function.cs">
