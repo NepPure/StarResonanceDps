@@ -17,6 +17,9 @@
     <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Control\TextProgressBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Control\UserUidSet.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -49,7 +52,12 @@
     </Compile>
   </ItemGroup>
 
-  
+  <ItemGroup>
+    <Compile Update="**/*.Function.cs">
+        <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
   <ItemGroup>
     <!-- 把任意 *.Function.cs 折叠到去掉 .Function 后的同名 .cs 下 -->
     <Compile Update="**/*.Function.cs">
