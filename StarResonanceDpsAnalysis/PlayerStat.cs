@@ -276,19 +276,20 @@ namespace StarResonanceDpsAnalysis
     /// <summary>单个玩家的技能摘要（合并统计与元数据）</summary>
     public sealed class SkillSummary
     {
-        public ulong SkillId { get; init; }
-        public string SkillName { get; init; } = "未知技能";
+        public ulong SkillId { get; init; }                // 技能ID（唯一标识技能，可用于数据库关联）
+        public string SkillName { get; init; } = "未知技能"; // 技能名称（默认值为“未知技能”）
 
-        public ulong Total { get; init; }
-        public int HitCount { get; init; }
-        public double AvgPerHit { get; init; }
-        public double CritRate { get; init; }
-        public double LuckyRate { get; init; }
+        public ulong Total { get; init; }                  // 技能总伤害
+        public int HitCount { get; init; }                  // 技能命中次数
+        public double AvgPerHit { get; init; }              // 每次命中的平均伤害
+        public double CritRate { get; init; }               // 暴击率（0~1 或 0~100，取决于实现）
+        public double LuckyRate { get; init; }              // 幸运率（0~1 或 0~100，取决于实现）
 
-        public ulong MaxSingleHit { get; init; }
-        public ulong MinSingleHit { get; init; }
-        public ulong RealtimeValue { get; init; }
-        public ulong RealtimeMax { get; init; }
+        public ulong MaxSingleHit { get; init; }            // 单次最高伤害
+        public ulong MinSingleHit { get; init; }            // 单次最低伤害
+        public ulong RealtimeValue { get; init; }           // 当前实时累计伤害（可能用于战斗中的统计）
+        public ulong RealtimeMax { get; init; }             // 当前实时单次最大伤害
+
 
         public double TotalDps { get; init; }      // 该技能自身的平均每秒
         public DateTime? LastTime { get; init; }   // 该技能最后一次命中时间
