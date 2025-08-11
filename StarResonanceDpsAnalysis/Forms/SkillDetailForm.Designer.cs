@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            AntdUI.SegmentedItem segmentedItem3 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem4 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem5 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem6 = new AntdUI.SegmentedItem();
             table_DpsDetailDataTable = new AntdUI.Table();
             pageHeader1 = new AntdUI.PageHeader();
             TitleText = new AntdUI.Label();
@@ -133,10 +133,10 @@
             segmented1.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             segmented1.Full = true;
             segmented1.IconGap = 0F;
-            segmentedItem3.Text = "技能伤害分析";
-            segmentedItem4.Text = "技能治疗分析";
-            segmented1.Items.Add(segmentedItem3);
-            segmented1.Items.Add(segmentedItem4);
+            segmentedItem5.Text = "技能伤害分析";
+            segmentedItem6.Text = "技能治疗分析";
+            segmented1.Items.Add(segmentedItem5);
+            segmented1.Items.Add(segmentedItem6);
             segmented1.Location = new Point(9, 8);
             segmented1.Name = "segmented1";
             segmented1.Radius = 3;
@@ -508,7 +508,7 @@
             select1.List = true;
             select1.Location = new Point(1010, 26);
             select1.Name = "select1";
-            select1.Radius = 0;
+            select1.Radius = 3;
             select1.Size = new Size(204, 47);
             select1.TabIndex = 27;
             select1.SelectedIndexChanged += select1_SelectedIndexChanged;
