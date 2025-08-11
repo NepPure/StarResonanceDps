@@ -70,8 +70,6 @@ namespace StarResonanceDpsAnalysis.Core
         private ConcurrentDictionary<uint, DateTime> TcpCacheTime { get; } = new();
 
 
-        private ulong UserUid { get; set; } = 0;
-
         #endregion
 
         #region ========== 启用新分析 ==========
@@ -324,6 +322,36 @@ namespace StarResonanceDpsAnalysis.Core
                 Console.WriteLine($"包处理异常: {ex.Message}\r\n{ex.StackTrace}");
             }
         }
+
+
+        public void ResetCaptureState()
+        {
+            lock (TcpLock)
+            {
+                CurrentServer = string.Empty;      // 或者 null，看你的判断逻辑
+                TcpNextSeq = null;
+                TcpLastTime = DateTime.MinValue;
+
+                TcpCache.Clear();
+                TcpCacheTime.Clear();
+
+                // 如果上一轮流变得很大，直接丢弃换新更省内存
+                if (TcpStream.Capacity > 1 << 20)  // >1MB 就换新，阈值自定
+                {
+                    TcpStream.Dispose();
+                    // 如果需要 GetBuffer，确保用可公开缓冲的构造
+                    typeof(MemoryStream)
+                        .GetMethod("Dispose", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)?
+                        .Invoke(TcpStream, null); // 可忽略：只是确保释放
+                }
+                else
+                {
+                    TcpStream.Position = 0;
+                    TcpStream.SetLength(0);
+                }
+            }
+        }
+
         #endregion
 
         #region ====== TCP 缓存清理 ======

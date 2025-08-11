@@ -23,12 +23,14 @@ namespace StarResonanceDpsAnalysis
         {
             if (AppConfig.GetConfigExists())
             {
+                AppConfig.NickName = AppConfig.GetValue("UserConfig", "NickName", "未知昵称");
+                AppConfig.Uid = Convert.ToUInt64(AppConfig.GetValue("UserConfig", "Uid", "0"));
+                StatisticData._manager.SetNickname(AppConfig.Uid, AppConfig.NickName);
                 return;
             }
 
-            AppConfig.NickName =  AppConfig.GetValue("UserConfig", "NickName","未知昵称");
-            AppConfig.Uid =Convert.ToUInt64(AppConfig.GetValue("UserConfig", "Uid", "0"));
-            //因为已经初始化的，默认的
+          
+          
         }
 
         #endregion
@@ -62,7 +64,7 @@ namespace StarResonanceDpsAnalysis
         {
             // 1) 拷贝一份所有玩家数据，避免并发修改
             List<PlayerData> statsList = StatisticData._manager
-                .GetAllPlayers()
+                .GetPlayersWithCombatData()
                 .ToList();
 
             if (statsList.Count <= 0) return;
@@ -244,9 +246,11 @@ namespace StarResonanceDpsAnalysis
 
                 SaveCurrentDpsSnapshot();
             }
+           
             CombatWatch.Restart();
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
+            SkillTableDatas.SkillTable.Clear();
         }
 
         #endregion
@@ -398,6 +402,7 @@ namespace StarResonanceDpsAnalysis
             // 清空当前统计 ——
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
+            SkillTableDatas.SkillTable.Clear();
 
 
             // 事件注册与启动监听 --
@@ -430,40 +435,53 @@ namespace StarResonanceDpsAnalysis
         /// </summary>
         private void StopCapture()
         {
-            // 保存快照 ——
-            if (DpsTableDatas.DpsTable.Count > 0)
-            {
-                SaveCurrentDpsSnapshot();
-            }
+            // 保存快照
+            if (DpsTableDatas.DpsTable.Count > 0) SaveCurrentDpsSnapshot();
 
-            // 停止设备与事件反注册 ——
             if (SelectedDevice != null)
             {
                 try
                 {
+                    // 1) 先解绑，避免回调里撞到已释放对象
                     SelectedDevice.OnPacketArrival -= Device_OnPacketArrival;
-                    SelectedDevice.StopCapture();
-                    SelectedDevice.Close();
-                    SelectedDevice.Dispose();
 
+                    // 2) 停止抓包（异步）
+                    SelectedDevice.StopCapture();
+
+                    // 3) 等待后台线程真正退出（最多 ~1s）
+                    for (int i = 0; i < 100; i++)
+                    {
+                        // 有的版本有 Started 属性；没有就直接 sleep 一下
+                        if (!(SelectedDevice.Started)) break;
+                        System.Threading.Thread.Sleep(10);
+                    }
+
+                    // 4) 关闭并彻底释放驱动句柄
+                    SelectedDevice.Close();
+                    SelectedDevice.Dispose();   // ← 关键：第二次不触发通常是没 Dispose
                     Console.WriteLine("停止抓包");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"停止抓包异常: {ex.Message}\r\n{ex.StackTrace}");
+                    Console.WriteLine($"停止抓包异常: {ex}");
                 }
-
-                SelectedDevice = null;
+                finally
+                {
+                    SelectedDevice = null;
+                }
             }
 
             IsCaptureStarted = false;
 
-            // 状态复位/计时器复位 ——
+            // 状态复位/计时器复位
             timer_RefreshDpsTable.Enabled = false;
             pageHeader_MainHeader.SubText = string.Empty;
             label_SettingTip.Text = "00:00";
             CombatWatch.Stop();
             timer_RefreshRunningTime.Stop();
+
+            // 清空解析/重组状态 ——（按你的实际字段名来）
+            PacketAnalyzer.ResetCaptureState();
         }
 
         #endregion

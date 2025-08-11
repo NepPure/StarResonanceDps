@@ -415,6 +415,15 @@ namespace StarResonanceDpsAnalysis
 
         #region 实时刷新与聚合输出
 
+        /// <summary>
+        /// 检查玩家是否有有效的战斗数据
+        /// </summary>
+        /// <returns>如果玩家有伤害、治疗或承伤数据则返回 true</returns>
+        public bool HasCombatData()
+        {
+            return DamageStats.Total > 0 || HealingStats.Total > 0 || TakenDamage > 0;
+        }
+
         /// <summary>刷新玩家的实时 DPS/HPS（滚动窗口）</summary>
         public void UpdateRealtimeStats()
         {
@@ -757,6 +766,7 @@ namespace StarResonanceDpsAnalysis
             return data;
         }
 
+
         #endregion
 
         #region 定时循环
@@ -822,6 +832,19 @@ namespace StarResonanceDpsAnalysis
         #endregion
 
         #region 批量与查询
+
+
+        /// <summary>
+        /// 获取有战斗数据的玩家（过滤掉没有伤害和治疗的玩家）
+        /// </summary>
+        /// <returns>只返回有伤害或治疗数据的玩家列表</returns>
+        public IEnumerable<PlayerData> GetPlayersWithCombatData()
+        {
+            return _players.Values.Where(p => p != null && p.HasCombatData());
+        }
+
+  
+
 
         /// <summary>刷新所有玩家的实时统计（滚动窗口）</summary>
         public void UpdateAllRealtimeStats()

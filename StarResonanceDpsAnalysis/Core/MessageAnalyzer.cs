@@ -8,10 +8,6 @@ using ZstdNet;
 using BlueProto;
 using System.Runtime.CompilerServices;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
-using PacketDotNet;
-using HarfBuzzSharp;
-using System.Numerics;
-using ZstdSharp;
 namespace StarResonanceDpsAnalysis.Core
 {
     public class MessageAnalyzer
@@ -330,7 +326,7 @@ namespace StarResonanceDpsAnalysis.Core
                             StatisticData._manager.SetNickname((ulong)playerUuid, playerName);
                         
                             //this.userDataManager.setName((long)playerUuid, playerName);
-                             Console.WriteLine($"昵称： {playerName}UID：{playerUuid}");
+                             //Console.WriteLine($"昵称： {playerName}UID：{playerUuid}");
                             break;
 
                         case (int)AttrType.AttrProfessionId:
@@ -339,14 +335,14 @@ namespace StarResonanceDpsAnalysis.Core
                             //this.userDataManager.setProfession((long)playerUuid, professionName);
                             StatisticData._manager.SetProfession((ulong)playerUuid, professionName);
 
-                            Console.WriteLine($"职业ID：{professionId}职业： {professionName} UID： {playerUuid}");
+                            //Console.WriteLine($"职业ID：{professionId}职业： {professionName} UID： {playerUuid}");
                             break;
 
                         case (int)AttrType.AttrFightPoint:
                             int playerFightPoint = reader.ReadInt32();
                             //this.userDataManager.setFightPoint((long)playerUuid, playerFightPoint);
                             StatisticData._manager.SetCombatPower((ulong)playerUuid, playerFightPoint);
-                            Console.WriteLine($"战力： {playerFightPoint} UID：{playerUuid}");
+                            //Console.WriteLine($"战力： {playerFightPoint} UID：{playerUuid}");
                             break;
 
                         default:
