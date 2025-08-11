@@ -213,11 +213,18 @@ namespace StarResonanceDpsAnalysis
             foreach (var item in ColumnSettingsManager.AllSettings)
             {
                 string strValue = AppConfig.GetValue("TableSet", item.Key, string.Empty);
-                Console.WriteLine(strValue);
-                item.IsVisible = string.Equals(strValue, "true", StringComparison.OrdinalIgnoreCase);
-                // Console.WriteLine(item.IsVisible = strValue == "true");
 
+                // 如果没有保存记录（为空），默认显示（true）
+                if (string.IsNullOrEmpty(strValue))
+                {
+                    item.IsVisible = true;
+                }
+                else
+                {
+                    item.IsVisible = string.Equals(strValue, "true", StringComparison.OrdinalIgnoreCase);
+                }
             }
+
         }
 
         #endregion
@@ -253,11 +260,6 @@ namespace StarResonanceDpsAnalysis
             TopMost = !TopMost;
 
             button_AlwaysOnTop.Toggle = TopMost;
-        }
-
-        private void checkbox_PersentData_CheckedChanged(object sender, BoolEventArgs e)
-        {
-
         }
 
         private void dropdown_History_SelectedValueChanged(object sender, ObjectNEventArgs e)
@@ -371,6 +373,7 @@ namespace StarResonanceDpsAnalysis
 
         private void table_DpsDataTable_CellClick(object sender, TableClickEventArgs e)
         {
+            if (e.RowIndex == 0) return;
             ulong uid = 0;
 
             if (sort != null)
@@ -393,7 +396,7 @@ namespace StarResonanceDpsAnalysis
             //获取玩家信息
             var info = StatisticData._manager.GetPlayerBasicInfo(uid);
             Common.skillDetailForm.GetPlayerInfo(info.Nickname, info.CombatPower, info.Profession);
-
+            Common.skillDetailForm.SelectDataType();
             Common.skillDetailForm.Show();
 
         }

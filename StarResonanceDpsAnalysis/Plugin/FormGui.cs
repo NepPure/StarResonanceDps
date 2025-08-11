@@ -34,9 +34,11 @@ namespace StarResonanceDpsAnalysis.Plugin
             if (window == null || window.IsDisposed) return;
             if (isLight)
             {
+                //亮色
                 Config.IsLight = true;
                 window.BackColor = Color.White;
                 window.ForeColor = Color.Black;
+              
             }
             else
             {
@@ -44,6 +46,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 window.BackColor = Color.FromArgb(31, 31, 31);
                 window.ForeColor = Color.White;
             }
+
         }
 
         /// <summary>

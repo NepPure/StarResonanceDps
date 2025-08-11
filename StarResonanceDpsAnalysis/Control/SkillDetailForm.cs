@@ -1,14 +1,17 @@
 ﻿using AntdUI;
 using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.Plugin.Charts;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.ComponentModel.Design.ObjectSelectorEditor;
 
 namespace StarResonanceDpsAnalysis.Control
 {
@@ -18,12 +21,24 @@ namespace StarResonanceDpsAnalysis.Control
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
+          
             ToggleTableView();
         }
 
+        private int fixedWidth = 1644;//窗体宽度
         private void SkillDetailForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
+        
+            isSelect = true;
+            select1.Items = new AntdUI.BaseCollection() { "按伤害排序", "按秒伤排序", "按命中次数排序", "按暴击率排序" };
+            select1.SelectedIndex = 0;
+            isSelect = false;
+
+        
+            FlatLineChart _dpsTrendChart = ChartVisualizationService.CreateDpsTrendChart();
+            panel7.Controls.Add(_dpsTrendChart);
+         
 
         }
 
@@ -33,44 +48,26 @@ namespace StarResonanceDpsAnalysis.Control
         {
             if (_suspendUiUpdate) return;
 
-            var p = StatisticData._manager.GetOrCreate(Uid);
-
-            if (segmented1.SelectIndex == 0)
-            {
-                // ===== 伤害总览 =====
-                TotalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Total);
-                TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalDps());
-                CritRateText.Text = $"{(p.DamageStats.GetCritRate() * 100):0.#}%";
-                LuckyRate.Text = $"{(p.DamageStats.GetLuckyRate() * 100):0.#}%";
-
-                NormalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Normal);
-                CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
-                LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Lucky);
-                AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());
-
-                // ===== 技能表（伤害）=====
-                UpdateSkillTable(Uid, false);
-            }
-            else
-            {
-                // ===== 治疗总览 =====
-                TotalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Total);
-                TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalHps());
-                CritRateText.Text = $"{(p.HealingStats.GetCritRate() * 100):0.#}%";
-                LuckyRate.Text = $"{(p.HealingStats.GetLuckyRate() * 100):0.#}%";
-
-                NormalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Normal);
-                CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
-                LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Lucky);
-                AvgDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.GetAveragePerHit());
-
-                // ===== 技能表（治疗）=====
-                UpdateSkillTable(Uid, true);
-            }
+            SelectDataType();
         }
 
         private void segmented1_SelectIndexChanged(object sender, IntEventArgs e)
         {
+            select1.Items.Clear();
+            isSelect = true;
+            if (e.Value == 0)
+            {
+                select1.Items = new AntdUI.BaseCollection() { "按伤害排序", "按秒伤排序", "按命中次数排序", "按暴击率排序" };
+            }
+            else
+            {
+                select1.Items = new AntdUI.BaseCollection() { "按治疗量排序", "按HPS排序", "按命中次数排序", "按暴击率排序" };
+            }
+            select1.SelectedValue = select1.Items[0];
+            // 手动刷新 UI
+
+
+            isSelect = false;
             // 暂停一次刷新
             _suspendUiUpdate = true;
 
@@ -79,11 +76,127 @@ namespace StarResonanceDpsAnalysis.Control
 
             // 立刻按新模式刷新一次
             bool isHeal = segmented1.SelectIndex != 0;
-            UpdateSkillTable(Uid, isHeal);
+            SelectDataType();
 
             // 下一轮计时器再恢复
             _suspendUiUpdate = false;
+
         }
 
+
+
+
+        const int WM_NCLBUTTONDOWN = 0xA1;
+        const int HTCAPTION = 0x2;
+
+        [DllImport("user32.dll")] static extern bool ReleaseCapture();
+        [DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+        private void TitleText_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(this.Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            SelectDataType();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        /// <summary>
+        /// 检测窗体变动
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SkillDetailForm_ForeColorChanged(object sender, EventArgs e)
+        {
+            if (Config.IsLight)
+            {
+                //浅色
+                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
+                panel1.Back = panel2.Back = ColorTranslator.FromHtml("#67AEF6");
+            }
+            else
+            {
+                //深色
+                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#10529a");
+                panel1.Back = panel2.Back = ColorTranslator.FromHtml("#255AD0");
+
+            }
+        }
+
+
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            fixedWidth = this.Width;
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            this.Width = fixedWidth;
+        }
+        protected override void WndProc(ref System.Windows.Forms.Message m)
+        {
+            const int WM_NCHITTEST = 0x84;
+            const int HTTOP = 12;
+            const int HTBOTTOM = 15;
+            const int HTLEFT = 10;
+            const int HTRIGHT = 11;
+            const int HTTOPLEFT = 13;
+            const int HTTOPRIGHT = 14;
+            const int HTBOTTOMLEFT = 16;
+            const int HTBOTTOMRIGHT = 17;
+
+            base.WndProc(ref m);
+
+            if (m.Msg == WM_NCHITTEST)
+            {
+                int result = m.Result.ToInt32();
+
+                // 禁止左右和四角的拖动，只允许上下拖动
+                if (result == HTLEFT || result == HTRIGHT ||
+                    result == HTTOPLEFT || result == HTTOPRIGHT ||
+                    result == HTBOTTOMLEFT || result == HTBOTTOMRIGHT)
+                {
+                    m.Result = IntPtr.Zero; // 禁用这些区域
+                }
+            }
+        }
+        bool isSelect = false;
+        private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
+        {
+            if (isSelect) return;
+            //DPS排序
+            // 判断是否为治疗（true）或伤害（false）
+            bool isHeal = segmented1.SelectIndex != 0;
+
+            // 根据当前排序方式，设置委托
+            SkillOrderBySelector = e.Value switch
+            {
+                0 => s => s.Total,
+                1 => s => s.TotalDps,
+                2 => s => s.HitCount,
+                3 => s => s.CritRate,
+                _ => s => s.Total  // 默认排序（可选）
+            };
+
+            // 更新表格数据
+            UpdateSkillTable(Uid, isHeal);
+        }
+
+        private void panel4_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

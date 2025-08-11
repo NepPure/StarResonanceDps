@@ -32,6 +32,24 @@
     <Compile Update="Forms\SkillDiary.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\TestForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Plugin\StatisticalChart\FlatBarChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Plugin\StatisticalChart\FlatLineChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Plugin\StatisticalChart\FlatPieChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Plugin\StatisticalChart\FlatScatterChart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Plugin\StatisticalChart\RealtimeChartsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

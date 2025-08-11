@@ -61,11 +61,71 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap cancel_hover {
+            get {
+                object obj = ResourceManager.GetObject("cancel_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap cancel_normal {
+            get {
+                object obj = ResourceManager.GetObject("cancel_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 &lt;svg  xmlns=&quot;http://www.w3.org/2000/svg&quot;  width=&quot;24&quot;  height=&quot;24&quot;  viewBox=&quot;0 0 24 24&quot;  fill=&quot;none&quot;  stroke=&quot;currentColor&quot;  stroke-width=&quot;2&quot;  stroke-linecap=&quot;round&quot;  stroke-linejoin=&quot;round&quot;  class=&quot;icon icon-tabler icons-tabler-outline icon-tabler-chart-bar-popular&quot;&gt;&lt;path stroke=&quot;none&quot; d=&quot;M0 0h24v24H0z&quot; fill=&quot;none&quot;/&gt;&lt;path d=&quot;M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z&quot; /&gt;&lt;path d=&quot;M9 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z&quot; /&gt;&lt;path d=&quot;M15 5a1 1 0 0 [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string data_display {
             get {
                 return ResourceManager.GetString("data-display", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap flushed_hover {
+            get {
+                object obj = ResourceManager.GetObject("flushed_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap flushed_normal {
+            get {
+                object obj = ResourceManager.GetObject("flushed_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap ok_hover {
+            get {
+                object obj = ResourceManager.GetObject("ok_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap ok_normal {
+            get {
+                object obj = ResourceManager.GetObject("ok_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -84,6 +144,86 @@ namespace StarResonanceDpsAnalysis.Properties {
         internal static string userUid {
             get {
                 return ResourceManager.GetString("userUid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 冰魔导师 {
+            get {
+                object obj = ResourceManager.GetObject("冰魔导师", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 圣盾骑士 {
+            get {
+                object obj = ResourceManager.GetObject("圣盾骑士", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 巨刃守护者 {
+            get {
+                object obj = ResourceManager.GetObject("巨刃守护者", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 森语者 {
+            get {
+                object obj = ResourceManager.GetObject("森语者", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 灵魂乐手 {
+            get {
+                object obj = ResourceManager.GetObject("灵魂乐手", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 神射手 {
+            get {
+                object obj = ResourceManager.GetObject("神射手", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 雷影剑士 {
+            get {
+                object obj = ResourceManager.GetObject("雷影剑士", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 青岚骑士 {
+            get {
+                object obj = ResourceManager.GetObject("青岚骑士", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }

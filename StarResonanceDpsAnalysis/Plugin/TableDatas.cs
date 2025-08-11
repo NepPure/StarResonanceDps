@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -121,6 +123,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             get => uid;
             set
             {
+              
                 if (uid == value) return;
                 uid = value;
                 OnPropertyChanged(nameof(Uid));
@@ -133,6 +136,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             get => nickName;
             set
             {
+               
                 if (nickName == value) return;
                 nickName = value;
                 OnPropertyChanged(nameof(NickName));
@@ -432,13 +436,16 @@ namespace StarResonanceDpsAnalysis.Plugin
         #region 字段（私有存储）
         private string name;       // 技能名称
         private string icon;       // 技能图标（文件路径或URL）
-        private string damage;      // 技能总伤害
-        private int hitCount;      // 技能命中次数
-        private string critRate;   // 暴击率
-        private string luckyRate;  // 幸运率
+        private CellText damage;      // 技能总伤害
+        private CellText hitCount;      // 技能命中次数
+        private CellText critRate;   // 暴击率
+        private CellText luckyRate;  // 幸运率
         private CellProgress share; // 占比（0~1）
-        private string avgPerHit;  // 平均值
-        private string totalDps;//秒伤
+        private CellText avgPerHit;  // 平均值
+        private CellText totalDps;//秒伤
+        private CellText percentage; //百分比
+
+        private Font SaoFont = new Font("SAO Welcome TT", 10, FontStyle.Regular);
         #endregion
 
         #region 构造函数
@@ -446,13 +453,15 @@ namespace StarResonanceDpsAnalysis.Plugin
         {
             Name = name;
             Icon = icon;
-            Damage = damage.ToString();
-            HitCount = hitCount;
-            CritRate = critRate;
-            LuckyRate = luckyRate;
+            Damage = new CellText(damage.ToString()) { Font = SaoFont };
+            HitCount = new CellText(hitCount.ToString()) { Font = SaoFont };
+            CritRate = new CellText(critRate) { Font = SaoFont };
+            LuckyRate = new CellText(luckyRate){ Font = SaoFont };
             Share = new CellProgress((float)share) { Fill = AppConfig.DpsColor ,Size = new Size(200, 10) };
-            this.AvgPerHit = avgPerHit.ToString();
-            this.TotalDps = totalDps.ToString();
+            this.AvgPerHit = new CellText(avgPerHit.ToString()) { Font = SaoFont };
+            this.TotalDps =new CellText(totalDps.ToString()) { Font = SaoFont };
+            this.Percentage = new CellText(share.ToString()) { Font = SaoFont };
+
         }
         #endregion
 
@@ -492,13 +501,13 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <summary>
         /// 技能总伤害（累计值）
         /// </summary>
-        public string Damage
+        public CellText Damage
         {
             get => damage;
             set
             {
-                ulong val = (ulong)Math.Floor(double.Parse(value));
-                string formatted = Common.FormatWithEnglishUnits(val);
+                ulong val = (ulong)Math.Floor(double.Parse(value.Text));
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) {Font = SaoFont };
 
                 if (damage == formatted) return;
                 damage = formatted;
@@ -509,7 +518,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <summary>
         /// 技能命中次数
         /// </summary>
-        public int HitCount
+        public CellText HitCount
         {
             get => hitCount;
             set
@@ -523,7 +532,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <summary>
         /// 暴击率（百分比字符串）
         /// </summary>
-        public string CritRate
+        public CellText CritRate
         {
             get => critRate;
             set
@@ -537,7 +546,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <summary>
         /// 幸运率（百分比字符串）
         /// </summary>
-        public string LuckyRate
+        public CellText LuckyRate
         {
             get => luckyRate;
             set
@@ -562,13 +571,13 @@ namespace StarResonanceDpsAnalysis.Plugin
             }
         }
 
-        public string AvgPerHit
+        public CellText AvgPerHit
         {
             get => avgPerHit;
             set
             {
-                ulong val = (ulong)Math.Floor(double.Parse(value));
-                string formatted = Common.FormatWithEnglishUnits(val);
+                ulong val = (ulong)Math.Floor(double.Parse(value.Text));
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = SaoFont };
 
                 if (avgPerHit == formatted) return;
                 avgPerHit = formatted;
@@ -576,17 +585,31 @@ namespace StarResonanceDpsAnalysis.Plugin
             }
         }
 
-        public string TotalDps
+        public CellText TotalDps
         {
             get => totalDps;
             set
             {
-                ulong val = (ulong)Math.Floor(double.Parse(value));
-                string formatted = Common.FormatWithEnglishUnits(val);
+                ulong val = (ulong)Math.Floor(double.Parse(value.Text));
+                       CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) {Font = SaoFont };
+
 
                 if (totalDps == formatted) return;
                 totalDps = formatted;
                 OnPropertyChanged(nameof(TotalDps));
+            }
+        }
+
+        public CellText Percentage
+        {
+            get => percentage;
+            set
+            {
+                string percentStr = Math.Round(double.Parse(value.Text)*100).ToString();
+                CellText formatted = new CellText(@$"{percentStr}%") { Font = SaoFont };
+                if (percentage == formatted) return;
+                percentage = formatted;
+                OnPropertyChanged(nameof(Percentage));
             }
         }
         #endregion

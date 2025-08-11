@@ -23,6 +23,8 @@ namespace StarResonanceDpsAnalysis.Control
 
         private void UserUidSet_Load(object sender, EventArgs e)
         {
+           input2.Text = AppConfig.GetValue("UserConfig", "NickName", "未知昵称");
+            inputNumber1.Value = Convert.ToUInt64(AppConfig.GetValue("UserConfig", "Uid", "0"));
         }
 
 
@@ -33,7 +35,7 @@ namespace StarResonanceDpsAnalysis.Control
 
             AppConfig.SetValue("UserConfig", "NickName", input2.Text);
             AppConfig.SetValue("UserConfig", "Uid", inputNumber1.Value.ToString());
-
+            StatisticData._manager.SetNickname(AppConfig.Uid, AppConfig.NickName);
             this.Dispose();
 
         }
