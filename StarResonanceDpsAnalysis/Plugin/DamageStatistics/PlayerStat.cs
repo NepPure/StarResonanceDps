@@ -707,8 +707,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
               
                 // 只清玩家数据与战斗时钟；缓存（昵称/战力/职业）保留
                 ClearAll(false);
-    
-
+                DpsTableDatas.DpsTable.Clear();
                 _pendingClearOnNextCombat = false;
             }
 
@@ -948,6 +947,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 SaveCurrentBattleSnapshot();
             }
             _players.Clear();
+           
             if (!keepCombatTime)//false为清空
                 ResetCombatClock(); // 手动清空计时
 
