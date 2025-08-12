@@ -18,12 +18,10 @@ namespace StarResonanceDpsAnalysis.Plugin
     public static class ColumnSettingsManager
     {
         public static Action? RefreshTableAction { get; set; }
+        
+        // 可配置的列设置 - 移除了战力，因为它是默认固定显示的
         public static List<ColumnSetting> AllSettings =
         [
-            new() {
-                Key = "CombatPower", Title = "战力", IsVisible = true,
-                Builder = () => new Column("CombatPower", "战力", ColumnAlign.Center)
-            },
             new() {
                 Key = "TotalDamage", Title = "总伤害", IsVisible = true,
                 Builder = () =>  new AntdUI.Column("TotalDamage", "总伤害",ColumnAlign.Center)
@@ -31,14 +29,6 @@ namespace StarResonanceDpsAnalysis.Plugin
             new() {
                 Key = "DamageTaken", Title = "承伤", IsVisible = true,
                 Builder = () => new Column("DamageTaken", "承伤", ColumnAlign.Center)
-            },
-            new() {
-                Key = "CritRate", Title = "暴击率", IsVisible = true,
-                Builder = () => new Column("CritRate", "暴击率")
-            },
-            new() {
-                Key = "LuckyRate", Title = "幸运率", IsVisible = true,
-                Builder = () => new Column("LuckyRate", "幸运率")
             },
             new() {
                 Key = "CriticalDamage", Title = "纯暴击", IsVisible = true,
@@ -63,6 +53,14 @@ namespace StarResonanceDpsAnalysis.Plugin
             new() {
                 Key = "TotalDps", Title = "DPS", IsVisible = true,
                 Builder = () => new Column("TotalDps", "DPS", ColumnAlign.Center)
+            },
+            new() {
+                Key = "CritRate", Title = "暴击率", IsVisible = true,
+                Builder = () => new Column("CritRate", "暴击率")
+            },
+            new() {
+                Key = "LuckyRate", Title = "幸运率", IsVisible = true,
+                Builder = () => new Column("LuckyRate", "幸运率")
             },
             new() {
                 Key = "TotalHealingDone", Title = "总治疗", IsVisible = true,
@@ -130,19 +128,18 @@ namespace StarResonanceDpsAnalysis.Plugin
                     Render = (value, record, rowIndex) => rowIndex + 1,
                     Fixed = true
                 },
-                // 这些字段名需要与 DpsTable 公有属性名一致
+                // 基础信息列 - 固定显示，不可配置
                 new("Uid", "角色ID",ColumnAlign.Center){ SortOrder = true },
                 new("NickName", "角色昵称",ColumnAlign.Center){ SortOrder = true },
                 new("Profession", "职业",ColumnAlign.Center),
+                // 战力 - 固定显示，不在设置中配置
+                new("CombatPower", "战力", ColumnAlign.Center){ SortOrder = true }
             };
             
-            
+            // 添加可配置的列
             columns.AddRange(AllSettings.Where(s => s.IsVisible).Select(s => s.Builder()));
 
-
-          
             return [.. columns];
         }
-
     }
 }

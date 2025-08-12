@@ -980,17 +980,18 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var gridColor = _isDarkTheme ? Color.FromArgb(64, 64, 64) : Color.FromArgb(230, 230, 230);
             using var gridPen = new Pen(gridColor, 1);
 
-            // 垂直网格线 - 使用动态数量
+            // 垂直网格线 - 根据动态调整的_verticalGridLines数量绘制
+            // _verticalGridLines表示线条数量，实际标签点数量是_verticalGridLines + 1
             for (int i = 0; i <= _verticalGridLines; i++)
             {
                 var x = chartRect.X + (float)chartRect.Width * i / _verticalGridLines;
                 g.DrawLine(gridPen, x, chartRect.Y, x, chartRect.Bottom);
             }
 
-            // 水平网格线 - 调整为6条
-            for (int i = 0; i <= 5; i++) // 从4改为5，6个标签(0-5)
+            // 水平网格线 - 保持固定的6条线(0-5)
+            for (int i = 0; i <= 5; i++)
             {
-                var y = chartRect.Y + (float)chartRect.Height * i / 5; // 分母从4改为5
+                var y = chartRect.Y + (float)chartRect.Height * i / 5;
                 g.DrawLine(gridPen, chartRect.X, y, chartRect.Right, y);
             }
         }
@@ -1007,7 +1008,8 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             g.DrawLine(axisPen, chartRect.X, chartRect.Bottom, chartRect.Right, chartRect.Bottom);
             g.DrawLine(axisPen, chartRect.X, chartRect.Y, chartRect.X, chartRect.Bottom);
 
-            // X轴时间标签 - 使用动态网格线数量
+            // X轴时间标签 - 根据动态调整的_verticalGridLines数量绘制标签
+            // _verticalGridLines条线对应_verticalGridLines + 1个标签点
             for (int i = 0; i <= _verticalGridLines; i++)
             {
                 var x = chartRect.X + (float)chartRect.Width * i / _verticalGridLines;
