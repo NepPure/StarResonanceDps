@@ -141,6 +141,36 @@ namespace StarResonanceDpsAnalysis.Control
                 // ===== 技能表（治疗）=====
                 UpdateSkillTable(Uid, true);
             }
+            
+            // 更新图表数据以反映当前选择的数据类型（伤害/治疗）
+            if (_dpsTrendChart != null)
+            {
+                try
+                {
+                    // 刷新图表数据，确保显示当前玩家的最新数据
+                    RefreshDpsTrendChart();
+                    
+                    // 根据当前选择的模式更新图表标题
+                    if (segmented1.SelectIndex == 0)
+                    {
+                        _dpsTrendChart.YAxisLabel = "DPS";
+                        var playerInfo = StatisticData._manager.GetPlayerBasicInfo(Uid);
+                        var playerName = string.IsNullOrEmpty(playerInfo.Nickname) ? $"玩家{Uid}" : playerInfo.Nickname;
+                        _dpsTrendChart.TitleText = $"{playerName} - 实时DPS趋势";
+                    }
+                    else
+                    {
+                        _dpsTrendChart.YAxisLabel = "HPS";
+                        var playerInfo = StatisticData._manager.GetPlayerBasicInfo(Uid);
+                        var playerName = string.IsNullOrEmpty(playerInfo.Nickname) ? $"玩家{Uid}" : playerInfo.Nickname;
+                        _dpsTrendChart.TitleText = $"{playerName} - 实时HPS趋势";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"更新图表数据时出错: {ex.Message}");
+                }
+            }
         }
 
         /// <summary>
@@ -172,8 +202,33 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 table_DpsDetailDataTable.BackgroundImage = null; // 默认空白
             }
-
+            
+            // 更新玩家信息后，重新初始化图表以显示新玩家的数据
+            if (_dpsTrendChart != null)
+            {
+                // 重新设置刷新回调以使用新的玩家ID
+                _dpsTrendChart.SetRefreshCallback(() => {
+                    try
+                    {
+                        // 只有在正在捕获数据时才更新数据点，避免停止抓包后继续显示虚假数据
+                        if (ChartVisualizationService.IsCapturing)
+                        {
+                            ChartVisualizationService.UpdateAllDataPoints();
+                        }
+                        
+                        // 根据当前选择的模式决定显示DPS还是HPS
+                        bool showHps = segmented1.SelectIndex != 0; // 0是伤害，1是治疗
+                        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, showHps);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"图表刷新回调出错: {ex.Message}");
+                    }
+                });
+                
+                // 立即刷新图表数据
+                RefreshDpsTrendChart();
+            }
         }
-
     }
 }

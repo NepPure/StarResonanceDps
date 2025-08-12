@@ -17,6 +17,12 @@ namespace StarResonanceDpsAnalysis.Control
 {
     public partial class SkillDetailForm : BorderlessForm
     {
+        // 添加折线图成员变量
+        private FlatLineChart _dpsTrendChart;
+        
+        // 添加缺失的isSelect变量
+        bool isSelect = false;
+        
         public SkillDetailForm()
         {
             InitializeComponent();
@@ -25,7 +31,7 @@ namespace StarResonanceDpsAnalysis.Control
             ToggleTableView();
         }
 
-        private int fixedWidth = 1225;//窗体宽度
+        private int fixedWidth = 1644;//窗体宽度
         private void SkillDetailForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
@@ -35,10 +41,159 @@ namespace StarResonanceDpsAnalysis.Control
             select1.SelectedIndex = 0;
             isSelect = false;
 
-        
-      
-         
+            // 初始化并添加折线图到panel7
+            InitializeDpsTrendChart();
+            
+            // 订阅panel7的Resize事件以确保图表正确调整大小
+            panel7.Resize += Panel7_Resize;
+        }
 
+        /// <summary>
+        /// panel7大小变化时的处理
+        /// </summary>
+        private void Panel7_Resize(object sender, EventArgs e)
+        {
+            if (_dpsTrendChart != null)
+            {
+                try
+                {
+                    // 确保图表尺寸正确
+                    var panel = sender as AntdUI.Panel;
+                    if (panel != null && panel.Width > 50 && panel.Height > 50) // 增加最小尺寸检查
+                    {
+                        // 延迟重绘，避免频繁调整大小时的性能问题
+                        var resizeTimer = new System.Windows.Forms.Timer { Interval = 150 }; // 稍微延长延迟时间
+                        resizeTimer.Tick += (s, args) =>
+                        {
+                            resizeTimer.Stop();
+                            resizeTimer.Dispose();
+                            
+                            if (_dpsTrendChart != null && !_dpsTrendChart.IsDisposed)
+                            {
+                                // 字体自适应在控件大小改变时会自动重新计算
+                                _dpsTrendChart.Invalidate();
+                            }
+                        };
+                        resizeTimer.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"调整图表大小时出错: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 初始化DPS趋势图表
+        /// </summary>
+        private void InitializeDpsTrendChart()
+        {
+            try
+            {
+                // 清空panel7现有控件
+                panel7.Controls.Clear();
+                
+                // 设置panel7的基本属性以更好地显示图表
+                panel7.BackColor = AppConfig.IsLight ? Color.White : Color.FromArgb(31, 31, 31);
+                
+                // 确保panel7大小正确设置并支持自动调整
+                panel7.MinimumSize = new Size(450, 150);
+                panel7.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+                
+                // 创建DPS趋势折线图，传入当前玩家ID以显示该玩家的数据
+                _dpsTrendChart = ChartVisualizationService.CreateDpsTrendChart(specificPlayerId: Uid);
+                _dpsTrendChart.Dock = DockStyle.Fill; // 使图表填充整个panel7
+                _dpsTrendChart.TitleText = "实时DPS趋势";
+                _dpsTrendChart.XAxisLabel = "时间 (秒)";
+                _dpsTrendChart.YAxisLabel = "DPS";
+                _dpsTrendChart.ShowLegend = false; // 隐藏图例，因为标题已经显示玩家名
+                _dpsTrendChart.ShowGrid = true;
+                _dpsTrendChart.ShowViewInfo = false; // 不显示缩放和时间信息
+                _dpsTrendChart.AutoScaleFont = true; // 启用字体自适应
+                _dpsTrendChart.PreserveViewOnDataUpdate = true; // 启用视图保持功能，防止缩放和拖动回弹
+                
+                // 设置图表主题
+                _dpsTrendChart.IsDarkTheme = !AppConfig.IsLight;
+                
+                // 设置图表的最小大小以确保显示质量
+                _dpsTrendChart.MinimumSize = new Size(450, 150);
+                
+                // 设置实时刷新回调，传入当前玩家ID
+                _dpsTrendChart.SetRefreshCallback(() => {
+                    try
+                    {
+                        // 只有在正在捕获数据时才更新数据点，避免停止抓包后继续显示虚假数据
+                        if (ChartVisualizationService.IsCapturing)
+                        {
+                            ChartVisualizationService.UpdateAllDataPoints();
+                        }
+                        
+                        // 根据当前选择的模式决定显示DPS还是HPS
+                        bool showHps = segmented1.SelectIndex != 0; // 0是伤害，1是治疗
+                        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, showHps);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"图表刷新回调出错: {ex.Message}");
+                    }
+                });
+                
+                // 不要在这里启动自动刷新，让MainForm统一控制
+                // _dpsTrendChart.StartAutoRefresh(1000); // 移除这行
+                
+                // 添加到panel7
+                panel7.Controls.Add(_dpsTrendChart);
+                
+                // 确保图表被正确添加后再刷新数据
+                Application.DoEvents(); // 让UI更新完成
+                
+                // 初始刷新图表数据
+                RefreshDpsTrendChart();
+            }
+            catch (Exception ex)
+            {
+                // 如果图表初始化失败，显示错误信息
+                var errorLabel = new AntdUI.Label
+                {
+                    Text = $"图表初始化失败: {ex.Message}",
+                    Dock = DockStyle.Fill,
+                    TextAlign = ContentAlignment.MiddleCenter,
+                    ForeColor = Color.Red,
+                    Font = new Font("Microsoft YaHei", 10, FontStyle.Regular)
+                };
+                panel7.Controls.Add(errorLabel);
+                
+                Console.WriteLine($"图表初始化失败: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// 刷新DPS趋势图表数据
+        /// </summary>
+        private void RefreshDpsTrendChart()
+        {
+            if (_dpsTrendChart != null)
+            {
+                try
+                {
+                    // 只有在正在捕获数据时才更新数据点，避免停止抓包后继续显示虚假数据
+                    if (ChartVisualizationService.IsCapturing)
+                    {
+                        ChartVisualizationService.UpdateAllDataPoints();
+                    }
+                    
+                    // 根据当前选择的模式决定显示DPS还是HPS
+                    bool showHps = segmented1.SelectIndex != 0; // 0是伤害，1是治疗
+                    
+                    // 刷新图表，传入当前玩家ID和数据类型
+                    ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, showHps);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"刷新DPS趋势图表时出错: {ex.Message}");
+                }
+            }
         }
 
         private bool _suspendUiUpdate = false;
@@ -48,6 +203,9 @@ namespace StarResonanceDpsAnalysis.Control
             if (_suspendUiUpdate) return;
 
             SelectDataType();
+            
+            // 图表现在有自己的实时刷新机制，这里只做必要的数据更新检查
+            // RefreshDpsTrendChart(); // 移除手动刷新，由图表内部处理
         }
 
         private void segmented1_SelectIndexChanged(object sender, IntEventArgs e)
@@ -106,6 +264,12 @@ namespace StarResonanceDpsAnalysis.Control
 
         private void button2_Click(object sender, EventArgs e)
         {
+            // 停止图表自动刷新
+            if (_dpsTrendChart != null)
+            {
+                _dpsTrendChart.StopAutoRefresh();
+            }
+            
             this.Close();
         }
 
@@ -121,13 +285,25 @@ namespace StarResonanceDpsAnalysis.Control
                 //浅色
                 table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
                 panel1.Back = panel2.Back = ColorTranslator.FromHtml("#67AEF6");
+                // 更新panel7背景色
+                if (panel7 != null)
+                    panel7.BackColor = Color.White;
             }
             else
             {
                 //深色
                 table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#10529a");
                 panel1.Back = panel2.Back = ColorTranslator.FromHtml("#255AD0");
-
+                // 更新panel7背景色
+                if (panel7 != null)
+                    panel7.BackColor = Color.FromArgb(31, 31, 31);
+            }
+            
+            // 更新折线图主题
+            if (_dpsTrendChart != null)
+            {
+                _dpsTrendChart.IsDarkTheme = !Config.IsLight;
+                _dpsTrendChart.Invalidate(); // 强制重绘图表
             }
         }
 
@@ -137,13 +313,31 @@ namespace StarResonanceDpsAnalysis.Control
         {
             base.OnLoad(e);
             fixedWidth = this.Width;
+            
+            // 延迟一点时间再调整图表，确保所有控件都已经完成布局
+            if (_dpsTrendChart != null)
+            {
+                this.BeginInvoke(new Action(() => {
+                    _dpsTrendChart.Invalidate();
+                    RefreshDpsTrendChart();
+                }));
+            }
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
             this.Width = fixedWidth;
+            
+            // 当窗体大小变化时，强制刷新折线图布局
+            if (_dpsTrendChart != null && panel7 != null)
+            {
+                // 由于使用了Dock.Fill，图表会自动调整大小
+                // 这里只需要强制重绘即可
+                _dpsTrendChart.Invalidate();
+            }
         }
+        
         protected override void WndProc(ref System.Windows.Forms.Message m)
         {
             const int WM_NCHITTEST = 0x84;
@@ -171,7 +365,7 @@ namespace StarResonanceDpsAnalysis.Control
                 }
             }
         }
-        bool isSelect = false;
+
         private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
         {
             if (isSelect) return;
@@ -196,6 +390,36 @@ namespace StarResonanceDpsAnalysis.Control
         private void panel4_Click(object sender, EventArgs e)
         {
 
+        }
+
+        /// <summary>
+        /// 重置DPS趋势图表（用于数据清空）
+        /// </summary>
+        public void ResetDpsTrendChart()
+        {
+            if (_dpsTrendChart != null)
+            {
+                try
+                {
+                    // 完全重置图表状态
+                    _dpsTrendChart.FullReset();
+                    
+                    // 重新初始化图表基本设置
+                    _dpsTrendChart.TitleText = "实时DPS趋势";
+                    _dpsTrendChart.XAxisLabel = "时间 (秒)";
+                    _dpsTrendChart.YAxisLabel = "DPS";
+                    
+                    // 如果当前正在捕获数据，重新启动自动刷新
+                    if (ChartVisualizationService.IsCapturing)
+                    {
+                        _dpsTrendChart.StartAutoRefresh(1000);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"重置DPS趋势图表时出错: {ex.Message}");
+                }
+            }
         }
     }
 }

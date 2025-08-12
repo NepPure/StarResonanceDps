@@ -243,14 +243,28 @@ namespace StarResonanceDpsAnalysis
         {
             if (DpsTableDatas.DpsTable.Count >= 0)
             {
-
                 SaveCurrentDpsSnapshot();
             }
+            
+            // 先停止所有图表的自动刷新
+            ChartVisualizationService.StopAllChartsAutoRefresh();
+            
+            // 在清空数据前，通知图表服务战斗结束
+            ChartVisualizationService.OnCombatEnd();
            
             CombatWatch.Restart();
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
+            
+            // 完全重置所有图表（包括清空历史数据和重置视图状态）
+            ChartVisualizationService.FullResetAllCharts();
+            
+            // 如果当前正在抓包，重新启动图表自动刷新
+            if (IsCaptureStarted)
+            {
+                ChartVisualizationService.StartAllChartsAutoRefresh(1000);
+            }
         }
 
         #endregion
@@ -403,7 +417,12 @@ namespace StarResonanceDpsAnalysis
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
+            
+            // 清空图表历史数据，开始新的战斗记录
+            ChartVisualizationService.ClearAllHistory();
 
+            // 启动所有图表的自动刷新
+            ChartVisualizationService.StartAllChartsAutoRefresh(1000);
 
             // 事件注册与启动监听 --
             SelectedDevice.Open(new DeviceConfiguration
@@ -435,8 +454,14 @@ namespace StarResonanceDpsAnalysis
         /// </summary>
         private void StopCapture()
         {
+            // 先停止所有图表的自动刷新，防止在停止抓包后继续更新数据
+            ChartVisualizationService.StopAllChartsAutoRefresh();
+            
             // 保存快照
             if (DpsTableDatas.DpsTable.Count > 0) SaveCurrentDpsSnapshot();
+            
+            // 在停止抓包时，通知图表服务战斗结束，确保显示最终的0值状态
+            ChartVisualizationService.OnCombatEnd();
 
             if (SelectedDevice != null)
             {
