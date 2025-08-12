@@ -24,7 +24,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         // 边距设置 - 减少边距以增大图表占比
         private const int PaddingLeft = 35;   // 从60减少到35
         private const int PaddingRight = 15;  // 从20减少到15
-        private const int PaddingTop = 10;    // 从40减少到10
+        private const int PaddingTop = 25;    // 从10增加到25，以提供更多空间给条形上方的文本标签
         private const int PaddingBottom = 50; // 从100减少到50
 
         // 现代化配色
@@ -133,7 +133,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         #endregion
 
-        #region 主题设置
+        # region 主题设置
 
         private void ApplyTheme()
         {
@@ -283,8 +283,8 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         private void DrawBars(Graphics g, Rectangle chartRect, double maxValue)
         {
-            var barWidth = (float)chartRect.Width / _data.Count * 0.85f; // 增加柱子宽度从0.8f到0.85f
-            var barSpacing = (float)chartRect.Width / _data.Count * 0.075f; // 减少间距
+            var barWidth = (float)chartRect.Width / _data.Count * 0.85f; // ???????????0.8f??0.85f
+            var barSpacing = (float)chartRect.Width / _data.Count * 0.075f; // ??????
 
             for (int i = 0; i < _data.Count; i++)
             {
@@ -296,24 +296,55 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 
                 var barRect = new RectangleF(x, y, barWidth, barHeight);
                 
-                // 绘制柱状条 - 扁平设计，无边框
+                // ????????? - ???????????
                 using var brush = new SolidBrush(data.Color);
                 g.FillRectangle(brush, barRect);
                 
-                // 绘制数值标签 - 使用更小字体，只在柱子足够高时显示
-                if (barHeight > 25) // 只在柱子高度大于25像素时显示数值
+                // ?????????? - ???????????????λ??
+                if (barHeight > 15) // ??????????????
                 {
-                    var valueText = $"{data.Value:F1}%"; // 简化格式，显示百分比
-                    using var font = new Font("Microsoft YaHei", 6, FontStyle.Regular); // 从8减少到6
+                    var valueText = $"{data.Value:F1}%"; // ??????????????
+                    using var font = new Font("Microsoft YaHei", 6, FontStyle.Regular); // ??8?????6
                     using var textBrush = new SolidBrush(ForeColor);
                     
                     var textSize = g.MeasureString(valueText, font);
                     var textX = x + (barWidth - textSize.Width) / 2;
-                    var textY = y - textSize.Height - 2; // 减少间距
                     
-                    g.DrawString(valueText, font, textBrush, textX, textY);
+                    // ??????????????λ????????????????????
+                    var textAboveY = y - textSize.Height - 2; // ?????????λ??
+                    var textInsideY = y + 2; // ????????????λ??
+                    
+                    // ??鸺??????????????????
+                    var textY = (textAboveY >= chartRect.Y) ? textAboveY : textInsideY;
+                    
+                    // ?????????????????????
+                    if (textY + textSize.Height <= chartRect.Bottom && textY >= chartRect.Y)
+                    {
+                        // ????????????λ???????????????????
+                        Color textColor = ForeColor;
+                        if (textY == textInsideY) // ???????????????
+                        {
+                            // ???????????????Α??
+                            textColor = GetContrastColor(data.Color);
+                        }
+                        
+                        using var contrastBrush = new SolidBrush(textColor);
+                        g.DrawString(valueText, font, contrastBrush, textX, textY);
+                    }
                 }
             }
+        }
+        
+        /// <summary>
+        /// ???????????????????????
+        /// </summary>
+        private Color GetContrastColor(Color backgroundColor)
+        {
+            // ????RGB????????
+            var brightness = (backgroundColor.R * 0.299 + backgroundColor.G * 0.587 + backgroundColor.B * 0.114);
+            
+            // ??????????????????????????
+            return brightness > 128 ? Color.Black : Color.White;
         }
 
         private void DrawTitle(Graphics g)

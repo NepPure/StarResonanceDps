@@ -26,6 +26,11 @@ namespace StarResonanceDpsAnalysis.Control
         // 添加缺失的isSelect变量
         bool isSelect = false;
         
+        // 添加分割器动态调整相关变量
+        private int _lastSplitterPosition = 350; // 记录上次分割器位置，与Designer中的默认值保持一致
+        private const int SPLITTER_STEP_PIXELS = 50; // 每50像素触发一次调整
+        private const int PADDING_ADJUSTMENT = 10;   // 每次调整PaddingRight的数值
+        
         public SkillDetailForm()
         {
             InitializeComponent();
@@ -53,6 +58,19 @@ namespace StarResonanceDpsAnalysis.Control
 
             // 订阅panel7的Resize事件以确保图表正确调整大小
             collapseItem1.Resize += Panel7_Resize;
+            
+            // 设置分割器的最小位置为350，防止向左拖动
+            splitter1.Panel1MinSize = 350;
+            
+            // 初始化分割器位置跟踪，确保与实际位置同步
+            _lastSplitterPosition = splitter1.SplitterDistance;
+            
+            // 确保图表初始状态正确 - 在默认位置350时应该有5条垂直网格线（6个点）
+            if (_dpsTrendChart != null && splitter1.SplitterDistance == 350)
+            {
+                _dpsTrendChart.SetVerticalGridLines(5); // 5条线表示6个标签点
+                Console.WriteLine($"初始化图表 - 分割器位置: {splitter1.SplitterDistance}, 垂直线条: 6");
+            }
         }
 
         /// <summary>
@@ -64,25 +82,20 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 try
                 {
-                    // 确保图表尺寸正确
-                    var panel = sender as AntdUI.Panel;
-                    if (panel != null && panel.Width > 50 && panel.Height > 50) // 增加最小尺寸检查
+                    // 由于使用了Dock.Fill，图表会自动调整大小
+                    // 这里只需要延迟重绘以确保布局完成后再刷新
+                    var resizeTimer = new System.Windows.Forms.Timer { Interval = 100 };
+                    resizeTimer.Tick += (s, args) =>
                     {
-                        // 延迟重绘，避免频繁调整大小时的性能问题
-                        var resizeTimer = new System.Windows.Forms.Timer { Interval = 150 }; // 稍微延长延迟时间
-                        resizeTimer.Tick += (s, args) =>
+                        resizeTimer.Stop();
+                        resizeTimer.Dispose();
+                        
+                        if (_dpsTrendChart != null && !_dpsTrendChart.IsDisposed)
                         {
-                            resizeTimer.Stop();
-                            resizeTimer.Dispose();
-                            
-                            if (_dpsTrendChart != null && !_dpsTrendChart.IsDisposed)
-                            {
-                                // 字体自适应在控件大小改变时会自动重新计算
-                                _dpsTrendChart.Invalidate();
-                            }
-                        };
-                        resizeTimer.Start();
-                    }
+                            _dpsTrendChart.Invalidate();
+                        }
+                    };
+                    resizeTimer.Start();
                 }
                 catch (Exception ex)
                 {
@@ -107,6 +120,9 @@ namespace StarResonanceDpsAnalysis.Control
                 
                 // 创建DPS趋势折线图，使用统一的配置管理
                 _dpsTrendChart = ChartVisualizationService.CreateDpsTrendChart(specificPlayerId: Uid);
+                
+                // 设置图表为自适应大小，与其他两个图表保持一致
+                _dpsTrendChart.Dock = DockStyle.Fill;
                 
                 // 设置实时刷新回调，传入当前玩家ID
                 _dpsTrendChart.SetRefreshCallback(() => {
@@ -329,10 +345,9 @@ namespace StarResonanceDpsAnalysis.Control
             //this.Width = fixedWidth;
             
             // 当窗体大小变化时，强制刷新折线图布局
+            // 由于使用了Dock.Fill，图表会自动调整大小，只需要重绘即可
             if (_dpsTrendChart != null && collapseItem1 != null)
             {
-                // 由于使用了Dock.Fill，图表会自动调整大小
-                // 这里只需要强制重绘即可
                 _dpsTrendChart.Invalidate();
             }
         }
@@ -533,6 +548,67 @@ namespace StarResonanceDpsAnalysis.Control
             catch (Exception ex)
             {
                 Console.WriteLine($"技能占比图表初始化失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 限制分割器移动并动态调整图表参数
+        /// </summary>
+        private void splitter1_SplitterMoving(object sender, SplitterCancelEventArgs e)
+        {
+            // 如果尝试将分割器拖动到小于350的位置，则取消移动
+            if (e.SplitX < 350)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            // 计算相对于基准位置350的偏移
+            var offsetFrom350 = e.SplitX - 350;
+            var expectedSteps = offsetFrom350 / SPLITTER_STEP_PIXELS;
+            
+            // 计算当前应该有的网格线数量（基准为5条线，即6个标签点）
+            var expectedGridLines = Math.Max(3, Math.Min(20, 5 + expectedSteps));
+            var expectedPadding = Math.Max(10, Math.Min(300, 160 - expectedSteps * PADDING_ADJUSTMENT));
+            
+            if (_dpsTrendChart != null)
+            {
+                var currentGridLines = _dpsTrendChart.GetVerticalGridLines();
+                var currentPadding = _dpsTrendChart.GetPaddingRight();
+                
+                // 只有当计算出的值与当前值不同时才更新
+                if (currentGridLines != expectedGridLines || currentPadding != expectedPadding)
+                {
+                    _dpsTrendChart.SetVerticalGridLines(expectedGridLines);
+                    _dpsTrendChart.SetPaddingRight(expectedPadding);
+                    
+                    Console.WriteLine($"分割器位置: {e.SplitX}, 偏移步数: {expectedSteps}, PaddingRight: {expectedPadding}, 垂直线条: {expectedGridLines + 1}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 分割器移动完成后的处理
+        /// </summary>
+        private void splitter1_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            // 最终确认分割器位置，确保图表参数正确应用
+            if (_dpsTrendChart != null)
+            {
+                // 计算相对于基准位置350的偏移步数
+                var offsetFrom350 = e.SplitX - 350;
+                var steps = offsetFrom350 / SPLITTER_STEP_PIXELS;
+                
+                // 同步最终位置记录
+                _lastSplitterPosition = 350 + steps * SPLITTER_STEP_PIXELS;
+                
+                // 强制重绘图表以应用新的设置
+                _dpsTrendChart.Invalidate();
+                
+                var currentPadding = _dpsTrendChart.GetPaddingRight();
+                var currentGridLines = _dpsTrendChart.GetVerticalGridLines();
+                
+                Console.WriteLine($"分割器移动完成 - 实际位置: {e.SplitX}, 基准位置: {_lastSplitterPosition}, PaddingRight: {currentPadding}, 垂直线条: {currentGridLines + 1}");
             }
         }
     }

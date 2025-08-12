@@ -26,9 +26,12 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         // 边距设置 - 调整边距使图表左对齐，保持较窄的宽度
         private const int PaddingLeft = 60;    // 恢复到正常的左边距
-        private const int PaddingRight = 50;  // 大幅增加右边距，让图表左对齐
+        private int _paddingRight = 160;       // 改为实例变量，支持动态调整
         private const int PaddingTop = 35;     // 保持顶部边距
         private const int PaddingBottom = 45;  // 保持底部边距
+
+        // 网格线配置
+        private int _verticalGridLines = 5;    // 垂直网格线数量（默认6条线，0-5）
 
         // 字体大小设置（基础大小，会根据图表大小调整）
         private const float BaseTitleFontSize = 12f;    // 减小标题字体从14到12
@@ -232,6 +235,40 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         public bool HasUserInteracted()
         {
             return _hasUserInteracted;
+        }
+
+        /// <summary>
+        /// 设置右侧内边距
+        /// </summary>
+        public void SetPaddingRight(int paddingRight)
+        {
+            _paddingRight = Math.Max(10, paddingRight); // 最小值为10
+            Invalidate();
+        }
+
+        /// <summary>
+        /// 获取当前右侧内边距
+        /// </summary>
+        public int GetPaddingRight()
+        {
+            return _paddingRight;
+        }
+
+        /// <summary>
+        /// 设置垂直网格线数量
+        /// </summary>
+        public void SetVerticalGridLines(int lineCount)
+        {
+            _verticalGridLines = Math.Max(3, Math.Min(20, lineCount)); // 限制在3-20条之间
+            Invalidate();
+        }
+
+        /// <summary>
+        /// 获取当前垂直网格线数量
+        /// </summary>
+        public int GetVerticalGridLines()
+        {
+            return _verticalGridLines;
         }
 
         #endregion
@@ -601,7 +638,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         private float GetViewTimeRange(float scale)
         {
             // 修改默认时间范围从10秒改为5秒
-            return 5.0f / scale;
+            return 30.0f / scale;
         }
 
         #endregion
@@ -637,7 +674,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         private void OnChartMouseMove(object sender, MouseEventArgs e)
         {
             var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
-                                        Width - PaddingLeft - PaddingRight,
+                                        Width - PaddingLeft - _paddingRight,
                                         Height - PaddingTop - PaddingBottom);
 
             if (chartRect.Contains(e.Location))
@@ -684,7 +721,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 _hasUserInteracted = true; // 标记用户有交互
                 
                 var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
-                                            Width - PaddingLeft - PaddingRight,
+                                            Width - PaddingLeft - _paddingRight,
                                             Height - PaddingTop - PaddingBottom);
 
                 if (chartRect.Contains(e.Location))
@@ -710,7 +747,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 }
 
                 var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
-                                            Width - PaddingLeft - PaddingRight,
+                                            Width - PaddingLeft - _paddingRight,
                                             Height - PaddingTop - PaddingBottom);
 
                 if (chartRect.Contains(e.Location))
@@ -872,7 +909,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             if (viewRange.IsEmpty) return;
 
             var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
-                                        Width - PaddingLeft - PaddingRight,
+                                        Width - PaddingLeft - _paddingRight,
                                         Height - PaddingTop - PaddingBottom);
 
             if (_showGrid)
@@ -943,10 +980,10 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var gridColor = _isDarkTheme ? Color.FromArgb(64, 64, 64) : Color.FromArgb(230, 230, 230);
             using var gridPen = new Pen(gridColor, 1);
 
-            // 垂直网格线 - 调整为6条
-            for (int i = 0; i <= 5; i++) // 从4改为5，6个标签(0-5)
+            // 垂直网格线 - 使用动态数量
+            for (int i = 0; i <= _verticalGridLines; i++)
             {
-                var x = chartRect.X + (float)chartRect.Width * i / 5; // 分母从4改为5
+                var x = chartRect.X + (float)chartRect.Width * i / _verticalGridLines;
                 g.DrawLine(gridPen, x, chartRect.Y, x, chartRect.Bottom);
             }
 
@@ -970,11 +1007,11 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             g.DrawLine(axisPen, chartRect.X, chartRect.Bottom, chartRect.Right, chartRect.Bottom);
             g.DrawLine(axisPen, chartRect.X, chartRect.Y, chartRect.X, chartRect.Bottom);
 
-            // X轴时间标签 - 调整为6个标签
-            for (int i = 0; i <= 5; i++) // 从4改为5，6个标签(0-5)
+            // X轴时间标签 - 使用动态网格线数量
+            for (int i = 0; i <= _verticalGridLines; i++)
             {
-                var x = chartRect.X + (float)chartRect.Width * i / 5; // 分母从4改为5
-                var timeValue = viewRange.X + viewRange.Width * i / 5; // 分母从4改为5
+                var x = chartRect.X + (float)chartRect.Width * i / _verticalGridLines;
+                var timeValue = viewRange.X + viewRange.Width * i / _verticalGridLines;
                 var text = FormatTimeLabel(timeValue);
                 
                 var size = g.MeasureString(text, font);
