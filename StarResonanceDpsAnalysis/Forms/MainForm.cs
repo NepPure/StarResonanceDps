@@ -142,21 +142,6 @@ namespace StarResonanceDpsAnalysis
 
             RefreshHotKeyTips();
 
-    
-      
-
-            // 自动测试
-
-            //// 鼠标步进测试
-            //table_DpsDataTable.Click += (s, e) =>
-            //{
-            //    value += 0.01d;
-            //    value = value % 0.1d;
-            //    textProgressBar1.ProgressBarValue = value;
-            //    textProgressBar1.Text = value.ToString();
-            //};
-
-       
         }
 
         #endregion

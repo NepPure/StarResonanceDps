@@ -18,6 +18,10 @@ namespace StarResonanceDpsAnalysis.Control
         {
             if (Width <= 0 || Height <= 0) return;
 
+            /* 这里的 Graphics 不要使用 using, 也不要 Dispose, 
+             * 因为双重缓冲机制, 在我们自己的绘制结束后, 系统会继续使用这个 Graphics 进行收尾工作,
+             * 如果我们在这里 Dispose, 会导致报错: System.ArgumentException:“Parameter is not valid.”
+             * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
             var g = e.Graphics;
             g.Clear(BackColor);
 

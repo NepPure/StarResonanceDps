@@ -20,6 +20,9 @@
     <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\MainForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\RankingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -27,12 +30,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\RankingsForm.Function.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\SettingsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\SkillDetailForm.cs">
@@ -90,11 +87,14 @@
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
+
   <ItemGroup>
+  <!-- 把任意 *.Function.cs 的文件类型识别改回正常的代码文件 -->
     <Compile Update="**/*.Function.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
+
   <ItemGroup>
     <!-- 把任意 *.Function.cs 折叠到去掉 .Function 后的同名 .cs 下 -->
     <Compile Update="**/*.Function.cs">
