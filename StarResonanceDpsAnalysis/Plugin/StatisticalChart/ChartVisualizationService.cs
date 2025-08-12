@@ -218,54 +218,91 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <summary>
         /// 创建并配置图表（通用方法）
         /// </summary>
+        /// <typeparam name="T">图表控件类型（继承自 UserControl）</typeparam>
+        /// <param name="size">图表的初始尺寸</param>
+        /// <param name="customConfig">可选的自定义配置回调，对图表进行额外设置</param>
+        /// <returns>已创建并应用默认配置的图表实例</returns>
         private static T CreateChart<T>(Size size, Action<T> customConfig = null) where T : UserControl, new()
         {
             var chart = new T { Size = size };
-            ChartConfigManager.ApplySettings(chart);
-            customConfig?.Invoke(chart);
+            ChartConfigManager.ApplySettings(chart); // 应用统一的图表配置
+            customConfig?.Invoke(chart); // 执行自定义配置
             return chart;
         }
 
+        /// <summary>
+        /// 创建 DPS 趋势折线图（FlatLineChart）
+        /// </summary>
+        /// <param name="width">图表宽度（默认 800）</param>
+        /// <param name="height">图表高度（默认 400）</param>
+        /// <param name="specificPlayerId">可选：指定玩家 ID，仅显示该玩家的数据</param>
+        /// <returns>已创建并初始化的 DPS 趋势图控件</returns>
         public static FlatLineChart CreateDpsTrendChart(int width = 800, int height = 400, ulong? specificPlayerId = null)
         {
             var chart = CreateChart<FlatLineChart>(new Size(width, height));
-            
-            RegisterChart(chart);
-            
-            if (IsCapturing)
+
+            RegisterChart(chart); // 注册图表到管理器
+
+            if (IsCapturing) // 若正在采集数据，则开启自动刷新
                 chart.StartAutoRefresh(ChartConfigManager.REFRESH_INTERVAL);
-            
-            RefreshDpsTrendChart(chart, specificPlayerId);
+
+            RefreshDpsTrendChart(chart, specificPlayerId); // 加载初始数据
             return chart;
         }
 
+        /// <summary>
+        /// 创建技能伤害占比饼图（FlatPieChart）
+        /// </summary>
+        /// <param name="playerId">玩家 ID，用于加载该玩家的技能伤害数据</param>
+        /// <param name="width">图表宽度（默认 400）</param>
+        /// <param name="height">图表高度（默认 400）</param>
+        /// <returns>已创建并初始化的技能伤害饼图控件</returns>
         public static FlatPieChart CreateSkillDamagePieChart(ulong playerId, int width = 400, int height = 400)
         {
             var chart = CreateChart<FlatPieChart>(new Size(width, height));
-            RefreshSkillDamagePieChart(chart, playerId);
+            RefreshSkillDamagePieChart(chart, playerId); // 加载数据
             return chart;
         }
 
+        /// <summary>
+        /// 创建团队 DPS 柱状图（FlatBarChart）
+        /// </summary>
+        /// <param name="width">图表宽度（默认 600）</param>
+        /// <param name="height">图表高度（默认 400）</param>
+        /// <returns>已创建并初始化的团队 DPS 柱状图控件</returns>
         public static FlatBarChart CreateTeamDpsBarChart(int width = 600, int height = 400)
         {
             var chart = CreateChart<FlatBarChart>(new Size(width, height));
-            RefreshTeamDpsBarChart(chart);
+            RefreshTeamDpsBarChart(chart); // 加载数据
             return chart;
         }
 
+        /// <summary>
+        /// 创建 DPS 雷达图（FlatScatterChart）
+        /// </summary>
+        /// <param name="width">图表宽度（默认 400）</param>
+        /// <param name="height">图表高度（默认 400）</param>
+        /// <returns>已创建并初始化的 DPS 雷达图控件</returns>
         public static FlatScatterChart CreateDpsRadarChart(int width = 400, int height = 400)
         {
             var chart = CreateChart<FlatScatterChart>(new Size(width, height));
-            RefreshDpsRadarChart(chart);
+            RefreshDpsRadarChart(chart); // 加载数据
             return chart;
         }
 
+        /// <summary>
+        /// 创建伤害类型堆叠柱状图（FlatBarChart）
+        /// </summary>
+        /// <param name="width">图表宽度（默认 600）</param>
+        /// <param name="height">图表高度（默认 400）</param>
+        /// <returns>已创建并初始化的伤害类型堆叠柱状图控件</returns>
         public static FlatBarChart CreateDamageTypeStackedChart(int width = 600, int height = 400)
         {
             var chart = CreateChart<FlatBarChart>(new Size(width, height));
-            RefreshDamageTypeStackedChart(chart);
+            RefreshDamageTypeStackedChart(chart); // 加载数据
             return chart;
         }
+
         #endregion
 
         #region 图表刷新

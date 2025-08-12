@@ -18,14 +18,14 @@ namespace StarResonanceDpsAnalysis.Control
 
             table_DpsDetailDataTable.Columns = new AntdUI.ColumnCollection
             {
-                new AntdUI.Column("Name","技能名"),
-                new AntdUI.Column("Damage","伤害"),
-                new AntdUI.Column("AvgPerHit","DPS/秒"),
-                new AntdUI.Column("HitCount","命中次数"),
-                new AntdUI.Column("CritRate","暴击率"),
-                new AntdUI.Column("LuckyRate","幸运率"),
-                new AntdUI.Column("Share","占比"),
-                new AntdUI.Column("Percentage","百分比"),
+                new AntdUI.Column("Name","技能名"){Fixed=true },
+                new AntdUI.Column("Damage","伤害"){Fixed=true },
+                new AntdUI.Column("AvgPerHit","DPS/秒"){Fixed=true },
+                new AntdUI.Column("HitCount","命中次数"){Fixed=true },
+                new AntdUI.Column("CritRate","暴击率"){Fixed=true },
+                new AntdUI.Column("LuckyRate","幸运率"){Fixed=true },
+                new AntdUI.Column("Share","占比"){Fixed=true },
+                new AntdUI.Column("Percentage","百分比"){Fixed=true },
             };
          
             table_DpsDetailDataTable.Binding(SkillTableDatas.SkillTable);

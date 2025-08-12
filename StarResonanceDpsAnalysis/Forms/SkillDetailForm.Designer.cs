@@ -68,7 +68,6 @@
             panel6 = new AntdUI.Panel();
             button2 = new AntdUI.Button();
             button1 = new AntdUI.Button();
-            panel7 = new AntdUI.Panel();
             splitter1 = new AntdUI.Splitter();
             collapse1 = new AntdUI.Collapse();
             collapseItem1 = new AntdUI.CollapseItem();
@@ -85,7 +84,6 @@
             splitter1.Panel2.SuspendLayout();
             splitter1.SuspendLayout();
             collapse1.SuspendLayout();
-            collapseItem1.SuspendLayout();
             SuspendLayout();
             // 
             // table_DpsDetailDataTable
@@ -115,7 +113,7 @@
             pageHeader1.MaximizeBox = false;
             pageHeader1.Mode = AntdUI.TAMode.Dark;
             pageHeader1.Name = "pageHeader1";
-            pageHeader1.Size = new Size(1730, 52);
+            pageHeader1.Size = new Size(1696, 52);
             pageHeader1.TabIndex = 15;
             pageHeader1.Text = "";
             // 
@@ -127,7 +125,7 @@
             TitleText.Font = new Font("SAO Welcome TT", 12F, FontStyle.Bold);
             TitleText.Location = new Point(0, 0);
             TitleText.Name = "TitleText";
-            TitleText.Size = new Size(1730, 52);
+            TitleText.Size = new Size(1696, 52);
             TitleText.TabIndex = 26;
             TitleText.Text = "Skill Breakdown";
             TitleText.TextAlign = ContentAlignment.MiddleCenter;
@@ -476,7 +474,7 @@
             divider3.Location = new Point(13, 203);
             divider3.Name = "divider3";
             divider3.OrientationMargin = 0F;
-            divider3.Size = new Size(1208, 14);
+            divider3.Size = new Size(1204, 14);
             divider3.TabIndex = 25;
             divider3.Text = "";
             // 
@@ -485,7 +483,7 @@
             panel3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             panel3.BackColor = Color.Transparent;
             panel3.Controls.Add(segmented1);
-            panel3.Location = new Point(1365, 23);
+            panel3.Location = new Point(1331, 23);
             panel3.Name = "panel3";
             panel3.Radius = 500;
             panel3.Shadow = 6;
@@ -506,7 +504,7 @@
             panel5.Radius = 0;
             panel5.Shadow = 6;
             panel5.ShadowAlign = AntdUI.TAlignMini.Bottom;
-            panel5.Size = new Size(1730, 123);
+            panel5.Size = new Size(1696, 123);
             panel5.TabIndex = 29;
             panel5.Text = "panel5";
             // 
@@ -515,7 +513,7 @@
             select1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             select1.DropDownTextAlign = AntdUI.TAlign.Top;
             select1.List = true;
-            select1.Location = new Point(1523, 27);
+            select1.Location = new Point(1489, 27);
             select1.Name = "select1";
             select1.Placement = AntdUI.TAlignFrom.Top;
             select1.Radius = 3;
@@ -533,7 +531,7 @@
             panel6.Name = "panel6";
             panel6.Shadow = 6;
             panel6.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel6.Size = new Size(1730, 86);
+            panel6.Size = new Size(1696, 86);
             panel6.TabIndex = 30;
             panel6.Text = "panel6";
             // 
@@ -545,7 +543,7 @@
             button2.IconHover = Properties.Resources.cancel_hover;
             button2.IconPosition = AntdUI.TAlignMini.None;
             button2.IconRatio = 1.5F;
-            button2.Location = new Point(947, 25);
+            button2.Location = new Point(930, 25);
             button2.Name = "button2";
             button2.Size = new Size(57, 49);
             button2.TabIndex = 1;
@@ -559,29 +557,18 @@
             button1.IconHover = Properties.Resources.flushed_hover;
             button1.IconPosition = AntdUI.TAlignMini.None;
             button1.IconRatio = 1.5F;
-            button1.Location = new Point(730, 25);
+            button1.Location = new Point(713, 25);
             button1.Name = "button1";
             button1.Size = new Size(57, 49);
             button1.TabIndex = 0;
             button1.Click += button1_Click;
-            // 
-            // panel7
-            // 
-            panel7.AllowDrop = true;
-            panel7.BackColor = Color.Transparent;
-            panel7.Dock = DockStyle.Fill;
-            panel7.Location = new Point(0, 0);
-            panel7.Name = "panel7";
-            panel7.Size = new Size(434, 300);
-            panel7.TabIndex = 26;
-            panel7.Text = "panel7";
             // 
             // splitter1
             // 
             splitter1.ArrowColor = SystemColors.ActiveCaption;
             splitter1.CollapsePanel = AntdUI.Splitter.ADCollapsePanel.Panel1;
             splitter1.Dock = DockStyle.Fill;
-            splitter1.FixedPanel = FixedPanel.Panel1;
+            splitter1.FixedPanel = FixedPanel.Panel2;
             splitter1.Location = new Point(0, 175);
             splitter1.Name = "splitter1";
             // 
@@ -596,8 +583,8 @@
             splitter1.Panel2.Controls.Add(table_DpsDetailDataTable);
             splitter1.Panel2.Controls.Add(divider3);
             splitter1.Panel2.Controls.Add(panel2);
-            splitter1.Size = new Size(1730, 1161);
-            splitter1.SplitterDistance = 488;
+            splitter1.Size = new Size(1696, 1161);
+            splitter1.SplitterDistance = 450;
             splitter1.SplitterWidth = 6;
             splitter1.TabIndex = 27;
             // 
@@ -612,18 +599,17 @@
             collapse1.Items.Add(collapseItem3);
             collapse1.Location = new Point(0, 0);
             collapse1.Name = "collapse1";
-            collapse1.Size = new Size(488, 1161);
+            collapse1.Size = new Size(450, 1161);
             collapse1.TabIndex = 28;
             collapse1.Text = "collapse1";
             // 
             // collapseItem1
             // 
-            collapseItem1.Controls.Add(panel7);
             collapseItem1.Expand = true;
             collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
             collapseItem1.Location = new Point(27, 90);
             collapseItem1.Name = "collapseItem1";
-            collapseItem1.Size = new Size(434, 300);
+            collapseItem1.Size = new Size(396, 300);
             collapseItem1.TabIndex = 0;
             collapseItem1.Text = "Dps/Hps实时曲线图";
             // 
@@ -632,7 +618,7 @@
             collapseItem2.Expand = true;
             collapseItem2.Location = new Point(27, 501);
             collapseItem2.Name = "collapseItem2";
-            collapseItem2.Size = new Size(434, 300);
+            collapseItem2.Size = new Size(396, 300);
             collapseItem2.TabIndex = 1;
             collapseItem2.Text = "技能占比分布图";
             // 
@@ -641,16 +627,16 @@
             collapseItem3.Expand = true;
             collapseItem3.Location = new Point(27, 912);
             collapseItem3.Name = "collapseItem3";
-            collapseItem3.Size = new Size(434, 300);
+            collapseItem3.Size = new Size(396, 300);
             collapseItem3.TabIndex = 2;
-            collapseItem3.Text = "暴击率与幸运率";
+            collapseItem3.Text = "伤害分布";
             // 
             // SkillDetailForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(251, 251, 251);
-            ClientSize = new Size(1730, 1422);
+            ClientSize = new Size(1696, 1422);
             Controls.Add(splitter1);
             Controls.Add(panel6);
             Controls.Add(panel5);
@@ -674,7 +660,6 @@
             ((System.ComponentModel.ISupportInitialize)splitter1).EndInit();
             splitter1.ResumeLayout(false);
             collapse1.ResumeLayout(false);
-            collapseItem1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -717,7 +702,6 @@
         private AntdUI.Button button1;
         private AntdUI.Button button2;
         private AntdUI.Select select1;
-        private AntdUI.Panel panel7;
         private AntdUI.Splitter splitter1;
         private AntdUI.Collapse collapse1;
         private AntdUI.CollapseItem collapseItem1;

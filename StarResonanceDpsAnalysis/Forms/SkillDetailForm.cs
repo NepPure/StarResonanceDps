@@ -19,7 +19,12 @@ namespace StarResonanceDpsAnalysis.Control
     {
         // 添加折线图成员变量
         private FlatLineChart _dpsTrendChart;
-        
+
+        /// <summary>
+        /// 添加饼图成员变量
+        /// </summary>
+        private FlatPieChart _dpsPieChart;
+
         // 添加缺失的isSelect变量
         bool isSelect = false;
         
@@ -31,7 +36,7 @@ namespace StarResonanceDpsAnalysis.Control
             ToggleTableView();
         }
 
-        private int fixedWidth = 1911;//窗体宽度
+      
         private void SkillDetailForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
@@ -43,15 +48,15 @@ namespace StarResonanceDpsAnalysis.Control
 
             // 初始化并添加折线图到panel7
             InitializeDpsTrendChart();
-            
+
             // 订阅panel7的Resize事件以确保图表正确调整大小
-            panel7.Resize += Panel7_Resize;
+            collapseItem1.Resize += collapseItem1_Resize;
         }
 
         /// <summary>
         /// panel7大小变化时的处理
         /// </summary>
-        private void Panel7_Resize(object sender, EventArgs e)
+        private void collapseItem1_Resize(object sender, EventArgs e)
         {
             if (_dpsTrendChart != null)
             {
@@ -92,11 +97,11 @@ namespace StarResonanceDpsAnalysis.Control
             try
             {
                 // 清空panel7现有控件
-                panel7.Controls.Clear();
-                
+                collapseItem1.Controls.Clear();
+
                 // 确保panel7大小正确设置并支持自动调整
-                panel7.MinimumSize = new Size(ChartConfigManager.MIN_WIDTH, ChartConfigManager.MIN_HEIGHT);
-                panel7.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+                collapseItem1.MinimumSize = new Size(ChartConfigManager.MIN_WIDTH, ChartConfigManager.MIN_HEIGHT);
+                collapseItem1.Anchor = AnchorStyles.Top | AnchorStyles.Left;
                 
                 // 创建DPS趋势折线图，使用统一的配置管理
                 _dpsTrendChart = ChartVisualizationService.CreateDpsTrendChart(specificPlayerId: Uid);
@@ -120,9 +125,9 @@ namespace StarResonanceDpsAnalysis.Control
                         Console.WriteLine($"图表刷新回调出错: {ex.Message}");
                     }
                 });
-                
+
                 // 添加到panel7
-                panel7.Controls.Add(_dpsTrendChart);
+                collapseItem1.Controls.Add(_dpsTrendChart);
                 
                 // 确保图表被正确添加后再刷新数据
                 Application.DoEvents(); // 让UI更新完成
@@ -141,10 +146,23 @@ namespace StarResonanceDpsAnalysis.Control
                     ForeColor = Color.Red,
                     Font = new Font("Microsoft YaHei", 10, FontStyle.Regular)
                 };
-                panel7.Controls.Add(errorLabel);
+                collapseItem1.Controls.Add(errorLabel);
                 
                 Console.WriteLine($"图表初始化失败: {ex}");
             }
+        }
+
+        private void InitializePieChart()
+        {
+            // 清空collapseItem2现有控件
+            collapseItem2.Controls.Clear();
+            collapseItem2.MinimumSize = new Size(ChartConfigManager.MIN_WIDTH, ChartConfigManager.MIN_HEIGHT);
+            collapseItem2.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            _dpsPieChart = ChartVisualizationService.CreateSkillDamagePieChart(Uid);
+            collapseItem2.Controls.Add(_dpsPieChart);
+            Application.DoEvents(); // 让UI更新完成
+
+
         }
 
         /// <summary>
@@ -264,18 +282,14 @@ namespace StarResonanceDpsAnalysis.Control
                 //浅色
                 table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
                 panel1.Back = panel2.Back = ColorTranslator.FromHtml("#67AEF6");
-                // 更新panel7背景色
-                if (panel7 != null)
-                    panel7.BackColor = Color.White;
+ 
             }
             else
             {
                 //深色
                 table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#10529a");
                 panel1.Back = panel2.Back = ColorTranslator.FromHtml("#255AD0");
-                // 更新panel7背景色
-                if (panel7 != null)
-                    panel7.BackColor = Color.FromArgb(31, 31, 31);
+   
             }
             
             // 更新折线图主题
@@ -309,41 +323,14 @@ namespace StarResonanceDpsAnalysis.Control
             //this.Width = fixedWidth;
             
             // 当窗体大小变化时，强制刷新折线图布局
-            if (_dpsTrendChart != null && panel7 != null)
+            if (_dpsTrendChart != null && collapseItem1 != null)
             {
                 // 由于使用了Dock.Fill，图表会自动调整大小
                 // 这里只需要强制重绘即可
                 _dpsTrendChart.Invalidate();
             }
         }
-        
-        //protected override void WndProc(ref System.Windows.Forms.Message m)
-        //{
-        //    const int WM_NCHITTEST = 0x84;
-        //    const int HTTOP = 12;
-        //    const int HTBOTTOM = 15;
-        //    const int HTLEFT = 10;
-        //    const int HTRIGHT = 11;
-        //    const int HTTOPLEFT = 13;
-        //    const int HTTOPRIGHT = 14;
-        //    const int HTBOTTOMLEFT = 16;
-        //    const int HTBOTTOMRIGHT = 17;
-
-        //    base.WndProc(ref m);
-
-        //    if (m.Msg == WM_NCHITTEST)
-        //    {
-        //        int result = m.Result.ToInt32();
-
-        //        // 禁止左右和四角的拖动，只允许上下拖动
-        //        if (result == HTLEFT || result == HTRIGHT ||
-        //            result == HTTOPLEFT || result == HTTOPRIGHT ||
-        //            result == HTBOTTOMLEFT || result == HTBOTTOMRIGHT)
-        //        {
-        //            m.Result = IntPtr.Zero; // 禁用这些区域
-        //        }
-        //    }
-        //}
+ 
 
         private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
         {
