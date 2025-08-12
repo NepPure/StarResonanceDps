@@ -18,14 +18,14 @@ namespace StarResonanceDpsAnalysis.Control
 
             table_DpsDetailDataTable.Columns = new AntdUI.ColumnCollection
             {
-                new AntdUI.Column("Name","技能名"){Fixed=true },
-                new AntdUI.Column("Damage","伤害"){Fixed=true },
-                new AntdUI.Column("AvgPerHit","DPS/秒"){Fixed=true },
-                new AntdUI.Column("HitCount","命中次数"){Fixed=true },
-                new AntdUI.Column("CritRate","暴击率"){Fixed=true },
-                new AntdUI.Column("LuckyRate","幸运率"){Fixed=true },
-                new AntdUI.Column("Share","占比"){Fixed=true },
-                new AntdUI.Column("Percentage","百分比"){Fixed=true },
+                new AntdUI.Column("Name","技能名"),
+                new AntdUI.Column("Damage","伤害"),
+                new AntdUI.Column("AvgPerHit","DPS/秒"),
+                new AntdUI.Column("HitCount","命中次数"),
+                new AntdUI.Column("CritRate","暴击率"),
+                new AntdUI.Column("LuckyRate","幸运率"),
+                new AntdUI.Column("Share","占比"),
+                new AntdUI.Column("Percentage","百分比"),
             };
          
             table_DpsDetailDataTable.Binding(SkillTableDatas.SkillTable);
@@ -154,6 +154,78 @@ namespace StarResonanceDpsAnalysis.Control
                 {
                     Console.WriteLine($"更新图表数据时出错: {ex.Message}");
                 }
+            }
+            
+            // 更新条形图和饼图数据
+            UpdateSkillDistributionChart();
+            UpdateCritLuckyChart();
+        }
+        
+        /// <summary>
+        /// 更新暴击率与幸运率条形图数据（现在条形图显示暴击率数据）
+        /// </summary>
+        private void UpdateSkillDistributionChart()
+        {
+            if (_skillDistributionChart == null) return;
+
+            try
+            {
+                var p = StatisticData._manager.GetOrCreate(Uid);
+                
+                // 获取当前模式下的统计数据
+                var stats = segmented1.SelectIndex == 0 ? p.DamageStats : p.HealingStats;
+                
+                var critRate = stats.GetCritRate() * 100;
+                var luckyRate = stats.GetLuckyRate() * 100;
+                var normalRate = 100 - critRate - luckyRate;
+
+                var chartData = new List<(string, double)>();
+                
+                if (normalRate > 0)
+                    chartData.Add(("普通", normalRate));
+                if (critRate > 0)
+                    chartData.Add(("暴击", critRate));
+                if (luckyRate > 0)
+                    chartData.Add(("幸运", luckyRate));
+
+                _skillDistributionChart.SetData(chartData);
+                // 移除Y轴标签设置，去掉右侧的百分比文字
+                // _skillDistributionChart.YAxisLabel = "百分比(%)";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"更新暴击率与幸运率图表时出错: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 更新技能占比饼图数据（现在饼图显示技能分布数据）
+        /// </summary>
+        private void UpdateCritLuckyChart()
+        {
+            if (_critLuckyChart == null) return;
+
+            try
+            {
+                // 获取当前模式下的技能数据
+                bool isHeal = segmented1.SelectIndex != 0;
+                var skillType = isHeal 
+                    ? StarResonanceDpsAnalysis.Core.SkillType.Heal 
+                    : StarResonanceDpsAnalysis.Core.SkillType.Damage;
+
+                var skills = StatisticData._manager
+                    .GetPlayerSkillSummaries(Uid, topN: 10, orderByTotalDesc: true, skillType)
+                    .ToList();
+
+                var chartData = skills.Select(skill => 
+                    (skill.SkillName, (double)skill.Total)
+                ).ToList();
+
+                _critLuckyChart.SetData(chartData);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"更新技能占比图表时出错: {ex.Message}");
             }
         }
     }

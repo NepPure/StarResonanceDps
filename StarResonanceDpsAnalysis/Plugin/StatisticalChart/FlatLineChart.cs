@@ -24,11 +24,11 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         private bool _showViewInfo = false;
         private bool _autoScaleFont = true; // 新增：控制字体自适应
 
-        // 边距设置 - 优化边距，让图表内容区域更大
-        private const int PaddingLeft = 60;   // 减少左边距从80到60
-        private const int PaddingRight = 20;  // 减少右边距从30到20
-        private const int PaddingTop = 35;    // 减少顶部边距从50到35
-        private const int PaddingBottom = 45; // 减少底部边距从70到45
+        // 边距设置 - 调整边距使图表左对齐，保持较窄的宽度
+        private const int PaddingLeft = 60;    // 恢复到正常的左边距
+        private const int PaddingRight = 200;  // 大幅增加右边距，让图表左对齐
+        private const int PaddingTop = 35;     // 保持顶部边距
+        private const int PaddingBottom = 45;  // 保持底部边距
 
         // 字体大小设置（基础大小，会根据图表大小调整）
         private const float BaseTitleFontSize = 12f;    // 减小标题字体从14到12
@@ -571,8 +571,8 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         public void ResetViewToDefault()
         {
             _timeScale = 1.0f;
-            // 修改默认视图偏移，使其从0秒开始显示10秒范围
-            _viewOffset = Math.Max(0, _currentTimeSeconds - 10);
+            // 修改默认视图偏移，使其从0秒开始显示5秒范围
+            _viewOffset = Math.Max(0, _currentTimeSeconds - 5);
             ClampViewOffset();
             Invalidate();
         }
@@ -600,8 +600,8 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         private float GetViewTimeRange(float scale)
         {
-            // 修改默认时间范围从60秒改为10秒
-            return 10.0f / scale;
+            // 修改默认时间范围从10秒改为5秒
+            return 5.0f / scale;
         }
 
         #endregion
@@ -943,15 +943,17 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var gridColor = _isDarkTheme ? Color.FromArgb(64, 64, 64) : Color.FromArgb(230, 230, 230);
             using var gridPen = new Pen(gridColor, 1);
 
-            for (int i = 0; i <= 10; i++)
+            // 垂直网格线 - 调整为6条
+            for (int i = 0; i <= 5; i++) // 从4改为5，6个标签(0-5)
             {
-                var x = chartRect.X + (float)chartRect.Width * i / 10;
+                var x = chartRect.X + (float)chartRect.Width * i / 5; // 分母从4改为5
                 g.DrawLine(gridPen, x, chartRect.Y, x, chartRect.Bottom);
             }
 
-            for (int i = 0; i <= 10; i++)
+            // 水平网格线 - 调整为6条
+            for (int i = 0; i <= 5; i++) // 从4改为5，6个标签(0-5)
             {
-                var y = chartRect.Y + (float)chartRect.Height * i / 10;
+                var y = chartRect.Y + (float)chartRect.Height * i / 5; // 分母从4改为5
                 g.DrawLine(gridPen, chartRect.X, y, chartRect.Right, y);
             }
         }
@@ -968,20 +970,22 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             g.DrawLine(axisPen, chartRect.X, chartRect.Bottom, chartRect.Right, chartRect.Bottom);
             g.DrawLine(axisPen, chartRect.X, chartRect.Y, chartRect.X, chartRect.Bottom);
 
-            for (int i = 0; i <= 8; i++)
+            // X轴时间标签 - 调整为6个标签
+            for (int i = 0; i <= 5; i++) // 从4改为5，6个标签(0-5)
             {
-                var x = chartRect.X + (float)chartRect.Width * i / 8;
-                var timeValue = viewRange.X + viewRange.Width * i / 8;
+                var x = chartRect.X + (float)chartRect.Width * i / 5; // 分母从4改为5
+                var timeValue = viewRange.X + viewRange.Width * i / 5; // 分母从4改为5
                 var text = FormatTimeLabel(timeValue);
                 
                 var size = g.MeasureString(text, font);
                 g.DrawString(text, font, textBrush, x - size.Width / 2, chartRect.Bottom + 8);
             }
 
-            for (int i = 0; i <= 8; i++)
+            // Y轴数值标签 - 调整为6个标签
+            for (int i = 0; i <= 5; i++) // 从4改为5，6个标签(0-5)
             {
-                var y = chartRect.Bottom - (float)chartRect.Height * i / 8;
-                var value = viewRange.Y + viewRange.Height * i / 8;
+                var y = chartRect.Bottom - (float)chartRect.Height * i / 5; // 分母从4改为5
+                var value = viewRange.Y + viewRange.Height * i / 5; // 分母从4改为5
                 var text = Common.FormatWithEnglishUnits(value);
                 
                 var size = g.MeasureString(text, font);

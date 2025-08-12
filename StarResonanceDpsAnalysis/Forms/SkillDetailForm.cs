@@ -19,12 +19,10 @@ namespace StarResonanceDpsAnalysis.Control
     {
         // 添加折线图成员变量
         private FlatLineChart _dpsTrendChart;
-
-        /// <summary>
-        /// 添加饼图成员变量
-        /// </summary>
-        private FlatPieChart _dpsPieChart;
-
+        // 添加条形图和饼图成员变量
+        private FlatBarChart _skillDistributionChart;
+        private FlatPieChart _critLuckyChart;
+        
         // 添加缺失的isSelect变量
         bool isSelect = false;
         
@@ -36,7 +34,7 @@ namespace StarResonanceDpsAnalysis.Control
             ToggleTableView();
         }
 
-      
+        private int fixedWidth = 1911;//窗体宽度
         private void SkillDetailForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
@@ -48,15 +46,19 @@ namespace StarResonanceDpsAnalysis.Control
 
             // 初始化并添加折线图到panel7
             InitializeDpsTrendChart();
+            
+            // 初始化并添加条形图和饼图
+            InitializeSkillDistributionChart();
+            InitializeCritLuckyChart();
 
             // 订阅panel7的Resize事件以确保图表正确调整大小
-            collapseItem1.Resize += collapseItem1_Resize;
+            collapseItem1.Resize += Panel7_Resize;
         }
 
         /// <summary>
         /// panel7大小变化时的处理
         /// </summary>
-        private void collapseItem1_Resize(object sender, EventArgs e)
+        private void Panel7_Resize(object sender, EventArgs e)
         {
             if (_dpsTrendChart != null)
             {
@@ -152,19 +154,6 @@ namespace StarResonanceDpsAnalysis.Control
             }
         }
 
-        private void InitializePieChart()
-        {
-            // 清空collapseItem2现有控件
-            collapseItem2.Controls.Clear();
-            collapseItem2.MinimumSize = new Size(ChartConfigManager.MIN_WIDTH, ChartConfigManager.MIN_HEIGHT);
-            collapseItem2.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            _dpsPieChart = ChartVisualizationService.CreateSkillDamagePieChart(Uid);
-            collapseItem2.Controls.Add(_dpsPieChart);
-            Application.DoEvents(); // 让UI更新完成
-
-
-        }
-
         /// <summary>
         /// 刷新DPS趋势图表数据
         /// </summary>
@@ -232,6 +221,10 @@ namespace StarResonanceDpsAnalysis.Control
             bool isHeal = segmented1.SelectIndex != 0;
             SelectDataType();
 
+            // 更新图表数据
+            UpdateSkillDistributionChart();
+            UpdateCritLuckyChart();
+
             // 下一轮计时器再恢复
             _suspendUiUpdate = false;
 
@@ -282,14 +275,13 @@ namespace StarResonanceDpsAnalysis.Control
                 //浅色
                 table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
                 panel1.Back = panel2.Back = ColorTranslator.FromHtml("#67AEF6");
- 
             }
             else
             {
                 //深色
                 table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#10529a");
                 panel1.Back = panel2.Back = ColorTranslator.FromHtml("#255AD0");
-   
+
             }
             
             // 更新折线图主题
@@ -297,6 +289,20 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 _dpsTrendChart.IsDarkTheme = !Config.IsLight;
                 _dpsTrendChart.Invalidate(); // 强制重绘图表
+            }
+            
+            // 更新条形图主题
+            if (_skillDistributionChart != null)
+            {
+                _skillDistributionChart.IsDarkTheme = !Config.IsLight;
+                _skillDistributionChart.Invalidate();
+            }
+            
+            // 更新饼图主题
+            if (_critLuckyChart != null)
+            {
+                _critLuckyChart.IsDarkTheme = !Config.IsLight;
+                _critLuckyChart.Invalidate();
             }
         }
 
@@ -330,7 +336,34 @@ namespace StarResonanceDpsAnalysis.Control
                 _dpsTrendChart.Invalidate();
             }
         }
- 
+        
+        //protected override void WndProc(ref System.Windows.Forms.Message m)
+        //{
+        //    const int WM_NCHITTEST = 0x84;
+        //    const int HTTOP = 12;
+        //    const int HTBOTTOM = 15;
+        //    const int HTLEFT = 10;
+        //    const int HTRIGHT = 11;
+        //    const int HTTOPLEFT = 13;
+        //    const int HTTOPRIGHT = 14;
+        //    const int HTBOTTOMLEFT = 16;
+        //    const int HTBOTTOMRIGHT = 17;
+
+        //    base.WndProc(ref m);
+
+        //    if (m.Msg == WM_NCHITTEST)
+        //    {
+        //        int result = m.Result.ToInt32();
+
+        //        // 禁止左右和四角的拖动，只允许上下拖动
+        //        if (result == HTLEFT || result == HTRIGHT ||
+        //            result == HTTOPLEFT || result == HTTOPRIGHT ||
+        //            result == HTBOTTOMLEFT || result == HTBOTTOMRIGHT)
+        //        {
+        //            m.Result = IntPtr.Zero; // 禁用这些区域
+        //        }
+        //    }
+        //}
 
         private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
         {
@@ -442,6 +475,64 @@ namespace StarResonanceDpsAnalysis.Control
                 {
                     Console.WriteLine($"重置DPS趋势图表时出错: {ex.Message}");
                 }
+            }
+        }
+
+        /// <summary>
+        /// 初始化暴击率与幸运率条形图（现在用条形图显示暴击率数据）
+        /// </summary>
+        private void InitializeSkillDistributionChart()
+        {
+            try
+            {
+                // 创建暴击率与幸运率条形图
+                _skillDistributionChart = new FlatBarChart
+                {
+                    Dock = DockStyle.Fill,
+                    TitleText = "", // 移除标题以增大图表占比
+                    XAxisLabel = "",
+                    YAxisLabel = "",
+                    IsDarkTheme = !Config.IsLight
+                };
+
+                // 添加到collapseItem3
+                collapseItem3.Controls.Add(_skillDistributionChart);
+                
+                // 初始化数据
+                UpdateSkillDistributionChart();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"暴击率与幸运率图表初始化失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 初始化技能占比饼图（现在用饼图显示技能分布数据）
+        /// </summary>
+        private void InitializeCritLuckyChart()
+        {
+            try
+            {
+                // 创建技能占比饼图
+                _critLuckyChart = new FlatPieChart
+                {
+                    Dock = DockStyle.Fill,
+                    TitleText = "", // 移除标题以增大图表占比
+                    ShowLabels = true,
+                    ShowPercentages = true,
+                    IsDarkTheme = !Config.IsLight
+                };
+
+                // 添加到collapseItem2
+                collapseItem2.Controls.Add(_critLuckyChart);
+                
+                // 初始化数据
+                UpdateCritLuckyChart();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"技能占比图表初始化失败: {ex.Message}");
             }
         }
     }

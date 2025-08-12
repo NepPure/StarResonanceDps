@@ -158,12 +158,13 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 return;
             }
 
-            // 绘制标题
+            // 绘制标题（如果有）
             DrawTitle(g);
 
-            // 计算饼图区域
-            var titleHeight = string.IsNullOrEmpty(_titleText) ? 0 : 40;
-            var pieSize = Math.Min(Width - 40, Height - titleHeight - 40);
+            // 计算饼图区域 - 去掉标题高度，增大饼图占比
+            var titleHeight = string.IsNullOrEmpty(_titleText) ? 0 : 30; // 减少标题高度
+            var margin = 10; // 减少边距
+            var pieSize = Math.Min(Width - margin * 2, Height - titleHeight - margin * 2);
             var pieRect = new Rectangle(
                 (Width - pieSize) / 2,
                 titleHeight + (Height - titleHeight - pieSize) / 2,
@@ -229,7 +230,8 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         private void DrawLabels(Graphics g, Rectangle pieRect)
         {
-            using var font = new Font("Microsoft YaHei", 9);
+            // 使用更小的字体适应紧凑布局
+            using var font = new Font("Microsoft YaHei", 7, FontStyle.Regular); // 从9减少到7
             using var brush = new SolidBrush(ForeColor);
             
             float startAngle = 0;
@@ -242,22 +244,20 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 var sweepAngle = (float)(data.Percentage * 360 / 100);
                 var labelAngle = startAngle + sweepAngle / 2;
                 
-                // 计算标签位置
-                var labelRadius = radius * 0.7f; // 标签在饼图内部
+                // 调整标签位置，更靠近饼图中心
+                var labelRadius = radius * 0.75f; // 从0.7f增加到0.75f，稍微外移
                 var labelX = centerX + labelRadius * (float)Math.Cos(labelAngle * Math.PI / 180);
                 var labelY = centerY + labelRadius * (float)Math.Sin(labelAngle * Math.PI / 180);
                 
-                // 构建标签文本
+                // 生成标签文本 - 简化文本以减少拥挤
                 var labelText = "";
-                if (_showLabels && _showPercentages)
+                if (_showLabels && _showPercentages && data.Percentage >= 5.0) // 只显示占比大于5%的标签
                 {
-                    labelText = $"{data.Label}\n{data.Percentage:F1}%";
+                    // 简化标签格式，技能名太长时截断
+                    var skillName = data.Label.Length > 6 ? data.Label.Substring(0, 6) + ".." : data.Label;
+                    labelText = $"{skillName}\n{data.Percentage:F1}%";
                 }
-                else if (_showLabels)
-                {
-                    labelText = data.Label;
-                }
-                else if (_showPercentages)
+                else if (_showPercentages && data.Percentage >= 3.0) // 小占比只显示百分比
                 {
                     labelText = $"{data.Percentage:F1}%";
                 }
@@ -268,10 +268,10 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                     var textX = labelX - textSize.Width / 2;
                     var textY = labelY - textSize.Height / 2;
                     
-                    // 绘制半透明背景
-                    var bgColor = _isDarkTheme ? Color.FromArgb(180, 0, 0, 0) : Color.FromArgb(180, 255, 255, 255);
+                    // 调整半透明背景，使其更轻量
+                    var bgColor = _isDarkTheme ? Color.FromArgb(150, 0, 0, 0) : Color.FromArgb(150, 255, 255, 255);
                     using var bgBrush = new SolidBrush(bgColor);
-                    g.FillRectangle(bgBrush, textX - 2, textY - 2, textSize.Width + 4, textSize.Height + 4);
+                    g.FillRectangle(bgBrush, textX - 1, textY - 1, textSize.Width + 2, textSize.Height + 2);
                     
                     // 绘制文本
                     g.DrawString(labelText, font, brush, textX, textY);

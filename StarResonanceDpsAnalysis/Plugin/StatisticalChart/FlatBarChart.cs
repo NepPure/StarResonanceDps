@@ -21,11 +21,11 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         private string _yAxisLabel = "";
         private bool _showLegend = true;
 
-        // 边距设置
-        private const int PaddingLeft = 60;
-        private const int PaddingRight = 20;
-        private const int PaddingTop = 40;
-        private const int PaddingBottom = 100;
+        // 边距设置 - 减少边距以增大图表占比
+        private const int PaddingLeft = 35;   // 从60减少到35
+        private const int PaddingRight = 15;  // 从20减少到15
+        private const int PaddingTop = 10;    // 从40减少到10
+        private const int PaddingBottom = 50; // 从100减少到50
 
         // 现代化配色
         private readonly Color[] _colors = {
@@ -174,7 +174,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var maxValue = _data.Max(d => d.Value);
             if (maxValue <= 0) return;
 
-            // 计算绘图区域
+            // 计算图表区域
             var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
                                         Width - PaddingLeft - PaddingRight,
                                         Height - PaddingTop - PaddingBottom);
@@ -182,13 +182,13 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             // 绘制网格
             DrawGrid(g, chartRect, maxValue);
 
-            // 绘制轴
+            // 绘制坐标轴
             DrawAxes(g, chartRect, maxValue);
 
-            // 绘制条形
+            // 绘制柱状条
             DrawBars(g, chartRect, maxValue);
 
-            // 绘制标题
+            // 绘制标题（如果有）
             DrawTitle(g);
         }
 
@@ -213,10 +213,10 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var gridColor = _isDarkTheme ? Color.FromArgb(64, 64, 64) : Color.FromArgb(230, 230, 230);
             using var gridPen = new Pen(gridColor, 1);
 
-            // 绘制水平网格线
-            for (int i = 0; i <= 10; i++)
+            // 绘制水平网格线 - 减少网格线数量
+            for (int i = 0; i <= 5; i++) // 从10条减少到5条
             {
-                var y = chartRect.Y + (float)chartRect.Height * i / 10;
+                var y = chartRect.Y + (float)chartRect.Height * i / 5;
                 g.DrawLine(gridPen, chartRect.X, y, chartRect.Right, y);
             }
         }
@@ -226,7 +226,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var axisColor = _isDarkTheme ? Color.FromArgb(128, 128, 128) : Color.FromArgb(180, 180, 180);
             using var axisPen = new Pen(axisColor, 1);
             using var textBrush = new SolidBrush(ForeColor);
-            using var font = new Font("Microsoft YaHei", 9);
+            using var font = new Font("Microsoft YaHei", 7); // 从9减少到7
 
             // 绘制X轴
             g.DrawLine(axisPen, chartRect.X, chartRect.Bottom, chartRect.Right, chartRect.Bottom);
@@ -234,7 +234,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             // 绘制Y轴
             g.DrawLine(axisPen, chartRect.X, chartRect.Y, chartRect.X, chartRect.Bottom);
 
-            // X轴标签（玩家名）
+            // X轴标签（类型标签）
             var barWidth = (float)chartRect.Width / _data.Count;
             for (int i = 0; i < _data.Count; i++)
             {
@@ -243,35 +243,30 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 
                 var size = g.MeasureString(text, font);
                 
-                // 保存当前变换
-                var oldTransform = g.Transform.Clone();
+                // 简化标签显示，直接水平显示而不旋转
+                var textX = x - size.Width / 2;
+                var textY = chartRect.Bottom + 5; // 减少间距
                 
-                // 旋转45度绘制文本
-                g.TranslateTransform(x, chartRect.Bottom + 10);
-                g.RotateTransform(45);
-                g.DrawString(text, font, textBrush, 0, 0);
-                
-                // 恢复变换
-                g.Transform = oldTransform;
+                g.DrawString(text, font, textBrush, textX, textY);
             }
 
-            // Y轴标签
-            for (int i = 0; i <= 10; i++)
+            // Y轴标签 - 简化显示
+            for (int i = 0; i <= 5; i++) // 从10个刻度减少到5个
             {
-                var y = chartRect.Bottom - (float)chartRect.Height * i / 10;
-                var value = maxValue * i / 10;
-                var text = Common.FormatWithEnglishUnits(value);
+                var y = chartRect.Bottom - (float)chartRect.Height * i / 5;
+                var value = maxValue * i / 5;
+                var text = $"{value:F0}%"; // 直接显示百分比，简化格式
                 
                 var size = g.MeasureString(text, font);
-                g.DrawString(text, font, textBrush, chartRect.X - size.Width - 5, y - size.Height / 2);
+                g.DrawString(text, font, textBrush, chartRect.X - size.Width - 3, y - size.Height / 2);
             }
 
-            // 轴标签
+            // 轴标签（如果有）- 使用更小字体
             if (!string.IsNullOrEmpty(_xAxisLabel))
             {
                 var size = g.MeasureString(_xAxisLabel, font);
                 var x = chartRect.X + (chartRect.Width - size.Width) / 2;
-                var y = chartRect.Bottom + 70;
+                var y = chartRect.Bottom + 35; // 调整位置
                 g.DrawString(_xAxisLabel, font, textBrush, x, y);
             }
 
@@ -279,17 +274,17 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             {
                 var size = g.MeasureString(_yAxisLabel, font);
                 using var matrix = new Matrix();
-                matrix.RotateAt(-90, new PointF(15, chartRect.Y + (chartRect.Height + size.Width) / 2));
+                matrix.RotateAt(-90, new PointF(10, chartRect.Y + (chartRect.Height + size.Width) / 2));
                 g.Transform = matrix;
-                g.DrawString(_yAxisLabel, font, textBrush, 15, chartRect.Y + (chartRect.Height + size.Width) / 2);
+                g.DrawString(_yAxisLabel, font, textBrush, 10, chartRect.Y + (chartRect.Height + size.Width) / 2);
                 g.ResetTransform();
             }
         }
 
         private void DrawBars(Graphics g, Rectangle chartRect, double maxValue)
         {
-            var barWidth = (float)chartRect.Width / _data.Count * 0.8f; // 留一些间距
-            var barSpacing = (float)chartRect.Width / _data.Count * 0.1f;
+            var barWidth = (float)chartRect.Width / _data.Count * 0.85f; // 增加柱子宽度从0.8f到0.85f
+            var barSpacing = (float)chartRect.Width / _data.Count * 0.075f; // 减少间距
 
             for (int i = 0; i < _data.Count; i++)
             {
@@ -301,20 +296,23 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 
                 var barRect = new RectangleF(x, y, barWidth, barHeight);
                 
-                // 绘制条形 - 扁平化设计（无边框）
+                // 绘制柱状条 - 扁平设计，无边框
                 using var brush = new SolidBrush(data.Color);
                 g.FillRectangle(brush, barRect);
                 
-                // 绘制数值标签
-                var valueText = Common.FormatWithEnglishUnits(data.Value);
-                using var font = new Font("Microsoft YaHei", 8);
-                using var textBrush = new SolidBrush(ForeColor);
-                
-                var textSize = g.MeasureString(valueText, font);
-                var textX = x + (barWidth - textSize.Width) / 2;
-                var textY = y - textSize.Height - 5;
-                
-                g.DrawString(valueText, font, textBrush, textX, textY);
+                // 绘制数值标签 - 使用更小字体，只在柱子足够高时显示
+                if (barHeight > 25) // 只在柱子高度大于25像素时显示数值
+                {
+                    var valueText = $"{data.Value:F1}%"; // 简化格式，显示百分比
+                    using var font = new Font("Microsoft YaHei", 6, FontStyle.Regular); // 从8减少到6
+                    using var textBrush = new SolidBrush(ForeColor);
+                    
+                    var textSize = g.MeasureString(valueText, font);
+                    var textX = x + (barWidth - textSize.Width) / 2;
+                    var textY = y - textSize.Height - 2; // 减少间距
+                    
+                    g.DrawString(valueText, font, textBrush, textX, textY);
+                }
             }
         }
 
