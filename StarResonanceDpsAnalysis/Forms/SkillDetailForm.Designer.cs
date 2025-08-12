@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            AntdUI.SegmentedItem segmentedItem15 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem16 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem1 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem2 = new AntdUI.SegmentedItem();
             table_DpsDetailDataTable = new AntdUI.Table();
             pageHeader1 = new AntdUI.PageHeader();
             TitleText = new AntdUI.Label();
@@ -90,7 +90,6 @@
             // 
             // table_DpsDetailDataTable
             // 
-            table_DpsDetailDataTable.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             table_DpsDetailDataTable.BackgroundImageLayout = ImageLayout.Zoom;
             table_DpsDetailDataTable.EmptyImage = Properties.Resources.cancel_hover;
             table_DpsDetailDataTable.FixedHeader = false;
@@ -143,10 +142,10 @@
             segmented1.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             segmented1.Full = true;
             segmented1.IconGap = 0F;
-            segmentedItem15.Text = "技能伤害分析";
-            segmentedItem16.Text = "技能治疗分析";
-            segmented1.Items.Add(segmentedItem15);
-            segmented1.Items.Add(segmentedItem16);
+            segmentedItem1.Text = "技能伤害分析";
+            segmentedItem2.Text = "技能治疗分析";
+            segmented1.Items.Add(segmentedItem1);
+            segmented1.Items.Add(segmentedItem2);
             segmented1.Location = new Point(9, 8);
             segmented1.Name = "segmented1";
             segmented1.Round = true;
@@ -477,7 +476,7 @@
             divider3.Location = new Point(13, 203);
             divider3.Name = "divider3";
             divider3.OrientationMargin = 0F;
-            divider3.Size = new Size(1212, 14);
+            divider3.Size = new Size(1208, 14);
             divider3.TabIndex = 25;
             divider3.Text = "";
             // 

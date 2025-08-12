@@ -10,6 +10,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using StarResonanceDpsAnalysis.Control;
+using StarResonanceDpsAnalysis.Forms;
 
 
 namespace StarResonanceDpsAnalysis.Plugin
@@ -21,6 +22,8 @@ namespace StarResonanceDpsAnalysis.Plugin
  
 
         public static SkillDetailForm skillDetailForm;//技能详情窗体
+
+        public static SettingsForm settingsForm;//设置窗体
 
 
 

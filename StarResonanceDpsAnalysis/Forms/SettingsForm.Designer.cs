@@ -29,40 +29,54 @@
         private void InitializeComponent()
         {
             pageHeader1 = new AntdUI.PageHeader();
+            TitleText = new AntdUI.Label();
             panel1 = new AntdUI.Panel();
             panel2 = new AntdUI.Panel();
             label1 = new AntdUI.Label();
-            panel3 = new AntdUI.Panel();
-            panel4 = new AntdUI.Panel();
-            label2 = new AntdUI.Label();
-            button1 = new AntdUI.Button();
-            divider3 = new AntdUI.Divider();
-            InterfaceComboBox = new AntdUI.Select();
-            panel5 = new AntdUI.Panel();
-            divider1 = new AntdUI.Divider();
-            button2 = new AntdUI.Button();
-            label3 = new AntdUI.Label();
+            BackgroundPanel = new AntdUI.Panel();
+            CombatSettingsPanel = new AntdUI.Panel();
+            label8 = new AntdUI.Label();
+            inputNumber1 = new AntdUI.InputNumber();
+            label5 = new AntdUI.Label();
+            switch1 = new AntdUI.Switch();
+            input6 = new AntdUI.Input();
+            divider2 = new AntdUI.Divider();
+            button3 = new AntdUI.Button();
+            label4 = new AntdUI.Label();
+            KeySettingsPanel = new AntdUI.Panel();
+            label6 = new AntdUI.Label();
             input5 = new AntdUI.Input();
             input4 = new AntdUI.Input();
             input3 = new AntdUI.Input();
             input2 = new AntdUI.Input();
             input1 = new AntdUI.Input();
-            panel6 = new AntdUI.Panel();
-            divider2 = new AntdUI.Divider();
-            button3 = new AntdUI.Button();
-            label4 = new AntdUI.Label();
-            input6 = new AntdUI.Input();
+            divider1 = new AntdUI.Divider();
+            button2 = new AntdUI.Button();
+            label3 = new AntdUI.Label();
+            BasicSetupPanel = new AntdUI.Panel();
+            label7 = new AntdUI.Label();
+            InterfaceComboBox = new AntdUI.Select();
+            divider3 = new AntdUI.Divider();
+            button1 = new AntdUI.Button();
+            label2 = new AntdUI.Label();
+            panel7 = new AntdUI.Panel();
+            select1 = new AntdUI.Select();
+            button4 = new AntdUI.Button();
+            SaveButton = new AntdUI.Button();
+            pageHeader1.SuspendLayout();
             panel2.SuspendLayout();
-            panel3.SuspendLayout();
-            panel4.SuspendLayout();
-            panel5.SuspendLayout();
-            panel6.SuspendLayout();
+            BackgroundPanel.SuspendLayout();
+            CombatSettingsPanel.SuspendLayout();
+            KeySettingsPanel.SuspendLayout();
+            BasicSetupPanel.SuspendLayout();
+            panel7.SuspendLayout();
             SuspendLayout();
             // 
             // pageHeader1
             // 
             pageHeader1.BackColor = Color.FromArgb(178, 178, 178);
             pageHeader1.ColorScheme = AntdUI.TAMode.Dark;
+            pageHeader1.Controls.Add(TitleText);
             pageHeader1.DividerShow = true;
             pageHeader1.DividerThickness = 2F;
             pageHeader1.Dock = DockStyle.Top;
@@ -74,12 +88,26 @@
             pageHeader1.TabIndex = 29;
             pageHeader1.Text = "";
             // 
+            // TitleText
+            // 
+            TitleText.BackColor = Color.Transparent;
+            TitleText.ColorScheme = AntdUI.TAMode.Dark;
+            TitleText.Dock = DockStyle.Fill;
+            TitleText.Font = new Font("SAO Welcome TT", 12F, FontStyle.Bold);
+            TitleText.Location = new Point(0, 0);
+            TitleText.Name = "TitleText";
+            TitleText.Size = new Size(1064, 38);
+            TitleText.TabIndex = 27;
+            TitleText.Text = "BasicSetup";
+            TitleText.TextAlign = ContentAlignment.MiddleCenter;
+            TitleText.MouseDown += TitleText_MouseDown;
+            // 
             // panel1
             // 
             panel1.Dock = DockStyle.Left;
             panel1.Location = new Point(0, 38);
             panel1.Name = "panel1";
-            panel1.Size = new Size(265, 1082);
+            panel1.Size = new Size(10, 1088);
             panel1.TabIndex = 30;
             panel1.Text = "panel1";
             // 
@@ -88,10 +116,10 @@
             panel2.Back = Color.FromArgb(34, 151, 244);
             panel2.Controls.Add(label1);
             panel2.Dock = DockStyle.Top;
-            panel2.Location = new Point(265, 38);
+            panel2.Location = new Point(10, 38);
             panel2.Name = "panel2";
             panel2.Radius = 0;
-            panel2.Size = new Size(799, 51);
+            panel2.Size = new Size(1054, 51);
             panel2.TabIndex = 31;
             panel2.Text = "panel2";
             // 
@@ -106,190 +134,98 @@
             label1.TabIndex = 32;
             label1.Text = "设置";
             // 
-            // panel3
+            // BackgroundPanel
             // 
-            panel3.Back = Color.FromArgb(239, 239, 239);
-            panel3.Controls.Add(panel6);
-            panel3.Controls.Add(panel5);
-            panel3.Controls.Add(panel4);
-            panel3.Dock = DockStyle.Fill;
-            panel3.Location = new Point(265, 89);
-            panel3.Name = "panel3";
-            panel3.Size = new Size(799, 1031);
-            panel3.TabIndex = 32;
-            panel3.Text = "panel3";
+            BackgroundPanel.Back = Color.FromArgb(239, 239, 239);
+            BackgroundPanel.Controls.Add(CombatSettingsPanel);
+            BackgroundPanel.Controls.Add(KeySettingsPanel);
+            BackgroundPanel.Controls.Add(BasicSetupPanel);
+            BackgroundPanel.Dock = DockStyle.Fill;
+            BackgroundPanel.Location = new Point(10, 89);
+            BackgroundPanel.Name = "BackgroundPanel";
+            BackgroundPanel.Radius = 3;
+            BackgroundPanel.Size = new Size(1054, 972);
+            BackgroundPanel.TabIndex = 32;
+            BackgroundPanel.Text = "panel3";
             // 
-            // panel4
+            // CombatSettingsPanel
             // 
-            panel4.Back = Color.White;
-            panel4.Controls.Add(InterfaceComboBox);
-            panel4.Controls.Add(divider3);
-            panel4.Controls.Add(button1);
-            panel4.Controls.Add(label2);
-            panel4.Location = new Point(46, 45);
-            panel4.Name = "panel4";
-            panel4.Size = new Size(718, 211);
-            panel4.TabIndex = 0;
-            panel4.Text = "panel4";
+            CombatSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            CombatSettingsPanel.Back = Color.White;
+            CombatSettingsPanel.BackColor = Color.Transparent;
+            CombatSettingsPanel.Controls.Add(label8);
+            CombatSettingsPanel.Controls.Add(inputNumber1);
+            CombatSettingsPanel.Controls.Add(label5);
+            CombatSettingsPanel.Controls.Add(switch1);
+            CombatSettingsPanel.Controls.Add(input6);
+            CombatSettingsPanel.Controls.Add(divider2);
+            CombatSettingsPanel.Controls.Add(button3);
+            CombatSettingsPanel.Controls.Add(label4);
+            CombatSettingsPanel.Location = new Point(46, 635);
+            CombatSettingsPanel.Name = "CombatSettingsPanel";
+            CombatSettingsPanel.Size = new Size(967, 278);
+            CombatSettingsPanel.TabIndex = 2;
+            CombatSettingsPanel.Text = "panel6";
             // 
-            // label2
+            // label8
             // 
-            label2.BackColor = Color.Transparent;
-            label2.Font = new Font("HarmonyOS Sans SC", 9.999999F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            label2.ForeColor = Color.FromArgb(34, 151, 244);
-            label2.Location = new Point(36, 26);
-            label2.Name = "label2";
-            label2.Size = new Size(105, 31);
-            label2.TabIndex = 33;
-            label2.Text = "网卡设置";
+            label8.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label8.BackColor = Color.Transparent;
+            label8.Font = new Font("HarmonyOS Sans SC", 7F);
+            label8.ForeColor = Color.FromArgb(34, 151, 244);
+            label8.Location = new Point(686, 26);
+            label8.Name = "label8";
+            label8.Size = new Size(249, 31);
+            label8.TabIndex = 45;
+            label8.Text = "脱战清空为当前统计非全程统计";
+            label8.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // button1
+            // inputNumber1
             // 
-            button1.DefaultBack = Color.FromArgb(34, 151, 244);
-            button1.Location = new Point(-9, 7);
-            button1.Name = "button1";
-            button1.Radius = 0;
-            button1.Size = new Size(21, 70);
-            button1.TabIndex = 34;
+            inputNumber1.Font = new Font("HarmonyOS Sans SC", 9F);
+            inputNumber1.Location = new Point(328, 113);
+            inputNumber1.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
+            inputNumber1.Minimum = new decimal(new int[] { 10, 0, 0, 0 });
+            inputNumber1.Name = "inputNumber1";
+            inputNumber1.PrefixText = "窗体透明度：";
+            inputNumber1.Radius = 3;
+            inputNumber1.SelectionStart = 2;
+            inputNumber1.Size = new Size(201, 65);
+            inputNumber1.SuffixText = "%";
+            inputNumber1.TabIndex = 42;
+            inputNumber1.Text = "10";
+            inputNumber1.Value = new decimal(new int[] { 10, 0, 0, 0 });
             // 
-            // divider3
+            // label5
             // 
-            divider3.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            divider3.BackColor = Color.Transparent;
-            divider3.Location = new Point(36, 78);
-            divider3.Name = "divider3";
-            divider3.OrientationMargin = 0F;
-            divider3.Size = new Size(650, 14);
-            divider3.TabIndex = 37;
-            divider3.Text = "";
+            label5.Font = new Font("HarmonyOS Sans SC", 9F);
+            label5.Location = new Point(46, 201);
+            label5.Name = "label5";
+            label5.Size = new Size(234, 58);
+            label5.TabIndex = 41;
+            label5.Text = "换地图是否清空全程统计";
             // 
-            // InterfaceComboBox
+            // switch1
             // 
-            InterfaceComboBox.Anchor = AnchorStyles.Top;
-            InterfaceComboBox.Font = new Font("HarmonyOS Sans SC", 8F);
-            InterfaceComboBox.List = true;
-            InterfaceComboBox.Location = new Point(36, 114);
-            InterfaceComboBox.Name = "InterfaceComboBox";
-            InterfaceComboBox.PrefixText = "请选择网卡：";
-            InterfaceComboBox.Radius = 3;
-            InterfaceComboBox.Size = new Size(650, 56);
-            InterfaceComboBox.TabIndex = 38;
+            switch1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            switch1.Checked = true;
+            switch1.Location = new Point(852, 210);
+            switch1.Name = "switch1";
+            switch1.Size = new Size(83, 41);
+            switch1.TabIndex = 40;
+            switch1.Text = "switch1";
             // 
-            // panel5
+            // input6
             // 
-            panel5.Back = Color.White;
-            panel5.Controls.Add(input5);
-            panel5.Controls.Add(input4);
-            panel5.Controls.Add(input3);
-            panel5.Controls.Add(input2);
-            panel5.Controls.Add(input1);
-            panel5.Controls.Add(divider1);
-            panel5.Controls.Add(button2);
-            panel5.Controls.Add(label3);
-            panel5.Location = new Point(46, 295);
-            panel5.Name = "panel5";
-            panel5.Size = new Size(718, 303);
-            panel5.TabIndex = 1;
-            panel5.Text = "panel5";
-            // 
-            // divider1
-            // 
-            divider1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            divider1.BackColor = Color.Transparent;
-            divider1.Location = new Point(36, 78);
-            divider1.Name = "divider1";
-            divider1.OrientationMargin = 0F;
-            divider1.Size = new Size(650, 14);
-            divider1.TabIndex = 37;
-            divider1.Text = "";
-            // 
-            // button2
-            // 
-            button2.DefaultBack = Color.FromArgb(34, 151, 244);
-            button2.Location = new Point(-9, 7);
-            button2.Name = "button2";
-            button2.Radius = 0;
-            button2.Size = new Size(21, 70);
-            button2.TabIndex = 34;
-            // 
-            // label3
-            // 
-            label3.BackColor = Color.Transparent;
-            label3.Font = new Font("HarmonyOS Sans SC", 9.999999F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            label3.ForeColor = Color.FromArgb(34, 151, 244);
-            label3.Location = new Point(36, 26);
-            label3.Name = "label3";
-            label3.Size = new Size(105, 31);
-            label3.TabIndex = 33;
-            label3.Text = "按键设置";
-            // 
-            // input5
-            // 
-            input5.Font = new Font("HarmonyOS Sans SC", 8F);
-            input5.Location = new Point(36, 198);
-            input5.Name = "input5";
-            input5.PrefixText = "清空历史键位：";
-            input5.Radius = 3;
-            input5.ReadOnly = true;
-            input5.Size = new Size(192, 65);
-            input5.TabIndex = 42;
-            // 
-            // input4
-            // 
-            input4.Font = new Font("HarmonyOS Sans SC", 8F);
-            input4.Location = new Point(265, 198);
-            input4.Name = "input4";
-            input4.PrefixText = "清空数据键位：";
-            input4.Radius = 3;
-            input4.ReadOnly = true;
-            input4.Size = new Size(192, 65);
-            input4.TabIndex = 41;
-            // 
-            // input3
-            // 
-            input3.Font = new Font("HarmonyOS Sans SC", 8F);
-            input3.Location = new Point(494, 112);
-            input3.Name = "input3";
-            input3.PrefixText = "开关键位：";
-            input3.Radius = 3;
-            input3.ReadOnly = true;
-            input3.Size = new Size(192, 65);
-            input3.TabIndex = 40;
-            // 
-            // input2
-            // 
-            input2.Font = new Font("HarmonyOS Sans SC", 8F);
-            input2.Location = new Point(265, 112);
-            input2.Name = "input2";
-            input2.PrefixText = "窗体透明键位：";
-            input2.Radius = 3;
-            input2.ReadOnly = true;
-            input2.Size = new Size(192, 65);
-            input2.TabIndex = 39;
-            // 
-            // input1
-            // 
-            input1.Font = new Font("HarmonyOS Sans SC", 8F);
-            input1.Location = new Point(36, 112);
-            input1.Name = "input1";
-            input1.PrefixText = "鼠标穿透键位：";
-            input1.Radius = 3;
-            input1.ReadOnly = true;
-            input1.Size = new Size(192, 65);
-            input1.TabIndex = 38;
-            // 
-            // panel6
-            // 
-            panel6.Back = Color.White;
-            panel6.Controls.Add(input6);
-            panel6.Controls.Add(divider2);
-            panel6.Controls.Add(button3);
-            panel6.Controls.Add(label4);
-            panel6.Location = new Point(46, 635);
-            panel6.Name = "panel6";
-            panel6.Size = new Size(718, 211);
-            panel6.TabIndex = 2;
-            panel6.Text = "panel6";
+            input6.Font = new Font("HarmonyOS Sans SC", 9F);
+            input6.Location = new Point(36, 113);
+            input6.Name = "input6";
+            input6.PrefixText = "脱战";
+            input6.Radius = 3;
+            input6.ReadOnly = true;
+            input6.Size = new Size(263, 65);
+            input6.SuffixText = "/秒后清除当前统计";
+            input6.TabIndex = 39;
             // 
             // divider2
             // 
@@ -298,7 +234,7 @@
             divider2.Location = new Point(36, 78);
             divider2.Name = "divider2";
             divider2.OrientationMargin = 0F;
-            divider2.Size = new Size(650, 14);
+            divider2.Size = new Size(899, 14);
             divider2.TabIndex = 37;
             divider2.Text = "";
             // 
@@ -322,36 +258,282 @@
             label4.TabIndex = 33;
             label4.Text = "战斗设置";
             // 
-            // input6
+            // KeySettingsPanel
             // 
-            input6.Font = new Font("HarmonyOS Sans SC", 8F);
-            input6.Location = new Point(36, 116);
-            input6.Name = "input6";
-            input6.PrefixText = "脱战";
-            input6.Radius = 3;
-            input6.ReadOnly = true;
-            input6.Size = new Size(222, 65);
-            input6.SuffixText = "/秒后清除数据";
-            input6.TabIndex = 39;
+            KeySettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            KeySettingsPanel.Back = Color.White;
+            KeySettingsPanel.BackColor = Color.Transparent;
+            KeySettingsPanel.Controls.Add(label6);
+            KeySettingsPanel.Controls.Add(input5);
+            KeySettingsPanel.Controls.Add(input4);
+            KeySettingsPanel.Controls.Add(input3);
+            KeySettingsPanel.Controls.Add(input2);
+            KeySettingsPanel.Controls.Add(input1);
+            KeySettingsPanel.Controls.Add(divider1);
+            KeySettingsPanel.Controls.Add(button2);
+            KeySettingsPanel.Controls.Add(label3);
+            KeySettingsPanel.Location = new Point(46, 294);
+            KeySettingsPanel.Name = "KeySettingsPanel";
+            KeySettingsPanel.Size = new Size(967, 303);
+            KeySettingsPanel.TabIndex = 1;
+            KeySettingsPanel.Text = "panel5";
+            // 
+            // label6
+            // 
+            label6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label6.BackColor = Color.Transparent;
+            label6.Font = new Font("HarmonyOS Sans SC", 7F);
+            label6.ForeColor = Color.FromArgb(34, 151, 244);
+            label6.Location = new Point(737, 26);
+            label6.Name = "label6";
+            label6.Size = new Size(198, 31);
+            label6.TabIndex = 43;
+            label6.Text = "Delete删除当前键位";
+            label6.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // input5
+            // 
+            input5.Font = new Font("HarmonyOS Sans SC", 9F);
+            input5.Location = new Point(265, 198);
+            input5.Name = "input5";
+            input5.PrefixText = "清空历史键位：";
+            input5.Radius = 3;
+            input5.ReadOnly = true;
+            input5.Size = new Size(192, 65);
+            input5.TabIndex = 42;
+            input5.PreviewKeyDown += input5_PreviewKeyDown;
+            // 
+            // input4
+            // 
+            input4.Font = new Font("HarmonyOS Sans SC", 9F);
+            input4.Location = new Point(36, 198);
+            input4.Name = "input4";
+            input4.PrefixText = "清空数据键位：";
+            input4.Radius = 3;
+            input4.ReadOnly = true;
+            input4.Size = new Size(192, 65);
+            input4.TabIndex = 41;
+            input4.PreviewKeyDown += input4_PreviewKeyDown;
+            // 
+            // input3
+            // 
+            input3.Font = new Font("HarmonyOS Sans SC", 9F);
+            input3.Location = new Point(494, 112);
+            input3.Name = "input3";
+            input3.PrefixText = "开关键位：";
+            input3.Radius = 3;
+            input3.ReadOnly = true;
+            input3.Size = new Size(192, 65);
+            input3.TabIndex = 40;
+            input3.PreviewKeyDown += input3_PreviewKeyDown;
+            // 
+            // input2
+            // 
+            input2.Font = new Font("HarmonyOS Sans SC", 9F);
+            input2.Location = new Point(265, 112);
+            input2.Name = "input2";
+            input2.PrefixText = "窗体透明键位：";
+            input2.Radius = 3;
+            input2.ReadOnly = true;
+            input2.Size = new Size(192, 65);
+            input2.TabIndex = 39;
+            input2.PreviewKeyDown += input2_PreviewKeyDown;
+            // 
+            // input1
+            // 
+            input1.Font = new Font("HarmonyOS Sans SC", 9F);
+            input1.Location = new Point(36, 112);
+            input1.Name = "input1";
+            input1.PrefixText = "鼠标穿透键位：";
+            input1.Radius = 3;
+            input1.ReadOnly = true;
+            input1.Size = new Size(192, 65);
+            input1.TabIndex = 38;
+            input1.PreviewKeyDown += input1_PreviewKeyDown;
+            // 
+            // divider1
+            // 
+            divider1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            divider1.BackColor = Color.Transparent;
+            divider1.Location = new Point(36, 78);
+            divider1.Name = "divider1";
+            divider1.OrientationMargin = 0F;
+            divider1.Size = new Size(899, 14);
+            divider1.TabIndex = 37;
+            divider1.Text = "";
+            // 
+            // button2
+            // 
+            button2.DefaultBack = Color.FromArgb(34, 151, 244);
+            button2.Location = new Point(-9, 7);
+            button2.Name = "button2";
+            button2.Radius = 0;
+            button2.Size = new Size(21, 70);
+            button2.TabIndex = 34;
+            // 
+            // label3
+            // 
+            label3.BackColor = Color.Transparent;
+            label3.Font = new Font("HarmonyOS Sans SC", 9.999999F, FontStyle.Bold, GraphicsUnit.Point, 134);
+            label3.ForeColor = Color.FromArgb(34, 151, 244);
+            label3.Location = new Point(36, 26);
+            label3.Name = "label3";
+            label3.Size = new Size(105, 31);
+            label3.TabIndex = 33;
+            label3.Text = "按键设置";
+            // 
+            // BasicSetupPanel
+            // 
+            BasicSetupPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            BasicSetupPanel.Back = Color.White;
+            BasicSetupPanel.BackColor = Color.Transparent;
+            BasicSetupPanel.Controls.Add(label7);
+            BasicSetupPanel.Controls.Add(InterfaceComboBox);
+            BasicSetupPanel.Controls.Add(divider3);
+            BasicSetupPanel.Controls.Add(button1);
+            BasicSetupPanel.Controls.Add(label2);
+            BasicSetupPanel.Location = new Point(46, 45);
+            BasicSetupPanel.Name = "BasicSetupPanel";
+            BasicSetupPanel.Size = new Size(967, 211);
+            BasicSetupPanel.TabIndex = 0;
+            BasicSetupPanel.Text = "panel4";
+            // 
+            // label7
+            // 
+            label7.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label7.BackColor = Color.Transparent;
+            label7.Font = new Font("HarmonyOS Sans SC", 7F);
+            label7.ForeColor = Color.FromArgb(34, 151, 244);
+            label7.Location = new Point(737, 26);
+            label7.Name = "label7";
+            label7.Size = new Size(198, 31);
+            label7.TabIndex = 44;
+            label7.Text = "自动设置错误时可手动设置";
+            label7.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // InterfaceComboBox
+            // 
+            InterfaceComboBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            InterfaceComboBox.Font = new Font("HarmonyOS Sans SC", 9F);
+            InterfaceComboBox.List = true;
+            InterfaceComboBox.Location = new Point(36, 114);
+            InterfaceComboBox.Name = "InterfaceComboBox";
+            InterfaceComboBox.PrefixText = "请选择网卡：";
+            InterfaceComboBox.Radius = 3;
+            InterfaceComboBox.Size = new Size(899, 56);
+            InterfaceComboBox.TabIndex = 38;
+            InterfaceComboBox.SelectedIndexChanged += InterfaceComboBox_SelectedIndexChanged;
+            // 
+            // divider3
+            // 
+            divider3.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            divider3.BackColor = Color.Transparent;
+            divider3.Location = new Point(36, 78);
+            divider3.Name = "divider3";
+            divider3.OrientationMargin = 0F;
+            divider3.Size = new Size(899, 14);
+            divider3.TabIndex = 37;
+            divider3.Text = "";
+            // 
+            // button1
+            // 
+            button1.DefaultBack = Color.FromArgb(34, 151, 244);
+            button1.Location = new Point(-9, 7);
+            button1.Name = "button1";
+            button1.Radius = 0;
+            button1.Size = new Size(21, 70);
+            button1.TabIndex = 34;
+            // 
+            // label2
+            // 
+            label2.BackColor = Color.Transparent;
+            label2.Font = new Font("HarmonyOS Sans SC", 9.999999F, FontStyle.Bold, GraphicsUnit.Point, 134);
+            label2.ForeColor = Color.FromArgb(34, 151, 244);
+            label2.Location = new Point(36, 26);
+            label2.Name = "label2";
+            label2.Size = new Size(105, 31);
+            label2.TabIndex = 33;
+            label2.Text = "基础设置";
+            // 
+            // panel7
+            // 
+            panel7.Controls.Add(select1);
+            panel7.Controls.Add(button4);
+            panel7.Controls.Add(SaveButton);
+            panel7.Dock = DockStyle.Bottom;
+            panel7.Location = new Point(10, 1061);
+            panel7.Name = "panel7";
+            panel7.Radius = 3;
+            panel7.Shadow = 6;
+            panel7.ShadowAlign = AntdUI.TAlignMini.Top;
+            panel7.Size = new Size(1054, 65);
+            panel7.TabIndex = 31;
+            panel7.Text = "panel7";
+            // 
+            // select1
+            // 
+            select1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            select1.DropDownTextAlign = AntdUI.TAlign.Top;
+            select1.List = true;
+            select1.Location = new Point(2577, 92);
+            select1.Name = "select1";
+            select1.Placement = AntdUI.TAlignFrom.Top;
+            select1.Radius = 3;
+            select1.Size = new Size(196, 47);
+            select1.TabIndex = 27;
+            // 
+            // button4
+            // 
+            button4.Anchor = AnchorStyles.Bottom;
+            button4.Ghost = true;
+            button4.Icon = Properties.Resources.cancel_normal;
+            button4.IconHover = Properties.Resources.cancel_hover;
+            button4.IconPosition = AntdUI.TAlignMini.None;
+            button4.IconRatio = 1.5F;
+            button4.Location = new Point(579, 13);
+            button4.Name = "button4";
+            button4.Size = new Size(57, 49);
+            button4.TabIndex = 1;
+            button4.Click += button4_Click;
+            // 
+            // SaveButton
+            // 
+            SaveButton.Anchor = AnchorStyles.Bottom;
+            SaveButton.Ghost = true;
+            SaveButton.Icon = Properties.Resources.ok_normal;
+            SaveButton.IconHover = Properties.Resources.ok_hover;
+            SaveButton.IconPosition = AntdUI.TAlignMini.None;
+            SaveButton.IconRatio = 1.5F;
+            SaveButton.Location = new Point(416, 13);
+            SaveButton.Name = "SaveButton";
+            SaveButton.Size = new Size(57, 49);
+            SaveButton.TabIndex = 0;
+            SaveButton.Click += button5_Click;
             // 
             // SettingsForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1064, 1120);
-            Controls.Add(panel3);
+            ClientSize = new Size(1064, 1126);
+            Controls.Add(BackgroundPanel);
+            Controls.Add(panel7);
             Controls.Add(panel2);
             Controls.Add(panel1);
             Controls.Add(pageHeader1);
             Name = "SettingsForm";
+            Opacity = 0.95D;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "SettingsForm";
             Load += SettingsForm_Load;
+            ForeColorChanged += SettingsForm_ForeColorChanged;
+            pageHeader1.ResumeLayout(false);
             panel2.ResumeLayout(false);
-            panel3.ResumeLayout(false);
-            panel4.ResumeLayout(false);
-            panel5.ResumeLayout(false);
-            panel6.ResumeLayout(false);
+            BackgroundPanel.ResumeLayout(false);
+            CombatSettingsPanel.ResumeLayout(false);
+            KeySettingsPanel.ResumeLayout(false);
+            BasicSetupPanel.ResumeLayout(false);
+            panel7.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -361,13 +543,13 @@
         private AntdUI.Panel panel1;
         private AntdUI.Panel panel2;
         private AntdUI.Label label1;
-        private AntdUI.Panel panel3;
-        private AntdUI.Panel panel4;
+        private AntdUI.Panel BackgroundPanel;
+        private AntdUI.Panel BasicSetupPanel;
         private AntdUI.Label label2;
         private AntdUI.Button button1;
         private AntdUI.Divider divider3;
         public AntdUI.Select InterfaceComboBox;
-        private AntdUI.Panel panel5;
+        private AntdUI.Panel KeySettingsPanel;
         private AntdUI.Divider divider1;
         private AntdUI.Button button2;
         private AntdUI.Label label3;
@@ -376,10 +558,21 @@
         private AntdUI.Input input3;
         private AntdUI.Input input2;
         private AntdUI.Input input1;
-        private AntdUI.Panel panel6;
+        private AntdUI.Panel CombatSettingsPanel;
         private AntdUI.Divider divider2;
         private AntdUI.Button button3;
         private AntdUI.Label label4;
         private AntdUI.Input input6;
+        private AntdUI.Label label5;
+        private AntdUI.Switch switch1;
+        private AntdUI.Label TitleText;
+        private AntdUI.Label label6;
+        public AntdUI.InputNumber inputNumber1;
+        private AntdUI.Panel panel7;
+        private AntdUI.Select select1;
+        private AntdUI.Button button4;
+        private AntdUI.Button SaveButton;
+        private AntdUI.Label label7;
+        private AntdUI.Label label8;
     }
 }

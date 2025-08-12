@@ -28,15 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            AntdUI.SegmentedItem segmentedItem28 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem29 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem30 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem31 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem32 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem33 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem34 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem35 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem36 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem1 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem2 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem3 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem4 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem5 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem6 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem7 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem8 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem9 = new AntdUI.SegmentedItem();
             pageHeader1 = new AntdUI.PageHeader();
             label1 = new AntdUI.Label();
             panel6 = new AntdUI.Panel();
@@ -81,6 +81,7 @@
             label1.TabIndex = 26;
             label1.Text = "Leader Board";
             label1.TextAlign = ContentAlignment.MiddleCenter;
+            label1.MouseDown += TitleText_MouseDown;
             // 
             // panel6
             // 
@@ -125,8 +126,8 @@
             // 
             button4.Anchor = AnchorStyles.Bottom;
             button4.Ghost = true;
-            button4.Icon = Properties.Resources.flushed_normal;
-            button4.IconHover = Properties.Resources.flushed_hover;
+            button4.Icon = Properties.Resources.ok_normal;
+            button4.IconHover = Properties.Resources.ok_hover;
             button4.IconPosition = AntdUI.TAlignMini.None;
             button4.IconRatio = 1.5F;
             button4.Location = new Point(487, 24);
@@ -173,24 +174,24 @@
             segmented1.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             segmented1.Full = true;
             segmented1.IconGap = 0F;
-            segmentedItem28.Text = "全职业";
-            segmentedItem29.Text = "冰魔导师";
-            segmentedItem30.Text = "巨刃守护者";
-            segmentedItem31.Text = "雷影剑士";
-            segmentedItem32.Text = "灵魂乐手";
-            segmentedItem33.Text = "灵魂乐手";
-            segmentedItem34.Text = "森语者";
-            segmentedItem35.Text = "神盾骑士";
-            segmentedItem36.Text = "神射手";
-            segmented1.Items.Add(segmentedItem28);
-            segmented1.Items.Add(segmentedItem29);
-            segmented1.Items.Add(segmentedItem30);
-            segmented1.Items.Add(segmentedItem31);
-            segmented1.Items.Add(segmentedItem32);
-            segmented1.Items.Add(segmentedItem33);
-            segmented1.Items.Add(segmentedItem34);
-            segmented1.Items.Add(segmentedItem35);
-            segmented1.Items.Add(segmentedItem36);
+            segmentedItem1.Text = "全职业";
+            segmentedItem2.Text = "冰魔导师";
+            segmentedItem3.Text = "巨刃守护者";
+            segmentedItem4.Text = "雷影剑士";
+            segmentedItem5.Text = "灵魂乐手";
+            segmentedItem6.Text = "灵魂乐手";
+            segmentedItem7.Text = "森语者";
+            segmentedItem8.Text = "神盾骑士";
+            segmentedItem9.Text = "神射手";
+            segmented1.Items.Add(segmentedItem1);
+            segmented1.Items.Add(segmentedItem2);
+            segmented1.Items.Add(segmentedItem3);
+            segmented1.Items.Add(segmentedItem4);
+            segmented1.Items.Add(segmentedItem5);
+            segmented1.Items.Add(segmentedItem6);
+            segmented1.Items.Add(segmentedItem7);
+            segmented1.Items.Add(segmentedItem8);
+            segmented1.Items.Add(segmentedItem9);
             segmented1.Location = new Point(9, 9);
             segmented1.Name = "segmented1";
             segmented1.Radius = 2;

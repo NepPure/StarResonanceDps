@@ -384,10 +384,6 @@ namespace StarResonanceDpsAnalysis.Control
              PowerText.Text = power.ToString();
              UidText.Text = Uid.ToString();
 
-            // 隐藏玩家信息显示
-            //NickNameText.Text = "";
-            //PowerText.Text = "";
-            //UidText.Text = "";
 
           
             object? resourceObj = Properties.Resources.ResourceManager.GetObject(profession);

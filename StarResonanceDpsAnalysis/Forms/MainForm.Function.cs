@@ -11,6 +11,7 @@ using AntdUI;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Core;
+using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
 
 namespace StarResonanceDpsAnalysis
@@ -519,28 +520,12 @@ namespace StarResonanceDpsAnalysis
         /// </summary>
         private void OpenSettingsDialog()
         {
-            using var form = new Setup(this);
-            form.inputNumber1.Value = (decimal)AppConfig.Transparency;
-            form.colorPicker1.Value = AppConfig.DpsColor;
-           
-            var title = Localization.Get("systemset", "请选择网卡");
-            AntdUI.Modal.open(new Modal.Config(this, title, form, TType.Info)
+            if(Common.settingsForm == null|| Common.settingsForm.IsDisposed)
             {
-                CloseIcon = true,
-                BtnHeight = 0,
-                
-            });
-
-            AppConfig.Transparency = (double)form.inputNumber1.Value;
-            if (AppConfig.Transparency < 10)
-            {
-                AppConfig.Transparency = 100;
-                MessageBox.Show("透明度不能低于10%，已自动设置为100%");
+                Common.settingsForm = new SettingsForm();
             }
+            Common.settingsForm.Show();
 
-            RefreshHotKeyTips();
-
-            label_SettingTip.Visible = false;
         }
 
         private void dataDisplay()

@@ -22,15 +22,13 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         private static int? _networkCard = null;
         private static double? _transparency = null;
-        private static int[] _defDpsColor = [252, 227, 138];
-        private static Color? _dpsColor = null;
         private static bool? _isLight = null;
         private static Keys? _mouseThroughKey = null;
         private static Keys? _formTransparencyKey = null;
         private static Keys? _windowToggleKey = null;
         private static Keys? _clearDataKey = null;
         private static Keys? _clearHistoryKey = null;
-
+        public static Color DpsColor = Color.FromArgb(0x22, 0x97, 0xF4);//进度条颜色
         public static string NickName= "未设置昵称";
         public static ulong Uid=0;
 
@@ -78,35 +76,6 @@ namespace StarResonanceDpsAnalysis.Plugin
 
   
 
-        /// <summary>
-        /// DPS占比条颜色
-        /// </summary>
-        public static Color DpsColor
-        {
-            get
-            {
-                if (_dpsColor == null)
-                {
-                    var value = GetValue("SetUp", "DpsColor", "252,227,138");
-                    var rgb = value.Split(',').Select(e => e.ToInt()).ToArray();
-                    foreach (var _byte in rgb)
-                    {
-                        if (_byte < 0 || _byte > 255)
-                        {
-                            rgb = _defDpsColor;
-                            break;
-                        }
-                    }
-                    _dpsColor = Color.FromArgb(rgb[0], rgb[1], rgb[2]);
-                }
-                return _dpsColor.Value;
-            }
-            set
-            {
-                SetValue("SetUp", "DpsColor", $"{value.R},{value.G},{value.B}");
-                _dpsColor = value;
-            }
-        }
 
         /// <summary>
         /// 是否为浅色主题

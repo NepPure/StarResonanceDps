@@ -166,8 +166,11 @@ namespace StarResonanceDpsAnalysis
             }
             else
             {
-                using var setup = new Setup(this);
-                setup.LoadDevices();
+                if(Common.settingsForm==null||Common.settingsForm.IsDisposed)
+                {
+                    Common.settingsForm = new SettingsForm();
+                }
+                Common.settingsForm.LoadDevices();
             }
         }
 
@@ -219,6 +222,8 @@ namespace StarResonanceDpsAnalysis
             FormGui.SetColorMode(Common.skillDiary, AppConfig.IsLight);
 
             FormGui.SetColorMode(Common.skillDetailForm, AppConfig.IsLight);
+            FormGui.SetColorMode(Common.settingsForm, AppConfig.IsLight);//设置窗体颜色
+
         }
 
         private void button_AlwaysOnTop_Click(object sender, EventArgs e)
