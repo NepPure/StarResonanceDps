@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 
 namespace StarResonanceDpsAnalysis.Control
 {

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ClosedXML.Excel;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 
 namespace StarResonanceDpsAnalysis.Plugin
 {

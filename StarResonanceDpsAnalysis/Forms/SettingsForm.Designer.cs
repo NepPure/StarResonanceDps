@@ -39,7 +39,6 @@
             inputNumber1 = new AntdUI.InputNumber();
             label5 = new AntdUI.Label();
             switch1 = new AntdUI.Switch();
-            input6 = new AntdUI.Input();
             divider2 = new AntdUI.Divider();
             button3 = new AntdUI.Button();
             label4 = new AntdUI.Label();
@@ -63,6 +62,7 @@
             select1 = new AntdUI.Select();
             button4 = new AntdUI.Button();
             SaveButton = new AntdUI.Button();
+            inputNumber2 = new AntdUI.InputNumber();
             pageHeader1.SuspendLayout();
             panel2.SuspendLayout();
             BackgroundPanel.SuspendLayout();
@@ -153,11 +153,11 @@
             CombatSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             CombatSettingsPanel.Back = Color.White;
             CombatSettingsPanel.BackColor = Color.Transparent;
+            CombatSettingsPanel.Controls.Add(inputNumber2);
             CombatSettingsPanel.Controls.Add(label8);
             CombatSettingsPanel.Controls.Add(inputNumber1);
             CombatSettingsPanel.Controls.Add(label5);
             CombatSettingsPanel.Controls.Add(switch1);
-            CombatSettingsPanel.Controls.Add(input6);
             CombatSettingsPanel.Controls.Add(divider2);
             CombatSettingsPanel.Controls.Add(button3);
             CombatSettingsPanel.Controls.Add(label4);
@@ -190,7 +190,7 @@
             inputNumber1.PrefixText = "窗体透明度：";
             inputNumber1.Radius = 3;
             inputNumber1.SelectionStart = 2;
-            inputNumber1.Size = new Size(201, 65);
+            inputNumber1.Size = new Size(262, 65);
             inputNumber1.SuffixText = "%";
             inputNumber1.TabIndex = 42;
             inputNumber1.Text = "10";
@@ -214,18 +214,6 @@
             switch1.Size = new Size(83, 41);
             switch1.TabIndex = 40;
             switch1.Text = "switch1";
-            // 
-            // input6
-            // 
-            input6.Font = new Font("HarmonyOS Sans SC", 9F);
-            input6.Location = new Point(36, 113);
-            input6.Name = "input6";
-            input6.PrefixText = "脱战";
-            input6.Radius = 3;
-            input6.ReadOnly = true;
-            input6.Size = new Size(263, 65);
-            input6.SuffixText = "/秒后清除当前统计";
-            input6.TabIndex = 39;
             // 
             // divider2
             // 
@@ -510,6 +498,20 @@
             SaveButton.TabIndex = 0;
             SaveButton.Click += button5_Click;
             // 
+            // inputNumber2
+            // 
+            inputNumber2.Location = new Point(36, 113);
+            inputNumber2.Name = "inputNumber2";
+            inputNumber2.PrefixText = "脱战";
+            inputNumber2.Radius = 3;
+            inputNumber2.SelectionStart = 1;
+            inputNumber2.Size = new Size(262, 65);
+            inputNumber2.SuffixText = "/秒后清除当前统计";
+            inputNumber2.TabIndex = 46;
+            inputNumber2.Text = "5";
+            inputNumber2.TextAlign = HorizontalAlignment.Center;
+            inputNumber2.Value = new decimal(new int[] { 5, 0, 0, 0 });
+            // 
             // SettingsForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
@@ -562,7 +564,6 @@
         private AntdUI.Divider divider2;
         private AntdUI.Button button3;
         private AntdUI.Label label4;
-        private AntdUI.Input input6;
         private AntdUI.Label label5;
         private AntdUI.Switch switch1;
         private AntdUI.Label TitleText;
@@ -574,5 +575,6 @@
         private AntdUI.Button SaveButton;
         private AntdUI.Label label7;
         private AntdUI.Label label8;
+        private AntdUI.InputNumber inputNumber2;
     }
 }

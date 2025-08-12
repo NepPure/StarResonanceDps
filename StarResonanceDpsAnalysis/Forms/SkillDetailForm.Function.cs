@@ -1,5 +1,6 @@
 ﻿using AntdUI;
 using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using System;
 using System.Collections.Generic;
 using System.Linq;

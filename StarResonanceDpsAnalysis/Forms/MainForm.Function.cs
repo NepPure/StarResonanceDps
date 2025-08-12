@@ -13,6 +13,7 @@ using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Core;
 using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 
 namespace StarResonanceDpsAnalysis
 {
@@ -242,18 +243,14 @@ namespace StarResonanceDpsAnalysis
 
         private void HandleClearData()
         {
-            if (DpsTableDatas.DpsTable.Count >= 0)
-            {
-                SaveCurrentDpsSnapshot();
-            }
-            
+         
             // 先停止所有图表的自动刷新
             ChartVisualizationService.StopAllChartsAutoRefresh();
             
             // 在清空数据前，通知图表服务战斗结束
             ChartVisualizationService.OnCombatEnd();
            
-            CombatWatch.Restart();
+        
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
@@ -273,11 +270,7 @@ namespace StarResonanceDpsAnalysis
 
         #region HandleClearHistory() 响应清空历史
 
-        private void HandleClearHistory()
-        {
-            dropdown_History.Items.Clear();
-            HistoricalRecords.Clear();
-        }
+
 
         #endregion
 
@@ -292,93 +285,6 @@ namespace StarResonanceDpsAnalysis
         #endregion
 
 
-        #region SaveCurrentDpsSnapshot() 历史记录：保存/显示
-
-        private void SaveCurrentDpsSnapshot()
-        {
-            var statsList = StatisticData._manager
-                .GetAllPlayers()
-                .ToList();
-            if (statsList.Count == 0) return;
-
-            string timeOnly = @$"结束时间：{DateTime.Now:HH:mm:ss}";
-
-            HistoricalRecords[timeOnly] = statsList;
-            dropdown_History.Items.Add(timeOnly);
-            dropdown_History.SelectedValue = -1;
-        }
-
-        private void ShowHistoricalDps(string timeKey)
-        {
-            if (!HistoricalRecords.TryGetValue(timeKey, out var recordList))
-            {
-                MessageBox.Show($"未找到时间 {timeKey} 的历史记录");
-                return;
-            }
-            if (recordList.Count <= 0) return;
-            // 2) 计算最大总伤害，用于归一化进度条
-            var totalDamageSum = recordList
-                .Where(p => p?.DamageStats != null)
-                .Sum(p => (float)p.DamageStats.Total);
-
-            if (totalDamageSum <= 0f) totalDamageSum = 1f;
-
-            // 3) 遍历，新增或更新行
-            foreach (var stat in recordList)
-            {
-                if (stat == null) continue;
-                // 3.1 计算进度条比例
-                float percent = (float)stat.DamageStats.Total / totalDamageSum;
-
-                // 3.2 按 UID 查找已有行
-                var row = DpsTableDatas.DpsTable
-                    .FirstOrDefault(x => x.Uid == stat.Uid);
-
-                // 3.3 计算暴击率/幸运率（以 % 计）
-                double critRate = stat.DamageStats.CountTotal > 0
-                                 ? (double)stat.DamageStats.CountCritical / stat.DamageStats.CountTotal * 100
-                                 : 0.0;
-                double luckyRate = stat.DamageStats.CountTotal > 0
-                                 ? (double)stat.DamageStats.CountLucky / stat.DamageStats.CountTotal * 100
-                                 : 0.0;
-
-
-                if (row == null)
-                {
-                    // 新增一行
-                    DpsTableDatas.DpsTable.Add(new DpsTable(
-                         stat.Uid,
-                         stat.Nickname,
-                         stat.TakenDamage,
-                         stat.HealingStats.Total,
-                         stat.HealingStats.Critical,
-                        stat.HealingStats.Lucky,
-                        stat.HealingStats.CritLucky,
-                        stat.HealingStats.RealtimeValue,
-                        stat.HealingStats.RealtimeMax,
-                         stat.Profession,
-                        stat.DamageStats.Total,
-                        stat.DamageStats.Critical,
-                         stat.DamageStats.Lucky,
-                        stat.DamageStats.CritLucky,
-                        Math.Round(critRate, 1),
-                        Math.Round(luckyRate, 1),
-                       stat.DamageStats.RealtimeValue,     // 即时 DPS
-                        stat.DamageStats.RealtimeMax,       // 峰值 DPS
-                        Math.Round(stat.DamageStats.GetTotalPerSecond(), 1), // 总平均 DPS
-                        Math.Round(stat.HealingStats.GetTotalPerSecond(), 1), // 总平均 HPS
-                    new CellProgress(percent)
-                    {
-                        Size = new Size(200, 10),
-                        Fill = AppConfig.DpsColor
-                    },
-                    stat.CombatPower
-
-                    ));
-                }
-            }
-        }
-        #endregion
 
 
         #region StartCapture() 抓包：开始/停止/事件/统计
@@ -446,7 +352,7 @@ namespace StarResonanceDpsAnalysis
             pageHeader_MainHeader.SubText = "监控已开启";
             label_SettingTip.Visible = true;
             label_SettingTip.Text = "00:00";
-            CombatWatch.Restart();
+      
             timer_RefreshRunningTime.Start();
         }
 
@@ -458,8 +364,6 @@ namespace StarResonanceDpsAnalysis
             // 先停止所有图表的自动刷新，防止在停止抓包后继续更新数据
             ChartVisualizationService.StopAllChartsAutoRefresh();
             
-            // 保存快照
-            if (DpsTableDatas.DpsTable.Count > 0) SaveCurrentDpsSnapshot();
             
             // 在停止抓包时，通知图表服务战斗结束，确保显示最终的0值状态
             ChartVisualizationService.OnCombatEnd();
@@ -503,7 +407,7 @@ namespace StarResonanceDpsAnalysis
             timer_RefreshDpsTable.Enabled = false;
             pageHeader_MainHeader.SubText = string.Empty;
             label_SettingTip.Text = "00:00";
-            CombatWatch.Stop();
+      
             timer_RefreshRunningTime.Stop();
 
             // 清空解析/重组状态 ——（按你的实际字段名来）

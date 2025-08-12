@@ -10,6 +10,7 @@ using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Core;
 using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using StarResonanceDpsAnalysis.Properties;
 using ZstdNet;
 using static System.Windows.Forms.AxHost;
@@ -81,20 +82,14 @@ namespace StarResonanceDpsAnalysis
 
         #endregion
 
-        /// <summary>
-        /// 计时器&超时控制
-        /// </summary>
-        private Stopwatch CombatWatch { get; } = new();
+
 
         /// <summary>
         /// 键盘钩子
         /// </summary>
         private KeyboardHook KbHook { get; } = new();
 
-        #region —— 历史记录/数据结构 —— 
-        Dictionary<string, List<PlayerData>> HistoricalRecords = [];
 
-        #endregion
 
         #region —— 内部类型 —— 
 
@@ -207,7 +202,7 @@ namespace StarResonanceDpsAnalysis
             else if (e.KeyData == AppConfig.FormTransparencyKey) { HandleFormTransparency(); }
             else if (e.KeyData == AppConfig.WindowToggleKey) { HandleSwitchMonitoring(); }
             else if (e.KeyData == AppConfig.ClearDataKey) { HandleClearData(); }
-            else if (e.KeyData == AppConfig.ClearHistoryKey) { HandleClearHistory(); }
+            else if (e.KeyData == AppConfig.ClearHistoryKey) { }//等待重写实现
         }
         #endregion
 
@@ -243,7 +238,7 @@ namespace StarResonanceDpsAnalysis
 
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
-            ShowHistoricalDps(e.Value.ToString());
+       
             dropdown_History.SelectedValue = -1;
         }
 
@@ -337,7 +332,10 @@ namespace StarResonanceDpsAnalysis
 
         private void timer_RefreshRunningTime_Tick(object sender, EventArgs e)
         {
-            label_SettingTip.Text = CombatWatch.Elapsed.ToString(@"mm\:ss");
+
+            var duration = StatisticData._manager.GetFormattedCombatDuration();
+            label_SettingTip.Text = duration;
+
         }
 
         #endregion

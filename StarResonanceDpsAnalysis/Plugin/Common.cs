@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Forms;
+using Microsoft.VisualBasic;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 
 
 namespace StarResonanceDpsAnalysis.Plugin
@@ -463,6 +465,31 @@ namespace StarResonanceDpsAnalysis.Plugin
             return (value / 1_000.0).ToString("0.##") + "K";
         }
 
+        public static Task<JObject> AddUserDps(ulong uid)
+        {
+            var BattleInformation = StatisticData._manager.GetOrCreate(uid);
+            string nickname = "";
+            string professional = "";
+            int combatPower = 0;
+            ulong instantDps = BattleInformation.DamageStats.RealtimeValue;//秒伤
+            ulong totalDamage = BattleInformation.DamageStats.Total;//总伤
+            double critRate = BattleInformation.DamageStats.GetCritRate();//暴击率
+            double luckyRate = BattleInformation.DamageStats.GetLuckyRate();//幸运率
+            double criticalDamage = BattleInformation.DamageStats.Critical;//暴击伤害
+            double luckyDamage = BattleInformation.DamageStats.Lucky;//幸运伤害
+            double critLuckyDamage = BattleInformation.DamageStats.CritLucky;//暴击幸运伤害
+            double maxInstantDps = BattleInformation.DamageStats.MaxSingleHit;//最大瞬时
+            //string battleTime = BattleInformation.BattleTime.ToString("yyyy-MM-dd HH:mm:ss");//战斗时间
+
+
+
+            string url = @$"https://jx3api.com/add_user_dps";
+            var queyr = new
+            {
+
+            };
+            return null;
+        }
 
 
 

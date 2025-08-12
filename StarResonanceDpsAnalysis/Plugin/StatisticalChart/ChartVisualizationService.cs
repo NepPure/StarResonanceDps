@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Drawing;
 using StarResonanceDpsAnalysis.Plugin.Charts;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 
 namespace StarResonanceDpsAnalysis.Plugin
 {

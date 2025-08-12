@@ -122,6 +122,7 @@ namespace StarResonanceDpsAnalysis.Forms
         private void button5_Click(object sender, EventArgs e)
         {
             AppConfig.Transparency = (double)inputNumber1.Value;
+            AppConfig.CombatTimeClearDelaySeconds = (int)inputNumber2.Value;//保存战斗时间清除延迟
             if (AppConfig.Transparency < 10)
             {
                 AppConfig.Transparency = 95;

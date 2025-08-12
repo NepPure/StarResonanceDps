@@ -30,7 +30,8 @@ namespace StarResonanceDpsAnalysis.Plugin
         private static Keys? _clearHistoryKey = null;
         public static Color DpsColor = Color.FromArgb(0x22, 0x97, 0xF4);//进度条颜色
         public static string NickName= "未设置昵称";
-        public static ulong Uid=0;
+        public static ulong Uid=0;//用户UID
+        public static int CombatTimeClearDelaySeconds = 5;//战斗计时清除延迟
 
         /// <summary>
         /// 网卡顺序

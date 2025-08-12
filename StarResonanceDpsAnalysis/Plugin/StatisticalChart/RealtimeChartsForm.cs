@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using AntdUI;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.Charts;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using SystemPanel = System.Windows.Forms.Panel;
 
 namespace StarResonanceDpsAnalysis.Forms
