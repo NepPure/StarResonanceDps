@@ -26,7 +26,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         // 边距设置 - 调整边距使图表左对齐，保持较窄的宽度
         private const int PaddingLeft = 60;    // 恢复到正常的左边距
-        private const int PaddingRight = 200;  // 大幅增加右边距，让图表左对齐
+        private const int PaddingRight = 50;  // 大幅增加右边距，让图表左对齐
         private const int PaddingTop = 35;     // 保持顶部边距
         private const int PaddingBottom = 45;  // 保持底部边距
 

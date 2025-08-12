@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            AntdUI.SegmentedItem segmentedItem1 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem2 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem9 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem10 = new AntdUI.SegmentedItem();
             table_DpsDetailDataTable = new AntdUI.Table();
             pageHeader1 = new AntdUI.PageHeader();
             TitleText = new AntdUI.Label();
@@ -140,10 +140,10 @@
             segmented1.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             segmented1.Full = true;
             segmented1.IconGap = 0F;
-            segmentedItem1.Text = "技能伤害分析";
-            segmentedItem2.Text = "技能治疗分析";
-            segmented1.Items.Add(segmentedItem1);
-            segmented1.Items.Add(segmentedItem2);
+            segmentedItem9.Text = "技能伤害分析";
+            segmentedItem10.Text = "技能治疗分析";
+            segmented1.Items.Add(segmentedItem9);
+            segmented1.Items.Add(segmentedItem10);
             segmented1.Location = new Point(9, 8);
             segmented1.Name = "segmented1";
             segmented1.Round = true;
@@ -527,7 +527,7 @@
             panel6.Controls.Add(button2);
             panel6.Controls.Add(button1);
             panel6.Dock = DockStyle.Bottom;
-            panel6.Location = new Point(0, 1336);
+            panel6.Location = new Point(0, 1397);
             panel6.Name = "panel6";
             panel6.Shadow = 6;
             panel6.ShadowAlign = AntdUI.TAlignMini.Top;
@@ -583,8 +583,8 @@
             splitter1.Panel2.Controls.Add(table_DpsDetailDataTable);
             splitter1.Panel2.Controls.Add(divider3);
             splitter1.Panel2.Controls.Add(panel2);
-            splitter1.Size = new Size(1696, 1161);
-            splitter1.SplitterDistance = 450;
+            splitter1.Size = new Size(1696, 1222);
+            splitter1.SplitterDistance = 446;
             splitter1.SplitterWidth = 6;
             splitter1.TabIndex = 27;
             // 
@@ -599,7 +599,7 @@
             collapse1.Items.Add(collapseItem3);
             collapse1.Location = new Point(0, 0);
             collapse1.Name = "collapse1";
-            collapse1.Size = new Size(450, 1161);
+            collapse1.Size = new Size(446, 1222);
             collapse1.TabIndex = 28;
             collapse1.Text = "collapse1";
             // 
@@ -609,7 +609,7 @@
             collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
             collapseItem1.Location = new Point(27, 90);
             collapseItem1.Name = "collapseItem1";
-            collapseItem1.Size = new Size(396, 300);
+            collapseItem1.Size = new Size(392, 300);
             collapseItem1.TabIndex = 0;
             collapseItem1.Text = "Dps/Hps实时曲线图";
             // 
@@ -618,16 +618,18 @@
             collapseItem2.Expand = true;
             collapseItem2.Location = new Point(27, 501);
             collapseItem2.Name = "collapseItem2";
-            collapseItem2.Size = new Size(396, 300);
+            collapseItem2.Size = new Size(392, 300);
             collapseItem2.TabIndex = 1;
             collapseItem2.Text = "技能占比分布图";
             // 
             // collapseItem3
             // 
+            collapseItem3.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            collapseItem3.AutoScroll = true;
             collapseItem3.Expand = true;
             collapseItem3.Location = new Point(27, 912);
             collapseItem3.Name = "collapseItem3";
-            collapseItem3.Size = new Size(396, 300);
+            collapseItem3.Size = new Size(392, 300);
             collapseItem3.TabIndex = 2;
             collapseItem3.Text = "伤害分布";
             // 
@@ -636,7 +638,7 @@
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(251, 251, 251);
-            ClientSize = new Size(1696, 1422);
+            ClientSize = new Size(1696, 1483);
             Controls.Add(splitter1);
             Controls.Add(panel6);
             Controls.Add(panel5);

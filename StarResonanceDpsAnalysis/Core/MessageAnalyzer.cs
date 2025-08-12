@@ -14,14 +14,18 @@ namespace StarResonanceDpsAnalysis.Core
     {
         private static readonly Dictionary<int, Action<ByteReader, bool>> MessageHandlers = new()
         {
+            //{1, }// RPC 请求
             // MessageType.Notify
             { 2, ProcessNotifyMsg },
 
             // MessageType.Return
             //{ 3, ProcessReturnMsg }, // 目前不处理
 
+            //{4,} // 心跳/回显
+            //{5, }// 客户端->服务器帧
             // MessageType.FrameDown
             { 6, ProcessFrameDown }
+            
         };
 
         public static void Process(byte[] packets)
@@ -104,13 +108,18 @@ namespace StarResonanceDpsAnalysis.Core
         private static Dictionary<uint, Action<byte[]>> ProcessMethods = new()
         {
             // NotifyMethod.SyncNearEntities
-            { 0x00000006U, ProcessSyncNearEntities },
+            { 0x00000006U, ProcessSyncNearEntities },//// 附近实体出现/更新（AOI 进入）
+
+            //进场景的时候推的大包
+            {0x00000015U,ProcessSyncContainerData }, // 容器（玩家）完整数据（如登录后下发）
+            //在场景内有变化时候推的包
+            {0x00000016U,ProcessSyncContainerDirtyData },// 容器（玩家）增量更新（Dirty）
 
             // NotifyMethod.SyncToMeDeltaInfo
-            { 0x0000002EU, ProcessSyncToMeDeltaInfo },
+            { 0x0000002EU, ProcessSyncToMeDeltaInfo },//// 同步给“我”的 AOI 增量（含自身 UUID）
 
             // NotifyMethod.SyncNearDeltaInfo
-            { 0x0000002DU, ProcessSyncNearDeltaInfo },
+            { 0x0000002DU, ProcessSyncNearDeltaInfo },//// AOI 增量（附近实体状态变化：伤害/治疗等）
         };
 
         public static void ProcessNotifyMsg(ByteReader packet, bool isZstdCompressed)
@@ -355,6 +364,10 @@ namespace StarResonanceDpsAnalysis.Core
         }
 
 
+        /// <summary>
+        ///  获取战斗信息DPS
+        /// </summary>
+        /// <param name="payloadBuffer"></param>
         public static void ProcessSyncNearDeltaInfo(byte[] payloadBuffer)
         {
             //var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
@@ -373,6 +386,7 @@ namespace StarResonanceDpsAnalysis.Core
                 ProcessAoiSyncDelta(aoiSyncDelta);
             }
         }
+
         /// <summary>
         /// 解析 SyncNearDeltaInfo 并统计玩家的伤害/治疗/被打量。
         /// 关键点：
@@ -429,16 +443,23 @@ namespace StarResonanceDpsAnalysis.Core
                     ulong damage = (ulong)(damageSigned < 0 ? -damageSigned : damageSigned);
 
                     // 暴击判断：JS 用 TypeFlag 的第 1 位（& 1）
-                    bool isCrit = d.HasTypeFlag && ((d.TypeFlag & 1L) == 1L);
+                    //bool isCrit = d.HasTypeFlag && ((d.TypeFlag & 1L) == 1L);
+                    bool isCrit = d.TypeFlag != null
+                      ? ((d.TypeFlag & 1) == 1)
+                      : false;
 
                     // 是否治疗：直接对齐枚举
                     bool isHeal = d.Type == EDamageType.Heal;
 
                     // 幸运（JS: !!luckyValue，只要存在就 true）
-                    bool isLucky = d.HasLuckyValue;
+    
+                    var luckyValue = d.LuckyValue;
+                    // JS 中 "!!" 是把值转成布尔，这里相当于判断 luckyValue 是否非空且非 0
+                    bool isLucky = luckyValue != null && luckyValue != 0;
 
-                    // 血量压制/减益（JS: HpLessenValue?.toNumber()）
-                    ulong hpLessen = d.HasHpLessenValue ? (ulong)d.HpLessenValue : 0UL;
+
+                // 血量压制/减益（JS: HpLessenValue?.toNumber()）
+                ulong hpLessen = d.HasHpLessenValue ? (ulong)d.HpLessenValue : 0UL;
 
                     if (isTargetPlayer)
                     {
@@ -478,6 +499,7 @@ namespace StarResonanceDpsAnalysis.Core
             // NOTE: 强烈建议节流，例如 100–200ms 合并一次刷新（BeginInvoke + 计时器）
             MainForm.RefreshDpsTable();
         }
+        //获取承伤信息DPS
         public static void ProcessSyncToMeDeltaInfo(byte[] payloadBuffer)
         {
             // 1) 反序列化：把网络收到的一段二进制，解成 SyncToMeDeltaInfo（“与我相关”的增量同步包）
@@ -498,6 +520,16 @@ namespace StarResonanceDpsAnalysis.Core
             // 5) 交给统一的增量处理逻辑：在这里面解析 SkillEffects.Damages（伤害/治疗）、
             //    BuffInfos/BuffEffect（增益变更）、EventDataList 等，并更新你的统计表
             ProcessAoiSyncDelta(aoiSyncDelta);
+        }
+
+        public static void ProcessSyncContainerData(byte[] payloadBuffer)
+        {
+            //var syncContainerData = SyncContainerData.decode(payloadBuffer); // 解码
+
+        }
+        public static void ProcessSyncContainerDirtyData(byte[] payloadBuffer)
+        {
+            //var syncContainerDirtyData = SyncContainerDirtyData.decode(payloadBuffer); // 解码
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
