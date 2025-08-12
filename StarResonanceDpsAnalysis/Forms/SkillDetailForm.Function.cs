@@ -153,17 +153,17 @@ namespace StarResonanceDpsAnalysis.Control
                     // 根据当前选择的模式更新图表标题
                     if (segmented1.SelectIndex == 0)
                     {
-                        _dpsTrendChart.YAxisLabel = "DPS";
-                        var playerInfo = StatisticData._manager.GetPlayerBasicInfo(Uid);
-                        var playerName = string.IsNullOrEmpty(playerInfo.Nickname) ? $"玩家{Uid}" : playerInfo.Nickname;
-                        _dpsTrendChart.TitleText = $"{playerName} - 实时DPS趋势";
+                        //_dpsTrendChart.YAxisLabel = "DPS";
+                        //var playerInfo = StatisticData._manager.GetPlayerBasicInfo(Uid);
+                        //var playerName = string.IsNullOrEmpty(playerInfo.Nickname) ? $"玩家{Uid}" : playerInfo.Nickname;
+                        //_dpsTrendChart.TitleText = $"{playerName} - 实时DPS趋势";
                     }
                     else
                     {
-                        _dpsTrendChart.YAxisLabel = "HPS";
-                        var playerInfo = StatisticData._manager.GetPlayerBasicInfo(Uid);
-                        var playerName = string.IsNullOrEmpty(playerInfo.Nickname) ? $"玩家{Uid}" : playerInfo.Nickname;
-                        _dpsTrendChart.TitleText = $"{playerName} - 实时HPS趋势";
+                        //_dpsTrendChart.YAxisLabel = "HPS";
+                        //var playerInfo = StatisticData._manager.GetPlayerBasicInfo(Uid);
+                        //var playerName = string.IsNullOrEmpty(playerInfo.Nickname) ? $"玩家{Uid}" : playerInfo.Nickname;
+                        //_dpsTrendChart.TitleText = $"{playerName} - 实时HPS趋势";
                     }
                 }
                 catch (Exception ex)

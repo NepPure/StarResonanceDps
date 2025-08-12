@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            AntdUI.SegmentedItem segmentedItem1 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem2 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem13 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem14 = new AntdUI.SegmentedItem();
             table_DpsDetailDataTable = new AntdUI.Table();
             pageHeader1 = new AntdUI.PageHeader();
             TitleText = new AntdUI.Label();
@@ -68,15 +68,24 @@
             panel6 = new AntdUI.Panel();
             button2 = new AntdUI.Button();
             button1 = new AntdUI.Button();
-            panel4 = new AntdUI.Panel();
             panel7 = new AntdUI.Panel();
+            splitter1 = new AntdUI.Splitter();
+            collapse1 = new AntdUI.Collapse();
+            collapseItem1 = new AntdUI.CollapseItem();
+            collapseItem2 = new AntdUI.CollapseItem();
+            collapseItem3 = new AntdUI.CollapseItem();
             pageHeader1.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             panel3.SuspendLayout();
             panel5.SuspendLayout();
             panel6.SuspendLayout();
-            panel4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitter1).BeginInit();
+            splitter1.Panel1.SuspendLayout();
+            splitter1.Panel2.SuspendLayout();
+            splitter1.SuspendLayout();
+            collapse1.SuspendLayout();
+            collapseItem1.SuspendLayout();
             SuspendLayout();
             // 
             // table_DpsDetailDataTable
@@ -88,10 +97,10 @@
             table_DpsDetailDataTable.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             table_DpsDetailDataTable.Gap = 8;
             table_DpsDetailDataTable.Gaps = new Size(8, 8);
-            table_DpsDetailDataTable.Location = new Point(0, 217);
+            table_DpsDetailDataTable.Location = new Point(13, 235);
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
-            table_DpsDetailDataTable.Size = new Size(1644, 782);
+            table_DpsDetailDataTable.Size = new Size(1199, 744);
             table_DpsDetailDataTable.TabIndex = 14;
             table_DpsDetailDataTable.Text = "table1";
             // 
@@ -107,7 +116,7 @@
             pageHeader1.MaximizeBox = false;
             pageHeader1.Mode = AntdUI.TAMode.Dark;
             pageHeader1.Name = "pageHeader1";
-            pageHeader1.Size = new Size(1644, 52);
+            pageHeader1.Size = new Size(1911, 52);
             pageHeader1.TabIndex = 15;
             pageHeader1.Text = "";
             // 
@@ -119,7 +128,7 @@
             TitleText.Font = new Font("SAO Welcome TT", 12F, FontStyle.Bold);
             TitleText.Location = new Point(0, 0);
             TitleText.Name = "TitleText";
-            TitleText.Size = new Size(1644, 52);
+            TitleText.Size = new Size(1911, 52);
             TitleText.TabIndex = 26;
             TitleText.Text = "Skill Breakdown";
             TitleText.TextAlign = ContentAlignment.MiddleCenter;
@@ -134,10 +143,10 @@
             segmented1.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             segmented1.Full = true;
             segmented1.IconGap = 0F;
-            segmentedItem1.Text = "技能伤害分析";
-            segmentedItem2.Text = "技能治疗分析";
-            segmented1.Items.Add(segmentedItem1);
-            segmented1.Items.Add(segmentedItem2);
+            segmentedItem13.Text = "技能伤害分析";
+            segmentedItem14.Text = "技能治疗分析";
+            segmented1.Items.Add(segmentedItem13);
+            segmented1.Items.Add(segmentedItem14);
             segmented1.Location = new Point(9, 8);
             segmented1.Name = "segmented1";
             segmented1.Round = true;
@@ -151,7 +160,7 @@
             // 
             NickNameText.BackColor = Color.Transparent;
             NickNameText.Font = new Font("阿里妈妈数黑体", 12F);
-            NickNameText.Location = new Point(24, 22);
+            NickNameText.Location = new Point(24, 33);
             NickNameText.Name = "NickNameText";
             NickNameText.Size = new Size(181, 45);
             NickNameText.TabIndex = 17;
@@ -184,7 +193,7 @@
             panel1.Controls.Add(label1);
             panel1.Controls.Add(divider1);
             panel1.Controls.Add(label3);
-            panel1.Location = new Point(2, 7);
+            panel1.Location = new Point(7, 6);
             panel1.Name = "panel1";
             panel1.Shadow = 6;
             panel1.Size = new Size(608, 191);
@@ -310,7 +319,7 @@
             panel2.Controls.Add(label6);
             panel2.Controls.Add(divider2);
             panel2.Controls.Add(label19);
-            panel2.Location = new Point(1034, 7);
+            panel2.Location = new Point(610, 6);
             panel2.Name = "panel2";
             panel2.Shadow = 6;
             panel2.Size = new Size(607, 191);
@@ -437,14 +446,14 @@
             // timer1
             // 
             timer1.Enabled = true;
-            timer1.Interval = 500;
+            timer1.Interval = 5000;
             timer1.Tick += timer1_Tick;
             // 
             // UidText
             // 
             UidText.BackColor = Color.Transparent;
             UidText.Font = new Font("HarmonyOS Sans SC", 9F);
-            UidText.Location = new Point(210, 22);
+            UidText.Location = new Point(210, 33);
             UidText.Name = "UidText";
             UidText.Prefix = "UID:";
             UidText.Size = new Size(157, 45);
@@ -455,7 +464,7 @@
             // 
             PowerText.BackColor = Color.Transparent;
             PowerText.Font = new Font("HarmonyOS Sans SC", 9F);
-            PowerText.Location = new Point(373, 22);
+            PowerText.Location = new Point(373, 33);
             PowerText.Name = "PowerText";
             PowerText.Prefix = "战力：";
             PowerText.Size = new Size(168, 45);
@@ -465,10 +474,10 @@
             // divider3
             // 
             divider3.BackColor = Color.Transparent;
-            divider3.Location = new Point(3, 195);
+            divider3.Location = new Point(13, 203);
             divider3.Name = "divider3";
             divider3.OrientationMargin = 0F;
-            divider3.Size = new Size(1223, 14);
+            divider3.Size = new Size(1259, 14);
             divider3.TabIndex = 25;
             divider3.Text = "";
             // 
@@ -477,7 +486,7 @@
             panel3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             panel3.BackColor = Color.Transparent;
             panel3.Controls.Add(segmented1);
-            panel3.Location = new Point(1279, 28);
+            panel3.Location = new Point(1546, 23);
             panel3.Name = "panel3";
             panel3.Radius = 500;
             panel3.Shadow = 6;
@@ -495,9 +504,10 @@
             panel5.Dock = DockStyle.Top;
             panel5.Location = new Point(0, 52);
             panel5.Name = "panel5";
+            panel5.Radius = 0;
             panel5.Shadow = 6;
             panel5.ShadowAlign = AntdUI.TAlignMini.Bottom;
-            panel5.Size = new Size(1644, 123);
+            panel5.Size = new Size(1911, 123);
             panel5.TabIndex = 29;
             panel5.Text = "panel5";
             // 
@@ -506,7 +516,7 @@
             select1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             select1.DropDownTextAlign = AntdUI.TAlign.Top;
             select1.List = true;
-            select1.Location = new Point(1414, 25);
+            select1.Location = new Point(1681, 25);
             select1.Name = "select1";
             select1.Size = new Size(196, 47);
             select1.TabIndex = 27;
@@ -522,7 +532,7 @@
             panel6.Name = "panel6";
             panel6.Shadow = 6;
             panel6.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel6.Size = new Size(1644, 86);
+            panel6.Size = new Size(1911, 86);
             panel6.TabIndex = 30;
             panel6.Text = "panel6";
             // 
@@ -534,7 +544,7 @@
             button2.IconHover = Properties.Resources.cancel_hover;
             button2.IconPosition = AntdUI.TAlignMini.None;
             button2.IconRatio = 1.5F;
-            button2.Location = new Point(904, 25);
+            button2.Location = new Point(1037, 25);
             button2.Name = "button2";
             button2.Size = new Size(57, 49);
             button2.TabIndex = 1;
@@ -548,44 +558,98 @@
             button1.IconHover = Properties.Resources.flushed_hover;
             button1.IconPosition = AntdUI.TAlignMini.None;
             button1.IconRatio = 1.5F;
-            button1.Location = new Point(687, 25);
+            button1.Location = new Point(820, 25);
             button1.Name = "button1";
             button1.Size = new Size(57, 49);
             button1.TabIndex = 0;
             button1.Click += button1_Click;
             // 
-            // panel4
-            // 
-            panel4.Controls.Add(panel2);
-            panel4.Controls.Add(panel7);
-            panel4.Controls.Add(panel1);
-            panel4.Controls.Add(divider3);
-            panel4.Controls.Add(table_DpsDetailDataTable);
-            panel4.Dock = DockStyle.Fill;
-            panel4.Location = new Point(0, 175);
-            panel4.Name = "panel4";
-            panel4.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel4.Size = new Size(1644, 995);
-            panel4.TabIndex = 31;
-            panel4.Text = "panel4";
-            panel4.Click += panel4_Click;
-            // 
             // panel7
             // 
             panel7.AllowDrop = true;
-            panel7.Location = new Point(616, 7);
+            panel7.BackColor = Color.Transparent;
+            panel7.Dock = DockStyle.Fill;
+            panel7.Location = new Point(0, 0);
             panel7.Name = "panel7";
-            panel7.Size = new Size(412, 191);
+            panel7.Size = new Size(613, 500);
             panel7.TabIndex = 26;
             panel7.Text = "panel7";
+            // 
+            // splitter1
+            // 
+            splitter1.ArrowColor = SystemColors.ActiveCaption;
+            splitter1.CollapsePanel = AntdUI.Splitter.ADCollapsePanel.Panel1;
+            splitter1.Dock = DockStyle.Fill;
+            splitter1.FixedPanel = FixedPanel.Panel1;
+            splitter1.Location = new Point(0, 175);
+            splitter1.Name = "splitter1";
+            // 
+            // splitter1.Panel1
+            // 
+            splitter1.Panel1.Controls.Add(collapse1);
+            // 
+            // splitter1.Panel2
+            // 
+            splitter1.Panel2.Controls.Add(panel1);
+            splitter1.Panel2.Controls.Add(table_DpsDetailDataTable);
+            splitter1.Panel2.Controls.Add(divider3);
+            splitter1.Panel2.Controls.Add(panel2);
+            splitter1.Size = new Size(1911, 995);
+            splitter1.SplitterDistance = 667;
+            splitter1.SplitterWidth = 6;
+            splitter1.TabIndex = 27;
+            // 
+            // collapse1
+            // 
+            collapse1.Dock = DockStyle.Fill;
+            collapse1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
+            collapse1.FontExpand = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
+            collapse1.ForeColor = Color.FromArgb(103, 174, 246);
+            collapse1.Items.Add(collapseItem1);
+            collapse1.Items.Add(collapseItem2);
+            collapse1.Items.Add(collapseItem3);
+            collapse1.Location = new Point(0, 0);
+            collapse1.Name = "collapse1";
+            collapse1.Size = new Size(667, 995);
+            collapse1.TabIndex = 28;
+            collapse1.Text = "collapse1";
+            // 
+            // collapseItem1
+            // 
+            collapseItem1.Controls.Add(panel7);
+            collapseItem1.Expand = true;
+            collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
+            collapseItem1.Location = new Point(27, 90);
+            collapseItem1.Name = "collapseItem1";
+            collapseItem1.Size = new Size(613, 500);
+            collapseItem1.TabIndex = 0;
+            collapseItem1.Text = "Dps/Hps实时曲线图";
+            // 
+            // collapseItem2
+            // 
+            collapseItem2.Expand = true;
+            collapseItem2.Location = new Point(27, 701);
+            collapseItem2.Name = "collapseItem2";
+            collapseItem2.Size = new Size(613, 96);
+            collapseItem2.TabIndex = 1;
+            collapseItem2.Text = "技能占比分布图";
+            // 
+            // collapseItem3
+            // 
+            collapseItem3.Expand = true;
+            collapseItem3.Location = new Point(27, 908);
+            collapseItem3.Name = "collapseItem3";
+            collapseItem3.Size = new Size(613, 60);
+            collapseItem3.TabIndex = 2;
+            collapseItem3.Text = "暴击率与幸运率";
             // 
             // SkillDetailForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(251, 251, 251);
-            ClientSize = new Size(1644, 1256);
-            Controls.Add(panel4);
+            ClientSize = new Size(1911, 1256);
+            Controls.Add(splitter1);
             Controls.Add(panel6);
             Controls.Add(panel5);
             Controls.Add(pageHeader1);
@@ -603,7 +667,12 @@
             panel3.ResumeLayout(false);
             panel5.ResumeLayout(false);
             panel6.ResumeLayout(false);
-            panel4.ResumeLayout(false);
+            splitter1.Panel1.ResumeLayout(false);
+            splitter1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitter1).EndInit();
+            splitter1.ResumeLayout(false);
+            collapse1.ResumeLayout(false);
+            collapseItem1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -643,10 +712,14 @@
         private AntdUI.Panel panel3;
         private AntdUI.Panel panel5;
         private AntdUI.Panel panel6;
-        private AntdUI.Panel panel4;
         private AntdUI.Button button1;
         private AntdUI.Button button2;
         private AntdUI.Select select1;
         private AntdUI.Panel panel7;
+        private AntdUI.Splitter splitter1;
+        private AntdUI.Collapse collapse1;
+        private AntdUI.CollapseItem collapseItem1;
+        private AntdUI.CollapseItem collapseItem2;
+        private AntdUI.CollapseItem collapseItem3;
     }
 }

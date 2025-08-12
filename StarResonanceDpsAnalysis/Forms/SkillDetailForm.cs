@@ -27,11 +27,11 @@ namespace StarResonanceDpsAnalysis.Control
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
-          
+           
             ToggleTableView();
         }
 
-        private int fixedWidth = 1644;//窗体宽度
+        private int fixedWidth = 1911;//窗体宽度
         private void SkillDetailForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
@@ -95,7 +95,7 @@ namespace StarResonanceDpsAnalysis.Control
                 panel7.Controls.Clear();
                 
                 // 设置panel7的基本属性以更好地显示图表
-                panel7.BackColor = AppConfig.IsLight ? Color.White : Color.FromArgb(31, 31, 31);
+                //panel7.BackColor = AppConfig.IsLight ? Color.White : Color.FromArgb(31, 31, 31);
                 
                 // 确保panel7大小正确设置并支持自动调整
                 panel7.MinimumSize = new Size(450, 150);
@@ -104,15 +104,16 @@ namespace StarResonanceDpsAnalysis.Control
                 // 创建DPS趋势折线图，传入当前玩家ID以显示该玩家的数据
                 _dpsTrendChart = ChartVisualizationService.CreateDpsTrendChart(specificPlayerId: Uid);
                 _dpsTrendChart.Dock = DockStyle.Fill; // 使图表填充整个panel7
-                _dpsTrendChart.TitleText = "实时DPS趋势";
+                _dpsTrendChart.TitleText = " ";
+              
                 _dpsTrendChart.XAxisLabel = "时间 (秒)";
-                _dpsTrendChart.YAxisLabel = "DPS";
+                _dpsTrendChart.YAxisLabel = " ";
                 _dpsTrendChart.ShowLegend = false; // 隐藏图例，因为标题已经显示玩家名
                 _dpsTrendChart.ShowGrid = true;
                 _dpsTrendChart.ShowViewInfo = false; // 不显示缩放和时间信息
-                _dpsTrendChart.AutoScaleFont = true; // 启用字体自适应
+                _dpsTrendChart.AutoScaleFont = false; // 启用字体自适应
                 _dpsTrendChart.PreserveViewOnDataUpdate = true; // 启用视图保持功能，防止缩放和拖动回弹
-                
+                _dpsTrendChart.Font = new Font("阿里妈妈数黑体", 10, FontStyle.Regular); // 设置字体
                 // 设置图表主题
                 _dpsTrendChart.IsDarkTheme = !AppConfig.IsLight;
                 
@@ -405,9 +406,9 @@ namespace StarResonanceDpsAnalysis.Control
                     _dpsTrendChart.FullReset();
                     
                     // 重新初始化图表基本设置
-                    _dpsTrendChart.TitleText = "实时DPS趋势";
+                    _dpsTrendChart.TitleText = "";
                     _dpsTrendChart.XAxisLabel = "时间 (秒)";
-                    _dpsTrendChart.YAxisLabel = "DPS";
+                    _dpsTrendChart.YAxisLabel = "";
                     
                     // 如果当前正在捕获数据，重新启动自动刷新
                     if (ChartVisualizationService.IsCapturing)
