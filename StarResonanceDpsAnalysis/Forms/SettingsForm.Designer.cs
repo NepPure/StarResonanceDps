@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
             pageHeader1 = new AntdUI.PageHeader();
             TitleText = new AntdUI.Label();
             panel1 = new AntdUI.Panel();
@@ -35,8 +36,11 @@
             label1 = new AntdUI.Label();
             BackgroundPanel = new AntdUI.Panel();
             CombatSettingsPanel = new AntdUI.Panel();
+            slider1 = new AntdUI.Slider();
+            label9 = new AntdUI.Label();
+            transparentskControl1 = new ScottPlot.WinForms.TransparentSKControl();
+            inputNumber2 = new AntdUI.InputNumber();
             label8 = new AntdUI.Label();
-            inputNumber1 = new AntdUI.InputNumber();
             label5 = new AntdUI.Label();
             switch1 = new AntdUI.Switch();
             divider2 = new AntdUI.Divider();
@@ -62,7 +66,6 @@
             select1 = new AntdUI.Select();
             button4 = new AntdUI.Button();
             SaveButton = new AntdUI.Button();
-            inputNumber2 = new AntdUI.InputNumber();
             pageHeader1.SuspendLayout();
             panel2.SuspendLayout();
             BackgroundPanel.SuspendLayout();
@@ -107,7 +110,7 @@
             panel1.Dock = DockStyle.Left;
             panel1.Location = new Point(0, 38);
             panel1.Name = "panel1";
-            panel1.Size = new Size(10, 1088);
+            panel1.Size = new Size(10, 1209);
             panel1.TabIndex = 30;
             panel1.Text = "panel1";
             // 
@@ -144,7 +147,7 @@
             BackgroundPanel.Location = new Point(10, 89);
             BackgroundPanel.Name = "BackgroundPanel";
             BackgroundPanel.Radius = 3;
-            BackgroundPanel.Size = new Size(1054, 972);
+            BackgroundPanel.Size = new Size(1054, 1093);
             BackgroundPanel.TabIndex = 32;
             BackgroundPanel.Text = "panel3";
             // 
@@ -153,9 +156,11 @@
             CombatSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             CombatSettingsPanel.Back = Color.White;
             CombatSettingsPanel.BackColor = Color.Transparent;
+            CombatSettingsPanel.Controls.Add(slider1);
+            CombatSettingsPanel.Controls.Add(label9);
+            CombatSettingsPanel.Controls.Add(transparentskControl1);
             CombatSettingsPanel.Controls.Add(inputNumber2);
             CombatSettingsPanel.Controls.Add(label8);
-            CombatSettingsPanel.Controls.Add(inputNumber1);
             CombatSettingsPanel.Controls.Add(label5);
             CombatSettingsPanel.Controls.Add(switch1);
             CombatSettingsPanel.Controls.Add(divider2);
@@ -163,9 +168,52 @@
             CombatSettingsPanel.Controls.Add(label4);
             CombatSettingsPanel.Location = new Point(46, 635);
             CombatSettingsPanel.Name = "CombatSettingsPanel";
-            CombatSettingsPanel.Size = new Size(967, 278);
+            CombatSettingsPanel.Size = new Size(967, 370);
             CombatSettingsPanel.TabIndex = 2;
             CombatSettingsPanel.Text = "panel6";
+            // 
+            // slider1
+            // 
+            slider1.Location = new Point(173, 288);
+            slider1.MinValue = 10;
+            slider1.Name = "slider1";
+            slider1.ShowValue = true;
+            slider1.Size = new Size(762, 48);
+            slider1.TabIndex = 48;
+            slider1.Text = "slider1";
+            slider1.Value = 90;
+            slider1.ValueChanged += slider1_ValueChanged;
+            // 
+            // label9
+            // 
+            label9.Font = new Font("HarmonyOS Sans SC", 9F);
+            label9.Location = new Point(46, 283);
+            label9.Name = "label9";
+            label9.Size = new Size(138, 58);
+            label9.TabIndex = 49;
+            label9.Text = "窗体透明度";
+            // 
+            // transparentskControl1
+            // 
+            transparentskControl1.Location = new Point(619, 113);
+            transparentskControl1.Name = "transparentskControl1";
+            transparentskControl1.Size = new Size(67, 55);
+            transparentskControl1.TabIndex = 44;
+            transparentskControl1.Text = "transparentskControl1";
+            // 
+            // inputNumber2
+            // 
+            inputNumber2.Location = new Point(36, 113);
+            inputNumber2.Name = "inputNumber2";
+            inputNumber2.PrefixText = "脱战";
+            inputNumber2.Radius = 3;
+            inputNumber2.SelectionStart = 1;
+            inputNumber2.Size = new Size(262, 65);
+            inputNumber2.SuffixText = "/秒后清除当前统计";
+            inputNumber2.TabIndex = 46;
+            inputNumber2.Text = "5";
+            inputNumber2.TextAlign = HorizontalAlignment.Center;
+            inputNumber2.Value = new decimal(new int[] { 5, 0, 0, 0 });
             // 
             // label8
             // 
@@ -179,22 +227,6 @@
             label8.TabIndex = 45;
             label8.Text = "脱战清空为当前统计非全程统计";
             label8.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // inputNumber1
-            // 
-            inputNumber1.Font = new Font("HarmonyOS Sans SC", 9F);
-            inputNumber1.Location = new Point(328, 113);
-            inputNumber1.Maximum = new decimal(new int[] { 100, 0, 0, 0 });
-            inputNumber1.Minimum = new decimal(new int[] { 10, 0, 0, 0 });
-            inputNumber1.Name = "inputNumber1";
-            inputNumber1.PrefixText = "窗体透明度：";
-            inputNumber1.Radius = 3;
-            inputNumber1.SelectionStart = 2;
-            inputNumber1.Size = new Size(262, 65);
-            inputNumber1.SuffixText = "%";
-            inputNumber1.TabIndex = 42;
-            inputNumber1.Text = "10";
-            inputNumber1.Value = new decimal(new int[] { 10, 0, 0, 0 });
             // 
             // label5
             // 
@@ -282,12 +314,12 @@
             // input5
             // 
             input5.Font = new Font("HarmonyOS Sans SC", 9F);
-            input5.Location = new Point(265, 198);
+            input5.Location = new Point(375, 198);
             input5.Name = "input5";
             input5.PrefixText = "清空历史键位：";
             input5.Radius = 3;
             input5.ReadOnly = true;
-            input5.Size = new Size(192, 65);
+            input5.Size = new Size(220, 65);
             input5.TabIndex = 42;
             input5.PreviewKeyDown += input5_PreviewKeyDown;
             // 
@@ -299,31 +331,31 @@
             input4.PrefixText = "清空数据键位：";
             input4.Radius = 3;
             input4.ReadOnly = true;
-            input4.Size = new Size(192, 65);
+            input4.Size = new Size(220, 65);
             input4.TabIndex = 41;
             input4.PreviewKeyDown += input4_PreviewKeyDown;
             // 
             // input3
             // 
             input3.Font = new Font("HarmonyOS Sans SC", 9F);
-            input3.Location = new Point(494, 112);
+            input3.Location = new Point(714, 112);
             input3.Name = "input3";
             input3.PrefixText = "开关键位：";
             input3.Radius = 3;
             input3.ReadOnly = true;
-            input3.Size = new Size(192, 65);
+            input3.Size = new Size(220, 65);
             input3.TabIndex = 40;
             input3.PreviewKeyDown += input3_PreviewKeyDown;
             // 
             // input2
             // 
             input2.Font = new Font("HarmonyOS Sans SC", 9F);
-            input2.Location = new Point(265, 112);
+            input2.Location = new Point(375, 112);
             input2.Name = "input2";
             input2.PrefixText = "窗体透明键位：";
             input2.Radius = 3;
             input2.ReadOnly = true;
-            input2.Size = new Size(192, 65);
+            input2.Size = new Size(220, 65);
             input2.TabIndex = 39;
             input2.PreviewKeyDown += input2_PreviewKeyDown;
             // 
@@ -335,7 +367,7 @@
             input1.PrefixText = "鼠标穿透键位：";
             input1.Radius = 3;
             input1.ReadOnly = true;
-            input1.Size = new Size(192, 65);
+            input1.Size = new Size(220, 65);
             input1.TabIndex = 38;
             input1.PreviewKeyDown += input1_PreviewKeyDown;
             // 
@@ -449,7 +481,7 @@
             panel7.Controls.Add(button4);
             panel7.Controls.Add(SaveButton);
             panel7.Dock = DockStyle.Bottom;
-            panel7.Location = new Point(10, 1061);
+            panel7.Location = new Point(10, 1182);
             panel7.Name = "panel7";
             panel7.Radius = 3;
             panel7.Shadow = 6;
@@ -498,31 +530,18 @@
             SaveButton.TabIndex = 0;
             SaveButton.Click += button5_Click;
             // 
-            // inputNumber2
-            // 
-            inputNumber2.Location = new Point(36, 113);
-            inputNumber2.Name = "inputNumber2";
-            inputNumber2.PrefixText = "脱战";
-            inputNumber2.Radius = 3;
-            inputNumber2.SelectionStart = 1;
-            inputNumber2.Size = new Size(262, 65);
-            inputNumber2.SuffixText = "/秒后清除当前统计";
-            inputNumber2.TabIndex = 46;
-            inputNumber2.Text = "5";
-            inputNumber2.TextAlign = HorizontalAlignment.Center;
-            inputNumber2.Value = new decimal(new int[] { 5, 0, 0, 0 });
-            // 
             // SettingsForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1064, 1126);
+            ClientSize = new Size(1064, 1247);
             Controls.Add(BackgroundPanel);
             Controls.Add(panel7);
             Controls.Add(panel2);
             Controls.Add(panel1);
             Controls.Add(pageHeader1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "SettingsForm";
             Opacity = 0.95D;
             StartPosition = FormStartPosition.CenterScreen;
@@ -568,7 +587,6 @@
         private AntdUI.Switch switch1;
         private AntdUI.Label TitleText;
         private AntdUI.Label label6;
-        public AntdUI.InputNumber inputNumber1;
         private AntdUI.Panel panel7;
         private AntdUI.Select select1;
         private AntdUI.Button button4;
@@ -576,5 +594,8 @@
         private AntdUI.Label label7;
         private AntdUI.Label label8;
         private AntdUI.InputNumber inputNumber2;
+        private ScottPlot.WinForms.TransparentSKControl transparentskControl1;
+        private AntdUI.Label label9;
+        private AntdUI.Slider slider1;
     }
 }

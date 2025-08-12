@@ -1,14 +1,9 @@
-﻿using ScottPlot.Colormaps;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ZstdNet;
-using BlueProto;
-using System.Runtime.CompilerServices;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
+﻿using BlueProto;
+using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using System.Runtime.CompilerServices;
+using System.Text;
+using ZstdNet;
 namespace StarResonanceDpsAnalysis.Core
 {
     public class MessageAnalyzer
@@ -26,7 +21,7 @@ namespace StarResonanceDpsAnalysis.Core
             //{5, }// 客户端->服务器帧
             // MessageType.FrameDown
             { 6, ProcessFrameDown }
-            
+
         };
 
         public static void Process(byte[] packets)
@@ -50,7 +45,7 @@ namespace StarResonanceDpsAnalysis.Core
                         return; // 丢掉剩余，避免死循环
                     }
 
-                    if (packetSize > packetsReader.Remaining) 
+                    if (packetSize > packetsReader.Remaining)
                     {
                         return;
                     }
@@ -72,7 +67,7 @@ namespace StarResonanceDpsAnalysis.Core
 
                     // 调试输出（按需保留）
                     //Console.WriteLine($"MsgType={msgTypeId}, Size={packetSize}, RemainInPacket={packetReader.Remaining}");
-               
+
 
                     var flag = MessageHandlers.TryGetValue(msgTypeId, out var handler);
                     if (!flag)
@@ -80,7 +75,7 @@ namespace StarResonanceDpsAnalysis.Core
                         //Console.WriteLine($"Ignore packet with message type {msgTypeId}.");
                         return;
                     }
-              
+
                     handler!(packetReader, isZstdCompressed);
                 }
             }
@@ -101,9 +96,19 @@ namespace StarResonanceDpsAnalysis.Core
         /// </summary>
         public enum AttrType
         {
-            AttrName = 0x01,          // 玩家名字（string）
-            AttrProfessionId = 0xDC,  // 职业 ID（int32）
-            AttrFightPoint = 0x272E   // 战力（int32）
+            AttrName = 0x01,               // 玩家名字（string）
+            AttrProfessionId = 0xDC,       // 职业 ID（int32）
+            AttrFightPoint = 0x272E,       // 战力（int32）
+            AttrLevel = 0x2710,            // 等级（int32）
+            AttrRankLevel = 0x274C,        // 段位/阶位（int32）
+            AttrCri = 0x2B66,               // 暴击（int32）
+            AttrLucky = 0x2B7A,             // 幸运（int32）
+            AttrHp = 0x2C2E,                // 当前 HP（int32）
+            AttrMaxHp = 0x2C38,             // 最大 HP（int32）
+            AttrElementFlag = 0x646D6C,     // 元素标记（int32）
+            AttrReductionLevel = 0x64696D,  // 减伤等级（int32）
+            AttrReduntionId = 0x6F6C65,     // 减免 Id（int32，拼写看似服务端内部命名）
+            AttrEnergyFlag = 0x543CD3C6     // 能量标志（int32）
         }
 
         private static Dictionary<uint, Action<byte[]>> ProcessMethods = new()
@@ -128,7 +133,7 @@ namespace StarResonanceDpsAnalysis.Core
             var serviceUuid = packet.ReadUInt64BE();
             var stubId = packet.ReadUInt32BE();
             var methodId = packet.ReadUInt32BE();
-          
+
             if (serviceUuid != 0x0000000063335342UL)
             {
                 //Console.WriteLine($"Skipping NotifyMsg with serviceId {serviceUuid}");
@@ -202,7 +207,7 @@ namespace StarResonanceDpsAnalysis.Core
             var flag = ProcessMethods.TryGetValue(methodId, out var processMethod);
             if (!flag)
             {
-               // Console.WriteLine($"Skipping NotifyMsg with methodId {methodId}");
+                // Console.WriteLine($"Skipping NotifyMsg with methodId {methodId}");
                 return;
             }
 
@@ -294,11 +299,11 @@ namespace StarResonanceDpsAnalysis.Core
         /// <param name="payloadBuffer"></param>
         public static void ProcessSyncNearEntities(byte[] payloadBuffer)
         {
-       
+
             var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
 
-    
-    
+
+
             if (syncNearEntities.Appear == null || syncNearEntities.Appear.Count == 0)
             {
                 return;
@@ -307,7 +312,8 @@ namespace StarResonanceDpsAnalysis.Core
 
             foreach (var entity in syncNearEntities.Appear)
             {
-            
+
+
                 // 仅关心“角色（玩家）实体”
                 if (entity.EntType != EEntityType.EntChar) continue;
 
@@ -322,23 +328,26 @@ namespace StarResonanceDpsAnalysis.Core
                 // Attr 是“(Id, RawData)”这样的 Key-Value 对
                 foreach (var attr in attrCollection.Attrs)
                 {
-                
+
+
                     if (attr.Id == 0 || attr.RawData == null || attr.RawData.Length == 0) continue;
 
                     // 用 C# Protobuf 的 CodedInputStream 读取原始 wire 格式
                     var reader = new Google.Protobuf.CodedInputStream(attr.RawData.ToByteArray());
-    
+
                     switch (attr.Id)
                     {
+                        //昵称
                         case (int)AttrType.AttrName:
                             // protobuf string: 先读长度（varint），后读 UTF-8 bytes
                             string playerName = reader.ReadString();
                             StatisticData._manager.SetNickname((ulong)playerUuid, playerName);
-                        
+
                             //this.userDataManager.setName((long)playerUuid, playerName);
-                             //Console.WriteLine($"昵称： {playerName}UID：{playerUuid}");
+                            //Console.WriteLine($"昵称： {playerName}UID：{playerUuid}");
                             break;
 
+                        //职业
                         case (int)AttrType.AttrProfessionId:
                             int professionId = reader.ReadInt32();
                             string professionName = GetProfessionNameFromId(professionId);
@@ -347,16 +356,78 @@ namespace StarResonanceDpsAnalysis.Core
 
                             //Console.WriteLine($"职业ID：{professionId}职业： {professionName} UID： {playerUuid}");
                             break;
-
+                            //战力
                         case (int)AttrType.AttrFightPoint:
                             int playerFightPoint = reader.ReadInt32();
                             //this.userDataManager.setFightPoint((long)playerUuid, playerFightPoint);
                             StatisticData._manager.SetCombatPower((ulong)playerUuid, playerFightPoint);
                             //Console.WriteLine($"战力： {playerFightPoint} UID：{playerUuid}");
                             break;
+                            //等级
+                        case (int)AttrType.AttrLevel:
+                            int playerLevel = reader.ReadInt32();
+                            StatisticData._manager.SetAttrKV((ulong)playerUuid, "level", playerLevel);
+                            //Console.WriteLine($"等级： {playerLevel} UID：{playerUuid}");
+                            break;
+                        case (int)AttrType.AttrRankLevel:
+                            // 段位/阶位
+                            int playerRankLevel = reader.ReadInt32();
+                            StatisticData._manager.SetAttrKV((ulong)playerUuid, "rank_level", playerRankLevel);
+                            //Console.WriteLine($"段位/阶位： {playerRankLevel} UID：{playerUuid}");
+                            break;
+
+                        case (int)AttrType.AttrCri:
+                            // 暴击
+                            int playerCri = reader.ReadInt32();
+                            StatisticData._manager.SetAttrKV((ulong)playerUuid, "cri", playerCri);
+                            //Console.WriteLine($"暴击： {playerCri} UID：{playerUuid}");
+                            break;
+
+                        case (int)AttrType.AttrLucky:
+                            // 幸运
+                            int playerLucky = reader.ReadInt32();
+                            StatisticData._manager.SetAttrKV((ulong)playerUuid, "lucky", playerLucky);
+                            //Console.WriteLine($"幸运： {playerLucky} UID：{playerUuid}");
+                            break;
+
+                        case (int)AttrType.AttrHp:
+                            // 当前 HP
+                            int playerHp = reader.ReadInt32();
+                            StatisticData._manager.SetAttrKV((ulong)playerUuid, "hp", playerHp);
+                            //Console.WriteLine($"当前 HP： {playerHp} UID：{playerUuid}");
+                            break;
+
+                        case (int)AttrType.AttrMaxHp:
+                            // 最大 HP
+                            int playerMaxHp = reader.ReadInt32();
+                            //StatisticData._manager.SetAttrKV((ulong)playerUuid, "max_hp", playerMaxHp);
+                            //Console.WriteLine($"最大 HP： {playerMaxHp} UID：{playerUuid}");
+                            break;
+
+                        case (int)AttrType.AttrElementFlag:
+                            // 元素标记（火/冰/雷等）
+                            int playerElementFlag = reader.ReadInt32();
+                            //StatisticData._manager.SetAttrKV((ulong)playerUuid, "element_flag", playerElementFlag);
+                            //Console.WriteLine($"元素标记： {playerElementFlag} UID：{playerUuid}");
+                            break;
+
+                        case (int)AttrType.AttrEnergyFlag:
+                            // 能量标志
+                            int playerEnergyFlag = reader.ReadInt32();
+                            //StatisticData._manager.SetAttrKV((ulong)playerUuid, "energy_flag", playerEnergyFlag);
+                            //Console.WriteLine($"能量标志： {playerEnergyFlag} UID：{playerUuid}");
+                            break;
+
+                        case (int)AttrType.AttrReductionLevel:
+                            // 减伤等级
+                            int playerReductionLevel = reader.ReadInt32();
+                            //StatisticData._manager.SetAttrKV((ulong)playerUuid, "reduction_level", playerReductionLevel);
+                            //Console.WriteLine($"减伤等级： {playerReductionLevel} UID：{playerUuid}");
+                            break;
 
                         default:
                             // 其他属性先跳过（可按需扩展）
+                            // Console.WriteLine($"昵称： {reader.ReadString()}UID：{playerUuid}");
                             break;
                     }
                 }
@@ -373,7 +444,7 @@ namespace StarResonanceDpsAnalysis.Core
         {
             //var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
             var syncNearDeltaInfo = SyncNearDeltaInfo.Parser.ParseFrom(payloadBuffer);
-         
+
 
             if (syncNearDeltaInfo.DeltaInfos == null || syncNearDeltaInfo.DeltaInfos.Count == 0)
             {
@@ -383,7 +454,7 @@ namespace StarResonanceDpsAnalysis.Core
 
             foreach (var aoiSyncDelta in syncNearDeltaInfo.DeltaInfos)
             {
-                
+
                 ProcessAoiSyncDelta(aoiSyncDelta);
             }
         }
@@ -397,115 +468,131 @@ namespace StarResonanceDpsAnalysis.Core
         /// </summary>
         public static void ProcessAoiSyncDelta(AoiSyncDelta delta)
         {
-          
+
             // 遍历 AOI 的增量信息
-        
-                if (delta == null) return; // ← 避免早退，跳过空项
 
-                // 目标 UUID（原始 64 位数值，不做任何位移）
-                // 用 ulong 是为了无符号右移 >>16 时不发生算术右移（C# long >> 是算术右移）
-                ulong targetUuidRaw = (ulong)delta.Uuid;
-                if (targetUuidRaw == 0) return; // ← 跳过无效 UUID
+            if (delta == null) return; // ← 避免早退，跳过空项
 
-                // 在“未右移的原值”上判断是否为玩家（等价 JS 的 isUuidPlayer）
-                bool isTargetPlayer = IsUuidPlayerRaw(targetUuidRaw);
+            // 目标 UUID（原始 64 位数值，不做任何位移）
+            // 用 ulong 是为了无符号右移 >>16 时不发生算术右移（C# long >> 是算术右移）
+            ulong targetUuidRaw = (ulong)delta.Uuid;
+            if (targetUuidRaw == 0) return; // ← 跳过无效 UUID
 
-                // 与 JS: shiftRight(16) 对齐 —— 取实体真正 ID（去掉低 16 位类型/分片信息）
-                ulong targetUuid = Shr16(targetUuidRaw);
+            // 在“未右移的原值”上判断是否为玩家（等价 JS 的 isUuidPlayer）
+            bool isTargetPlayer = IsUuidPlayerRaw(targetUuidRaw);
 
-                // 技能效果段判空（Damages 列表为空就跳过）
-                var se = delta.SkillEffects;
-      
+            // 与 JS: shiftRight(16) 对齐 —— 取实体真正 ID（去掉低 16 位类型/分片信息）
+            ulong targetUuid = Shr16(targetUuidRaw);
 
-                if (se?.Damages == null || se.Damages.Count == 0) return;
+            // 技能效果段判空（Damages 列表为空就跳过）
+            var se = delta.SkillEffects;
 
-                // 遍历所有伤害/治疗记录
-                foreach (var d in se.Damages)
-                {
-                    // 技能 ID（统计输出用）
-                    long skillId = d.OwnerId;
-                    if (skillId == 0) continue;
 
-                    // 施法者/伤害来源：优先使用 TopSummonerId（顶层召唤者），否则用 AttackerUuid
-                    ulong attackerRaw = (ulong)(d.TopSummonerId != 0 ? d.TopSummonerId : d.AttackerUuid);
-                    if (attackerRaw == 0) continue;
+            if (se?.Damages == null || se.Damages.Count == 0) return;
 
-                    // 同样在“原始 attackerRaw”上做玩家判断
-                    bool isAttackerPlayer = IsUuidPlayerRaw(attackerRaw);
+            // 遍历所有伤害/治疗记录
+            foreach (var d in se.Damages)
+            {
+                // 技能 ID（统计输出用）
+                long skillId = d.OwnerId;
+                if (skillId == 0) continue;
 
-                    // 再把 UUID 无符号右移 16 位，得到最终用于统计的 ID
-                    ulong attackerUuid = Shr16(attackerRaw);
 
-                    // 伤害值：优先 Value，其次 LuckyValue（JS 是 value ?? luckyValue ?? 0）
-                    long damageSigned = d.HasValue ? d.Value : (d.HasLuckyValue ? d.LuckyValue : 0L);
-                    if (damageSigned == 0) continue;
 
-                    // 保险起见转为正的 ulong（有些服务端字段可能出现负数占位）
-                    ulong damage = (ulong)(damageSigned < 0 ? -damageSigned : damageSigned);
+                // 施法者/伤害来源：优先使用 TopSummonerId（顶层召唤者），否则用 AttackerUuid
+                ulong attackerRaw = (ulong)(d.TopSummonerId != 0 ? d.TopSummonerId : d.AttackerUuid);
+                if (attackerRaw == 0) continue;
 
-                    // 暴击判断：JS 用 TypeFlag 的第 1 位（& 1）
-                    //bool isCrit = d.HasTypeFlag && ((d.TypeFlag & 1L) == 1L);
-                    bool isCrit = d.TypeFlag != null
-                      ? ((d.TypeFlag & 1) == 1)
-                      : false;
+                // 同样在“原始 attackerRaw”上做玩家判断
+                bool isAttackerPlayer = IsUuidPlayerRaw(attackerRaw);
 
-                    // 是否治疗：直接对齐枚举
-                    bool isHeal = d.Type == EDamageType.Heal;
+                // 再把 UUID 无符号右移 16 位，得到最终用于统计的 ID
+                ulong attackerUuid = Shr16(attackerRaw);
 
-                    // 幸运（JS: !!luckyValue，只要存在就 true）
-    
-                    var luckyValue = d.LuckyValue;
-                    // JS 中 "!!" 是把值转成布尔，这里相当于判断 luckyValue 是否非空且非 0
-                    bool isLucky = luckyValue != null && luckyValue != 0;
+                // 伤害值：优先 Value，其次 LuckyValue（JS 是 value ?? luckyValue ?? 0）
+                long damageSigned = d.HasValue ? d.Value : (d.HasLuckyValue ? d.LuckyValue : 0L);
+                if (damageSigned == 0) continue;
+
+                // 保险起见转为正的 ulong（有些服务端字段可能出现负数占位）
+                ulong damage = (ulong)(damageSigned < 0 ? -damageSigned : damageSigned);
+
+                // 暴击判断：JS 用 TypeFlag 的第 1 位（& 1）
+                //bool isCrit = d.HasTypeFlag && ((d.TypeFlag & 1L) == 1L);
+                bool isCrit = d.TypeFlag != null
+                  ? ((d.TypeFlag & 1) == 1)
+                  : false;
+
+                // 是否治疗：直接对齐枚举
+                bool isHeal = d.Type == EDamageType.Heal;
+
+                // 幸运（JS: !!luckyValue，只要存在就 true）
+
+                var luckyValue = d.LuckyValue;
+                // JS 中 "!!" 是把值转成布尔，这里相当于判断 luckyValue 是否非空且非 0
+                bool isLucky = luckyValue != null && luckyValue != 0;
 
 
                 // 血量压制/减益（JS: HpLessenValue?.toNumber()）
                 ulong hpLessen = d.HasHpLessenValue ? (ulong)d.HpLessenValue : 0UL;
 
-                    if (isTargetPlayer)
+
+                if (isTargetPlayer)
+                {
+                    // 目标是玩家
+                    if (isHeal)
                     {
-                        // 目标是玩家
-                        if (isHeal)
+                        // “玩家被治疗”场景下，只记录“玩家造成的治疗”（奶妈是玩家时才记）
+                        if (isAttackerPlayer)
                         {
-                            // “玩家被治疗”场景下，只记录“玩家造成的治疗”（奶妈是玩家时才记）
-                            if (isAttackerPlayer)
-                            {
-                               
-                                StatisticData._manager.AddHealing(attackerUuid, (ulong)skillId, hpLessen, isCrit, isLucky);
-                            }
-                        }
-                        else
-                        {
-                     
-                 
-                            StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage);
+
+                            StatisticData._manager.AddHealing(attackerUuid, (ulong)skillId, hpLessen, isCrit, isLucky);
                         }
                     }
                     else
                     {
-                        // 目标不是玩家
-                        if (!isHeal && isAttackerPlayer)
-                        {
-                            // 只记录“玩家造成的输出伤害”，治疗对非玩家一般不计
-                            //Console.WriteLine(@$"玩家{attackerUuid} 使用技能{skillId}对非玩家{targetUuid}造成伤害{damage}");
-                            //最右侧木桩ID为75
-                            StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damage,isCrit, isLucky, hpLessen);
-    
-                        }
+
+
+
+                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage);
                     }
+
                 }
-            
+                else
+                {
+                    // 目标不是玩家
+                    if (!isHeal && isAttackerPlayer)
+                    {
+                        // 只记录“玩家造成的输出伤害”，治疗对非玩家一般不计
+                        //Console.WriteLine(@$"玩家{attackerUuid} 使用技能{skillId}对非玩家{targetUuid}造成伤害{damage}");
+                        //最右侧木桩ID为75
+                        StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damage, isCrit, isLucky, hpLessen);
+
+                    }
+                    if (AppConfig.NpcsTakeDamage)
+                    {
+                        //添加怪物承伤记录
+                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage);
+
+
+                        Console.WriteLine(@$"怪物ID：{targetUuid}受到伤害{damage},来自{attackerUuid}的技能{skillId}");
+                    }
+
+
+                }
+            }
+
 
             // UI 刷新放在循环外，避免高频阻塞消息处理线程
             // NOTE: 强烈建议节流，例如 100–200ms 合并一次刷新（BeginInvoke + 计时器）
             MainForm.RefreshDpsTable();
         }
+        public static long currentUserUuid = 0;
         //获取承伤信息DPS
         public static void ProcessSyncToMeDeltaInfo(byte[] payloadBuffer)
         {
             // 1) 反序列化：把网络收到的一段二进制，解成 SyncToMeDeltaInfo（“与我相关”的增量同步包）
             var syncToMeDeltaInfo = SyncToMeDeltaInfo.Parser.ParseFrom(payloadBuffer);
-            
+
             // 2) 取出里面的 AoiSyncToMeDelta（包含：我的Uuid、BaseDelta、以及可选的技能CD/资源CD等）
             var aoiSyncToMeDelta = syncToMeDeltaInfo.DeltaInfo;
 
@@ -513,6 +600,11 @@ namespace StarResonanceDpsAnalysis.Core
             //    - 记录/缓存“当前玩家”的 Uuid，便于后续做归属、过滤（例如把与我无关的事件忽略）
             //    - 可按项目规则右移16位得到“短ID”用于显示或作为字典Key
             long uuid = aoiSyncToMeDelta.Uuid; // ← 这里取UID是用于做缓存？是的，通常会缓存当前玩家Uuid。
+            if (uuid != 0 && currentUserUuid != uuid)
+            {
+                currentUserUuid = uuid;
+                Console.WriteLine($"Got player UUID! UUID: {currentUserUuid} UID: {currentUserUuid >> 16}");
+            }
 
             // 4) BaseDelta 是一条通用的 AoiSyncDelta，里面才有战斗/治疗/BUFF 等具体增量数据
             var aoiSyncDelta = aoiSyncToMeDelta.BaseDelta;
@@ -525,13 +617,267 @@ namespace StarResonanceDpsAnalysis.Core
 
         public static void ProcessSyncContainerData(byte[] payloadBuffer)
         {
-            //var syncContainerData = SyncContainerData.decode(payloadBuffer); // 解码
+            // 解析 protobuf 数据，得到 SyncContainerData 对象
+            var syncContainerData = SyncContainerData.Parser.ParseFrom(payloadBuffer);
 
+            // 如果 VData 不存在，直接结束
+            if (syncContainerData == null || syncContainerData.VData == null)
+                return;
+
+            var vData = syncContainerData.VData;
+
+            // 如果没有 CharId（玩家 UID），直接结束
+            if (vData.CharId==null|| vData.CharId==0)
+                return;
+
+            // 玩家 UID
+            ulong playerUid = vData.CharId;
+
+
+            // 如果存在角色等级数据
+            if (vData.RoleLevel != null && vData.RoleLevel.Level != 0)
+            {
+                StatisticData._manager.SetAttrKV(playerUid, "level", vData.RoleLevel.Level);
+
+                //Console.WriteLine($"[解析] 玩家 {playerUid} 等级: {vData.RoleLevel.Level}");
+                
+            }
+
+            // 如果存在当前 HP
+            if (vData.Attr != null && vData.Attr.CurHp != 0)
+            {
+                StatisticData._manager.SetAttrKV(playerUid, "hp", vData.RoleLevel.Level);
+                //Console.WriteLine($"[解析] 玩家 {playerUid} 当前HP: {vData.Attr.CurHp}");
+       
+            }
+
+            // 如果存在最大 HP
+            if (vData.Attr != null && vData.Attr.MaxHp != 0)
+            {
+                StatisticData._manager.SetAttrKV(playerUid, "max_hp", vData.RoleLevel.Level);
+                //Console.WriteLine($"[解析] 玩家 {playerUid} 最大HP: {vData.Attr.MaxHp}");
+              
+            }
+
+            // 如果没有 CharBase（角色基础信息），直接结束
+            if (vData.CharBase == null)
+                return;
+
+            var charBase = vData.CharBase;
+
+            // 如果有角色名字
+            if (!string.IsNullOrEmpty(charBase.Name))
+            {
+                StatisticData._manager.SetNickname(playerUid, charBase.Name);
+                AppConfig.NickName = charBase.Name;
+                //Console.WriteLine($"[解析] 玩家 {playerUid} 名字: {charBase.Name}");
+
+            }
+
+            // 如果有战力值
+            if (charBase.FightPoint != 0)
+            {
+                StatisticData._manager.SetCombatPower(playerUid, charBase.FightPoint);
+                //Console.WriteLine($"[解析] 玩家 {playerUid} 战力值: {charBase.FightPoint}");
+                AppConfig.CombatPower = charBase.FightPoint;
+            }
+
+            // 如果没有职业信息列表，直接结束
+            if (vData.ProfessionList == null)
+                return;
+
+            var professionList = vData.ProfessionList;
+
+            // 如果有当前职业 ID
+            if (professionList.CurProfessionId != 0)
+            {
+                var professionName = GetProfessionNameFromId(professionList.CurProfessionId);
+                AppConfig.Profession = professionName;
+                //Console.WriteLine($"[解析] 玩家 {playerUid} 职业ID: {professionList.CurProfessionId} => 职业名: {professionName}");
+
+            }
         }
+
         public static void ProcessSyncContainerDirtyData(byte[] payloadBuffer)
         {
-            //var syncContainerDirtyData = SyncContainerDirtyData.decode(payloadBuffer); // 解码
+            try
+            {
+                // 1) 必须先拿到当前玩家 UUID；否则无法归属到具体玩家
+                if (currentUserUuid == 0) return;
+
+                // 2) decode 脏数据
+                var dirty = SyncContainerDirtyData.Parser.ParseFrom(payloadBuffer);
+                if (dirty == null || dirty.VData == null || dirty.VData.BufferS == null || dirty.VData.BufferS.Length == 0)
+                    return;
+
+                var buf = dirty.VData.BufferS.ToByteArray();
+
+                // 可选调试：输出十六进制
+                // Console.WriteLine(BitConverter.ToString(buf).Replace("-", ""));
+
+                using var ms = new MemoryStream(buf, writable: false);
+                using var br = new BinaryReader(ms); // BinaryReader 默认小端 LE
+
+                // 3) 顶层先读“标识头”（JS: doesStreamHaveIdentifier）
+                if (!DoesStreamHaveIdentifier(br)) return;
+
+                // 读取顶层字段索引（LE UInt32 + 4 字节对齐，JS: readUInt32LE + readInt32）
+                uint fieldIndex = br.ReadUInt32(); 
+                _ = br.ReadInt32(); // 对齐
+
+                // 归属用 UID（右移 16）
+                ulong playerUid = (ulong)currentUserUuid >> 16;
+
+                switch (fieldIndex)
+                {
+                    // ===== CharBase（名字/战力） =====
+                    case 2:
+                    {
+                        if (!DoesStreamHaveIdentifier(br)) break;
+
+                        fieldIndex = br.ReadUInt32();
+                        _ = br.ReadInt32(); // 对齐
+
+                        switch (fieldIndex)
+                        {
+                            case 5: // Name (string)
+                            {
+                                string playerName = StreamReadString(br);
+                                if (!string.IsNullOrEmpty(playerName))
+                                {
+                                    StatisticData._manager.SetNickname(playerUid, playerName);
+                                    AppConfig.NickName = playerName;
+                                    Console.WriteLine($"[Dirty] 名字: {playerName}, UID: {playerUid}");
+                                }
+                                break;
+                            }
+
+                            case 35: // FightPoint (uint32)
+                            {
+                                uint fightPoint = br.ReadUInt32();
+                                _ = br.ReadInt32(); // 对齐
+                                if (fightPoint != 0)
+                                {
+                                    StatisticData._manager.SetCombatPower(playerUid, (int)fightPoint);
+                                    AppConfig.CombatPower = (int)fightPoint;
+                                    Console.WriteLine($"[Dirty] 战力: {fightPoint}, UID: {playerUid}");
+                                }
+                                break;
+                            }
+
+                            default:
+                                // 未处理的 CharBase 子字段
+                                break;
+                        }
+                        break;
+                    }
+
+                    // ===== UserFightAttr（CurHp/MaxHp）=====
+                    case 16:
+                    {
+                        if (!DoesStreamHaveIdentifier(br)) break;
+
+                        fieldIndex = br.ReadUInt32();
+                        _ = br.ReadInt32(); // 对齐
+
+                        switch (fieldIndex)
+                        {
+                            case 1: // CurHp
+                            {
+                                uint curHp = br.ReadUInt32();
+                                StatisticData._manager.SetAttrKV(playerUid, "hp", (int)curHp);
+                                Console.WriteLine($"[Dirty] 当前HP: {curHp}, UID: {playerUid}");
+                                break;
+                            }
+                            case 2: // MaxHp
+                            {
+                                uint maxHp = br.ReadUInt32();
+                                StatisticData._manager.SetAttrKV(playerUid, "max_hp", (int)maxHp);
+                                Console.WriteLine($"[Dirty] 最大HP: {maxHp}, UID: {playerUid}");
+                                break;
+                            }
+                            default:
+                                // 未处理的 UserFightAttr 子字段
+                                break;
+                        }
+                        break;
+                    }
+
+                    // ===== ProfessionList（CurProfessionId）=====
+                    case 61:
+                    {
+                        if (!DoesStreamHaveIdentifier(br)) break;
+
+                        fieldIndex = br.ReadUInt32();
+                        _ = br.ReadInt32(); // 对齐
+
+                        switch (fieldIndex)
+                        {
+                            case 1: // CurProfessionId
+                            {
+                                uint curProfessionId = br.ReadUInt32();
+                                _ = br.ReadInt32(); // 对齐
+                                if (curProfessionId != 0)
+                                {
+                                    var professionName = GetProfessionNameFromId((int)curProfessionId);
+                                    AppConfig.Profession = professionName;
+                                    // 如果需要也写入到 StatisticData：
+                                    StatisticData._manager.SetProfession(playerUid, professionName);
+                                    Console.WriteLine($"[Dirty] 职业ID: {curProfessionId} => {professionName}, UID: {playerUid}");
+                                }
+                                break;
+                            }
+                            default:
+                                // 未处理的 ProfessionList 子字段
+                                break;
+                        }
+                        break;
+                    }
+
+                    default:
+                        // 未处理的顶层字段
+                        break;
+                }
+            }
+            catch (EndOfStreamException)
+            {
+                // 数据不完整时的保护
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
+
+        /// <summary>
+        /// JS: doesStreamHaveIdentifier(reader)
+        /// 语义：检查并“吃掉”一段标识头。这里按 8 字节跳过（具体值不校验，只要有足够数据）。
+        /// </summary>
+        private static bool DoesStreamHaveIdentifier(BinaryReader br)
+        {
+            var s = br.BaseStream;
+            if (s.Position + 8 > s.Length) return false;
+            _ = br.ReadUInt64(); // 跳过标识
+            return true;
+        }
+
+        /// <summary>
+        /// JS: streamReadString(reader)
+        /// 语义：先读一个 LE UInt32 作为长度，然后读该长度的 UTF-8 字节；最后做 4 字节对齐填充跳过。
+        /// </summary>
+        private static string StreamReadString(BinaryReader br)
+        {
+            uint len = br.ReadUInt32(); // 字符串长度（LE）
+            if (len == 0) return string.Empty;
+
+            var bytes = br.ReadBytes((int)len);
+            // 4 字节对齐（padding 0~3）
+            int pad = (int)((4 - (len % 4)) % 4);
+            if (pad > 0) _ = br.ReadBytes(pad);
+
+            return Encoding.UTF8.GetString(bytes);
+        }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool IsUuidPlayerRaw(ulong uuidRaw) => (uuidRaw & 0xFFFFUL) == 640UL;

@@ -1,17 +1,6 @@
 ﻿using Flurl;
 using Flurl.Http;
 using Newtonsoft.Json.Linq;
-using OpenTK.Graphics.ES11;
-using SharpPcap;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
-using StarResonanceDpsAnalysis.Control;
-using StarResonanceDpsAnalysis.Forms;
-using Microsoft.VisualBasic;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 
 
@@ -19,13 +8,7 @@ namespace StarResonanceDpsAnalysis.Plugin
 {
     public class Common
     {
-        public static SkillDiary skillDiary;//
 
- 
-
-        public static SkillDetailForm skillDetailForm;//技能详情窗体
-
-        public static SettingsForm settingsForm;//设置窗体
 
 
 

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SkillDiary));
             pageHeader1 = new AntdUI.PageHeader();
             input1 = new AntdUI.Input();
             SuspendLayout();
@@ -62,6 +63,7 @@
             ClientSize = new Size(727, 676);
             Controls.Add(input1);
             Controls.Add(pageHeader1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "SkillDiary";
             Text = "SkillDiary";
             Load += SkillDiary_Load;

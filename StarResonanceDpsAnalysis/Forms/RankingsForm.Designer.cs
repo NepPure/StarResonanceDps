@@ -37,6 +37,7 @@
             AntdUI.SegmentedItem segmentedItem7 = new AntdUI.SegmentedItem();
             AntdUI.SegmentedItem segmentedItem8 = new AntdUI.SegmentedItem();
             AntdUI.SegmentedItem segmentedItem9 = new AntdUI.SegmentedItem();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RankingsForm));
             pageHeader1 = new AntdUI.PageHeader();
             label1 = new AntdUI.Label();
             panel6 = new AntdUI.Panel();
@@ -236,6 +237,7 @@
             Controls.Add(table_DpsDetailDataTable);
             Controls.Add(panel6);
             Controls.Add(pageHeader1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "RankingsForm";
             Text = "RankingsForm";
             Load += RankingsForm_Load;

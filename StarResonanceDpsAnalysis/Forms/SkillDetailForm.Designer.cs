@@ -29,8 +29,9 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            AntdUI.SegmentedItem segmentedItem9 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem10 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem1 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem2 = new AntdUI.SegmentedItem();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SkillDetailForm));
             table_DpsDetailDataTable = new AntdUI.Table();
             pageHeader1 = new AntdUI.PageHeader();
             TitleText = new AntdUI.Label();
@@ -140,10 +141,10 @@
             segmented1.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             segmented1.Full = true;
             segmented1.IconGap = 0F;
-            segmentedItem9.Text = "技能伤害分析";
-            segmentedItem10.Text = "技能治疗分析";
-            segmented1.Items.Add(segmentedItem9);
-            segmented1.Items.Add(segmentedItem10);
+            segmentedItem1.Text = "技能伤害分析";
+            segmentedItem2.Text = "技能治疗分析";
+            segmented1.Items.Add(segmentedItem1);
+            segmented1.Items.Add(segmentedItem2);
             segmented1.Location = new Point(9, 8);
             segmented1.Name = "segmented1";
             segmented1.Round = true;
@@ -494,6 +495,7 @@
             // 
             // panel5
             // 
+            panel5.BackColor = Color.Transparent;
             panel5.Controls.Add(panel3);
             panel5.Controls.Add(PowerText);
             panel5.Controls.Add(UidText);
@@ -584,7 +586,7 @@
             splitter1.Panel2.Controls.Add(divider3);
             splitter1.Panel2.Controls.Add(panel2);
             splitter1.Size = new Size(1696, 1222);
-            splitter1.SplitterDistance = 446;
+            splitter1.SplitterDistance = 442;
             splitter1.SplitterWidth = 6;
             splitter1.TabIndex = 27;
             // 
@@ -599,7 +601,7 @@
             collapse1.Items.Add(collapseItem3);
             collapse1.Location = new Point(0, 0);
             collapse1.Name = "collapse1";
-            collapse1.Size = new Size(446, 1222);
+            collapse1.Size = new Size(442, 1222);
             collapse1.TabIndex = 28;
             collapse1.Text = "collapse1";
             // 
@@ -609,7 +611,7 @@
             collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
             collapseItem1.Location = new Point(27, 90);
             collapseItem1.Name = "collapseItem1";
-            collapseItem1.Size = new Size(392, 300);
+            collapseItem1.Size = new Size(388, 300);
             collapseItem1.TabIndex = 0;
             collapseItem1.Text = "Dps/Hps实时曲线图";
             // 
@@ -618,7 +620,7 @@
             collapseItem2.Expand = true;
             collapseItem2.Location = new Point(27, 501);
             collapseItem2.Name = "collapseItem2";
-            collapseItem2.Size = new Size(392, 300);
+            collapseItem2.Size = new Size(388, 300);
             collapseItem2.TabIndex = 1;
             collapseItem2.Text = "技能占比分布图";
             // 
@@ -629,7 +631,7 @@
             collapseItem3.Expand = true;
             collapseItem3.Location = new Point(27, 912);
             collapseItem3.Name = "collapseItem3";
-            collapseItem3.Size = new Size(392, 300);
+            collapseItem3.Size = new Size(388, 300);
             collapseItem3.TabIndex = 2;
             collapseItem3.Text = "伤害分布";
             // 
@@ -644,6 +646,7 @@
             Controls.Add(panel5);
             Controls.Add(pageHeader1);
             Dark = true;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Mode = AntdUI.TAMode.Dark;
             Name = "SkillDetailForm";
             Opacity = 0.95D;

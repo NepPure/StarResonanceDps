@@ -1,34 +1,54 @@
 ﻿using AntdUI;
+using DocumentFormat.OpenXml.Math;
 using StarResonanceDpsAnalysis.Plugin;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class SettingsForm : BorderlessForm
     {
+
+
         public SettingsForm()
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
+
             LoadDevices();
+
+
         }
 
         private void SettingsForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
 
-            inputNumber1.Value = (decimal)AppConfig.Transparency;
+            slider1.Value = (int)AppConfig.Transparency;
+            inputNumber2.Value = (decimal)AppConfig.CombatTimeClearDelaySeconds;
+        }
 
-
+        private void TransparencyKnob_ValueChanged(object sender, int value)
+        {
+            // 实时更新透明度（用于实时预览效果）
+            try
+            {
+                // 获取MainForm实例
+                var mainForm = Application.OpenForms.OfType<MainForm>().FirstOrDefault();
+                if (mainForm != null)
+                {
+                    // 检查透明度值的有效性（10-100之间）
+                    if (value >= 10 && value <= 100)
+                    {
+                        // 实时更新MainForm的透明度进行预览
+                        mainForm.Opacity = value / 100.0;
+                        Console.WriteLine($"实时透明度预览: {value}% (Opacity: {mainForm.Opacity})");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"更新透明度预览时出错: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -116,32 +136,47 @@ namespace StarResonanceDpsAnalysis.Forms
             if (combox_changed)
             {
                 AppConfig.NetworkCard = InterfaceComboBox.SelectedIndex;
+
+                // 通知MainForm更新网卡设置提示
+                try
+                {
+                    var mainForm = Application.OpenForms.OfType<MainForm>().FirstOrDefault();
+                    mainForm?.RefreshNetworkCardSettingTip();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"更新MainForm网卡设置提示时出错: {ex.Message}");
+                }
             }
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            AppConfig.Transparency = (double)inputNumber1.Value;
-            AppConfig.CombatTimeClearDelaySeconds = (int)inputNumber2.Value;//保存战斗时间清除延迟
-            if (AppConfig.Transparency < 10)
-            {
-                AppConfig.Transparency = 95;
-                MessageBox.Show("透明度不能低于10%，已自动设置为默认值");
-            }
+          
+
+            // 保存到配置
+            AppConfig.Transparency = slider1.Value;
+            AppConfig.CombatTimeClearDelaySeconds = (int)inputNumber2.Value;
+          
+
+
             this.Close();
         }
 
-        const int WM_NCLBUTTONDOWN = 0xA1;
-        const int HTCAPTION = 0x2;
+        private void button4_Click(object sender, EventArgs e)
+        {
+           
 
-        [DllImport("user32.dll")] static extern bool ReleaseCapture();
-        [DllImport("user32.dll")] static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+            this.Close();
+        }
+
+
         private void TitleText_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                ReleaseCapture();
-                SendMessage(this.Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+                FormManager.ReleaseCapture();
+                FormManager.SendMessage(this.Handle, FormManager.WM_NCLBUTTONDOWN, FormManager.HTCAPTION, 0);
             }
         }
 
@@ -157,23 +192,26 @@ namespace StarResonanceDpsAnalysis.Forms
                 //浅色
                 BasicSetupPanel.Back = KeySettingsPanel.Back = CombatSettingsPanel.Back = ColorTranslator.FromHtml("#FFFFFF");
                 BackgroundPanel.Back = ColorTranslator.FromHtml("#EFEFEF");
-
-
-
+                //transparencyKnob1.IsDarkMode = false;
             }
             else
             {
                 BasicSetupPanel.Back = KeySettingsPanel.Back = CombatSettingsPanel.Back = ColorTranslator.FromHtml("#282828");
                 BackgroundPanel.Back = ColorTranslator.FromHtml("#1E1E1E");
-
+                //transparencyKnob1.IsDarkMode = true;
             }
-
-
         }
 
-        private void button4_Click(object sender, EventArgs e)
+
+
+
+        private void slider1_ValueChanged(object sender, IntEventArgs e)
         {
-            this.Close();
+            
+            this.Opacity = (double)e.Value/100;
+            //this.BackColor = Color.Transparent;
+            //this.TransparencyKey = Color.Transparent;
+         
         }
     }
 }

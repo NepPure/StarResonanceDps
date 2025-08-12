@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
+﻿namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 {
     /// <summary>
     /// 全程记录（跨战斗，会话级）：通过在 AddDamage/AddHealing/AddTakenDamage 内部打点，实时累加

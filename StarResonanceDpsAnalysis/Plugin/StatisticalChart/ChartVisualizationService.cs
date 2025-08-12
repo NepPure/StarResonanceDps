@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using System.Drawing;
 using StarResonanceDpsAnalysis.Plugin.Charts;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 
@@ -23,7 +18,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         public const int REFRESH_INTERVAL = 1000;
         public const int MIN_WIDTH = 450;
         public const int MIN_HEIGHT = 150;
-        
+
         public static readonly Font DefaultFont = new("阿里妈妈数黑体", 10, FontStyle.Regular);
 
         /// <summary>
@@ -33,7 +28,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         {
             // 通用属性设置
             chart.Dock = DockStyle.Fill;
-            
+
             // 根据图表类型应用特定设置
             switch (chart)
             {
@@ -50,7 +45,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                     ApplyScatterChartSettings(scatterChart);
                     break;
             }
-            
+
             return chart;
         }
 
@@ -104,7 +99,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         private static readonly Dictionary<ulong, List<(DateTime Time, double Hps)>> _hpsHistory = new();
         private static DateTime? _combatStartTime;
         private static readonly List<WeakReference> _registeredCharts = new();
-        
+
         private const int MAX_HISTORY_POINTS = 500;
         private const double INACTIVE_TIMEOUT_SECONDS = 2.0;
 
@@ -135,27 +130,27 @@ namespace StarResonanceDpsAnalysis.Plugin
                 playerHistory.RemoveAt(0);
         }
 
-        public static void AddDpsDataPoint(ulong playerId, double dps) => 
+        public static void AddDpsDataPoint(ulong playerId, double dps) =>
             AddDataPoint(_dpsHistory, playerId, dps);
 
-        public static void AddHpsDataPoint(ulong playerId, double hps) => 
+        public static void AddHpsDataPoint(ulong playerId, double hps) =>
             AddDataPoint(_hpsHistory, playerId, hps);
 
         public static void UpdateAllDataPoints()
         {
             var players = StatisticData._manager.GetPlayersWithCombatData();
-            
+
             // 更新实时统计
             foreach (var player in players)
                 player.UpdateRealtimeStats();
-            
+
             // 添加数据点
             foreach (var player in players)
             {
                 AddDpsDataPoint(player.Uid, player.DamageStats.RealtimeValue);
                 AddHpsDataPoint(player.Uid, player.HealingStats.RealtimeValue);
             }
-            
+
             CheckAndAddZeroValues();
         }
 
@@ -169,21 +164,21 @@ namespace StarResonanceDpsAnalysis.Plugin
             CheckHistoryForZeroValues(_hpsHistory, activePlayerIds, now, AddHpsDataPoint);
         }
 
-        private static void CheckHistoryForZeroValues<T>(Dictionary<ulong, List<(DateTime Time, T Value)>> history, 
-            HashSet<ulong> activePlayerIds, DateTime now, Action<ulong, T> addZeroValue) 
+        private static void CheckHistoryForZeroValues<T>(Dictionary<ulong, List<(DateTime Time, T Value)>> history,
+            HashSet<ulong> activePlayerIds, DateTime now, Action<ulong, T> addZeroValue)
             where T : struct, IComparable<T>
         {
             var zero = default(T);
             foreach (var playerId in history.Keys.ToList())
             {
                 if (activePlayerIds.Contains(playerId)) continue;
-                
+
                 var playerHistory = history[playerId];
                 if (playerHistory.Count > 0)
                 {
                     var lastRecord = playerHistory.Last();
                     var timeSinceLastRecord = (now - lastRecord.Time).TotalSeconds;
-                    
+
                     if (timeSinceLastRecord > INACTIVE_TIMEOUT_SECONDS && lastRecord.Value.CompareTo(zero) > 0)
                         addZeroValue(playerId, zero);
                 }
@@ -205,7 +200,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 if (history.Count > 0 && history.Last().Dps > 0)
                     AddDpsDataPoint(playerId, 0);
             }
-            
+
             foreach (var playerId in _hpsHistory.Keys.ToList())
             {
                 var history = _hpsHistory[playerId];
@@ -313,7 +308,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             var timeScale = chart.GetTimeScale();
             var viewOffset = chart.GetViewOffset();
             var hadData = chart.HasData();
-            
+
             chart.ClearSeries();
 
             var historyData = showHps ? _hpsHistory : _dpsHistory;
@@ -329,7 +324,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 RefreshMultiPlayerChart(chart, historyData, startTime, showHps);
             }
-            
+
             // 恢复视图状态
             if (hadData && chart.HasUserInteracted())
             {
@@ -355,7 +350,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             foreach (var (playerId, history) in historyData.OrderBy(x => x.Key))
             {
                 if (history.Count == 0) continue;
-                
+
                 var points = ConvertToPoints(history, startTime);
                 if (points.Count > 0)
                     chart.AddSeries("", points);
@@ -428,7 +423,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 .OrderByDescending(p => p.DamageStats.Total)
                 .Take(6)
                 .ToList();
-            
+
             if (players.Count == 0) return;
 
             var barData = players.Select(p => (Label: "", Value: (double)p.DamageStats.Total)).ToList();
@@ -482,13 +477,13 @@ namespace StarResonanceDpsAnalysis.Plugin
         #endregion
 
         #region 工具方法
-        public static bool HasDataToVisualize() => 
+        public static bool HasDataToVisualize() =>
             StatisticData._manager.GetPlayersWithCombatData().Any();
 
-        public static double GetCombatDurationSeconds() => 
+        public static double GetCombatDurationSeconds() =>
             _combatStartTime?.Let(start => (DateTime.Now - start).TotalSeconds) ?? 0;
 
-        public static int GetDpsHistoryPointCount() => 
+        public static int GetDpsHistoryPointCount() =>
             _dpsHistory.Sum(kvp => kvp.Value.Count);
         #endregion
     }

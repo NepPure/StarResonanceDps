@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace StarResonanceDpsAnalysis.Core
 {
-    // Auto-generated from skill_config.json, with string/int keys
+    // Auto-generated from skill_config.json (v2.0.1)
     public enum SkillType
     {
         Damage,
@@ -21,6 +17,7 @@ namespace StarResonanceDpsAnalysis.Core
         Light,
         Thunder,
         Wind,
+        Physics,   // ← 新增
         Unknown
     }
 
@@ -40,20 +37,23 @@ namespace StarResonanceDpsAnalysis.Core
 
     public static class EmbeddedSkillConfig
     {
-        public static readonly string Version = "2.0.0";
-        public static readonly string LastUpdated = "2025-01-19";
+        public static readonly string Version = "2.0.1";      // ← 更新
+        public static readonly string LastUpdated = "2025-01-20"; // ← 更新
 
+        // 与 skill_config.json 的 elements 完全一致
         public static readonly Dictionary<ElementType, ElementInfo> Elements = new()
         {
             [ElementType.Fire] = new ElementInfo { Color = "#ff6b6b", Icon = "🔥" },
             [ElementType.Ice] = new ElementInfo { Color = "#74c0fc", Icon = "❄️" },
             [ElementType.Thunder] = new ElementInfo { Color = "#ffd43b", Icon = "⚡" },
-            [ElementType.Earth] = new ElementInfo { Color = "#8ce99a", Icon = "🌍" },
+            [ElementType.Earth] = new ElementInfo { Color = "#8ce99a", Icon = "🍀" }, // ← 图标从🌍改为🍀
             [ElementType.Wind] = new ElementInfo { Color = "#91a7ff", Icon = "💨" },
             [ElementType.Light] = new ElementInfo { Color = "#fff3bf", Icon = "✨" },
-            [ElementType.Dark] = new ElementInfo { Color = "#9775fa", Icon = "🌙" }
+            [ElementType.Dark] = new ElementInfo { Color = "#9775fa", Icon = "🌙" },
+            [ElementType.Physics] = new ElementInfo { Color = "#91a7ff", Icon = "⚔️" }  // ← 新增
         };
 
+        // 与 skill_config.json 的 skills 完全一致（覆盖之前的列表）
         public static readonly Dictionary<string, SkillDefinition> SkillsByString = new()
         {
             ["1401"] = new SkillDefinition { Name = "风华翔舞", Type = SkillType.Damage, Element = ElementType.Wind, Description = "风华翔舞" },
@@ -70,6 +70,7 @@ namespace StarResonanceDpsAnalysis.Core
             ["1422"] = new SkillDefinition { Name = "破追", Type = SkillType.Damage, Element = ElementType.Wind, Description = "破追" },
             ["1427"] = new SkillDefinition { Name = "破追", Type = SkillType.Damage, Element = ElementType.Wind, Description = "破追" },
             ["31901"] = new SkillDefinition { Name = "勇气风环", Type = SkillType.Damage, Element = ElementType.Wind, Description = "勇气风环" },
+            ["2205450"] = new SkillDefinition { Name = "勇气风环吸血", Type = SkillType.Damage, Element = ElementType.Wind, Description = "勇气风环吸血" },
             ["1411"] = new SkillDefinition { Name = "疾驰锋刃", Type = SkillType.Damage, Element = ElementType.Wind, Description = "疾驰锋刃" },
             ["1435"] = new SkillDefinition { Name = "龙击炮", Type = SkillType.Damage, Element = ElementType.Wind, Description = "龙击炮" },
             ["140401"] = new SkillDefinition { Name = "龙击炮", Type = SkillType.Damage, Element = ElementType.Wind, Description = "龙击炮" },
@@ -85,6 +86,7 @@ namespace StarResonanceDpsAnalysis.Core
             ["1431"] = new SkillDefinition { Name = "锐利冲击(风神)", Type = SkillType.Damage, Element = ElementType.Wind, Description = "锐利冲击(风神)" },
             ["149902"] = new SkillDefinition { Name = "长矛贯穿", Type = SkillType.Damage, Element = ElementType.Wind, Description = "长矛贯穿" },
             ["140501"] = new SkillDefinition { Name = "龙卷风", Type = SkillType.Damage, Element = ElementType.Wind, Description = "龙卷风" },
+
             ["1701"] = new SkillDefinition { Name = "我流刀法·诛恶", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "我流刀法·诛恶" },
             ["1702"] = new SkillDefinition { Name = "我流刀法·诛恶", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "我流刀法·诛恶" },
             ["1703"] = new SkillDefinition { Name = "我流刀法·诛恶", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "我流刀法·诛恶" },
@@ -112,6 +114,7 @@ namespace StarResonanceDpsAnalysis.Core
             ["179908"] = new SkillDefinition { Name = "雷击", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "雷击" },
             ["179906"] = new SkillDefinition { Name = "月刃回旋", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "月刃回旋" },
             ["2031101"] = new SkillDefinition { Name = "幸运一击(太刀)", Type = SkillType.Damage, Element = ElementType.Light, Description = "幸运一击(太刀)" },
+
             ["2330"] = new SkillDefinition { Name = "火柱冲击", Type = SkillType.Damage, Element = ElementType.Fire, Description = "火柱冲击" },
             ["55314"] = new SkillDefinition { Name = "安可治疗", Type = SkillType.Heal, Element = ElementType.Fire, Description = "安可治疗" },
             ["230101"] = new SkillDefinition { Name = "聚合乐章/安可治疗相关", Type = SkillType.Heal, Element = ElementType.Fire, Description = "聚合乐章/安可治疗相关" },
@@ -154,30 +157,82 @@ namespace StarResonanceDpsAnalysis.Core
             ["55339"] = new SkillDefinition { Name = "巡演曲治疗", Type = SkillType.Heal, Element = ElementType.Fire, Description = "巡演曲治疗" },
             ["55342"] = new SkillDefinition { Name = "愈合乐章治疗", Type = SkillType.Heal, Element = ElementType.Fire, Description = "愈合乐章治疗" },
             ["2207620"] = new SkillDefinition { Name = "活力解放", Type = SkillType.Heal, Element = ElementType.Fire, Description = "活力解放" },
-            ["220101"] = new SkillDefinition { Name = "弓箭手普攻", Type = SkillType.Damage, Element = ElementType.Earth, Description = "弓箭手普攻" },
-            ["220103"] = new SkillDefinition { Name = "弓箭手普攻", Type = SkillType.Damage, Element = ElementType.Earth, Description = "弓箭手普攻" },
+
+            ["1501"] = new SkillDefinition { Name = "掌控藤曼", Type = SkillType.Damage, Element = ElementType.Earth, Description = "掌控藤曼" },
+            ["1502"] = new SkillDefinition { Name = "掌控藤曼", Type = SkillType.Damage, Element = ElementType.Earth, Description = "掌控藤曼" },
+            ["1503"] = new SkillDefinition { Name = "掌控藤曼", Type = SkillType.Damage, Element = ElementType.Earth, Description = "掌控藤曼" },
+            ["1504"] = new SkillDefinition { Name = "掌控藤曼", Type = SkillType.Damage, Element = ElementType.Earth, Description = "掌控藤曼" },
+            ["1509"] = new SkillDefinition { Name = "希望结界伤害", Type = SkillType.Damage, Element = ElementType.Earth, Description = "希望结界伤害" },
+            ["1518"] = new SkillDefinition { Name = "狂野绽放", Type = SkillType.Damage, Element = ElementType.Earth, Description = "狂野绽放" },
+            ["1529"] = new SkillDefinition { Name = "盛放注能(包含伤害和治疗)", Type = SkillType.Damage, Element = ElementType.Earth, Description = "盛放注能(包含伤害和治疗)" },
+            ["1550"] = new SkillDefinition { Name = "不羁之种", Type = SkillType.Damage, Element = ElementType.Earth, Description = "不羁之种" },
+            ["1551"] = new SkillDefinition { Name = "狂野之种", Type = SkillType.Damage, Element = ElementType.Earth, Description = "狂野之种" },
+            ["1560"] = new SkillDefinition { Name = "再生脉冲", Type = SkillType.Damage, Element = ElementType.Earth, Description = "再生脉冲" },
+            ["20301"] = new SkillDefinition { Name = "生命绽放", Type = SkillType.Heal, Element = ElementType.Earth, Description = "生命绽放" },
+            ["21402"] = new SkillDefinition { Name = "狂野绽放治疗", Type = SkillType.Heal, Element = ElementType.Earth, Description = "狂野绽放治疗" },
+            ["21404"] = new SkillDefinition { Name = "滋养", Type = SkillType.Heal, Element = ElementType.Earth, Description = "滋养" },
+            ["21406"] = new SkillDefinition { Name = "森之祈愿", Type = SkillType.Heal, Element = ElementType.Earth, Description = "森之祈愿" },
+            ["21414"] = new SkillDefinition { Name = "希望结界持续(包含伤害和治疗)", Type = SkillType.Heal, Element = ElementType.Earth, Description = "希望结界持续(包含伤害和治疗)" },
+            ["21427"] = new SkillDefinition { Name = "休止的治愈", Type = SkillType.Heal, Element = ElementType.Earth, Description = "休止的治愈" },
+            ["21428"] = new SkillDefinition { Name = "休止的治愈", Type = SkillType.Heal, Element = ElementType.Earth, Description = "休止的治愈" },
+            ["21429"] = new SkillDefinition { Name = "休止的治愈", Type = SkillType.Heal, Element = ElementType.Earth, Description = "休止的治愈" },
+            ["21430"] = new SkillDefinition { Name = "休止的治愈", Type = SkillType.Heal, Element = ElementType.Earth, Description = "休止的治愈" },
+            ["150103"] = new SkillDefinition { Name = "不羁之种", Type = SkillType.Damage, Element = ElementType.Earth, Description = "不羁之种" },
+            ["150104"] = new SkillDefinition { Name = "不羁之种", Type = SkillType.Damage, Element = ElementType.Earth, Description = "不羁之种" },
+            ["150106"] = new SkillDefinition { Name = "灌注", Type = SkillType.Heal, Element = ElementType.Earth, Description = "灌注" },
+            ["150107"] = new SkillDefinition { Name = "灌注", Type = SkillType.Heal, Element = ElementType.Earth, Description = "灌注" },
+            ["2031005"] = new SkillDefinition { Name = "幸运一击(森语者)", Type = SkillType.Damage, Element = ElementType.Light, Description = "幸运一击(森语者)" },
+            ["2202091"] = new SkillDefinition { Name = "治疗链接", Type = SkillType.Heal, Element = ElementType.Earth, Description = "治疗链接" },
+            ["2202311"] = new SkillDefinition { Name = "滋养之种", Type = SkillType.Heal, Element = ElementType.Earth, Description = "滋养之种" },
+            ["1541"] = new SkillDefinition { Name = "狂野绽放", Type = SkillType.Damage, Element = ElementType.Earth, Description = "狂野绽放" },
+            ["1561"] = new SkillDefinition { Name = "再生脉冲(包含伤害和治疗)", Type = SkillType.Damage, Element = ElementType.Earth, Description = "再生脉冲(包含伤害和治疗)" },
+            ["21423"] = new SkillDefinition { Name = "共生印记", Type = SkillType.Heal, Element = ElementType.Earth, Description = "共生印记" },
+            ["21424"] = new SkillDefinition { Name = "荆棘", Type = SkillType.Damage, Element = ElementType.Earth, Description = "荆棘" },
+            ["150101"] = new SkillDefinition { Name = "鹿之奔袭", Type = SkillType.Damage, Element = ElementType.Earth, Description = "鹿之奔袭" },
+            ["150110"] = new SkillDefinition { Name = "灌注", Type = SkillType.Heal, Element = ElementType.Earth, Description = "灌注" },
+
+            ["2031105"] = new SkillDefinition { Name = "幸运一击(惩戒)", Type = SkillType.Damage, Element = ElementType.Light, Description = "幸运一击(惩戒)" },
+            ["220101"] = new SkillDefinition { Name = "弹无虚发", Type = SkillType.Damage, Element = ElementType.Earth, Description = "弹无虚发" },
+            ["220103"] = new SkillDefinition { Name = "弹无虚发", Type = SkillType.Damage, Element = ElementType.Earth, Description = "弹无虚发" },
             ["220104"] = new SkillDefinition { Name = "暴风箭矢", Type = SkillType.Damage, Element = ElementType.Wind, Description = "暴风箭矢" },
             ["2295"] = new SkillDefinition { Name = "锐眼·光能巨箭", Type = SkillType.Damage, Element = ElementType.Light, Description = "锐眼·光能巨箭" },
+            ["2291"] = new SkillDefinition { Name = "锐眼·光能巨箭(天赋)", Type = SkillType.Damage, Element = ElementType.Light, Description = "锐眼·光能巨箭(天赋)" },
             ["2289"] = new SkillDefinition { Name = "箭雨", Type = SkillType.Damage, Element = ElementType.Earth, Description = "箭雨" },
             ["2233"] = new SkillDefinition { Name = "聚能射击", Type = SkillType.Damage, Element = ElementType.Light, Description = "聚能射击" },
             ["2288"] = new SkillDefinition { Name = "光能轰炸", Type = SkillType.Damage, Element = ElementType.Light, Description = "光能轰炸" },
             ["220102"] = new SkillDefinition { Name = "怒涛射击", Type = SkillType.Damage, Element = ElementType.Earth, Description = "怒涛射击" },
             ["220108"] = new SkillDefinition { Name = "爆炸箭矢", Type = SkillType.Damage, Element = ElementType.Fire, Description = "爆炸箭矢" },
-            ["55231"] = new SkillDefinition { Name = "爆炸射击", Type = SkillType.Damage, Element = ElementType.Fire, Description = "爆炸射击" },
             ["220109"] = new SkillDefinition { Name = "威慑射击", Type = SkillType.Damage, Element = ElementType.Earth, Description = "威慑射击" },
-            ["1700820"] = new SkillDefinition { Name = "协同攻击", Type = SkillType.Damage, Element = ElementType.Earth, Description = "协同攻击" },
+            ["1700820"] = new SkillDefinition { Name = "狼协同攻击", Type = SkillType.Damage, Element = ElementType.Earth, Description = "狼协同攻击" },
             ["1700827"] = new SkillDefinition { Name = "狼普攻", Type = SkillType.Damage, Element = ElementType.Earth, Description = "狼普攻" },
             ["2292"] = new SkillDefinition { Name = "扑咬", Type = SkillType.Damage, Element = ElementType.Earth, Description = "扑咬" },
             ["2203512"] = new SkillDefinition { Name = "践踏", Type = SkillType.Damage, Element = ElementType.Earth, Description = "践踏" },
-            ["120401"] = new SkillDefinition { Name = "冰法普攻", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰法普攻" },
-            ["1203"] = new SkillDefinition { Name = "冰法普攻", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰法普攻" },
-            ["120501"] = new SkillDefinition { Name = "冰法普攻", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰法普攻" },
-            ["120201"] = new SkillDefinition { Name = "冰法普攻", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰法普攻" },
-            ["120301"] = new SkillDefinition { Name = "冰法普攻", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰法普攻" },
+            ["55231"] = new SkillDefinition { Name = "爆炸射击", Type = SkillType.Damage, Element = ElementType.Fire, Description = "爆炸射击" },
+            ["220110"] = new SkillDefinition { Name = "爆炸箭引爆", Type = SkillType.Damage, Element = ElementType.Fire, Description = "爆炸箭引爆" },
+            ["2203291"] = new SkillDefinition { Name = "猎鹰出击", Type = SkillType.Damage, Element = ElementType.Light, Description = "猎鹰出击" },
+            ["220113"] = new SkillDefinition { Name = "幻影猎鹰", Type = SkillType.Damage, Element = ElementType.Light, Description = "幻影猎鹰" },
+            ["2203621"] = new SkillDefinition { Name = "光棱", Type = SkillType.Damage, Element = ElementType.Light, Description = "光棱" },
+            ["2203622"] = new SkillDefinition { Name = "光棱溅射", Type = SkillType.Damage, Element = ElementType.Light, Description = "光棱溅射" },
+            ["220112"] = new SkillDefinition { Name = "光能裂隙", Type = SkillType.Damage, Element = ElementType.Light, Description = "光能裂隙" },
+            ["220106"] = new SkillDefinition { Name = "二连矢", Type = SkillType.Damage, Element = ElementType.Earth, Description = "二连矢" },
+            ["2203521"] = new SkillDefinition { Name = "内爆(钢制喙触发)", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "内爆(钢制喙触发)" },
+            ["2203181"] = new SkillDefinition { Name = "闪电冲击", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "闪电冲击" },
+            ["2294"] = new SkillDefinition { Name = "光意·四连矢", Type = SkillType.Damage, Element = ElementType.Light, Description = "光意·四连矢" },
+            ["220111"] = new SkillDefinition { Name = "光意·四连矢", Type = SkillType.Damage, Element = ElementType.Light, Description = "光意·四连矢" },
+            ["220203"] = new SkillDefinition { Name = "光意·四连矢", Type = SkillType.Damage, Element = ElementType.Light, Description = "光意·四连矢" },
+            ["2031109"] = new SkillDefinition { Name = "幸运一击(弓箭手)", Type = SkillType.Damage, Element = ElementType.Light, Description = "幸运一击(弓箭手)" },
+            ["220301"] = new SkillDefinition { Name = "锐眼·光能巨箭", Type = SkillType.Damage, Element = ElementType.Light, Description = "锐眼·光能巨箭" },
+            ["2352"] = new SkillDefinition { Name = "天界雄鹰", Type = SkillType.Damage, Element = ElementType.Light, Description = "天界雄鹰" },
+
+            ["120401"] = new SkillDefinition { Name = "雨打潮生", Type = SkillType.Damage, Element = ElementType.Ice, Description = "雨打潮生" },
+            ["1203"] = new SkillDefinition { Name = "雨打潮生", Type = SkillType.Damage, Element = ElementType.Ice, Description = "雨打潮生" },
+            ["120501"] = new SkillDefinition { Name = "雨打潮生", Type = SkillType.Damage, Element = ElementType.Ice, Description = "雨打潮生" },
+            ["120201"] = new SkillDefinition { Name = "雨打潮生", Type = SkillType.Damage, Element = ElementType.Ice, Description = "雨打潮生" },
+            ["120301"] = new SkillDefinition { Name = "雨打潮生", Type = SkillType.Damage, Element = ElementType.Ice, Description = "雨打潮生" },
             ["2031102"] = new SkillDefinition { Name = "幸运一击(冰法)", Type = SkillType.Damage, Element = ElementType.Light, Description = "幸运一击(冰法)" },
-            ["120902"] = new SkillDefinition { Name = "冰矛", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰矛" },
             ["1248"] = new SkillDefinition { Name = "极寒·冰雪颂歌", Type = SkillType.Damage, Element = ElementType.Ice, Description = "极寒·冰雪颂歌" },
             ["1263"] = new SkillDefinition { Name = "极寒·冰雪颂歌", Type = SkillType.Damage, Element = ElementType.Ice, Description = "极寒·冰雪颂歌" },
+            ["120902"] = new SkillDefinition { Name = "冰矛", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰矛" },
             ["1262"] = new SkillDefinition { Name = "陨星风暴", Type = SkillType.Damage, Element = ElementType.Ice, Description = "陨星风暴" },
             ["121501"] = new SkillDefinition { Name = "清淹绕珠", Type = SkillType.Damage, Element = ElementType.Ice, Description = "清淹绕珠" },
             ["1216"] = new SkillDefinition { Name = "强化清淹绕珠", Type = SkillType.Damage, Element = ElementType.Ice, Description = "强化清淹绕珠" },
@@ -188,6 +243,8 @@ namespace StarResonanceDpsAnalysis.Core
             ["1259"] = new SkillDefinition { Name = "冰霜彗星", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰霜彗星" },
             ["120901"] = new SkillDefinition { Name = "贯穿冰矛", Type = SkillType.Damage, Element = ElementType.Ice, Description = "贯穿冰矛" },
             ["2204241"] = new SkillDefinition { Name = "冰霜冲击", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰霜冲击" },
+            ["1261"] = new SkillDefinition { Name = "瞬发寒冰风暴", Type = SkillType.Damage, Element = ElementType.Ice, Description = "瞬发寒冰风暴" },
+
             ["2401"] = new SkillDefinition { Name = "公正之剑", Type = SkillType.Damage, Element = ElementType.Light, Description = "公正之剑" },
             ["2402"] = new SkillDefinition { Name = "公正之剑", Type = SkillType.Damage, Element = ElementType.Light, Description = "公正之剑" },
             ["2403"] = new SkillDefinition { Name = "公正之剑", Type = SkillType.Damage, Element = ElementType.Light, Description = "公正之剑" },
@@ -213,6 +270,7 @@ namespace StarResonanceDpsAnalysis.Core
             ["55412"] = new SkillDefinition { Name = "冷酷征伐", Type = SkillType.Damage, Element = ElementType.Light, Description = "冷酷征伐" },
             ["2206241"] = new SkillDefinition { Name = "神圣印记", Type = SkillType.Damage, Element = ElementType.Light, Description = "神圣印记" },
             ["2206552"] = new SkillDefinition { Name = "光明核心", Type = SkillType.Damage, Element = ElementType.Light, Description = "光明核心" },
+
             ["1005240"] = new SkillDefinition { Name = "绝技! 追猎猛斩(尖兵)", Type = SkillType.Damage, Element = ElementType.Dark, Description = "绝技! 追猎猛斩(尖兵)" },
             ["1006940"] = new SkillDefinition { Name = "奥义! 茧房术(蜘蛛)", Type = SkillType.Damage, Element = ElementType.Dark, Description = "奥义! 茧房术(蜘蛛)" },
             ["391006"] = new SkillDefinition { Name = "绝技! 纷乱飞弹(虚食人魔)", Type = SkillType.Damage, Element = ElementType.Dark, Description = "绝技! 纷乱飞弹(虚食人魔)" },
@@ -220,10 +278,14 @@ namespace StarResonanceDpsAnalysis.Core
             ["391301"] = new SkillDefinition { Name = "绝技! 电磁爆弹(枪手)", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "绝技! 电磁爆弹(枪手)" },
             ["3913001"] = new SkillDefinition { Name = "绝技! 电磁爆弹(枪手)", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "绝技! 电磁爆弹(枪手)" },
             ["1008641"] = new SkillDefinition { Name = "飓风哥布林战士", Type = SkillType.Damage, Element = ElementType.Wind, Description = "飓风哥布林战士" },
-            ["3210021"] = new SkillDefinition { Name = "奥义！ 流星陨落", Type = SkillType.Damage, Element = ElementType.Wind, Description = "飓风哥布林王" },
-            ["2002853"] = new SkillDefinition { Name = "绝技！ 碎星陨落", Type = SkillType.Damage, Element = ElementType.Wind, Description = "火焰哥布林巫师" },
+            ["3210081"] = new SkillDefinition { Name = "蜥蜴人猎手（被动）", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "蜥蜴人猎手（被动）" },
+            ["391007"] = new SkillDefinition { Name = "哥布林弩手（被动）", Type = SkillType.Damage, Element = ElementType.Physics, Description = "哥布林弩手（被动）" },
+            ["391008"] = new SkillDefinition { Name = "变异峰（被动）", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "变异峰弩手（被动）" },
+            ["1700440"] = new SkillDefinition { Name = "慕课头目", Type = SkillType.Damage, Element = ElementType.Dark, Description = "慕课头目" },
+
             ["1222"] = new SkillDefinition { Name = "幻影冲锋", Type = SkillType.Damage, Element = ElementType.Light, Description = "幻影冲锋" },
-            ["2031105"] = new SkillDefinition { Name = "幸运伤害", Type = SkillType.Damage, Element = ElementType.Light, Description = "幸运伤害" }
+            ["1241"] = new SkillDefinition { Name = "射线", Type = SkillType.Damage, Element = ElementType.Ice, Description = "射线" },
+            ["199902"] = new SkillDefinition { Name = "岩盾", Type = SkillType.Damage, Element = ElementType.Earth, Description = "岩盾" }
         };
 
         public static readonly Dictionary<int, SkillDefinition> SkillsByInt = new();

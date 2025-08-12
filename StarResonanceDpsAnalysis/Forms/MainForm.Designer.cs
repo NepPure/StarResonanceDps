@@ -18,6 +18,7 @@
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             pageHeader_MainHeader = new AntdUI.PageHeader();
+            button1 = new AntdUI.Button();
             button_SkillDiary = new AntdUI.Button();
             dropdown_History = new AntdUI.Dropdown();
             button_AlwaysOnTop = new AntdUI.Button();
@@ -36,6 +37,7 @@
             // 
             // pageHeader_MainHeader
             // 
+            pageHeader_MainHeader.Controls.Add(button1);
             pageHeader_MainHeader.Controls.Add(button_SkillDiary);
             pageHeader_MainHeader.Controls.Add(dropdown_History);
             pageHeader_MainHeader.Controls.Add(button_AlwaysOnTop);
@@ -54,6 +56,18 @@
             pageHeader_MainHeader.SubText = "2.0";
             pageHeader_MainHeader.TabIndex = 8;
             pageHeader_MainHeader.Text = "别查我DPS";
+            // 
+            // button1
+            // 
+            button1.Dock = DockStyle.Right;
+            button1.Ghost = true;
+            button1.IconRatio = 1F;
+            button1.IconSvg = resources.GetString("button1.IconSvg");
+            button1.Location = new Point(763, 0);
+            button1.Name = "button1";
+            button1.Size = new Size(49, 43);
+            button1.TabIndex = 18;
+            button1.ToggleIconSvg = "";
             // 
             // button_SkillDiary
             // 
@@ -227,5 +241,6 @@
         private System.Windows.Forms.Timer timer_RefreshRunningTime;
         private AntdUI.Switch switch_IsMonitoring;
         private AntdUI.Panel panel_FooterPanel;
+        private AntdUI.Button button1;
     }
 }

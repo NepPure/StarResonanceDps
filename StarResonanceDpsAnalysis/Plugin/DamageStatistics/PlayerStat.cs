@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Timers;
+﻿using System.Timers;
 
 namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 {
@@ -158,7 +155,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
             // 记录峰值
             if (RealtimeValue > RealtimeMax) RealtimeMax = RealtimeValue;
-                }
+        }
 
 
         /// <summary>
@@ -328,6 +325,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         #region 统计对象与索引
 
+        /// <summary>玩家自定义属性（key=value）</summary>
+        public Dictionary<string, object> Attributes { get; } = new();
+
         /// <summary>玩家伤害统计</summary>
         public StatisticData DamageStats { get; } = new();
 
@@ -345,6 +345,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         // # 分类：按技能分组的治疗统计
         public Dictionary<ulong, StatisticData> HealingBySkill { get; } = new();
+
+
 
         #endregion
 
@@ -418,6 +420,24 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         #endregion
 
+        #region 添加记录 (属性)
+        /// <summary>
+        /// 设置玩家自定义属性
+        /// </summary>
+        public void SetAttrKV(string key, object value)
+        {
+            Attributes[key] = value;
+        }
+
+        /// <summary>
+        /// 获取玩家自定义属性（不存在则返回 null）
+        /// </summary>
+        public object? GetAttrKV(string key)
+        {
+            return Attributes.TryGetValue(key, out var val) ? val : null;
+        }
+        #endregion
+
         #region 实时刷新与聚合输出
 
         /// <summary>
@@ -452,24 +472,24 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             );
 
         /// <summary>
-    /// 获取技能统计汇总列表（可选排序和限制数量）
-    /// </summary>
-    /// <param name="topN">
-    ///     仅返回前 N 条记录（按总伤害/治疗排序后取前 N 条）。
-    ///     - 传 null 或 <= 0 表示返回全部技能。
-    /// </param>
-    /// <param name="orderByTotalDesc">
-    ///     是否按总量降序排序（true = 从大到小，false = 按原顺序）。
-    /// </param>
-    /// <param name="filterType">
-    ///     过滤技能类型：
-    /// —     <list type = "bullet" >
-    ///         <item><description><see cref="SkillType.Damage"/> = 仅统计伤害技能</description></item>
-    ///         <item><description><see cref="SkillType.Heal"/>   = 仅统计治疗技能</description></item>
-    ///         <item><description>null = 暂时等同于伤害技能（如需合并伤害+治疗可扩展）</description></item>
-    ///     </list>
-    /// </param>
-    /// <returns>技能汇总信息列表，每项包含总量、次数、暴击率、幸运率、占比等数据</returns>
+        /// 获取技能统计汇总列表（可选排序和限制数量）
+        /// </summary>
+        /// <param name="topN">
+        ///     仅返回前 N 条记录（按总伤害/治疗排序后取前 N 条）。
+        ///     - 传 null 或 <= 0 表示返回全部技能。
+        /// </param>
+        /// <param name="orderByTotalDesc">
+        ///     是否按总量降序排序（true = 从大到小，false = 按原顺序）。
+        /// </param>
+        /// <param name="filterType">
+        ///     过滤技能类型：
+        /// —     <list type = "bullet" >
+        ///         <item><description><see cref="SkillType.Damage"/> = 仅统计伤害技能</description></item>
+        ///         <item><description><see cref="SkillType.Heal"/>   = 仅统计治疗技能</description></item>
+        ///         <item><description>null = 暂时等同于伤害技能（如需合并伤害+治疗可扩展）</description></item>
+        ///     </list>
+        /// </param>
+        /// <returns>技能汇总信息列表，每项包含总量、次数、暴击率、幸运率、占比等数据</returns>
         public List<SkillSummary> GetSkillSummaries(
             int? topN = null,
             bool orderByTotalDesc = true,
@@ -636,7 +656,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
     {
         #region 存储
 
- 
+
 
 
         /// <summary>
@@ -704,7 +724,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             // —— 新增：如果上一场已超时结束但未清空，则在此刻（新战斗的首个事件）清空上一场 —— 
             if (_pendingClearOnNextCombat)
             {
-              
+
                 // 只清玩家数据与战斗时钟；缓存（昵称/战力/职业）保留
                 ClearAll(false);
                 DpsTableDatas.DpsTable.Clear();
@@ -737,7 +757,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         {
             _combatStart = null;
             _combatEnd = null;
-       
+
 
         }
 
@@ -825,6 +845,22 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         }
 
 
+
+        /// <summary>
+        /// 设置指定玩家的自定义属性
+        /// </summary>
+        public void SetAttrKV(ulong uid, string key, object value)
+        {
+            GetOrCreate(uid).SetAttrKV(key, value);
+        }
+
+        /// <summary>
+        /// 获取指定玩家的自定义属性
+        /// </summary>
+        public object? GetAttrKV(ulong uid, string key)
+        {
+            return GetOrCreate(uid).GetAttrKV(key);
+        }
         #endregion
 
         #region 定时循环
@@ -918,7 +954,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             return _players.Values.Where(p => p != null && p.HasCombatData());
         }
 
-  
+
 
 
         /// <summary>刷新所有玩家的实时统计（滚动窗口）</summary>
@@ -947,7 +983,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 SaveCurrentBattleSnapshot();
             }
             _players.Clear();
-           
+
             if (!keepCombatTime)//false为清空
                 ResetCombatClock(); // 手动清空计时
 
