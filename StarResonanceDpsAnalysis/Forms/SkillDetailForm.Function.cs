@@ -1,12 +1,6 @@
 ﻿using AntdUI;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StarResonanceDpsAnalysis.Control
 {
@@ -28,9 +22,9 @@ namespace StarResonanceDpsAnalysis.Control
                 new AntdUI.Column("Share","占比"),
                 new AntdUI.Column("Percentage","百分比"),
             };
-         
+
             table_DpsDetailDataTable.Binding(SkillTableDatas.SkillTable);
-            
+
 
         }
 
@@ -38,13 +32,13 @@ namespace StarResonanceDpsAnalysis.Control
         public string Nickname;//存放用户昵称
         public int Power;//战力
         public string Profession;//职业
-        public string sort= "Total";//排序
+        public string sort = "Total";//排序
         public Func<SkillSummary, double> SkillOrderBySelector = s => s.Total;
 
         /// <summary>
         /// 刷新玩家技能数据
         /// </summary>
-        public void UpdateSkillTable(ulong uid, bool isHeal=false)
+        public void UpdateSkillTable(ulong uid, bool isHeal = false)
         {
             SkillTableDatas.SkillTable.Clear();
             var skillType = isHeal
@@ -66,13 +60,13 @@ namespace StarResonanceDpsAnalysis.Control
                 var existing = SkillTableDatas.SkillTable.FirstOrDefault(s => s.Name == item.SkillName);
                 if (existing != null)
                 {
-                    existing.Damage =new CellText(item.Total.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) }; 
-                    existing.HitCount =new CellText( item.HitCount.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
+                    existing.Damage = new CellText(item.Total.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
+                    existing.HitCount = new CellText(item.HitCount.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
                     existing.CritRate = new CellText(critRateStr) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
                     existing.LuckyRate = new CellText(luckyRateStr) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
                     existing.AvgPerHit = new CellText(item.AvgPerHit.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
                     existing.TotalDps = new CellText(item.TotalDps.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.Percentage = new CellText((item.ShareOfTotal).ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular)};
+                    existing.Percentage = new CellText((item.ShareOfTotal).ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
                     existing.Share = new CellProgress((float)item.ShareOfTotal)
                     {
                         Fill = AppConfig.DpsColor,
@@ -142,7 +136,7 @@ namespace StarResonanceDpsAnalysis.Control
                 // ===== 技能表（治疗）=====
                 UpdateSkillTable(Uid, true);
             }
-            
+
             // 更新图表数据以反映当前选择的数据类型（伤害/治疗）
             if (_dpsTrendChart != null)
             {
@@ -156,12 +150,12 @@ namespace StarResonanceDpsAnalysis.Control
                     Console.WriteLine($"更新图表数据时出错: {ex.Message}");
                 }
             }
-            
+
             // 更新条形图和饼图数据
             UpdateSkillDistributionChart();
             UpdateCritLuckyChart();
         }
-        
+
         /// <summary>
         /// 更新暴击率与幸运率条形图数据（现在条形图显示暴击率数据）
         /// </summary>
@@ -172,16 +166,16 @@ namespace StarResonanceDpsAnalysis.Control
             try
             {
                 var p = StatisticData._manager.GetOrCreate(Uid);
-                
+
                 // 获取当前模式下的统计数据
                 var stats = segmented1.SelectIndex == 0 ? p.DamageStats : p.HealingStats;
-                
+
                 var critRate = stats.GetCritRate() * 100;
                 var luckyRate = stats.GetLuckyRate() * 100;
                 var normalRate = 100 - critRate - luckyRate;
 
                 var chartData = new List<(string, double)>();
-                
+
                 if (normalRate > 0)
                     chartData.Add(("普通", normalRate));
                 if (critRate > 0)
@@ -210,15 +204,15 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 // 获取当前模式下的技能数据
                 bool isHeal = segmented1.SelectIndex != 0;
-                var skillType = isHeal 
-                    ? StarResonanceDpsAnalysis.Core.SkillType.Heal 
+                var skillType = isHeal
+                    ? StarResonanceDpsAnalysis.Core.SkillType.Heal
                     : StarResonanceDpsAnalysis.Core.SkillType.Damage;
 
                 var skills = StatisticData._manager
                     .GetPlayerSkillSummaries(Uid, topN: 10, orderByTotalDesc: true, skillType)
                     .ToList();
 
-                var chartData = skills.Select(skill => 
+                var chartData = skills.Select(skill =>
                     (skill.SkillName, (double)skill.Total)
                 ).ToList();
 

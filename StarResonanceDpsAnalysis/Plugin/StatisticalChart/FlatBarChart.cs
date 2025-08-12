@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace StarResonanceDpsAnalysis.Plugin.Charts
 {
@@ -98,9 +93,9 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         public FlatBarChart()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | 
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
                      ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw, true);
-            
+
             ApplyTheme();
         }
 
@@ -111,7 +106,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         public void SetData(List<(string Label, double Value)> data)
         {
             _data.Clear();
-            
+
             for (int i = 0; i < data.Count; i++)
             {
                 _data.Add(new BarChartData
@@ -121,7 +116,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                     Color = _colors[i % _colors.Length]
                 });
             }
-            
+
             Invalidate();
         }
 
@@ -156,7 +151,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            
+
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -175,7 +170,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             if (maxValue <= 0) return;
 
             // 计算图表区域
-            var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
+            var chartRect = new Rectangle(PaddingLeft, PaddingTop,
                                         Width - PaddingLeft - PaddingRight,
                                         Height - PaddingTop - PaddingBottom);
 
@@ -197,13 +192,13 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var message = "暂无数据";
             var font = new Font("Microsoft YaHei", 12, FontStyle.Regular);
             var brush = new SolidBrush(_isDarkTheme ? Color.Gray : Color.DarkGray);
-            
+
             var size = g.MeasureString(message, font);
             var x = (Width - size.Width) / 2;
             var y = (Height - size.Height) / 2;
-            
+
             g.DrawString(message, font, brush, x, y);
-            
+
             font.Dispose();
             brush.Dispose();
         }
@@ -230,7 +225,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
             // 绘制X轴
             g.DrawLine(axisPen, chartRect.X, chartRect.Bottom, chartRect.Right, chartRect.Bottom);
-            
+
             // 绘制Y轴
             g.DrawLine(axisPen, chartRect.X, chartRect.Y, chartRect.X, chartRect.Bottom);
 
@@ -240,13 +235,13 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             {
                 var x = chartRect.X + barWidth * (i + 0.5f);
                 var text = _data[i].Label;
-                
+
                 var size = g.MeasureString(text, font);
-                
+
                 // 简化标签显示，直接水平显示而不旋转
                 var textX = x - size.Width / 2;
                 var textY = chartRect.Bottom + 5; // 减少间距
-                
+
                 g.DrawString(text, font, textBrush, textX, textY);
             }
 
@@ -256,7 +251,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 var y = chartRect.Bottom - (float)chartRect.Height * i / 5;
                 var value = maxValue * i / 5;
                 var text = $"{value:F0}%"; // 直接显示百分比，简化格式
-                
+
                 var size = g.MeasureString(text, font);
                 g.DrawString(text, font, textBrush, chartRect.X - size.Width - 3, y - size.Height / 2);
             }
@@ -290,33 +285,33 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             {
                 var data = _data[i];
                 var barHeight = (float)(data.Value / maxValue * chartRect.Height);
-                
+
                 var x = chartRect.X + i * (barWidth + barSpacing * 2) + barSpacing;
                 var y = chartRect.Bottom - barHeight;
-                
+
                 var barRect = new RectangleF(x, y, barWidth, barHeight);
-                
+
                 // ????????? - ???????????
                 using var brush = new SolidBrush(data.Color);
                 g.FillRectangle(brush, barRect);
-                
+
                 // ?????????? - ???????????????λ??
                 if (barHeight > 15) // ??????????????
                 {
                     var valueText = $"{data.Value:F1}%"; // ??????????????
                     using var font = new Font("Microsoft YaHei", 6, FontStyle.Regular); // ??8?????6
                     using var textBrush = new SolidBrush(ForeColor);
-                    
+
                     var textSize = g.MeasureString(valueText, font);
                     var textX = x + (barWidth - textSize.Width) / 2;
-                    
+
                     // ??????????????λ????????????????????
                     var textAboveY = y - textSize.Height - 2; // ?????????λ??
                     var textInsideY = y + 2; // ????????????λ??
-                    
+
                     // ??鸺??????????????????
                     var textY = (textAboveY >= chartRect.Y) ? textAboveY : textInsideY;
-                    
+
                     // ?????????????????????
                     if (textY + textSize.Height <= chartRect.Bottom && textY >= chartRect.Y)
                     {
@@ -327,14 +322,14 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                             // ???????????????Α??
                             textColor = GetContrastColor(data.Color);
                         }
-                        
+
                         using var contrastBrush = new SolidBrush(textColor);
                         g.DrawString(valueText, font, contrastBrush, textX, textY);
                     }
                 }
             }
         }
-        
+
         /// <summary>
         /// ???????????????????????
         /// </summary>
@@ -342,7 +337,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         {
             // ????RGB????????
             var brightness = (backgroundColor.R * 0.299 + backgroundColor.G * 0.587 + backgroundColor.B * 0.114);
-            
+
             // ??????????????????????????
             return brightness > 128 ? Color.Black : Color.White;
         }
@@ -353,11 +348,11 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
             using var font = new Font("Microsoft YaHei", 14, FontStyle.Bold);
             using var brush = new SolidBrush(ForeColor);
-            
+
             var size = g.MeasureString(_titleText, font);
             var x = (Width - size.Width) / 2;
             var y = 10;
-            
+
             g.DrawString(_titleText, font, brush, x, y);
         }
 

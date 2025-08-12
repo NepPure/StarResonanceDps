@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace StarResonanceDpsAnalysis.Core
 {
     // Auto-generated from skill_config.json, with string/int keys

@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace StarResonanceDpsAnalysis.Plugin.Charts
 {
@@ -81,9 +76,9 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         public FlatPieChart()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | 
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
                      ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw, true);
-            
+
             ApplyTheme();
         }
 
@@ -94,7 +89,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         public void SetData(List<(string Label, double Value)> data)
         {
             _data.Clear();
-            
+
             var total = data.Sum(d => d.Value);
             if (total <= 0) return;
 
@@ -109,7 +104,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                     Color = _colors[i % _colors.Length]
                 });
             }
-            
+
             Invalidate();
         }
 
@@ -144,7 +139,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            
+
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -187,13 +182,13 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var message = "暂无数据";
             var font = new Font("Microsoft YaHei", 12, FontStyle.Regular);
             var brush = new SolidBrush(_isDarkTheme ? Color.Gray : Color.DarkGray);
-            
+
             var size = g.MeasureString(message, font);
             var x = (Width - size.Width) / 2;
             var y = (Height - size.Height) / 2;
-            
+
             g.DrawString(message, font, brush, x, y);
-            
+
             font.Dispose();
             brush.Dispose();
         }
@@ -204,26 +199,26 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
             using var font = new Font("Microsoft YaHei", 14, FontStyle.Bold);
             using var brush = new SolidBrush(ForeColor);
-            
+
             var size = g.MeasureString(_titleText, font);
             var x = (Width - size.Width) / 2;
             var y = 10;
-            
+
             g.DrawString(_titleText, font, brush, x, y);
         }
 
         private void DrawPieSlices(Graphics g, Rectangle pieRect)
         {
             float startAngle = 0;
-            
+
             foreach (var data in _data)
             {
                 var sweepAngle = (float)(data.Percentage * 360 / 100);
-                
+
                 // 绘制饼片 - 扁平化设计（无边框）
                 using var brush = new SolidBrush(data.Color);
                 g.FillPie(brush, pieRect, startAngle, sweepAngle);
-                
+
                 startAngle += sweepAngle;
             }
         }
@@ -233,22 +228,22 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             // 使用更小的字体适应紧凑布局
             using var font = new Font("Microsoft YaHei", 7, FontStyle.Regular); // 从9减少到7
             using var brush = new SolidBrush(ForeColor);
-            
+
             float startAngle = 0;
             var centerX = pieRect.X + pieRect.Width / 2f;
             var centerY = pieRect.Y + pieRect.Height / 2f;
             var radius = pieRect.Width / 2f;
-            
+
             foreach (var data in _data)
             {
                 var sweepAngle = (float)(data.Percentage * 360 / 100);
                 var labelAngle = startAngle + sweepAngle / 2;
-                
+
                 // 调整标签位置，更靠近饼图中心
                 var labelRadius = radius * 0.75f; // 从0.7f增加到0.75f，稍微外移
                 var labelX = centerX + labelRadius * (float)Math.Cos(labelAngle * Math.PI / 180);
                 var labelY = centerY + labelRadius * (float)Math.Sin(labelAngle * Math.PI / 180);
-                
+
                 // 生成标签文本 - 简化文本以减少拥挤
                 var labelText = "";
                 if (_showLabels && _showPercentages && data.Percentage >= 5.0) // 只显示占比大于5%的标签
@@ -261,22 +256,22 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 {
                     labelText = $"{data.Percentage:F1}%";
                 }
-                
+
                 if (!string.IsNullOrEmpty(labelText))
                 {
                     var textSize = g.MeasureString(labelText, font);
                     var textX = labelX - textSize.Width / 2;
                     var textY = labelY - textSize.Height / 2;
-                    
+
                     // 调整半透明背景，使其更轻量
                     var bgColor = _isDarkTheme ? Color.FromArgb(150, 0, 0, 0) : Color.FromArgb(150, 255, 255, 255);
                     using var bgBrush = new SolidBrush(bgColor);
                     g.FillRectangle(bgBrush, textX - 1, textY - 1, textSize.Width + 2, textSize.Height + 2);
-                    
+
                     // 绘制文本
                     g.DrawString(labelText, font, brush, textX, textY);
                 }
-                
+
                 startAngle += sweepAngle;
             }
         }

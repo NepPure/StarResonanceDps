@@ -17,6 +17,39 @@
     <Compile Update="Control\TextProgressBar.Function.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Control\TextProgressBar.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Control\TextProgressBar.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Control\TextProgressBar.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Control\TextProgressBar.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Control\TextProgressBar.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Control\TransparencyKnob.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Forms\MainForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\MainForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\MainForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\MainForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\MainForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -47,7 +80,37 @@
     <Compile Update="Forms\RankingsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\RankingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\RankingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\RankingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\RankingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\RankingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SettingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SettingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SettingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SettingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SettingsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\SettingsForm.Function.cs">
@@ -71,13 +134,28 @@
     <Compile Update="Control\TextProgressBar.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Control\UserUidSet.cs">
-      <SubType>UserControl</SubType>
+    <Compile Update="Control\UserUidSetForm.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\DpsStatistics.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\SkillDetailForm.Function.cs">

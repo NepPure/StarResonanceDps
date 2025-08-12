@@ -1,21 +1,9 @@
-﻿using System;
-using System.Buffers.Binary;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.Xml;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using PacketDotNet;
+﻿using PacketDotNet;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Extends;
-using StarResonanceDpsAnalysis.Plugin;
-using ZstdNet;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Buffers.Binary;
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 
 namespace StarResonanceDpsAnalysis.Core
 {

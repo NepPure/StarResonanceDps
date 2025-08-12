@@ -112,6 +112,56 @@ namespace StarResonanceDpsAnalysis.Properties {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap handoff_hover {
+            get {
+                object obj = ResourceManager.GetObject("handoff_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap handoff_normal {
+            get {
+                object obj = ResourceManager.GetObject("handoff_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap left_hover {
+            get {
+                object obj = ResourceManager.GetObject("left_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap left_normal {
+            get {
+                object obj = ResourceManager.GetObject("left_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap minimize_normal {
+            get {
+                object obj = ResourceManager.GetObject("minimize_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap ok_hover {
             get {
                 object obj = ResourceManager.GetObject("ok_hover", resourceCulture);
@@ -130,11 +180,71 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap right_hover {
+            get {
+                object obj = ResourceManager.GetObject("right_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap right_normal {
+            get {
+                object obj = ResourceManager.GetObject("right_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 &lt;svg t=&quot;1724122928419&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;2893&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M920.5 435.9c-7.6-40.3-36.1-66.8-69.8-66.2h-3.4c-36.6 0-66.3-29.7-66.3-66.3 0-7.8 3.6-19.1 6-24.9 15.4-35.1 3.3-78.1-28.9-100.6l-102-56.9-4.2-2c-31.7-13.7-72.7-5.4-96.4 19.2-15.1 15.6-42.2 33.7-54.6 33.7-12.5 0-39.8-18.5-54.9-34.3-23.6-24.9-62.2-34.4-97.4-19.5l-105.4 57.7-4.2 2.7c-31.7 22-43.8 65.3-28.3 100.1 1.9 4.6 6 16.7 6 24.9 0 36.6-29.7 66.3-66.3 66 [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string set_up {
             get {
                 return ResourceManager.GetString("set_up", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap setting_hover {
+            get {
+                object obj = ResourceManager.GetObject("setting_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap setting_normal {
+            get {
+                object obj = ResourceManager.GetObject("setting_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap top_hover {
+            get {
+                object obj = ResourceManager.GetObject("top_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap top_normal {
+            get {
+                object obj = ResourceManager.GetObject("top_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

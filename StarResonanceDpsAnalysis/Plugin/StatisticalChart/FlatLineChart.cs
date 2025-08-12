@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace StarResonanceDpsAnalysis.Plugin.Charts
 {
@@ -44,7 +39,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         private float _timeScale = 1.0f;
         private float _viewOffset = 0.0f;
         private float _currentTimeSeconds = 0.0f;
-        
+
         // 数据持久化
         private readonly Dictionary<string, List<PointF>> _persistentData = new();
 
@@ -54,19 +49,19 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         private ToolTip _tooltip;
         private bool _showTooltip = false;
         private string _tooltipText = "";
-        
+
         // 实时刷新相关
         private System.Windows.Forms.Timer _refreshTimer;
         private bool _autoRefreshEnabled = false;
         private int _refreshInterval = 1000;
         private Action _refreshCallback;
-        
+
         // 视图保持相关
         private bool _preserveViewOnDataUpdate = true; // 新增：控制数据更新时是否保持视图
         private DateTime _lastUserInteraction = DateTime.MinValue; // 新增：记录最后用户交互时间
         private const double UserInteractionCooldownMs = double.MaxValue; // 修改：永不过期的用户交互保护时间
         private bool _hasUserInteracted = false; // 新增：标记用户是否有过交互
-        
+
         // 自适应字体相关
         private float _fontScaleFactor = 1.0f;
         private const float MinFontSize = 6f;
@@ -204,7 +199,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 _preserveViewOnDataUpdate = value;
             }
         }
-        
+
         /// <summary>
         /// 获取当前时间缩放
         /// </summary>
@@ -212,7 +207,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         {
             return _timeScale;
         }
-        
+
         /// <summary>
         /// 获取当前视图偏移
         /// </summary>
@@ -220,7 +215,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         {
             return _viewOffset;
         }
-        
+
         /// <summary>
         /// 检查图表是否有数据
         /// </summary>
@@ -228,7 +223,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         {
             return _series.Count > 0 && _series.Any(s => s.Points.Count > 0);
         }
-        
+
         /// <summary>
         /// 检查用户是否有过交互
         /// </summary>
@@ -277,10 +272,10 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         public FlatLineChart()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | 
-                     ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw | 
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
+                     ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw |
                      ControlStyles.Selectable | ControlStyles.UserMouse, true);
-            
+
             // 初始化工具提示
             _tooltip = new ToolTip
             {
@@ -300,7 +295,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             _refreshTimer.Tick += RefreshTimer_Tick;
 
             ApplyTheme();
-            
+
             // 注册鼠标事件
             MouseMove += OnChartMouseMove;
             MouseWheel += OnChartMouseWheel;
@@ -308,7 +303,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             MouseUp += OnChartMouseUp;
             MouseEnter += OnChartMouseEnter;
             KeyDown += OnChartKeyDown;
-            
+
             // 允许控件接收焦点以处理键盘事件
             TabStop = true;
         }
@@ -324,7 +319,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         {
             _refreshCallback = callback;
         }
-        
+
         /// <summary>
         /// 启动实时刷新
         /// </summary>
@@ -333,7 +328,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             RefreshInterval = intervalMs;
             AutoRefreshEnabled = true;
         }
-        
+
         /// <summary>
         /// 停止实时刷新
         /// </summary>
@@ -341,7 +336,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         {
             AutoRefreshEnabled = false;
         }
-        
+
         private void RefreshTimer_Tick(object sender, EventArgs e)
         {
             try
@@ -351,7 +346,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 {
                     return;
                 }
-                
+
                 // 如果停止抓包了，完全保持用户的视图状态，永不回弹
                 if (!ChartVisualizationService.IsCapturing)
                 {
@@ -360,13 +355,13 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                     Invalidate();
                     return;
                 }
-                
+
                 // 保存当前的视图状态 - 永远保持用户设置的视图
                 var currentTimeScale = _timeScale;
                 var currentViewOffset = _viewOffset;
-                
+
                 _refreshCallback?.Invoke();
-                
+
                 // 如果启用了视图保持功能，永远恢复用户的设置（移除时间限制）
                 if (_preserveViewOnDataUpdate)
                 {
@@ -374,7 +369,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                     _viewOffset = currentViewOffset;
                     ClampViewOffset(); // 重新约束偏移量以确保有效性
                 }
-                
+
                 Invalidate();
             }
             catch (Exception ex)
@@ -397,16 +392,16 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             // 基于图表宽度和高度计算缩放因子
             var baseWidth = 500f;  // 提高基准宽度从400到500
             var baseHeight = 200f; // 保持基准高度200
-            
+
             var widthScale = Width / baseWidth;
             var heightScale = Height / baseHeight;
-            
+
             // 取较小的缩放因子，避免字体过大
             var scale = Math.Min(widthScale, heightScale);
-            
+
             // 更保守的缩放范围，避免文字过大
             scale = Math.Max(0.7f, Math.Min(1.4f, scale)); // 调整范围从0.6-1.8到0.7-1.4
-            
+
             return baseFontSize * scale;
         }
 
@@ -420,15 +415,15 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             // 根据可用区域计算合适的字体大小
             var baseAreaWidth = 300f;  // 提高基准宽度从200到300
             var baseAreaHeight = 120f; // 提高基准高度从100到120
-            
+
             var widthScale = areaWidth / baseAreaWidth;
             var heightScale = areaHeight / baseAreaHeight;
-            
+
             var scale = Math.Min(widthScale, heightScale);
-            
+
             // 更保守的缩放范围，避免文字过大或过小
             scale = Math.Max(0.8f, Math.Min(1.2f, scale)); // 调整范围从0.7-1.5到0.8-1.2
-            
+
             return baseFontSize * scale;
         }
 
@@ -464,9 +459,9 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var currentViewOffset = _viewOffset;
             // 如果停止抓包了，总是保持当前视图
             var shouldPreserveView = _series.Count > 0 || !ChartVisualizationService.IsCapturing;
-            
+
             _persistentData[name] = new List<PointF>(points);
-            
+
             var series = new LineChartSeries
             {
                 Name = name,
@@ -474,14 +469,14 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 Color = _colors[_series.Count % _colors.Length],
                 LineWidth = 3.5f
             };
-            
+
             _series.Add(series);
-            
+
             if (points.Count > 0)
             {
                 _currentTimeSeconds = Math.Max(_currentTimeSeconds, points.Max(p => p.X));
             }
-            
+
             // 如果应该保持视图，则恢复之前的缩放和偏移
             if (shouldPreserveView)
             {
@@ -493,7 +488,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                     ClampViewOffset();
                 }
             }
-            
+
             Invalidate();
         }
 
@@ -513,19 +508,19 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             // 保存当前的视图状态
             var currentTimeScale = _timeScale;
             var currentViewOffset = _viewOffset;
-            
+
             _persistentData[name] = new List<PointF>(points);
-            
+
             var series = _series.FirstOrDefault(s => s.Name == name);
             if (series != null)
             {
                 series.Points = new List<PointF>(points);
-                
+
                 if (points.Count > 0)
                 {
                     _currentTimeSeconds = Math.Max(_currentTimeSeconds, points.Max(p => p.X));
                 }
-                
+
                 // 如果停止抓包了，完全保持用户的视图状态
                 if (!ChartVisualizationService.IsCapturing)
                 {
@@ -540,7 +535,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                     _viewOffset = currentViewOffset;
                     ClampViewOffset();
                 }
-                
+
                 Invalidate();
             }
         }
@@ -549,7 +544,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         {
             _series.Clear();
             int colorIndex = 0;
-            
+
             foreach (var kvp in _persistentData)
             {
                 var series = new LineChartSeries
@@ -562,7 +557,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 _series.Add(series);
                 colorIndex++;
             }
-            
+
             Invalidate();
         }
 
@@ -574,23 +569,23 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         {
             var oldScale = _timeScale;
             _timeScale = Math.Max(0.1f, Math.Min(10.0f, scale));
-            
+
             // 获取缩放前后的视图宽度
             var oldViewWidth = GetViewTimeRange(oldScale);
             var newViewWidth = GetViewTimeRange(_timeScale);
-            
+
             // 计算当前视图的中心点（用户正在查看的位置）
             var currentViewCenter = _viewOffset + oldViewWidth / 2;
-            
+
             // 以当前视图中心为基准调整偏移量，保持用户当前查看的位置
             _viewOffset = currentViewCenter - newViewWidth / 2;
-            
+
             // 只有在抓包状态时才限制视图偏移
             if (ChartVisualizationService.IsCapturing)
             {
                 ClampViewOffset();
             }
-            
+
             Invalidate();
         }
 
@@ -627,11 +622,11 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 // 停止抓包后不限制视图偏移，用户可以拖动到任何时间点
                 return;
             }
-            
+
             var viewWidth = GetViewTimeRange(_timeScale);
             var maxOffset = _currentTimeSeconds - viewWidth;
             var minOffset = Math.Max(0, _currentTimeSeconds - 300);
-            
+
             _viewOffset = Math.Max(minOffset, Math.Min(maxOffset, _viewOffset));
         }
 
@@ -673,7 +668,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         private void OnChartMouseMove(object sender, MouseEventArgs e)
         {
-            var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
+            var chartRect = new Rectangle(PaddingLeft, PaddingTop,
                                         Width - PaddingLeft - _paddingRight,
                                         Height - PaddingTop - PaddingBottom);
 
@@ -683,11 +678,11 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 {
                     _lastUserInteraction = DateTime.Now; // 记录用户交互时间
                     _hasUserInteracted = true; // 标记用户有交互
-                    
+
                     var deltaX = e.X - _lastMousePosition.X;
                     var timeRange = GetViewTimeRange(_timeScale);
                     var timeDelta = -deltaX * timeRange / chartRect.Width;
-                    
+
                     SetViewOffset(_viewOffset + timeDelta);
                     _lastMousePosition = e.Location;
                     return;
@@ -714,13 +709,13 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             }
 
             var shouldZoom = (ModifierKeys & Keys.Control) == Keys.Control || !_isPanning;
-            
+
             if (shouldZoom)
             {
                 _lastUserInteraction = DateTime.Now; // 记录用户交互时间
                 _hasUserInteracted = true; // 标记用户有交互
-                
-                var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
+
+                var chartRect = new Rectangle(PaddingLeft, PaddingTop,
                                             Width - PaddingLeft - _paddingRight,
                                             Height - PaddingTop - PaddingBottom);
 
@@ -728,7 +723,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 {
                     var scaleDelta = e.Delta > 0 ? 1.1f : 0.9f;
                     var newScale = _timeScale * scaleDelta;
-                    
+
                     if (newScale >= 0.1f && newScale <= 20.0f)
                     {
                         SetTimeScale(newScale);
@@ -746,7 +741,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                     Focus();
                 }
 
-                var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
+                var chartRect = new Rectangle(PaddingLeft, PaddingTop,
                                             Width - PaddingLeft - _paddingRight,
                                             Height - PaddingTop - PaddingBottom);
 
@@ -768,9 +763,10 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             {
                 _isPanning = false;
                 Cursor = Cursors.Default;
-                
+
                 var timer = new System.Windows.Forms.Timer { Interval = 100 };
-                timer.Tick += (s, args) => {
+                timer.Tick += (s, args) =>
+                {
                     timer.Stop();
                     timer.Dispose();
                 };
@@ -890,7 +886,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            
+
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.HighQuality;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -908,7 +904,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var viewRange = CalculateViewRange();
             if (viewRange.IsEmpty) return;
 
-            var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
+            var chartRect = new Rectangle(PaddingLeft, PaddingTop,
                                         Width - PaddingLeft - _paddingRight,
                                         Height - PaddingTop - PaddingBottom);
 
@@ -919,7 +915,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
             DrawAxes(g, chartRect, viewRange);
 
-            var clipRect = new Rectangle(chartRect.X - 1, chartRect.Y - 1, 
+            var clipRect = new Rectangle(chartRect.X - 1, chartRect.Y - 1,
                                         chartRect.Width + 2, chartRect.Height + 2);
             g.SetClip(clipRect);
 
@@ -927,7 +923,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             g.ResetClip();
 
             DrawTitle(g);
-            
+
             if (_showViewInfo)
             {
                 DrawViewInfo(g);
@@ -944,11 +940,11 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var message = "暂无数据\n\n使用方法：\n? Ctrl + 鼠标滚轮：缩放时间轴\n? 左键拖动：平移视图\n? R键：重置视图\n? 鼠标悬停：查看数据";
             using var font = CreateScaledFont("Microsoft YaHei", BaseNoDataFontSize, FontStyle.Regular);
             using var brush = new SolidBrush(_isDarkTheme ? Color.Gray : Color.DarkGray);
-            
+
             var size = g.MeasureString(message, font);
             var x = (Width - size.Width) / 2;
             var y = (Height - size.Height) / 2;
-            
+
             g.DrawString(message, font, brush, x, y);
         }
 
@@ -980,17 +976,18 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var gridColor = _isDarkTheme ? Color.FromArgb(64, 64, 64) : Color.FromArgb(230, 230, 230);
             using var gridPen = new Pen(gridColor, 1);
 
-            // 垂直网格线 - 使用动态数量
+            // 垂直网格线 - 根据动态调整的_verticalGridLines数量绘制
+            // _verticalGridLines表示线条数量，实际标签点数量是_verticalGridLines + 1
             for (int i = 0; i <= _verticalGridLines; i++)
             {
                 var x = chartRect.X + (float)chartRect.Width * i / _verticalGridLines;
                 g.DrawLine(gridPen, x, chartRect.Y, x, chartRect.Bottom);
             }
 
-            // 水平网格线 - 调整为6条
-            for (int i = 0; i <= 5; i++) // 从4改为5，6个标签(0-5)
+            // 水平网格线 - 保持固定的6条线(0-5)
+            for (int i = 0; i <= 5; i++)
             {
-                var y = chartRect.Y + (float)chartRect.Height * i / 5; // 分母从4改为5
+                var y = chartRect.Y + (float)chartRect.Height * i / 5;
                 g.DrawLine(gridPen, chartRect.X, y, chartRect.Right, y);
             }
         }
@@ -1000,20 +997,21 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var axisColor = _isDarkTheme ? Color.FromArgb(128, 128, 128) : Color.FromArgb(180, 180, 180);
             using var axisPen = new Pen(axisColor, 1);
             using var textBrush = new SolidBrush(ForeColor);
-            
+
             // 为轴标签使用基于图表区域的字体大小
             using var font = CreateScaledFontForArea("Microsoft YaHei", BaseAxisValueFontSize, chartRect.Width, chartRect.Height);
 
             g.DrawLine(axisPen, chartRect.X, chartRect.Bottom, chartRect.Right, chartRect.Bottom);
             g.DrawLine(axisPen, chartRect.X, chartRect.Y, chartRect.X, chartRect.Bottom);
 
-            // X轴时间标签 - 使用动态网格线数量
+            // X轴时间标签 - 根据动态调整的_verticalGridLines数量绘制标签
+            // _verticalGridLines条线对应_verticalGridLines + 1个标签点
             for (int i = 0; i <= _verticalGridLines; i++)
             {
                 var x = chartRect.X + (float)chartRect.Width * i / _verticalGridLines;
                 var timeValue = viewRange.X + viewRange.Width * i / _verticalGridLines;
                 var text = FormatTimeLabel(timeValue);
-                
+
                 var size = g.MeasureString(text, font);
                 g.DrawString(text, font, textBrush, x - size.Width / 2, chartRect.Bottom + 8);
             }
@@ -1024,7 +1022,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 var y = chartRect.Bottom - (float)chartRect.Height * i / 5; // 分母从4改为5
                 var value = viewRange.Y + viewRange.Height * i / 5; // 分母从4改为5
                 var text = Common.FormatWithEnglishUnits(value);
-                
+
                 var size = g.MeasureString(text, font);
                 var labelX = Math.Max(5, chartRect.X - size.Width - 8);
                 g.DrawString(text, font, textBrush, labelX, y - size.Height / 2);
@@ -1078,13 +1076,14 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
                 var visiblePoints = series.Points
                     .Where(p => p.X >= viewRange.X && p.X <= viewRange.X + viewRange.Width)
-                    .Select(p => {
+                    .Select(p =>
+                    {
                         var screenX = chartRect.X + ((p.X - viewRange.X) / viewRange.Width) * chartRect.Width;
                         var screenY = chartRect.Bottom - (p.Y - viewRange.Y) / viewRange.Height * chartRect.Height;
-                        
+
                         screenX = Math.Max(chartRect.X, Math.Min(chartRect.Right, screenX));
                         screenY = Math.Max(chartRect.Y, Math.Min(chartRect.Bottom, screenY));
-                        
+
                         return new PointF(screenX, screenY);
                     }).ToArray();
 
@@ -1121,21 +1120,21 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
             using var font = CreateScaledFont("Microsoft YaHei", BaseTitleFontSize, FontStyle.Bold);
             using var brush = new SolidBrush(ForeColor);
-            
+
             var size = g.MeasureString(_titleText, font);
             var x = (Width - size.Width) / 2;
             var y = 15;
-            
+
             g.DrawString(_titleText, font, brush, x, y);
         }
 
         private void DrawViewInfo(Graphics g)
         {
             var info = $"缩放: {_timeScale:F1}x | 当前时间: {FormatTimeLabel(_currentTimeSeconds)}";
-            
+
             using var font = CreateScaledFont("Microsoft YaHei", BaseAxisValueFontSize);
             using var brush = new SolidBrush(_isDarkTheme ? Color.LightGray : Color.DarkGray);
-            
+
             var size = g.MeasureString(info, font);
             g.DrawString(info, font, brush, Width - size.Width - 10, Height - size.Height - 5);
         }
@@ -1144,7 +1143,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         {
             using var font = CreateScaledFont("Microsoft YaHei", BaseLegendFontSize);
             using var textBrush = new SolidBrush(ForeColor);
-            
+
             // 根据字体大小调整图例项的间距
             var scaledItemHeight = (int)(18 * CalculateScaledFontSize(BaseLegendFontSize) / BaseLegendFontSize);
             var legendHeight = _series.Count * scaledItemHeight + 10;
@@ -1156,7 +1155,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var legendBg = _isDarkTheme ? Color.FromArgb(50, 50, 50) : Color.FromArgb(245, 245, 245);
             using var bgBrush = new SolidBrush(legendBg);
             using var borderPen = new Pen(_isDarkTheme ? Color.FromArgb(80, 80, 80) : Color.FromArgb(200, 200, 200), 1);
-            
+
             var legendRect = new Rectangle(legendX - 8, legendY - 8, legendWidth + 6, legendHeight + 6);
             g.FillRectangle(bgBrush, legendRect);
             g.DrawRectangle(borderPen, legendRect);
@@ -1199,14 +1198,14 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             // 清空所有数据
             _series.Clear();
             _persistentData.Clear();
-            
+
             // 重置所有状态变量
             _timeScale = 1.0f;
             _viewOffset = 0.0f;
             _currentTimeSeconds = 0.0f;
             _hasUserInteracted = false;
             _lastUserInteraction = DateTime.MinValue;
-            
+
             // 停止所有定时器（但不重置定时器对象）
             if (_refreshTimer != null)
             {
@@ -1214,7 +1213,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 // 不要设置为null，保持定时器对象可用
                 AutoRefreshEnabled = false;
             }
-            
+
             // 强制重绘
             Invalidate();
         }

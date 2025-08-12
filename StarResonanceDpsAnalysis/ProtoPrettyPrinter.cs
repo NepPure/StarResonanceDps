@@ -1,7 +1,5 @@
-﻿using System;
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
 public static class ProtoPrettyPrinter
