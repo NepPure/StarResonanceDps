@@ -94,31 +94,12 @@ namespace StarResonanceDpsAnalysis.Control
                 // 清空panel7现有控件
                 panel7.Controls.Clear();
                 
-                // 设置panel7的基本属性以更好地显示图表
-                //panel7.BackColor = AppConfig.IsLight ? Color.White : Color.FromArgb(31, 31, 31);
-                
                 // 确保panel7大小正确设置并支持自动调整
-                panel7.MinimumSize = new Size(450, 150);
+                panel7.MinimumSize = new Size(ChartConfigManager.MIN_WIDTH, ChartConfigManager.MIN_HEIGHT);
                 panel7.Anchor = AnchorStyles.Top | AnchorStyles.Left;
                 
-                // 创建DPS趋势折线图，传入当前玩家ID以显示该玩家的数据
+                // 创建DPS趋势折线图，使用统一的配置管理
                 _dpsTrendChart = ChartVisualizationService.CreateDpsTrendChart(specificPlayerId: Uid);
-                _dpsTrendChart.Dock = DockStyle.Fill; // 使图表填充整个panel7
-                _dpsTrendChart.TitleText = " ";
-              
-                _dpsTrendChart.XAxisLabel = "时间 (秒)";
-                _dpsTrendChart.YAxisLabel = " ";
-                _dpsTrendChart.ShowLegend = false; // 隐藏图例，因为标题已经显示玩家名
-                _dpsTrendChart.ShowGrid = true;
-                _dpsTrendChart.ShowViewInfo = false; // 不显示缩放和时间信息
-                _dpsTrendChart.AutoScaleFont = false; // 启用字体自适应
-                _dpsTrendChart.PreserveViewOnDataUpdate = true; // 启用视图保持功能，防止缩放和拖动回弹
-                _dpsTrendChart.Font = new Font("阿里妈妈数黑体", 10, FontStyle.Regular); // 设置字体
-                // 设置图表主题
-                _dpsTrendChart.IsDarkTheme = !AppConfig.IsLight;
-                
-                // 设置图表的最小大小以确保显示质量
-                _dpsTrendChart.MinimumSize = new Size(450, 150);
                 
                 // 设置实时刷新回调，传入当前玩家ID
                 _dpsTrendChart.SetRefreshCallback(() => {
@@ -139,9 +120,6 @@ namespace StarResonanceDpsAnalysis.Control
                         Console.WriteLine($"图表刷新回调出错: {ex.Message}");
                     }
                 });
-                
-                // 不要在这里启动自动刷新，让MainForm统一控制
-                // _dpsTrendChart.StartAutoRefresh(1000); // 移除这行
                 
                 // 添加到panel7
                 panel7.Controls.Add(_dpsTrendChart);
@@ -313,7 +291,7 @@ namespace StarResonanceDpsAnalysis.Control
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            fixedWidth = this.Width;
+            //fixedWidth = this.Width;
             
             // 延迟一点时间再调整图表，确保所有控件都已经完成布局
             if (_dpsTrendChart != null)
@@ -328,7 +306,7 @@ namespace StarResonanceDpsAnalysis.Control
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            this.Width = fixedWidth;
+            //this.Width = fixedWidth;
             
             // 当窗体大小变化时，强制刷新折线图布局
             if (_dpsTrendChart != null && panel7 != null)
@@ -339,33 +317,33 @@ namespace StarResonanceDpsAnalysis.Control
             }
         }
         
-        protected override void WndProc(ref System.Windows.Forms.Message m)
-        {
-            const int WM_NCHITTEST = 0x84;
-            const int HTTOP = 12;
-            const int HTBOTTOM = 15;
-            const int HTLEFT = 10;
-            const int HTRIGHT = 11;
-            const int HTTOPLEFT = 13;
-            const int HTTOPRIGHT = 14;
-            const int HTBOTTOMLEFT = 16;
-            const int HTBOTTOMRIGHT = 17;
+        //protected override void WndProc(ref System.Windows.Forms.Message m)
+        //{
+        //    const int WM_NCHITTEST = 0x84;
+        //    const int HTTOP = 12;
+        //    const int HTBOTTOM = 15;
+        //    const int HTLEFT = 10;
+        //    const int HTRIGHT = 11;
+        //    const int HTTOPLEFT = 13;
+        //    const int HTTOPRIGHT = 14;
+        //    const int HTBOTTOMLEFT = 16;
+        //    const int HTBOTTOMRIGHT = 17;
 
-            base.WndProc(ref m);
+        //    base.WndProc(ref m);
 
-            if (m.Msg == WM_NCHITTEST)
-            {
-                int result = m.Result.ToInt32();
+        //    if (m.Msg == WM_NCHITTEST)
+        //    {
+        //        int result = m.Result.ToInt32();
 
-                // 禁止左右和四角的拖动，只允许上下拖动
-                if (result == HTLEFT || result == HTRIGHT ||
-                    result == HTTOPLEFT || result == HTTOPRIGHT ||
-                    result == HTBOTTOMLEFT || result == HTBOTTOMRIGHT)
-                {
-                    m.Result = IntPtr.Zero; // 禁用这些区域
-                }
-            }
-        }
+        //        // 禁止左右和四角的拖动，只允许上下拖动
+        //        if (result == HTLEFT || result == HTRIGHT ||
+        //            result == HTTOPLEFT || result == HTTOPRIGHT ||
+        //            result == HTBOTTOMLEFT || result == HTBOTTOMRIGHT)
+        //        {
+        //            m.Result = IntPtr.Zero; // 禁用这些区域
+        //        }
+        //    }
+        //}
 
         private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
         {
@@ -394,6 +372,69 @@ namespace StarResonanceDpsAnalysis.Control
         }
 
         /// <summary>
+        /// 更新玩家信息
+        /// </summary>
+        /// <param name="nickname"></param>
+        /// <param name="power"></param>
+        /// <param name="profession"></param>
+        public void GetPlayerInfo(string nickname, int power, string profession)
+        {
+            // 注释掉玩家名称的显示
+             NickNameText.Text = nickname;
+             PowerText.Text = power.ToString();
+             UidText.Text = Uid.ToString();
+
+            // 隐藏玩家信息显示
+            //NickNameText.Text = "";
+            //PowerText.Text = "";
+            //UidText.Text = "";
+
+          
+            object? resourceObj = Properties.Resources.ResourceManager.GetObject(profession);
+
+            if (resourceObj is byte[] bytes)
+            {
+                using var ms = new MemoryStream(bytes);
+                table_DpsDetailDataTable.BackgroundImage = Image.FromStream(ms);
+            }
+            else if (resourceObj is Image img)
+            {
+                table_DpsDetailDataTable.BackgroundImage = img;
+            }
+            else
+            {
+                table_DpsDetailDataTable.BackgroundImage = null; // 默认空白
+            }
+            
+            // 更新玩家信息后，重新初始化图表以显示新玩家的数据
+            if (_dpsTrendChart != null)
+            {
+                // 重新设置刷新回调以使用新的玩家ID
+                _dpsTrendChart.SetRefreshCallback(() => {
+                    try
+                    {
+                        // 只有在正在捕获数据时才更新数据点，避免停止抓包后继续显示虚假数据
+                        if (ChartVisualizationService.IsCapturing)
+                        {
+                            ChartVisualizationService.UpdateAllDataPoints();
+                        }
+                        
+                        // 根据当前选择的模式决定显示DPS还是HPS
+                        bool showHps = segmented1.SelectIndex != 0; // 0是伤害，1是治疗
+                        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, showHps);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"图表刷新回调出错: {ex.Message}");
+                    }
+                });
+                
+                // 立即刷新图表数据
+                RefreshDpsTrendChart();
+            }
+        }
+
+        /// <summary>
         /// 重置DPS趋势图表（用于数据清空）
         /// </summary>
         public void ResetDpsTrendChart()
@@ -405,15 +446,13 @@ namespace StarResonanceDpsAnalysis.Control
                     // 完全重置图表状态
                     _dpsTrendChart.FullReset();
                     
-                    // 重新初始化图表基本设置
-                    _dpsTrendChart.TitleText = "";
-                    _dpsTrendChart.XAxisLabel = "时间 (秒)";
-                    _dpsTrendChart.YAxisLabel = "";
+                    // 使用统一的配置管理器重新应用设置
+                    ChartConfigManager.ApplySettings(_dpsTrendChart);
                     
                     // 如果当前正在捕获数据，重新启动自动刷新
                     if (ChartVisualizationService.IsCapturing)
                     {
-                        _dpsTrendChart.StartAutoRefresh(1000);
+                        _dpsTrendChart.StartAutoRefresh(ChartConfigManager.REFRESH_INTERVAL);
                     }
                 }
                 catch (Exception ex)

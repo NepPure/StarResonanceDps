@@ -149,85 +149,11 @@ namespace StarResonanceDpsAnalysis.Control
                 {
                     // 刷新图表数据，确保显示当前玩家的最新数据
                     RefreshDpsTrendChart();
-                    
-                    // 根据当前选择的模式更新图表标题
-                    if (segmented1.SelectIndex == 0)
-                    {
-                        //_dpsTrendChart.YAxisLabel = "DPS";
-                        //var playerInfo = StatisticData._manager.GetPlayerBasicInfo(Uid);
-                        //var playerName = string.IsNullOrEmpty(playerInfo.Nickname) ? $"玩家{Uid}" : playerInfo.Nickname;
-                        //_dpsTrendChart.TitleText = $"{playerName} - 实时DPS趋势";
-                    }
-                    else
-                    {
-                        //_dpsTrendChart.YAxisLabel = "HPS";
-                        //var playerInfo = StatisticData._manager.GetPlayerBasicInfo(Uid);
-                        //var playerName = string.IsNullOrEmpty(playerInfo.Nickname) ? $"玩家{Uid}" : playerInfo.Nickname;
-                        //_dpsTrendChart.TitleText = $"{playerName} - 实时HPS趋势";
-                    }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"更新图表数据时出错: {ex.Message}");
                 }
-            }
-        }
-
-        /// <summary>
-        /// 更新玩家信息
-        /// </summary>
-        /// <param name="nickname"></param>
-        /// <param name="power"></param>
-        /// <param name="profession"></param>
-        public void GetPlayerInfo(string nickname, int power, string profession)
-        {
-            NickNameText.Text = nickname;
-            PowerText.Text = power.ToString();
-           
-            UidText.Text = Uid.ToString();
-
-          
-            object? resourceObj = Properties.Resources.ResourceManager.GetObject(profession);
-
-            if (resourceObj is byte[] bytes)
-            {
-                using var ms = new MemoryStream(bytes);
-                table_DpsDetailDataTable.BackgroundImage = Image.FromStream(ms);
-            }
-            else if (resourceObj is Image img)
-            {
-                table_DpsDetailDataTable.BackgroundImage = img;
-            }
-            else
-            {
-                table_DpsDetailDataTable.BackgroundImage = null; // 默认空白
-            }
-            
-            // 更新玩家信息后，重新初始化图表以显示新玩家的数据
-            if (_dpsTrendChart != null)
-            {
-                // 重新设置刷新回调以使用新的玩家ID
-                _dpsTrendChart.SetRefreshCallback(() => {
-                    try
-                    {
-                        // 只有在正在捕获数据时才更新数据点，避免停止抓包后继续显示虚假数据
-                        if (ChartVisualizationService.IsCapturing)
-                        {
-                            ChartVisualizationService.UpdateAllDataPoints();
-                        }
-                        
-                        // 根据当前选择的模式决定显示DPS还是HPS
-                        bool showHps = segmented1.SelectIndex != 0; // 0是伤害，1是治疗
-                        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, showHps);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"图表刷新回调出错: {ex.Message}");
-                    }
-                });
-                
-                // 立即刷新图表数据
-                RefreshDpsTrendChart();
             }
         }
     }
