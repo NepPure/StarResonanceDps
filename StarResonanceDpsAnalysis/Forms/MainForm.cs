@@ -577,5 +577,14 @@ namespace StarResonanceDpsAnalysis
         {
 
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if(FormManager.rankingsForm==null||FormManager.rankingsForm.IsDisposed)
+            {
+                FormManager.rankingsForm = new RankingsForm();
+            }
+            FormManager.rankingsForm.Show();
+        }
     }
 }

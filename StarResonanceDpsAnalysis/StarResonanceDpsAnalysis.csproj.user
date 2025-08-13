@@ -65,6 +65,9 @@
     <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\PopUp\AppMessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\RankingsForm.cs">
       <SubType>Form</SubType>
     </Compile>

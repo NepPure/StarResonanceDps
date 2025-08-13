@@ -171,11 +171,14 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <summary>平均每次命中值（Total / CountTotal）</summary>
         public double GetAveragePerHit() => CountTotal > 0 ? (double)Total / CountTotal : 0.0;
 
-        /// <summary>暴击率（包含“暴击且幸运”）</summary>
-        public double GetCritRate() => CountTotal > 0 ? (double)CountCritical / CountTotal : 0.0;
+        /// <summary>暴击率（百分比 0~100，保留 2 位小数）</summary>
+        public double GetCritRate() =>
+            CountTotal > 0 ? Math.Round((double)CountCritical / CountTotal * 100.0, 2) : 0.0;
 
-        /// <summary>幸运率（包含“暴击且幸运”）</summary>
-        public double GetLuckyRate() => CountTotal > 0 ? (double)CountLucky / CountTotal : 0.0;
+        /// <summary>幸运率（百分比 0~100，保留 2 位小数）</summary>
+        public double GetLuckyRate() =>
+            CountTotal > 0 ? Math.Round((double)CountLucky / CountTotal * 100.0, 2) : 0.0;
+
 
         /// <summary>
         /// 重置所有统计数据与状态
@@ -811,6 +814,26 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         #region 获取或创建
 
         /// <summary>
+        /// 手动创建一次快照
+        /// </summary>
+        /// <returns></returns>
+        public BattleSnapshot? TakeSnapshotAndGet()
+        {
+            if (_players.Count == 0) return null;
+
+            //if (_combatStart.HasValue && !_combatEnd.HasValue)
+            //    _combatEnd = _lastCombatActivity != DateTime.MinValue ? _lastCombatActivity : DateTime.Now;
+
+            // 调用内部保存逻辑
+            SaveCurrentBattleSnapshot();
+
+            // 返回刚保存的那条快照
+            return _history.Count > 0 ? _history[^1] : null; // ^1 是 C# 8.0 的最后一个元素
+        }
+
+
+
+        /// <summary>
         /// 获取或创建指定 UID 的玩家数据，并套用已缓存的昵称/战力/职业
         /// </summary>
         public PlayerData GetOrCreate(ulong uid)
@@ -1236,7 +1259,6 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             var duration = _combatEnd.HasValue ? _combatEnd.Value - startedAt : endedAt - startedAt;
             if (duration < TimeSpan.Zero) duration = TimeSpan.Zero;
 
-            // UI 标签（你也可以改成想展示的格式）
             var label = $"结束时间：{endedAt:HH:mm:ss}";
 
             ulong teamDmg = 0;
@@ -1244,16 +1266,18 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
             var snapPlayers = new Dictionary<ulong, SnapshotPlayer>(_players.Count);
 
-            // 深拷贝所有玩家与技能信息
             foreach (var p in _players.Values)
             {
                 var dmg = p.DamageStats;
                 var heal = p.HealingStats;
 
+                // 确保实时窗口是最新（可选）
+                dmg.UpdateRealtimeStats();
+                heal.UpdateRealtimeStats();
+
                 teamDmg += dmg.Total;
                 teamHeal += heal.Total;
 
-                // 技能明细：分别拉“伤害技能”和“治疗技能”
                 var damageSkills = p.GetSkillSummaries(
                     topN: null,
                     orderByTotalDesc: true,
@@ -1266,7 +1290,6 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                     filterType: Core.SkillType.Heal
                 );
 
-                // 构造玩家快照
                 var sp = new SnapshotPlayer
                 {
                     Uid = p.Uid,
@@ -1281,8 +1304,17 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                     TakenDamage = p.TakenDamage,
                     LastRecordTime = dmg.LastRecordTime,
 
-                    DamageSkills = damageSkills,   // 这里返回的是新列表，元素是不可变DTO
-                    HealingSkills = healingSkills
+                    DamageSkills = damageSkills,
+                    HealingSkills = healingSkills,
+
+                    // —— 新增字段赋值 —— //
+                    RealtimeDps = dmg.RealtimeValue,
+                    CritRate = dmg.GetCritRate(),          // 0~100
+                    LuckyRate = dmg.GetLuckyRate(),        // 0~100
+                    CriticalDamage = dmg.Critical,
+                    LuckyDamage = dmg.Lucky,
+                    CritLuckyDamage = dmg.CritLucky,
+                    MaxSingleHit = dmg.MaxSingleHit
                 };
 
                 snapPlayers[p.Uid] = sp;
@@ -1301,6 +1333,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
             _history.Add(snapshot);
         }
+
 
         #endregion
     }
@@ -1330,6 +1363,15 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         public string Nickname { get; init; } = "未知";
         public int CombatPower { get; init; }
         public string Profession { get; init; } = "未知";
+
+        public ulong RealtimeDps { get; init; }
+        public double CritRate { get; init; }
+        public double LuckyRate { get; init; }
+        public ulong CriticalDamage { get; init; }
+        public ulong LuckyDamage { get; init; }
+        public ulong CritLuckyDamage { get; init; }
+        public ulong MaxSingleHit { get; init; }
+
 
         // 聚合
         public ulong TotalDamage { get; init; }

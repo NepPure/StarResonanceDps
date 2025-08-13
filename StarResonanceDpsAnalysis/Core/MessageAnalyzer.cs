@@ -534,6 +534,23 @@ namespace StarResonanceDpsAnalysis.Core
 
                 // 血量压制/减益（JS: HpLessenValue?.toNumber()）
                 ulong hpLessen = d.HasHpLessenValue ? (ulong)d.HpLessenValue : 0UL;
+               
+                //如果开启了打桩模式，且攻击者不是自己，且目标不是最右侧的木桩则跳过
+                if(AppConfig.PilingMode)
+                {
+                    if ( attackerUuid != AppConfig.Uid)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        if (targetUuid != 75)
+                        {
+                            continue;
+                        }
+                    }
+                }
+               
 
 
                 if (isTargetPlayer)

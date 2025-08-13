@@ -17,6 +17,8 @@ namespace StarResonanceDpsAnalysis.Forms
 
         public static UserUidSetForm userUidSetForm;//用户Uid设置窗体
 
+        public static RankingsForm rankingsForm;//排行榜窗体
+
 
         public const int WM_NCLBUTTONDOWN = 0xA1;
         public const int HTCAPTION = 0x2;

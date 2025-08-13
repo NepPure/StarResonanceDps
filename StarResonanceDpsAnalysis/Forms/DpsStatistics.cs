@@ -1,7 +1,11 @@
 ﻿using AntdUI;
 using StarResonanceDpsAnalysis.Control;
+using StarResonanceDpsAnalysis.Forms.PopUp;
 using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using StarResonanceDpsAnalysis.Properties;
+using System.Threading.Tasks;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -11,6 +15,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
+            FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
         }
 
         private void DpsStatistics_Load(object sender, EventArgs e)
@@ -43,7 +48,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void UpdateHeaderText()
         {
-            pageHeader1.SubText = showTotal ? totalLabels[currentIndex]
+            DamageModeLabel.Text = showTotal ? totalLabels[currentIndex]
                                             : singleLabels[currentIndex];
         }
 
@@ -91,6 +96,7 @@ namespace StarResonanceDpsAnalysis.Forms
                     //new ContextMenuStripItem("用户设置"){ IconSvg = Resources.userUid, },
                     new ContextMenuStripItem("统计排除"){ IconSvg = Resources.exclude, },
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes, },
+                     new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, },
              }
             ;
 
@@ -107,16 +113,19 @@ namespace StarResonanceDpsAnalysis.Forms
                     case "数据记录类型":
                         break;
                     case "打桩模式":
-                        if (checkbox1.Visible)
+                        if (PilingModeCheckbox.Visible)
                         {
-                            checkbox1.Visible = false;
+                            PilingModeCheckbox.Visible = false;
                         }
-                        else 
+                        else
                         {
-                            checkbox1.Visible = true;
+                            PilingModeCheckbox.Visible = true;
                         }
 
-                            break;
+                        break;
+                    case "退出":
+                        Application.Exit();
+                        break;
                 }
             }, menulist);
         }
@@ -171,6 +180,104 @@ namespace StarResonanceDpsAnalysis.Forms
         private void button3_MouseEnter(object sender, EventArgs e)
         {
             ToolTip(button3, "点击切换：单次统计/全程统");
+        }
+
+        private void timer_RefreshRunningTime_Tick(object sender, EventArgs e)
+        {
+            var duration = StatisticData._manager.GetFormattedCombatDuration();
+            BattleTimeText.Text = duration;
+
+        }
+
+        private async void timer1_Tick(object sender, EventArgs e)
+        {
+            if (PilingModeCheckbox.Checked)
+            {
+                if(AppConfig.NickName==null&& AppConfig.Uid==null)
+                {
+                    PilingModeCheckbox.Checked = false;
+                    timer1.Enabled = false;
+                    var result = AppMessageBox.ShowMessage("未获取到昵称或者UID，请换个地图后再进协会", this);
+
+                    return;
+                }
+                TimeSpan duration = StatisticData._manager.GetCombatDuration();//获取时间
+                if (duration > TimeSpan.FromMinutes(1))
+                {
+                    //暂停打桩模式
+                    PilingModeCheckbox.Checked = false;
+                    timer1.Enabled = false;
+                    // 这里可以写你的其它逻辑
+
+                    var snapshot = StatisticData._manager.TakeSnapshotAndGet();//获取快照
+                    var result = AppMessageBox.ShowMessage("打桩完成,是否上传(排行榜仅供娱乐，请勿恶意上传)\n1.如果对自己数据不满意可再次勾选打桩模式重新打桩", this);
+
+                    if (result == DialogResult.OK)
+                    {
+                        bool data = await Common.AddUserDps(snapshot);
+                        if(data)
+                        {
+                            AntdUI.Modal.open(new AntdUI.Modal.Config(this, "上传成功", "上传成功")
+                            {
+                                CloseIcon = true,
+                                Keyboard = false,
+                                MaskClosable = false,
+                            });
+                        }
+                        else
+                        {
+                            AntdUI.Modal.open(new AntdUI.Modal.Config(this, "上传失败", "请检查网络状况，服务器暂时不支持外网上传")
+                            {
+                                CloseIcon = true,
+                                Keyboard = false,
+                                MaskClosable = false,
+                            });
+                        }
+                    }
+                    else
+                    {
+                      
+
+                    }
+                  
+                   
+
+                }
+            }
+        }
+
+        private void PilingModeCheckbox_CheckedChanged(object sender, BoolEventArgs e)
+        {
+            TimeSpan duration = StatisticData._manager.GetCombatDuration();//获取时间
+
+            if (e.Value)
+            {
+
+                var result = AppMessageBox.ShowMessage("打桩时间为3分钟，需注意以下3点:\n0.:打桩模式开启后只会记录自己的数据\n1.开启后请找协会内最右侧木桩[靠窗的那根]\n2.确保战斗计时为0开启\n3.如果伤害不满意可关闭打桩模式重新勾选\n4.异常数据会被删除\n",this);
+                if (result == DialogResult.OK)
+                {
+                    DpsTableDatas.DpsTable.Clear();
+                    StatisticData._manager.ClearAll();
+                    SkillTableDatas.SkillTable.Clear();
+                    Task.Delay(200);
+                    //打桩模式启动
+                    AppConfig.PilingMode = true;
+                    timer1.Enabled = true;
+                }
+                else
+                {
+                    // 用户关闭或取消
+              
+                    PilingModeCheckbox.Checked = false;
+                }
+               
+            }
+            else
+            {
+                AppConfig.PilingMode = false;
+                //打桩模式关闭
+                timer1.Enabled = false;
+            }
         }
     }
 }

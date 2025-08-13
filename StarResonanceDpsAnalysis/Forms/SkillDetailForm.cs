@@ -71,7 +71,7 @@ namespace StarResonanceDpsAnalysis.Control
                 _dpsTrendChart.SetPaddingRight(initialPadding);
                 _dpsTrendChart.SetVerticalGridLines(initialGridLines);
 
-                Console.WriteLine($"初始化图表 - 分割器位置: {splitter1.SplitterDistance}, PaddingRight: {initialPadding}, 垂直线条: {initialGridLines}");
+                //Console.WriteLine($"初始化图表 - 分割器位置: {splitter1.SplitterDistance}, PaddingRight: {initialPadding}, 垂直线条: {initialGridLines}");
             }
         }
 
@@ -576,14 +576,14 @@ namespace StarResonanceDpsAnalysis.Control
             var newGridLines = Math.Max(3, Math.Min(20, 5 + steps));
 
             // 添加调试输出
-            Console.WriteLine($"[DEBUG] splitter1_SplitterMoving - 位置: {e.SplitX}, 偏移: {offsetFrom350}, 步数: {steps}, 新线条数: {newGridLines}");
+            //Console.WriteLine($"[DEBUG] splitter1_SplitterMoving - 位置: {e.SplitX}, 偏移: {offsetFrom350}, 步数: {steps}, 新线条数: {newGridLines}");
 
             if (_dpsTrendChart != null)
             {
                 var currentGridLines = _dpsTrendChart.GetVerticalGridLines();
                 var currentPadding = _dpsTrendChart.GetPaddingRight();
 
-                Console.WriteLine($"[DEBUG] 当前参数 - 线条数: {currentGridLines}, PaddingRight: {currentPadding}");
+                //Console.WriteLine($"[DEBUG] 当前参数 - 线条数: {currentGridLines}, PaddingRight: {currentPadding}");
 
                 // 只有当计算出的值与当前值不同时才更新
                 if (currentGridLines != newGridLines || currentPadding != newPadding)
@@ -591,7 +591,7 @@ namespace StarResonanceDpsAnalysis.Control
                     _dpsTrendChart.SetPaddingRight(newPadding);
                     _dpsTrendChart.SetVerticalGridLines(newGridLines);
 
-                    Console.WriteLine($"[SUCCESS] 更新成功 - 分割器位置: {e.SplitX}, 移动步数: {steps}, PaddingRight: {newPadding}, 垂直线条: {newGridLines}");
+                    //Console.WriteLine($"[SUCCESS] 更新成功 - 分割器位置: {e.SplitX}, 移动步数: {steps}, PaddingRight: {newPadding}, 垂直线条: {newGridLines}");
                 }
                 else
                 {
@@ -630,7 +630,7 @@ namespace StarResonanceDpsAnalysis.Control
                 // 强制重绘图表以应用新的设置
                 _dpsTrendChart.Invalidate();
 
-                Console.WriteLine($"分割器移动完成 - 实际位置: {e.SplitX}, 基准位置: {_lastSplitterPosition}, 最终PaddingRight: {finalPadding}, 最终垂直线条: {finalGridLines}");
+                //Console.WriteLine($"分割器移动完成 - 实际位置: {e.SplitX}, 基准位置: {_lastSplitterPosition}, 最终PaddingRight: {finalPadding}, 最终垂直线条: {finalGridLines}");
             }
         }
 

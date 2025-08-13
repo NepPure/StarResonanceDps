@@ -610,4 +610,143 @@ namespace StarResonanceDpsAnalysis.Plugin
     #endregion
 
 
+    #region 排行榜
+    public class LeaderboardTableDatas
+    {
+        /// <summary>
+        /// 表格数据绑定
+        /// </summary>
+        public static BindingList<LeaderboardTable> LeaderboardTable = [];
+        public static readonly object LeaderboardTableLock = new();
+
+    }
+    public class LeaderboardTable: NotifyProperty
+    {
+        #region 字段（私有存储）
+        private string nickName;       // 玩家昵称
+        private string professional; // 职业
+        private CellText combatPower; // 战力
+        private CellText totalDamage;     // 总伤害
+        private CellText instantDps;     // 秒伤
+        private CellText maxInstantDps;     // 最大瞬时DPS
+        #endregion
+
+        #region 构造函数
+        public LeaderboardTable(string nickName, string professional, double combatPower, double totalDamage, double instantDps, double maxInstantDps)
+        {
+            NickName = nickName;
+            Professional = professional;
+            CombatPower = new CellText(combatPower.ToString()) { Font = AppConfig.SaoFont };
+            TotalDamage = new CellText(totalDamage.ToString()) { Font = AppConfig.SaoFont };
+            InstantDps = new CellText(instantDps.ToString()) { Font = AppConfig.SaoFont };
+            MaxInstantDps = new CellText(maxInstantDps.ToString()) { Font = AppConfig.SaoFont };
+        }
+        #endregion
+
+        #region 属性封装（包含通知）
+        // —— 玩家基础信息 —— 
+
+        /// <summary>
+        /// 玩家昵称
+        /// </summary>
+        public string NickName
+        {
+            get => nickName;
+            set
+            {
+                if (nickName == value) return;
+                nickName = value;
+                OnPropertyChanged(nameof(NickName));
+            }
+        }
+
+        /// <summary>
+        /// 职业
+        /// </summary>
+        public string Professional
+        {
+            get => professional;
+            set
+            {
+                if (professional == value) return;
+                professional = value;
+                OnPropertyChanged(nameof(Professional));
+            }
+        }
+
+        /// <summary>
+        /// 战力
+        /// </summary>
+        public CellText CombatPower
+        {
+            get => combatPower;
+            set
+            {
+                if (combatPower == value) return;
+                combatPower = value;
+                OnPropertyChanged(nameof(CombatPower));
+            }
+        }
+
+        // —— 玩家统计数据 —— 
+
+        /// <summary>
+        /// 总伤害
+        /// </summary>
+        public CellText TotalDamage
+        {
+            get => totalDamage;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value.Text));
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.SaoFont };
+                if (totalDamage == formatted) return;
+                totalDamage = formatted;
+                OnPropertyChanged(nameof(TotalDamage));
+            }
+        }
+
+        /// <summary>
+        /// 秒伤
+        /// </summary>
+        public CellText InstantDps
+        {
+            get => instantDps;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value.Text));
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.SaoFont };
+                if (instantDps == formatted) return;
+                instantDps = formatted;
+                OnPropertyChanged(nameof(InstantDps));
+            }
+        }
+
+        /// <summary>
+        /// 最大瞬时DPS
+        /// </summary>
+        public CellText MaxInstantDps
+        {
+            get => maxInstantDps;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value.Text));
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.SaoFont };
+                if (maxInstantDps == formatted) return; 
+                maxInstantDps = formatted;
+                OnPropertyChanged(nameof(MaxInstantDps));
+            }
+        }
+        #endregion
+    
+
+
+
+
+    }
+
+
+    #endregion
+
+
 }

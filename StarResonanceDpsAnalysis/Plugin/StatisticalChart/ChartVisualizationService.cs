@@ -410,7 +410,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             foreach (var player in players)
             {
                 var totalDps = player.GetTotalDps();
-                var critRate = player.DamageStats.GetCritRate() * 100;
+                var critRate = player.DamageStats.GetCritRate();
                 var points = new List<PointF> { new((float)critRate, (float)totalDps) };
                 chart.AddSeries("", points);
             }

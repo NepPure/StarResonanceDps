@@ -106,13 +106,16 @@ namespace StarResonanceDpsAnalysis.Plugin
         public static Color DpsColor = Color.FromArgb(0x22, 0x97, 0xF4);//进度条颜色
         private static string _nickName = null;
         private static string _profession = null;
-        private static ulong? _uid = 0;//用户UID
-        private static int? _combatPower =0;//战斗力
+        private static ulong? _uid = null;//用户UID
+        private static int? _combatPower =null;//战斗力
         public static int CombatTimeClearDelaySeconds = 5;//战斗计时清除延迟
 
         public static bool NpcsTakeDamage = false;//NPC承伤
+        public static bool PilingMode =false;//打桩模式
 
-       
+        public static string url = "http://127.0.0.1:8562";//服务器地址
+
+
         /// <summary>
         /// 昵称
         /// </summary>

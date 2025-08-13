@@ -189,6 +189,15 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1755091003951&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1042 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;6442&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M581.632 697.344l126.976 0 0 194.56q0 33.792-10.24 58.88t-27.136 40.96-39.424 23.552-48.128 7.68l-452.608 0q-24.576 0-48.128-9.728t-41.472-27.136-29.184-40.96-11.264-52.224l0-706.56q0-24.576 11.776-47.104t30.208-39.936 40.96-28.16 45.056-10.752l449.536 0q26.624 0 50.176 11.776t41.472 29.696 28.16 40.448 10.24 44.032l0 188.416-126.976 0 1.024-195.584-452.6 [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string quit {
+            get {
+                return ResourceManager.GetString("quit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
         internal static System.Drawing.Bitmap right_hover {

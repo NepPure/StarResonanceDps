@@ -54,8 +54,8 @@ namespace StarResonanceDpsAnalysis.Control
 
             foreach (var item in skills)
             {
-                string critRateStr = $"{Math.Round(item.CritRate * 100, 1)}%";
-                string luckyRateStr = $"{Math.Round(item.LuckyRate * 100, 1)}%";
+                string critRateStr = $"{item.CritRate}%";
+                string luckyRateStr = $"{item.LuckyRate}%";
 
                 var existing = SkillTableDatas.SkillTable.FirstOrDefault(s => s.Name == item.SkillName);
                 if (existing != null)
@@ -109,8 +109,8 @@ namespace StarResonanceDpsAnalysis.Control
                 // ===== 伤害总览 =====
                 TotalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Total);
                 TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalDps());
-                CritRateText.Text = $"{(p.DamageStats.GetCritRate() * 100):0.#}%";
-                LuckyRate.Text = $"{(p.DamageStats.GetLuckyRate() * 100):0.#}%";
+                CritRateText.Text = $"{p.DamageStats.GetCritRate()}%";
+                LuckyRate.Text = $"{p.DamageStats.GetLuckyRate()}%";
 
                 NormalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Normal);
                 CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
@@ -125,8 +125,8 @@ namespace StarResonanceDpsAnalysis.Control
                 // ===== 治疗总览 =====
                 TotalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Total);
                 TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalHps());
-                CritRateText.Text = $"{(p.HealingStats.GetCritRate() * 100):0.#}%";
-                LuckyRate.Text = $"{(p.HealingStats.GetLuckyRate() * 100):0.#}%";
+                CritRateText.Text = $"{p.HealingStats.GetCritRate()}%";
+                LuckyRate.Text = $"{p.HealingStats.GetLuckyRate()}%";
 
                 NormalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Normal);
                 CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
@@ -170,8 +170,8 @@ namespace StarResonanceDpsAnalysis.Control
                 // 获取当前模式下的统计数据
                 var stats = segmented1.SelectIndex == 0 ? p.DamageStats : p.HealingStats;
 
-                var critRate = stats.GetCritRate() * 100;
-                var luckyRate = stats.GetLuckyRate() * 100;
+                var critRate = stats.GetCritRate() ;
+                var luckyRate = stats.GetLuckyRate() ;
                 var normalRate = 100 - critRate - luckyRate;
 
                 var chartData = new List<(string, double)>();

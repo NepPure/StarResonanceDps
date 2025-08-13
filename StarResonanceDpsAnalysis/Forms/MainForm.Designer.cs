@@ -68,6 +68,7 @@
             button1.Size = new Size(49, 43);
             button1.TabIndex = 18;
             button1.ToggleIconSvg = "";
+            button1.Click += button1_Click;
             // 
             // button_SkillDiary
             // 

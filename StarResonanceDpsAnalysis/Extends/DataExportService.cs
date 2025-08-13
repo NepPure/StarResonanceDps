@@ -94,8 +94,8 @@ namespace StarResonanceDpsAnalysis.Plugin
                 worksheet.Cell(row, 5).Value = Math.Round(player.GetTotalDps(), 1);
                 worksheet.Cell(row, 6).Value = (double)player.DamageStats.Critical;
                 worksheet.Cell(row, 7).Value = (double)player.DamageStats.Lucky;
-                worksheet.Cell(row, 8).Value = $"{player.DamageStats.GetCritRate() * 100:F1}%";
-                worksheet.Cell(row, 9).Value = $"{player.DamageStats.GetLuckyRate() * 100:F1}%";
+                worksheet.Cell(row, 8).Value = $"{player.DamageStats.GetCritRate()}%";
+                worksheet.Cell(row, 9).Value = $"{player.DamageStats.GetLuckyRate()}%";
                 worksheet.Cell(row, 10).Value = (double)player.DamageStats.RealtimeMax;
                 worksheet.Cell(row, 11).Value = (double)player.HealingStats.Total;
                 worksheet.Cell(row, 12).Value = Math.Round(player.GetTotalHps(), 1);
@@ -255,8 +255,8 @@ namespace StarResonanceDpsAnalysis.Plugin
                                  $"{player.GetTotalDps():F1}," +
                                  $"{player.DamageStats.Critical}," +
                                  $"{player.DamageStats.Lucky}," +
-                                 $"{player.DamageStats.GetCritRate() * 100:F1}%," +
-                                 $"{player.DamageStats.GetLuckyRate() * 100:F1}%," +
+                                 $"{player.DamageStats.GetCritRate()}%," +
+                                 $"{player.DamageStats.GetLuckyRate()}%," +
                                  $"{player.DamageStats.RealtimeMax}," +
                                  $"{player.HealingStats.Total}," +
                                  $"{player.GetTotalHps():F1}," +
