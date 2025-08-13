@@ -30,6 +30,7 @@
         {
             input2 = new AntdUI.Input();
             inputNumber1 = new AntdUI.InputNumber();
+            input1 = new AntdUI.Input();
             pageHeader1 = new AntdUI.PageHeader();
             TitleText = new AntdUI.Label();
             panel6 = new AntdUI.Panel();
@@ -64,6 +65,19 @@
             inputNumber1.Size = new Size(327, 78);
             inputNumber1.TabIndex = 7;
             inputNumber1.Text = "0";
+            // 
+            // input1
+            // 
+            input1.Font = new Font("阿里妈妈数黑体", 8F, FontStyle.Bold);
+            input1.Location = new Point(72, 308);
+            input1.Name = "input1";
+            input1.PrefixText = "职业：";
+            input1.Radius = 3;
+            input1.SelectionColor = Color.FromArgb(143, 176, 229);
+            input1.SelectionStart = 1;
+            input1.Size = new Size(327, 78);
+            input1.TabIndex = 8;
+            input1.Text = " ";
             // 
             // pageHeader1
             // 
@@ -157,6 +171,7 @@
             Controls.Add(select1);
             Controls.Add(panel6);
             Controls.Add(pageHeader1);
+            Controls.Add(input1);
             Controls.Add(inputNumber1);
             Controls.Add(input2);
             Name = "UserUidSetForm";
@@ -171,6 +186,7 @@
         #endregion
         private AntdUI.Input input2;
         private AntdUI.InputNumber inputNumber1;
+        private AntdUI.Input input1;
         private AntdUI.PageHeader pageHeader1;
         private AntdUI.Label TitleText;
         private AntdUI.Panel panel6;

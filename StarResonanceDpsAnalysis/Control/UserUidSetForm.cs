@@ -58,6 +58,7 @@ namespace StarResonanceDpsAnalysis.Control
                 select1.SelectedValue = AppConfig.GetValue("UserConfig", "Profession", "未知职业");
 
 
+
                 // 确保AppConfig的全局属性与界面同步
                 AppConfig.Uid = (ulong)inputNumber1.Value;
                 AppConfig.NickName = input2.Text;
@@ -279,6 +280,16 @@ namespace StarResonanceDpsAnalysis.Control
                 FormManager.ReleaseCapture();
                 FormManager.SendMessage(this.Handle, FormManager.WM_NCLBUTTONDOWN, FormManager.HTCAPTION, 0);
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void panel6_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
