@@ -108,7 +108,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         private static string _profession = null;
         private static ulong? _uid = 0;//用户UID
         private static int? _combatPower =0;//战斗力
-        public static int? CombatTimeClearDelaySeconds = 5;//战斗计时清除延迟
+        public static int CombatTimeClearDelaySeconds = 5;//战斗计时清除延迟
 
         public static bool NpcsTakeDamage = false;//NPC承伤
 
