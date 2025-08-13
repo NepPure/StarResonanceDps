@@ -31,6 +31,7 @@
             components = new System.ComponentModel.Container();
             AntdUI.SegmentedItem segmentedItem1 = new AntdUI.SegmentedItem();
             AntdUI.SegmentedItem segmentedItem2 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem3 = new AntdUI.SegmentedItem();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SkillDetailForm));
             table_DpsDetailDataTable = new AntdUI.Table();
             pageHeader1 = new AntdUI.PageHeader();
@@ -135,22 +136,24 @@
             // 
             // segmented1
             // 
-            segmented1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             segmented1.BarBg = true;
             segmented1.BarPosition = AntdUI.TAlignMini.Bottom;
             segmented1.BarSize = 0F;
+            segmented1.Dock = DockStyle.Fill;
             segmented1.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             segmented1.Full = true;
             segmented1.IconGap = 0F;
             segmentedItem1.Text = "技能伤害分析";
             segmentedItem2.Text = "技能治疗分析";
+            segmentedItem3.Text = "人物承伤分析";
             segmented1.Items.Add(segmentedItem1);
             segmented1.Items.Add(segmentedItem2);
-            segmented1.Location = new Point(9, 8);
+            segmented1.Items.Add(segmentedItem3);
+            segmented1.Location = new Point(9, 9);
             segmented1.Name = "segmented1";
             segmented1.Round = true;
             segmented1.SelectIndex = 0;
-            segmented1.Size = new Size(336, 47);
+            segmented1.Size = new Size(478, 47);
             segmented1.TabIndex = 16;
             segmented1.Text = "segmented1";
             segmented1.SelectIndexChanged += segmented1_SelectIndexChanged;
@@ -485,12 +488,12 @@
             panel3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             panel3.BackColor = Color.Transparent;
             panel3.Controls.Add(segmented1);
-            panel3.Location = new Point(1331, 23);
+            panel3.Location = new Point(1189, 23);
             panel3.Name = "panel3";
             panel3.Radius = 500;
             panel3.Shadow = 6;
             panel3.ShadowOpacityHover = 0F;
-            panel3.Size = new Size(354, 65);
+            panel3.Size = new Size(496, 65);
             panel3.TabIndex = 26;
             panel3.Text = "panel3";
             // 
@@ -587,7 +590,7 @@
             splitter1.Panel2.Controls.Add(divider3);
             splitter1.Panel2.Controls.Add(panel2);
             splitter1.Size = new Size(1696, 1222);
-            splitter1.SplitterDistance = 436;
+            splitter1.SplitterDistance = 434;
             splitter1.SplitterWidth = 6;
             splitter1.TabIndex = 27;
             // 
@@ -602,7 +605,7 @@
             collapse1.Items.Add(collapseItem3);
             collapse1.Location = new Point(0, 0);
             collapse1.Name = "collapse1";
-            collapse1.Size = new Size(436, 1222);
+            collapse1.Size = new Size(434, 1222);
             collapse1.TabIndex = 28;
             collapse1.Text = "collapse1";
             // 
@@ -612,7 +615,7 @@
             collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
             collapseItem1.Location = new Point(27, 90);
             collapseItem1.Name = "collapseItem1";
-            collapseItem1.Size = new Size(382, 300);
+            collapseItem1.Size = new Size(380, 300);
             collapseItem1.TabIndex = 0;
             collapseItem1.Text = "Dps/Hps实时曲线图";
             // 
@@ -621,7 +624,7 @@
             collapseItem2.Expand = true;
             collapseItem2.Location = new Point(27, 501);
             collapseItem2.Name = "collapseItem2";
-            collapseItem2.Size = new Size(382, 300);
+            collapseItem2.Size = new Size(380, 300);
             collapseItem2.TabIndex = 1;
             collapseItem2.Text = "技能占比分布图";
             // 
@@ -632,7 +635,7 @@
             collapseItem3.Expand = true;
             collapseItem3.Location = new Point(27, 912);
             collapseItem3.Name = "collapseItem3";
-            collapseItem3.Size = new Size(382, 300);
+            collapseItem3.Size = new Size(380, 300);
             collapseItem3.TabIndex = 2;
             collapseItem3.Text = "伤害分布";
             // 

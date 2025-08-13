@@ -37,22 +37,31 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
-            divider3.Text = "伤害榜";
+            divider3.Text = "伤害参考";
             get_dps_rank();
         }
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            divider3.Text = "战力榜";
-            get_dps_rank();
-        }
 
         private void segmented1_SelectIndexChanged(object sender, IntEventArgs e)
         {
             get_dps_rank();
         }
 
+        private void RankingsForm_ForeColorChanged(object sender, EventArgs e)
+        {
+            if (Config.IsLight)
+            {
+                //浅色
+                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
+                button1.DefaultBack = ColorTranslator.FromHtml("#67AEF6");
+            }
+            else
+            {
+                //深色
+                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#10529a");
+                button1.DefaultBack = ColorTranslator.FromHtml("#255AD0");
 
-
+            }
+        }
     }
 }

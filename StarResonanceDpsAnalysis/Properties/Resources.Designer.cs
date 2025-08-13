@@ -139,6 +139,24 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1755131064483&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;11454&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M512.5 98.29c-227.84 0-412.54 184.7-412.54 412.54s184.7 412.54 412.54 412.54 412.54-184.7 412.54-412.54S740.34 98.29 512.5 98.29z m249.28 661.82c-32.4 32.4-70.1 57.82-112.08 75.58-43.42 18.37-89.59 27.68-137.21 27.68-47.62 0-93.78-9.31-137.2-27.68-41.97-17.75-79.68-43.18-112.08-75.58-32.4-32.4-57.82-70.1-75.58-112.08-18.37-43.42-27.68-89.59-27.68-137.21  [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string historicalRecords {
+            get {
+                return ResourceManager.GetString("historicalRecords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1755130842851&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1025 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;7366&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M779 1024H595V827.6c0-14.4-11.6-26-26-26h-93.2c-14.4 0-26 11.8-26 26V1024H251c-54.8 0-99.4-44.6-99.4-99.4V600.2l-112.2-35-9-9c-26.6-26.6-26.6-69.6 0-96.2L470 20.4c12.8-12.8 29.8-20 48-20s35.2 7 48 20l439.6 439.8c12.8 12.8 20 30 19.8 48 0 18.2-7.2 35.2-20 48l-9 9L878 600.4v324.2c0.2 54.8-44.2 99.4-99 99.4z&quot; p-id=&quot;7367&quot;&gt;&lt;/path&gt;&lt;/svg&gt; 的本地化字符串。
+        /// </summary>
+        internal static string HomeIcon {
+            get {
+                return ResourceManager.GetString("HomeIcon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
         internal static System.Drawing.Bitmap left_hover {

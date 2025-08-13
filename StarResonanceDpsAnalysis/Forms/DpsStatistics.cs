@@ -91,12 +91,25 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             var menulist = new IContextMenuStripItem[]
              {
+                    new ContextMenuStripItem("历史战斗")
+                    { 
+                        IconSvg = Resources.historicalRecords, 
+                        Sub = new IContextMenuStripItem[]
+                        {
+                            new ContextMenuStripItem("战斗记录")
+                            {
+                                
+                         
+                            },
+                        }
+                    },
                     new ContextMenuStripItem("基础设置"){ IconSvg = Resources.set_up},
-                    new ContextMenuStripItem("主窗体"){ IconSvg = Resources.data_display, },
+                    new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, },
+                    
                     //new ContextMenuStripItem("用户设置"){ IconSvg = Resources.userUid, },
                     new ContextMenuStripItem("统计排除"){ IconSvg = Resources.exclude, },
-                    new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes, },
-                     new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, },
+                    new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes },
+                    new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, },
              }
             ;
 
@@ -110,7 +123,7 @@ namespace StarResonanceDpsAnalysis.Forms
                     case "数据显示设置":
                         //dataDisplay(); 
                         break;
-                    case "数据记录类型":
+                    case "统计排除":
                         break;
                     case "打桩模式":
                         if (PilingModeCheckbox.Visible)

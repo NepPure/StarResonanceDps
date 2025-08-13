@@ -27,7 +27,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// 英文/数字使用的显示字体。默认字号 10，常规样式。
         /// 注意：依赖本机是否安装字体“SAO Welcome TT”，缺失时系统会回退。
         /// </summary>
-        public static Font SaoFont = new Font("SAO Welcome TT", 10, FontStyle.Regular);//英文数字字体
+        public static Font SaoFont = new Font("SAO UI TT", 9, FontStyle.Regular);//英文数字字体
 
         /// <summary>
         /// # 分类：字体配置

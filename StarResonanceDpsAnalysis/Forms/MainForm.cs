@@ -411,6 +411,7 @@ namespace StarResonanceDpsAnalysis
             FormGui.SetColorMode(FormManager.skillDetailForm, AppConfig.IsLight);
             FormGui.SetColorMode(FormManager.settingsForm, AppConfig.IsLight);//设置窗体颜色
             FormGui.SetColorMode(FormManager.dpsStatistics, AppConfig.IsLight);//设置窗体颜色
+            FormGui.SetColorMode(FormManager.rankingsForm, AppConfig.IsLight);//设置窗体颜色
 
 
         }

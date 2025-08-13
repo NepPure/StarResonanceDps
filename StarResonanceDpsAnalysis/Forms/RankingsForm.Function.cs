@@ -35,8 +35,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         Dictionary<string, string> rank_type_dict = new Dictionary<string, string>()
         {
-            {"伤害榜","damage_all"},
-            {"战力榜","power_all"},
+            {"伤害参考","damage_all"},
         };
         /// <summary>
         /// 
@@ -67,12 +66,12 @@ namespace StarResonanceDpsAnalysis.Forms
             }
             else
             {
-                AntdUI.Modal.open(new AntdUI.Modal.Config(this, "获取失败", "获取失败")
-                {
-                    CloseIcon = true,
-                    Keyboard = false,
-                    MaskClosable = false,
-                });
+                //AntdUI.Modal.open(new AntdUI.Modal.Config(this, "获取失败", "获取失败")
+                //{
+                //    CloseIcon = true,
+                //    Keyboard = false,
+                //    MaskClosable = false,
+                //});
             }
         }
     }
