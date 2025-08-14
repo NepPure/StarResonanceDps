@@ -28,19 +28,32 @@
         /// </summary>
         private void InitializeComponent()
         {
+            virtualPanel1 = new AntdUI.VirtualPanel();
             SuspendLayout();
+            // 
+            // virtualPanel1
+            // 
+            virtualPanel1.Dock = DockStyle.Fill;
+            virtualPanel1.Location = new Point(0, 0);
+            virtualPanel1.Name = "virtualPanel1";
+            virtualPanel1.Size = new Size(474, 894);
+            virtualPanel1.TabIndex = 0;
+            virtualPanel1.Text = "virtualPanel1";
             // 
             // DetailsPreviewForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(474, 766);
+            ClientSize = new Size(474, 894);
+            Controls.Add(virtualPanel1);
             Name = "DetailsPreviewForm";
             Text = "DetailsPreviewForm";
             ResumeLayout(false);
         }
 
         #endregion
+
+        private AntdUI.VirtualPanel virtualPanel1;
     }
 }
