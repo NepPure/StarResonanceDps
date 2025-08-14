@@ -4,11 +4,11 @@ using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 namespace StarResonanceDpsAnalysis.Plugin
 {
     /// <summary>
-    /// 图表配置管理器 - 统一管理所有图表的配置和设置
+    /// 图表配置管理器 - 统一管理所有图表配置和设置
     /// </summary>
     public static class ChartConfigManager
     {
-        // 统一的默认配置常量
+        // 统一的默认设置常量
         public const string EMPTY_TEXT = "";
         public const bool HIDE_LEGEND = false;
         public const bool SHOW_GRID = true;
@@ -19,14 +19,14 @@ namespace StarResonanceDpsAnalysis.Plugin
         public const int MIN_WIDTH = 450;
         public const int MIN_HEIGHT = 150;
 
-        public static readonly Font DefaultFont = new("阿里妈妈数黑体", 10, FontStyle.Regular);
+        public static readonly Font DefaultFont = new("微软雅黑", 10, FontStyle.Regular);
 
         /// <summary>
         /// 统一应用图表基础设置
         /// </summary>
         public static T ApplySettings<T>(T chart) where T : UserControl
         {
-            // 通用属性设置
+            // 通用控件设置
             chart.Dock = DockStyle.Fill;
 
             // 根据图表类型应用特定设置
@@ -90,13 +90,26 @@ namespace StarResonanceDpsAnalysis.Plugin
     }
 
     /// <summary>
+    /// 数据类型枚举
+    /// </summary>
+    public enum ChartDataType
+    {
+        Damage = 0,  // 伤害
+        Healing = 1, // 治疗 
+        TakenDamage = 2 // 承伤
+    }
+
+    /// <summary>
     /// 实时图表可视化服务
     /// </summary>
     public static class ChartVisualizationService
     {
         #region 数据存储
+        // 三种不同数据类型的历史存储
         private static readonly Dictionary<ulong, List<(DateTime Time, double Dps)>> _dpsHistory = new();
         private static readonly Dictionary<ulong, List<(DateTime Time, double Hps)>> _hpsHistory = new();
+        private static readonly Dictionary<ulong, List<(DateTime Time, double TakenDps)>> _takenDpsHistory = new();
+        
         private static DateTime? _combatStartTime;
         private static readonly List<WeakReference> _registeredCharts = new();
 
@@ -125,7 +138,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             var safeValue = value is double d ? (T)(object)Math.Max(0, d) : value;
             playerHistory.Add((now, safeValue));
 
-            // 限制历史点数
+            // 限制历史长度
             if (playerHistory.Count > MAX_HISTORY_POINTS)
                 playerHistory.RemoveAt(0);
         }
@@ -135,6 +148,9 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         public static void AddHpsDataPoint(ulong playerId, double hps) =>
             AddDataPoint(_hpsHistory, playerId, hps);
+
+        public static void AddTakenDpsDataPoint(ulong playerId, double takenDps) =>
+            AddDataPoint(_takenDpsHistory, playerId, takenDps);
 
         public static void UpdateAllDataPoints()
         {
@@ -149,6 +165,10 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 AddDpsDataPoint(player.Uid, player.DamageStats.RealtimeValue);
                 AddHpsDataPoint(player.Uid, player.HealingStats.RealtimeValue);
+                
+                // 添加承伤数据点（基于承伤统计）
+                var takenOverview = StatisticData._manager.GetPlayerTakenOverview(player.Uid);
+                AddTakenDpsDataPoint(player.Uid, takenOverview.AvgTakenPerSec);
             }
 
             CheckAndAddZeroValues();
@@ -159,9 +179,10 @@ namespace StarResonanceDpsAnalysis.Plugin
             var activePlayerIds = StatisticData._manager.GetPlayersWithCombatData().Select(p => p.Uid).ToHashSet();
             var now = DateTime.Now;
 
-            // 为不活跃玩家添加0值
+            // 为非活跃玩家添加0值
             CheckHistoryForZeroValues(_dpsHistory, activePlayerIds, now, AddDpsDataPoint);
             CheckHistoryForZeroValues(_hpsHistory, activePlayerIds, now, AddHpsDataPoint);
+            CheckHistoryForZeroValues(_takenDpsHistory, activePlayerIds, now, AddTakenDpsDataPoint);
         }
 
         private static void CheckHistoryForZeroValues<T>(Dictionary<ulong, List<(DateTime Time, T Value)>> history,
@@ -189,6 +210,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         {
             _dpsHistory.Clear();
             _hpsHistory.Clear();
+            _takenDpsHistory.Clear();
             _combatStartTime = null;
         }
 
@@ -207,16 +229,23 @@ namespace StarResonanceDpsAnalysis.Plugin
                 if (history.Count > 0 && history.Last().Hps > 0)
                     AddHpsDataPoint(playerId, 0);
             }
+
+            foreach (var playerId in _takenDpsHistory.Keys.ToList())
+            {
+                var history = _takenDpsHistory[playerId];
+                if (history.Count > 0 && history.Last().TakenDps > 0)
+                    AddTakenDpsDataPoint(playerId, 0);
+            }
         }
         #endregion
 
         #region 图表创建
         /// <summary>
-        /// 创建并配置图表（通用方法）
+        /// 创建图表的通用方法
         /// </summary>
-        /// <typeparam name="T">图表控件类型（继承自 UserControl）</typeparam>
+        /// <typeparam name="T">图表控件类型，继承于 UserControl</typeparam>
         /// <param name="size">图表的初始尺寸</param>
-        /// <param name="customConfig">可选的自定义配置回调，对图表进行额外设置</param>
+        /// <param name="customConfig">可选的自定义配置回调，用于图表特有的额外设置</param>
         /// <returns>已创建并应用默认配置的图表实例</returns>
         private static T CreateChart<T>(Size size, Action<T> customConfig = null) where T : UserControl, new()
         {
@@ -229,9 +258,9 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <summary>
         /// 创建 DPS 趋势折线图（FlatLineChart）
         /// </summary>
-        /// <param name="width">图表宽度（默认 800）</param>
-        /// <param name="height">图表高度（默认 400）</param>
-        /// <param name="specificPlayerId">可选：指定玩家 ID，仅显示该玩家的数据</param>
+        /// <param name="width">图表宽度，默认 800</param>
+        /// <param name="height">图表高度，默认 400</param>
+        /// <param name="specificPlayerId">可选的指定玩家 ID，仅显示该玩家的数据</param>
         /// <returns>已创建并初始化的 DPS 趋势图控件</returns>
         public static FlatLineChart CreateDpsTrendChart(int width = 800, int height = 400, ulong? specificPlayerId = null)
         {
@@ -239,7 +268,7 @@ namespace StarResonanceDpsAnalysis.Plugin
 
             RegisterChart(chart); // 注册图表到管理器
 
-            if (IsCapturing) // 若正在采集数据，则开启自动刷新
+            if (IsCapturing) // 如果正在采集数据，启动自动刷新
                 chart.StartAutoRefresh(ChartConfigManager.REFRESH_INTERVAL);
 
             RefreshDpsTrendChart(chart, specificPlayerId); // 加载初始数据
@@ -249,9 +278,9 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <summary>
         /// 创建技能伤害占比饼图（FlatPieChart）
         /// </summary>
-        /// <param name="playerId">玩家 ID，用于加载该玩家的技能伤害数据</param>
-        /// <param name="width">图表宽度（默认 400）</param>
-        /// <param name="height">图表高度（默认 400）</param>
+        /// <param name="playerId">玩家 ID，用于计算该玩家的技能伤害数据</param>
+        /// <param name="width">图表宽度，默认 400</param>
+        /// <param name="height">图表高度，默认 400</param>
         /// <returns>已创建并初始化的技能伤害饼图控件</returns>
         public static FlatPieChart CreateSkillDamagePieChart(ulong playerId, int width = 400, int height = 400)
         {
@@ -261,11 +290,11 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
 
         /// <summary>
-        /// 创建团队 DPS 柱状图（FlatBarChart）
+        /// 创建团队 DPS 条状图（FlatBarChart）
         /// </summary>
-        /// <param name="width">图表宽度（默认 600）</param>
-        /// <param name="height">图表高度（默认 400）</param>
-        /// <returns>已创建并初始化的团队 DPS 柱状图控件</returns>
+        /// <param name="width">图表宽度，默认 600</param>
+        /// <param name="height">图表高度，默认 400</param>
+        /// <returns>已创建并初始化的团队 DPS 条状图控件</returns>
         public static FlatBarChart CreateTeamDpsBarChart(int width = 600, int height = 400)
         {
             var chart = CreateChart<FlatBarChart>(new Size(width, height));
@@ -274,11 +303,11 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
 
         /// <summary>
-        /// 创建 DPS 雷达图（FlatScatterChart）
+        /// 创建 DPS 散点图（FlatScatterChart）
         /// </summary>
-        /// <param name="width">图表宽度（默认 400）</param>
-        /// <param name="height">图表高度（默认 400）</param>
-        /// <returns>已创建并初始化的 DPS 雷达图控件</returns>
+        /// <param name="width">图表宽度，默认 400</param>
+        /// <param name="height">图表高度，默认 400</param>
+        /// <returns>已创建并初始化的 DPS 散点图控件</returns>
         public static FlatScatterChart CreateDpsRadarChart(int width = 400, int height = 400)
         {
             var chart = CreateChart<FlatScatterChart>(new Size(width, height));
@@ -287,11 +316,11 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
 
         /// <summary>
-        /// 创建伤害类型堆叠柱状图（FlatBarChart）
+        /// 创建伤害类型堆叠条状图（FlatBarChart）
         /// </summary>
-        /// <param name="width">图表宽度（默认 600）</param>
-        /// <param name="height">图表高度（默认 400）</param>
-        /// <returns>已创建并初始化的伤害类型堆叠柱状图控件</returns>
+        /// <param name="width">图表宽度，默认 600</param>
+        /// <param name="height">图表高度，默认 400</param>
+        /// <returns>已创建并初始化的伤害类型堆叠条状图控件</returns>
         public static FlatBarChart CreateDamageTypeStackedChart(int width = 600, int height = 400)
         {
             var chart = CreateChart<FlatBarChart>(new Size(width, height));
@@ -302,7 +331,13 @@ namespace StarResonanceDpsAnalysis.Plugin
         #endregion
 
         #region 图表刷新
-        public static void RefreshDpsTrendChart(FlatLineChart chart, ulong? specificPlayerId = null, bool showHps = false)
+        /// <summary>
+        /// 刷新DPS趋势图表数据，支持三种数据类型
+        /// </summary>
+        /// <param name="chart">要刷新的图表</param>
+        /// <param name="specificPlayerId">指定玩家ID</param>
+        /// <param name="dataType">数据类型：Damage=伤害，Healing=治疗，TakenDamage=承伤</param>
+        public static void RefreshDpsTrendChart(FlatLineChart chart, ulong? specificPlayerId = null, ChartDataType dataType = ChartDataType.Damage)
         {
             // 保存视图状态
             var timeScale = chart.GetTimeScale();
@@ -311,18 +346,25 @@ namespace StarResonanceDpsAnalysis.Plugin
 
             chart.ClearSeries();
 
-            var historyData = showHps ? _hpsHistory : _dpsHistory;
+            // 根据数据类型选择对应的历史数据
+            Dictionary<ulong, List<(DateTime Time, double Value)>> historyData = dataType switch
+            {
+                ChartDataType.Healing => _hpsHistory.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.Hps)).ToList()),
+                ChartDataType.TakenDamage => _takenDpsHistory.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.TakenDps)).ToList()),
+                _ => _dpsHistory.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.Dps)).ToList())
+            };
+
             if (historyData.Count == 0 || _combatStartTime == null) return;
 
             var startTime = _combatStartTime.Value;
 
             if (specificPlayerId.HasValue)
             {
-                RefreshSinglePlayerChart(chart, historyData, specificPlayerId.Value, startTime, showHps);
+                RefreshSinglePlayerChart(chart, historyData, specificPlayerId.Value, startTime);
             }
             else
             {
-                RefreshMultiPlayerChart(chart, historyData, startTime, showHps);
+                RefreshMultiPlayerChart(chart, historyData, startTime);
             }
 
             // 恢复视图状态
@@ -333,8 +375,8 @@ namespace StarResonanceDpsAnalysis.Plugin
             }
         }
 
-        private static void RefreshSinglePlayerChart<T>(FlatLineChart chart, Dictionary<ulong, List<(DateTime Time, T Value)>> historyData,
-            ulong playerId, DateTime startTime, bool showHps)
+        private static void RefreshSinglePlayerChart(FlatLineChart chart, Dictionary<ulong, List<(DateTime Time, double Value)>> historyData,
+            ulong playerId, DateTime startTime)
         {
             if (historyData.TryGetValue(playerId, out var playerHistory) && playerHistory.Count > 0)
             {
@@ -344,8 +386,8 @@ namespace StarResonanceDpsAnalysis.Plugin
             }
         }
 
-        private static void RefreshMultiPlayerChart<T>(FlatLineChart chart, Dictionary<ulong, List<(DateTime Time, T Value)>> historyData,
-            DateTime startTime, bool showHps)
+        private static void RefreshMultiPlayerChart(FlatLineChart chart, Dictionary<ulong, List<(DateTime Time, double Value)>> historyData,
+            DateTime startTime)
         {
             foreach (var (playerId, history) in historyData.OrderBy(x => x.Key))
             {
@@ -357,21 +399,28 @@ namespace StarResonanceDpsAnalysis.Plugin
             }
         }
 
-        private static List<PointF> ConvertToPoints<T>(List<(DateTime Time, T Value)> history, DateTime startTime)
+        private static List<PointF> ConvertToPoints(List<(DateTime Time, double Value)> history, DateTime startTime)
         {
             return history.Select(h => new PointF(
                 (float)(h.Time - startTime).TotalSeconds,
-                Convert.ToSingle(h.Value)
+                (float)h.Value
             )).ToList();
         }
 
-        public static void RefreshSkillDamagePieChart(FlatPieChart chart, ulong playerId)
+        public static void RefreshSkillDamagePieChart(FlatPieChart chart, ulong playerId, ChartDataType dataType = ChartDataType.Damage)
         {
             chart.ClearData();
 
             try
             {
-                var skillData = StatisticData._manager.GetPlayerSkillSummaries(playerId, topN: 8, orderByTotalDesc: true);
+                // 根据数据类型获取相应的技能数据
+                var skillData = dataType switch
+                {
+                    ChartDataType.Healing => StatisticData._manager.GetPlayerSkillSummaries(playerId, topN: 8, orderByTotalDesc: true, StarResonanceDpsAnalysis.Core.SkillType.Heal),
+                    ChartDataType.TakenDamage => StatisticData._manager.GetPlayerTakenDamageSummaries(playerId, topN: 8, orderByTotalDesc: true),
+                    _ => StatisticData._manager.GetPlayerSkillSummaries(playerId, topN: 8, orderByTotalDesc: true, StarResonanceDpsAnalysis.Core.SkillType.Damage)
+                };
+
                 if (skillData.Count == 0) return;
 
                 var pieData = skillData.Select(s => (
@@ -476,7 +525,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
         #endregion
 
-        #region 工具方法
+        #region 辅助方法
         public static bool HasDataToVisualize() =>
             StatisticData._manager.GetPlayersWithCombatData().Any();
 

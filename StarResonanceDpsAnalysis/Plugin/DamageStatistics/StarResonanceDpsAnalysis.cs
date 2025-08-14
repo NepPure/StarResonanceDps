@@ -11,17 +11,14 @@
     public static class FullRecord
     {
         // # 会话状态字段 —— 记录当前是否在录制，以及开始/结束时间点
-        public static bool IsRecording { get; private set; }           // 正在记录的标记
-        public static DateTime? StartedAt { get; private set; }        // 会话开始时间（首次 Start 时赋值）
-        public static DateTime? EndedAt { get; private set; }          // 会话结束时间（Stop/自动停止时固定）
+        public static bool IsRecording { get; private set; }
+        public static DateTime? StartedAt { get; private set; }
+        public static DateTime? EndedAt { get; private set; }
 
-        // —— 新增：最近一次事件时间 & 空闲自动停止
-        public static DateTime? LastEventAt { get; private set; }      // 最近一次记录事件（伤害/治疗/承伤）的时间戳
+        // 彻底取消“事件空闲期自动停止”机制：不再跟踪 LastEventAt / 不再使用定时器
+        // 保留占位但不再使用（如需可直接删除字段与引用）
+        private static readonly bool DisableIdleAutoStop = true;
 
-        /// <summary>空闲多少秒后自动停止（默认30，可由用户自定义）</summary>
-        public static int InactivitySeconds { get; set; } = 30;        // 空闲超时阈值（秒），用户可配置
-
-        private static System.Timers.Timer? _idleTimer;  // 1秒tick检查空闲（定时器：用于自动停止判断）
 
         // 持久累加存储：跨战斗的全程聚合
         private static readonly Dictionary<ulong, PlayerAcc> _players = new();
@@ -48,17 +45,12 @@
             if (IsRecording) return;
 
             IsRecording = true;
-            if (StartedAt is null) StartedAt = DateTime.Now; // 只在首次 Start 时设置开始时间
+            if (StartedAt is null) StartedAt = DateTime.Now; // 记录首次启动时间
             EndedAt = null;
-            LastEventAt = DateTime.Now;                      // 启动即刷新最近事件时间，避免立即被判空闲
 
-            // 启动空闲检测定时器（1秒检查一次）
-            _idleTimer ??= new System.Timers.Timer(1000);
-            _idleTimer.Elapsed -= OnIdleTick;               // 确保不重复订阅
-            _idleTimer.Elapsed += OnIdleTick;
-            _idleTimer.AutoReset = true;
-            _idleTimer.Enabled = true;
+       
         }
+
 
         // # 外部调用
         /// <summary>
@@ -69,7 +61,6 @@
         public static void Stop()
         {
             if (!IsRecording) return;
-            // 统一内部停止逻辑（手动停止，auto=false）
             StopInternal(auto: false);
         }
 
@@ -82,21 +73,25 @@
         /// </summary>
         public static void Reset()
         {
-            // 停掉计时器
-            if (_idleTimer != null)
-            {
-                _idleTimer.Enabled = false;
-                _idleTimer.Elapsed -= OnIdleTick;
-            }
-
             IsRecording = false;
             StartedAt = null;
             EndedAt = null;
-            LastEventAt = null;
             TeamRealtimeDps = 0;
 
             _players.Clear();
-            _sessionHistory.Clear(); // 注意：如不想清历史，这行删掉
+            _sessionHistory.Clear(); // 若想保留历史，这行可以去掉
+        }
+
+        // #外部调用
+        /// <summary>
+        /// 获取当前会话的总时长 总战斗时长（TimeSpan）
+        /// </summary>
+        public static TimeSpan GetSessionTotalTimeSpan()
+        {
+            if (StartedAt is null) return TimeSpan.Zero;
+            DateTime end = IsRecording ? DateTime.Now : (EndedAt ?? DateTime.Now);
+            var duration = end - StartedAt.Value;
+            return duration < TimeSpan.Zero ? TimeSpan.Zero : duration;
         }
 
         // # 内部调用
@@ -109,17 +104,12 @@
         private static void StopInternal(bool auto)
         {
             IsRecording = false;
-            // 结束时间固定在最后一次战斗事件，避免把空闲等待时间算进DPS
-            EndedAt = LastEventAt ?? DateTime.Now;
 
-            if (_idleTimer != null)
-            {
-                _idleTimer.Enabled = false;
-                _idleTimer.Elapsed -= OnIdleTick;
-            }
+            // 结束时间 = 当前时刻（手动结束语义）
+            EndedAt = DateTime.Now;
 
-            var snapshot = TakeSnapshot();   // 统一在停止时产出快照
-            _sessionHistory.Add(snapshot);   // 保存至历史（支持查看过往会话）
+            var snapshot = TakeSnapshot();
+            _sessionHistory.Add(snapshot);
         }
 
         // # 内部调用
@@ -130,34 +120,13 @@
         /// </summary>
         private static DateTime EffectiveEndTime()
         {
-            if (IsRecording)
-            {
-                // 录制中：以最后事件时间为准；如果还没事件，就等于开始时间
-                if (LastEventAt is not null) return LastEventAt.Value;
-                return StartedAt ?? DateTime.Now;
-            }
-            // 已停止：StopInternal 已把 EndedAt 固定到 LastEventAt
-            return EndedAt ?? DateTime.Now;
+            if (StartedAt is null) return DateTime.Now;
+            return IsRecording
+                ? DateTime.Now           // 进行中：快照以 Now 为结束点
+                : (EndedAt ?? DateTime.Now);
         }
 
-        // # 内部调用（定时器回调）
-        /// <summary>
-        /// 空闲检测回调：
-        /// - 每秒检查一次；
-        /// - 若从 LastEventAt 至今超过 InactivitySeconds，则触发自动停止。
-        /// </summary>
-        private static void OnIdleTick(object? sender, System.Timers.ElapsedEventArgs e)
-        {
-            if (!IsRecording) return;
-            if (LastEventAt is null) return;
 
-            var idle = DateTime.Now - LastEventAt.Value;
-            if (idle.TotalSeconds >= InactivitySeconds)
-            {
-                // 自动停止：数据保持在此刻（EndedAt = now）
-                StopInternal(auto: true);
-            }
-        }
 
         #endregion
 
@@ -183,7 +152,7 @@
         {
             if (!IsRecording || value == 0) return;
 
-            LastEventAt = DateTime.Now; // —— 记录最近事件时间
+   
             var p = GetOrCreate(uid, nickname, combatPower, profession);
 
             // 顶层聚合
@@ -210,7 +179,7 @@
         {
             if (!IsRecording || value == 0) return;
 
-            LastEventAt = DateTime.Now;
+         
             var p = GetOrCreate(uid, nickname, combatPower, profession);
 
             Accumulate(p.Healing, value, isCrit, isLucky, 0);
@@ -233,7 +202,7 @@
         {
             if (!IsRecording || value == 0) return;
 
-            LastEventAt = DateTime.Now;
+         
             var p = GetOrCreate(uid, nickname, combatPower, profession);
 
             // hpLessen 兜底：未传或为0时，用 value
@@ -426,7 +395,11 @@
         private static double SessionSeconds()
         {
             if (StartedAt is null) return 0;
-            var end = EffectiveEndTime();
+
+            DateTime end = IsRecording
+                ? DateTime.Now           // 进行中：用 Now 做临时结束点
+                : (EndedAt ?? DateTime.Now);
+
             var sec = (end - StartedAt.Value).TotalSeconds;
             return sec > 0 ? sec : 0;
         }
