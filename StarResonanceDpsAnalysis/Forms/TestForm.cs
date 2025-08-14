@@ -46,11 +46,10 @@ namespace StarResonanceDpsAnalysis.Forms
             textProgressBar1.TextPadding = new Padding(3, 3, 3, 3);
             textProgressBar1.ProgressBarCornerRadius = 999; // 超大圆角
 
-            // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
-            sortedProgressBarList1.Data = list;             // 绑定数据源（引用类型，后续更新 list[i] 会反映到控件）
-            sortedProgressBarList1.ProgressBarHeight = 30;  // 每行高度
-            sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
-            sortedProgressBarList1.AnimationQuality = Quality.High; // 动画品质（你项目里的枚举）
+            sortedProgressBarList1.Data = list;
+            sortedProgressBarList1.ProgressBarHeight = 30;
+            sortedProgressBarList1.AnimationDuration = 1000;
+            sortedProgressBarList1.AnimationQuality = Quality.Low;
 
             // ======= 绑定演示逻辑 =======
             BindTaskTest1();    // 周期更新单个进度条
