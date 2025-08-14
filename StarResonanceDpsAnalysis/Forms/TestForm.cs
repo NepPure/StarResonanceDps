@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+// 下面这些命名空间来自你的项目：自定义控件、效果、扩展
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Effects.Enum;
@@ -24,6 +26,9 @@ namespace StarResonanceDpsAnalysis.Forms
 
             sortedProgressBarList1.AnimationDuration = 1000;
             sortedProgressBarList1.AnimationQuality = Quality.High;
+
+            numericUpDown1.Minimum = -1;
+            numericUpDown2.Minimum = -1;
 
             button1.Click += (s, e) =>
             {
@@ -68,5 +73,14 @@ namespace StarResonanceDpsAnalysis.Forms
             };
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            // 设计器生成的空事件，可删除或保留
+        }
+
+        private void TestForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

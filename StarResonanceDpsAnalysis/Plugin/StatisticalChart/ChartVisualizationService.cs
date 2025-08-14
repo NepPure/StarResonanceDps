@@ -166,9 +166,9 @@ namespace StarResonanceDpsAnalysis.Plugin
                 AddDpsDataPoint(player.Uid, player.DamageStats.RealtimeValue);
                 AddHpsDataPoint(player.Uid, player.HealingStats.RealtimeValue);
                 
-                // 添加承伤数据点（基于承伤统计）
-                var takenOverview = StatisticData._manager.GetPlayerTakenOverview(player.Uid);
-                AddTakenDpsDataPoint(player.Uid, takenOverview.AvgTakenPerSec);
+                // ★ 修复：承伤数据也使用实时窗口值，而不是平均值
+                // 这样承伤曲线在没有新承伤时也会正确降为0
+                AddTakenDpsDataPoint(player.Uid, player.TakenStats.RealtimeValue);
             }
 
             CheckAndAddZeroValues();
