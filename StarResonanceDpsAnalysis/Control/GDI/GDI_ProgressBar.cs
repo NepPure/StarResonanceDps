@@ -4,21 +4,21 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Drawing.Charts;
 
 namespace StarResonanceDpsAnalysis.Control.GDI
 {
     public class GDI_ProgressBar : IDisposable
     {
         private static readonly StringFormat _strictStringFormat = StringFormat.GenericTypographic;
+        private static readonly TextFormatFlags _textFormatFlags =
+            TextFormatFlags.NoPadding
+            | TextFormatFlags.SingleLine
+            | TextFormatFlags.EndEllipsis
+            | TextFormatFlags.VerticalCenter;
+
         private readonly object _lock = new();
         private Color? _prevProgressBarColor = null;
         private Brush? _progressBarBrush = null;
-        private Color? _prevForeColor = null;
-        private Brush? _progressBarTextBrush = null;
-        private string? _prevText = null;
-        private Font? _prevFont = null;
-        private SizeF? _textSize = null;
 
         public void Draw(Graphics g, DrawInfo info)
         {
@@ -34,18 +34,6 @@ namespace StarResonanceDpsAnalysis.Control.GDI
                     _prevProgressBarColor = info.ProgressBarColor;
                     _progressBarBrush?.Dispose();
                     _progressBarBrush = new SolidBrush(info.ProgressBarColor);
-                }
-                if (_progressBarTextBrush == null || info.ForeColor != _prevForeColor)
-                {
-                    _prevForeColor = info.ForeColor;
-                    _progressBarTextBrush?.Dispose();
-                    _progressBarTextBrush = new SolidBrush(info.ForeColor);
-                }
-                if (_textSize == null || info.Text != _prevText || info.Font != _prevFont)
-                {
-                    _prevText = info.Text;
-                    _prevFont = info.Font;
-                    _textSize = TextRenderer.MeasureText(info.Text, info.Font);
                 }
 
                 g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -77,22 +65,78 @@ namespace StarResonanceDpsAnalysis.Control.GDI
 
                 }
 
-                if (info.Text.Length != 0)
+                if (info.ContentList != null)
                 {
-                    var textLeft = info.Padding.Left + info.TextPadding.Left;
-                    var textTop = info.Top + (info.Height - _textSize.Value.Height) / 2f + (info.Padding.Top + info.TextPadding.Top - (info.Padding.Bottom + info.TextPadding.Bottom)) / 2f;
-
-                    g.DrawString(info.Text, info.Font, _progressBarTextBrush, new PointF(textLeft, (float)textTop), _strictStringFormat);
+                    foreach (var item in info.ContentList)
+                    {
+                        if (item.Type == RenderContent.ContentType.Text)
+                        {
+                            RenderText(g, info, item);
+                        }
+                        else if (item.Type == RenderContent.ContentType.Image)
+                        {
+                            RenderImage(g, info, item);
+                        }
+                    }
                 }
 
             }
+        }
+
+        private static void RenderText(Graphics g, DrawInfo info, RenderContent content)
+        {
+            var textSize = TextRenderer.MeasureText(content.Text, content.Font);
+
+            var (left, top) = GetContentPostion(info, content, textSize);
+
+            TextRenderer.DrawText(g, content.Text, content.Font, new Point(left, top), content.ForeColor, _textFormatFlags);
+        }
+
+        private static void RenderImage(Graphics g, DrawInfo info, RenderContent content)
+        {
+            var (left, top) = GetContentPostion(info, content, content.ImageRenderSize);
+
+            g.DrawImage(content.Image!, new Rectangle(left, top, content.ImageRenderSize.Width, content.ImageRenderSize.Height));
+        }
+
+        private static (int left, int top) GetContentPostion(DrawInfo info, RenderContent content, Size contentSize)
+        {
+            var left = 0;
+            var top = 0;
+
+            if (((int)content.Align & (int)RenderContent.Direction.Left) > 0)
+            {
+                left = info.Padding.Left + content.Offset.X;
+            }
+            else if (((int)content.Align & (int)RenderContent.Direction.Center) > 0)
+            {
+                left = info.Padding.Left + (info.Width - info.Padding.Left - info.Padding.Right - contentSize.Width) / 2 + content.Offset.X;
+            }
+            else if (((int)content.Align & (int)RenderContent.Direction.Right) > 0)
+            {
+                left = info.Width - info.Padding.Right - contentSize.Width + content.Offset.X;
+            }
+
+            if (((int)content.Align & (int)RenderContent.Direction.Top) > 0)
+            {
+                top = (int)(info.Top + info.Padding.Top + content.Offset.Y);
+            }
+            else if (((int)content.Align & (int)RenderContent.Direction.Middle) > 0)
+            {
+                top = (int)(info.Top + info.Padding.Top + (info.Height - info.Padding.Top - info.Padding.Bottom - contentSize.Height) / 2 + content.Offset.Y);
+            }
+            else if (((int)content.Align & (int)RenderContent.Direction.Bottom) > 0)
+            {
+                top = (int)(info.Top + info.Height - info.Padding.Bottom - contentSize.Height + content.Offset.Y);
+            }
+
+            return (left, top);
         }
 
         public void Dispose()
         {
             _strictStringFormat.Dispose();
             _progressBarBrush?.Dispose();
-            _progressBarTextBrush?.Dispose();
 
             GC.SuppressFinalize(this);
         }
@@ -103,15 +147,95 @@ namespace StarResonanceDpsAnalysis.Control.GDI
         public float Top { get; set; }
         public int Width { get; set; }
         public int Height { get; set; }
-        public byte Opacity { get; set; }
         public Padding Padding { get; set; }
         public Color BackColor { get; set; }
         public double ProgressBarValue { get; set; }
         public Color ProgressBarColor { get; set; }
         public int ProgressBarCornerRadius { get; set; }
-        public string Text { get; set; } = string.Empty;
-        public Color ForeColor { get; set; }
+        public IEnumerable<RenderContent>? ContentList { get; set; }
+    }
+
+    public class RenderContent
+    {
+        /// <summary>
+        /// 内容类型
+        /// </summary>
+        public ContentType Type { get; set; } = ContentType.Text;
+        /// <summary>
+        /// 内容对齐方式
+        /// </summary>
+        public ContentAlign Align { get; set; } = ContentAlign.MiddleLeft;
+        /// <summary>
+        /// 偏移量, 相对于 Align 后的位置进行偏移
+        /// </summary>
+        /// <remarks>
+        /// 无论 Align 如何设置, Offset 始终 - 为左, + 为右
+        /// </remarks>
+        public ContentOffset Offset { get; set; } = new ContentOffset { X = 0, Y = 0 };
+
+        /// <summary>
+        /// 文本内容
+        /// </summary>
+        /// <remarks>
+        /// Type 为 ContentType.Text 时有效
+        /// </remarks>
+        public string? Text { get; set; }
+        /// <summary>
+        /// 文本颜色
+        /// </summary>
+        /// <remarks>
+        /// AutoTextColor 为 true 时, 此属性无效
+        /// </remarks>
+        public Color ForeColor { get; set; } = Color.Black;
+        /// <summary>
+        /// 文本字体
+        /// </summary>
         public Font Font { get; set; } = SystemFonts.DefaultFont;
-        public Padding TextPadding { get; set; }
+
+        /// <summary>
+        /// 图片内容
+        /// </summary>
+        /// <remarks>
+        /// Type 为 ContentType.Image 时有效
+        /// </remarks>
+        public Image? Image { get; set; }
+        /// <summary>
+        /// 将要绘制的大小
+        /// </summary>
+        public Size ImageRenderSize { get; set; } = new Size(0, 0);
+
+
+        public enum ContentType
+        {
+            Text = 0,
+            Image = 1,
+        }
+        public enum Direction
+        {
+            Left = 1,
+            Center = 2,
+            Right = 4,
+
+            Top = 8,
+            Middle = 16,
+            Bottom = 32,
+        }
+        public enum ContentAlign
+        {
+            TopLeft = Direction.Left | Direction.Top,
+            TopCenter = Direction.Center | Direction.Top,
+            TopRight = Direction.Right | Direction.Top,
+            MiddleLeft = Direction.Left | Direction.Middle,
+            MiddleCenter = Direction.Center | Direction.Middle,
+            MiddleRight = Direction.Right | Direction.Middle,
+            BottomLeft = Direction.Left | Direction.Bottom,
+            BottomCenter = Direction.Center | Direction.Bottom,
+            BottomRight = Direction.Right | Direction.Bottom,
+        }
+        public struct ContentOffset
+        {
+            public int X { get; set; }
+            public int Y { get; set; }
+        }
     }
 }

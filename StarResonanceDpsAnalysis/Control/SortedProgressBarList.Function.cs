@@ -210,14 +210,11 @@ namespace StarResonanceDpsAnalysis.Control
             _drawInfo.Width = Width;
             _drawInfo.Height = ProgressBarHeight;
             _drawInfo.BackColor = BackColor;
-            _drawInfo.ForeColor = data.ForeColor;
             _drawInfo.ProgressBarColor = Color.FromArgb(opacity, data.ProgressBarColor);
             _drawInfo.ProgressBarValue = data.ProgressBarValue;
-            _drawInfo.Text = data.Text ?? string.Empty;
-            _drawInfo.Font = Font;
+            _drawInfo.ContentList = data.ContentList;
             _drawInfo.ProgressBarCornerRadius = data.ProgressBarCornerRadius;
             _drawInfo.Padding = data.ProgressBarPadding;
-            _drawInfo.TextPadding = data.TextPadding;
             _drawInfo.Top = top;
 
             gdiProgressBar.Draw(g, _drawInfo);
