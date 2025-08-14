@@ -590,7 +590,7 @@
             splitter1.Panel2.Controls.Add(divider3);
             splitter1.Panel2.Controls.Add(panel2);
             splitter1.Size = new Size(1696, 1222);
-            splitter1.SplitterDistance = 434;
+            splitter1.SplitterDistance = 432;
             splitter1.SplitterWidth = 6;
             splitter1.TabIndex = 27;
             // 
@@ -605,7 +605,7 @@
             collapse1.Items.Add(collapseItem3);
             collapse1.Location = new Point(0, 0);
             collapse1.Name = "collapse1";
-            collapse1.Size = new Size(434, 1222);
+            collapse1.Size = new Size(432, 1222);
             collapse1.TabIndex = 28;
             collapse1.Text = "collapse1";
             // 
@@ -615,16 +615,16 @@
             collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
             collapseItem1.Location = new Point(27, 90);
             collapseItem1.Name = "collapseItem1";
-            collapseItem1.Size = new Size(380, 300);
+            collapseItem1.Size = new Size(378, 300);
             collapseItem1.TabIndex = 0;
-            collapseItem1.Text = "Dps/Hps实时曲线图";
+            collapseItem1.Text = "Dps/Hps/DTps实时曲线图";
             // 
             // collapseItem2
             // 
             collapseItem2.Expand = true;
             collapseItem2.Location = new Point(27, 501);
             collapseItem2.Name = "collapseItem2";
-            collapseItem2.Size = new Size(380, 300);
+            collapseItem2.Size = new Size(378, 300);
             collapseItem2.TabIndex = 1;
             collapseItem2.Text = "技能占比分布图";
             // 
@@ -635,7 +635,7 @@
             collapseItem3.Expand = true;
             collapseItem3.Location = new Point(27, 912);
             collapseItem3.Name = "collapseItem3";
-            collapseItem3.Size = new Size(380, 300);
+            collapseItem3.Size = new Size(378, 300);
             collapseItem3.TabIndex = 2;
             collapseItem3.Text = "伤害分布";
             // 

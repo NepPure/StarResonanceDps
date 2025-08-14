@@ -8,7 +8,7 @@ using DocumentFormat.OpenXml.Drawing.Charts;
 
 namespace StarResonanceDpsAnalysis.Control.GDI
 {
-    public class GDI_ProgressBar
+    public class GDI_ProgressBar : IDisposable
     {
         private static readonly StringFormat _strictStringFormat = StringFormat.GenericTypographic;
         private readonly object _lock = new();
@@ -27,36 +27,28 @@ namespace StarResonanceDpsAnalysis.Control.GDI
              * 如果我们在这里 Dispose, 会导致报错: System.ArgumentException:“Parameter is not valid.”
              * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-            if (_progressBarBrush == null || info.ProgressBarColor != _prevProgressBarColor)
+            lock (_lock)
             {
-                lock (_lock)
+                if (_progressBarBrush == null || info.ProgressBarColor != _prevProgressBarColor)
                 {
                     _prevProgressBarColor = info.ProgressBarColor;
                     _progressBarBrush?.Dispose();
                     _progressBarBrush = new SolidBrush(info.ProgressBarColor);
                 }
-            }
-            if (_progressBarTextBrush == null || info.ForeColor != _prevForeColor)
-            {
-                lock (_lock)
+                if (_progressBarTextBrush == null || info.ForeColor != _prevForeColor)
                 {
                     _prevForeColor = info.ForeColor;
                     _progressBarTextBrush?.Dispose();
                     _progressBarTextBrush = new SolidBrush(info.ForeColor);
                 }
-            }
-            if (_textSize == null || info.Text != _prevText || info.Font != _prevFont)
-            {
-                lock (_lock)
+                if (_textSize == null || info.Text != _prevText || info.Font != _prevFont)
                 {
-                    _textSize = g.MeasureString(info.Text, info.Font);
+                    _prevText = info.Text;
+                    _prevFont = info.Font;
+                    _textSize = TextRenderer.MeasureText(info.Text, info.Font);
                 }
-            }
 
-            lock (_lock)
-            {
-                g.SmoothingMode = SmoothingMode.HighQuality;
-                g.CompositingQuality = CompositingQuality.HighQuality;
+                g.SmoothingMode = SmoothingMode.AntiAlias;
 
                 var barWidth = (info.Width - info.Padding.Left - info.Padding.Right) * info.ProgressBarValue;
                 var barHeight = info.Height - info.Padding.Top - info.Padding.Bottom;
@@ -94,6 +86,15 @@ namespace StarResonanceDpsAnalysis.Control.GDI
                 }
 
             }
+        }
+
+        public void Dispose()
+        {
+            _strictStringFormat.Dispose();
+            _progressBarBrush?.Dispose();
+            _progressBarTextBrush?.Dispose();
+
+            GC.SuppressFinalize(this);
         }
     }
 

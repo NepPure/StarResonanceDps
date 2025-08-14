@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using StarResonanceDpsAnalysis.Control;
+using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Effects.Enum;
 using StarResonanceDpsAnalysis.Extends;
 
@@ -15,6 +16,32 @@ namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class TestForm : Form
     {
+        readonly List<ProgressBarData> list =
+        [
+            new() { ID = 1, Text = "0", ProgressBarCornerRadius = 99 },
+            new() { ID = 2, Text = "0", ProgressBarCornerRadius = 99 },
+            new() { ID = 3, Text = "0", ProgressBarCornerRadius = 99 },
+            new() { ID = 4, Text = "0", ProgressBarCornerRadius = 99 },
+            new() { ID = 5, Text = "0", ProgressBarCornerRadius = 99 },
+            new() { ID = 6, Text = "0", ProgressBarCornerRadius = 99 },
+            new() { ID = 7, Text = "0", ProgressBarCornerRadius = 99 },
+            new() { ID = 8, Text = "0", ProgressBarCornerRadius = 99 },
+            new() { ID = 9, Text = "0", ProgressBarCornerRadius = 99 },
+            new() { ID = 10, Text = "0", ProgressBarCornerRadius = 99 },
+
+            //new() { ID = 11, Text = "0", ProgressBarCornerRadius = 99 },
+            //new() { ID = 12, Text = "0", ProgressBarCornerRadius = 99 },
+            //new() { ID = 13, Text = "0", ProgressBarCornerRadius = 99 },
+            //new() { ID = 14, Text = "0", ProgressBarCornerRadius = 99 },
+            //new() { ID = 15, Text = "0", ProgressBarCornerRadius = 99 },
+            //new() { ID = 16, Text = "0", ProgressBarCornerRadius = 99 },
+            //new() { ID = 17, Text = "0", ProgressBarCornerRadius = 99 },
+            //new() { ID = 18, Text = "0", ProgressBarCornerRadius = 99 },
+            //new() { ID = 19, Text = "0", ProgressBarCornerRadius = 99 },
+            //new() { ID = 20, Text = "0", ProgressBarCornerRadius = 99 },
+        ];
+        List<int> vList = [];
+
         public TestForm()
         {
             InitializeComponent();
@@ -23,6 +50,26 @@ namespace StarResonanceDpsAnalysis.Forms
             textProgressBar1.TextPadding = new Padding(3, 3, 3, 3);
             textProgressBar1.ProgressBarCornerRadius = 999;
 
+            sortedProgressBarList1.Data = list;
+            sortedProgressBarList1.ProgressBarHeight = 30;
+            sortedProgressBarList1.AnimationDuration = 1000;
+            sortedProgressBarList1.AnimationQuality = Quality.High;
+
+            BindTaskTest1();
+
+            //BindClickTest1();
+
+            vList = [.. list.Select(e => 0)];
+
+            BindListTest();
+
+            //BindClickListTest();
+
+            TestBezier();
+        }
+
+        private void BindTaskTest1()
+        {
             Task.Run(() =>
             {
                 while (true)
@@ -36,7 +83,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     Thread.Sleep(33);
                 }
             });
+        }
 
+        private void BindClickTest1()
+        {
             Click += (s, e) =>
             {
                 var now = DateTime.Now;
@@ -45,38 +95,17 @@ namespace StarResonanceDpsAnalysis.Forms
                 textProgressBar1.ProgressBarValue = value;
                 textProgressBar1.Text = value.ToString();
             };
+        }
 
-            var vList = new List<int>();
-            for (int i = 0; i < 10; i++)
-            {
-                vList.Add(0);
-            }
-
-            var list = new List<ProgressBarData>
-            {
-                new() { ID = 1, Text = "0", ProgressBarCornerRadius = 5 },
-                new() { ID = 2, Text = "0", ProgressBarCornerRadius = 5 },
-                new() { ID = 3, Text = "0", ProgressBarCornerRadius = 5 },
-                new() { ID = 4, Text = "0", ProgressBarCornerRadius = 5 },
-                new() { ID = 5, Text = "0", ProgressBarCornerRadius = 5 },
-                new() { ID = 6, Text = "0", ProgressBarCornerRadius = 5 },
-                new() { ID = 7, Text = "0", ProgressBarCornerRadius = 5 },
-                new() { ID = 8, Text = "0", ProgressBarCornerRadius = 5 },
-                new() { ID = 9, Text = "0", ProgressBarCornerRadius = 5 },
-                new() { ID = 10, Text = "0", ProgressBarCornerRadius = 5 }
-            };
-
-            sortedProgressBarList1.Data = list;
-            sortedProgressBarList1.AnimationDuration = 1000;
-            sortedProgressBarList1.AnimationQuality = Quality.AlmostAccurate;
-
+        private void BindListTest()
+        {
             Task.Run(() =>
             {
                 var rd = new Random();
 
                 while (true)
                 {
-                    for (var i = 0; i < vList.Count; i++)
+                    for (var i = 0; i < 10; i++)
                     {
                         vList[i] += rd.Next(0, 10);
                     }
@@ -91,31 +120,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     Thread.Sleep(33);
                 }
             });
+        }
 
-            //var data = new ProgressBarData() { ID = 1, Text = "0", ProgressBarCornerRadius = 5 };
-            //var list = new List<ProgressBarData>
-            //{
-            //    data
-            //};
-            //sortedProgressBarList1.Data = list;
-            //sortedProgressBarList1.AnimationDuration = 300;
-
-            //Task.Run(() =>
-            //{
-            //    var rd = new Random();
-
-            //    while (true)
-            //    {
-            //        var now = DateTime.Now;
-
-            //        var value = (now.Second % 5 * 1000 + now.Millisecond) / 5000d;
-            //        data.ProgressBarValue = value;
-            //        data.Text = value.ToString();
-
-            //        Thread.Sleep(33);
-            //    }
-            //});
-
+        private void BindClickListTest()
+        {
             button1.Click += (s, e) =>
             {
                 vList[0] = (int)numericUpDown1.Value;
@@ -154,5 +162,38 @@ namespace StarResonanceDpsAnalysis.Forms
 
             };
         }
+
+        private void TestBezier()
+        {
+            var rd = new Random();
+
+            button1.Click += (s, e) =>
+            {
+                var bezier = new CubicBezier(
+                    (float)numericUpDown1.Value,
+                    (float)numericUpDown2.Value,
+                    (float)numericUpDown3.Value,
+                    (float)numericUpDown4.Value,
+                    (Quality)numericUpDown5.Value);
+
+                var bm = new Bitmap(panel1.Width, panel1.Height);
+                using var g = Graphics.FromImage(bm);
+                var prevPoint = new PointF();
+                for (var i = 0; i < bm.Width; i++)
+                {
+                    var t = i / (float)bm.Width;
+                    var bezierPersent = bezier.GetProximateBezierValue(t);
+                    var nowPoint = new PointF(i, bezierPersent * bm.Height);
+                    g.DrawLine(new Pen(Color.FromArgb(rd.Next() * int.MaxValue)), prevPoint, nowPoint);
+
+                    prevPoint = nowPoint;
+                }
+
+                var prevImg = panel1.BackgroundImage;
+                panel1.BackgroundImage = bm;
+                prevImg?.Dispose();
+            };
+        }
+
     }
 }

@@ -60,8 +60,9 @@ namespace StarResonanceDpsAnalysis.Control
 
             foreach (var item in skills)
             {
-                string critRateStr = $"{item.CritRate}%";
-                string luckyRateStr = $"{item.LuckyRate}%";
+
+                string critRateStr = AcceptInjury ? item.CritRate.ToString() :$"{item.CritRate}%";
+                string luckyRateStr = AcceptInjury? item.LuckyRate.ToString() :$"{item.LuckyRate}%";
 
                 var existing = SkillTableDatas.SkillTable.FirstOrDefault(s => s.Name == item.SkillName);
                 if (existing != null)
@@ -150,7 +151,11 @@ namespace StarResonanceDpsAnalysis.Control
                     CritRateText.Text = Common.FormatWithEnglishUnits(takenDamages.MaxSingleHit);//单次最大承伤
                     CritDamageText.Text = Common.FormatWithEnglishUnits(takenDamages.MinSingleHit);//单次最小承伤
 
-                    UpdateSkillTable(Uid, false);
+                    NormalDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Total);
+                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);
+                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Lucky);
+                    AvgDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.GetAveragePerHit());
+                    UpdateSkillTable(Uid, false,true);
 
                     break;
             }
