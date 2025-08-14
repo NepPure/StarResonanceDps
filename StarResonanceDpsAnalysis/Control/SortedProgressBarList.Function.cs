@@ -52,18 +52,20 @@ namespace StarResonanceDpsAnalysis.Control
                 if (_animating && aniMs > AnimationDuration)
                 {
                     _animating = false;
+                    Console.WriteLine($"动画结束");
                 }
 
                 if (!_animating)
                 {
                     var flag = Resort();
-                    if (!flag)
+                    if (flag)
                     {
                         _prevIdOrder = [.. _animatingInfoBuffer.Select(e => e.ID)];
 
                         _animationWatch.Restart();
 
                         _animating = true;
+                        Console.WriteLine($"动画启动");
                     }
                 }
 
@@ -71,7 +73,14 @@ namespace StarResonanceDpsAnalysis.Control
 
                 foreach (var data in _animatingInfoBuffer)
                 {
-                    float top = data.FromIndex * ProgressBarHeight;
+                    var outOfHeightIndex = (Height / ProgressBarHeight) + 1;
+                    var fromIndex = data.FromIndex == -1
+                        ? outOfHeightIndex
+                        : data.FromIndex;
+                    var toIndex = data.ToIndex == -1
+                        ? outOfHeightIndex
+                        : data.ToIndex;
+                    float top = fromIndex * ProgressBarHeight;
 
                     if (data.FromIndex == data.ToIndex || staticDraw)
                     {
@@ -84,20 +93,17 @@ namespace StarResonanceDpsAnalysis.Control
                         var fadeBezier = _fadeAnimationCubicBezier.GetProximateBezierValue(timePersent);
 
                         var opacity = byte.MaxValue;
+
                         if (data.FromIndex == -1)
                         {
-                            top = ProgressBarHeight * data.ToIndex * moveBezier;
                             opacity = (byte)(opacity * fadeBezier);
                         }
                         else if (data.ToIndex == -1)
                         {
-                            top += ProgressBarHeight * (_animatingInfoBuffer.Count - 1) * moveBezier;
                             opacity = (byte)(255 - opacity * fadeBezier);
                         }
-                        else
-                        {
-                            top += ProgressBarHeight * (data.ToIndex - data.FromIndex) * moveBezier;
-                        }
+
+                        top += ProgressBarHeight * (toIndex - fromIndex) * moveBezier;
 
                         DrawProgressBar(g, data.Data, top, opacity);
                     }
@@ -111,7 +117,7 @@ namespace StarResonanceDpsAnalysis.Control
 
             // 已经经过消失动画的, 移除
             var removeCount = _animatingInfoBuffer.RemoveAll(a => a.ToIndex == -1);
-            if (removeCount > 0) 
+            if (removeCount > 0)
             {
                 // 记录有变更
                 result = true;
@@ -151,28 +157,30 @@ namespace StarResonanceDpsAnalysis.Control
                 }
             }
 
+            // 这里会删除ToIndex = -1, TODO
             var tmpIndex = 0;
             _animatingInfoBuffer = [.. _animatingInfoBuffer
-                .Where(e => e.ToIndex != -1)
                 .OrderByDescending(e => e.Data.ProgressBarValue)
-                .Select(e => // 潜在的问题
+                .Select(e =>
                 {
+                    if (e.ToIndex == -1) return e;
+
                     e.ToIndex = tmpIndex++;
                     return e;
                 })];
 
             return result || CompareOrder();
         }
-        private bool CompareOrder() 
+        private bool CompareOrder()
         {
-            if (_animatingInfoBuffer.Count != _prevIdOrder.Count) return false;
+            if (_animatingInfoBuffer.Count != _prevIdOrder.Count) return true;
 
-            for (var i = 0; i < _prevIdOrder.Count; ++i) 
+            for (var i = 0; i < _prevIdOrder.Count; ++i)
             {
-                if (_animatingInfoBuffer[i].ID != _prevIdOrder[i]) return false;
+                if (_animatingInfoBuffer[i].ID != _prevIdOrder[i]) return true;
             }
 
-            return true;
+            return false;
         }
 
         private void InitAnimation()
