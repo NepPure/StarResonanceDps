@@ -15,6 +15,7 @@ using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 using StarResonanceDpsAnalysis.Properties;
+using static ScottPlot.Plottables.SmithChartAxis;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -308,9 +309,11 @@ namespace StarResonanceDpsAnalysis.Forms
             var ordered = statsList
                 .OrderByDescending(p => p?.DamageStats?.Total ?? 0)
                 .ToList();
-
+         
             for (int i = 0; i < ordered.Count; i++)
             {
+               
+
                 var p = ordered[i];
                 var uid = (long)p.Uid;
                 int ranking = i + 1;
@@ -324,6 +327,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 var existing = list.FirstOrDefault(x => x.ID == uid);
                 if (existing != null)
                 {
+
                     // 更新
                     existing.ContentList =
                     [
@@ -333,9 +337,17 @@ namespace StarResonanceDpsAnalysis.Forms
                             Align = RenderContent.ContentAlign.MiddleLeft,
                             Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
                             Text =  $"  {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
-                            Image =img,
+                  
                             ForeColor =Color.Black,
                             Font = AppConfig.SaoFontBold,
+                        },
+                        new RenderContent
+                        {
+                            Type = RenderContent.ContentType.Image,
+                            Align = RenderContent.ContentAlign.MiddleLeft,
+                            Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
+                            Image = img,
+                     
                         }
                     ];
                     existing.ProgressBarValue = progress;
@@ -360,6 +372,14 @@ namespace StarResonanceDpsAnalysis.Forms
                                 ForeColor = Color.Black,
 
                                 Font =AppConfig.SaoFontBold
+                            },
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Image,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
+                                Image = img,
+
                             }
                         ],
                         ProgressBarCornerRadius = 3,
@@ -367,6 +387,26 @@ namespace StarResonanceDpsAnalysis.Forms
                         ProgressBarColor = colorDict[p.Profession],
                     });
                 }
+                if(p.Uid == AppConfig.Uid)
+                {
+                    textProgressBar1.ContentList =
+                   [
+                       new RenderContent
+                                {
+                                        Type = RenderContent.ContentType.Text,
+                                        Align = RenderContent.ContentAlign.MiddleLeft,
+                                        Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
+                                        Text =  $"  {ranking} {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
+
+                                        ForeColor =Color.Black,
+                                        Font = AppConfig.SaoFontBold,
+                                }
+                   ];
+                    textProgressBar1.ProgressBarValue = progress;
+                    textProgressBar1.ProgressBarColor = colorDict[p.Profession];
+
+                }
+       
             }
             // 如果有控件需要刷新，可以在这里重新绑定一次数据
             sortedProgressBarList1.Data = list;
