@@ -21,11 +21,17 @@ namespace StarResonanceDpsAnalysis.Control
         private int _progressBarHeight = 20;
         private Padding _progressBarPadding = new(3, 3, 3, 3);
 
-        public List<ProgressBarData> Data
+        public List<ProgressBarData>? Data
         {
             get => [.. _dataDict.Select(e => e.Value)];
             set
             {
+                // 清空列表
+                if (value == null || value.Count == 0)
+                {
+                    _dataDict.Clear();
+                    return;
+                }
                 // 现有表中多出来的数据移除
                 foreach (var item in _dataDict)
                 {
