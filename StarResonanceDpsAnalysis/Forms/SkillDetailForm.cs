@@ -217,14 +217,29 @@ namespace StarResonanceDpsAnalysis.Control
         {
             select1.Items.Clear();
             isSelect = true;
-            if (e.Value == 0)
+            label3.Text = "伤害信息";
+            label1.Text = "总伤害";
+            label2.Text = "秒伤";
+            label4.Text = "暴击率";
+            label5.Text = "幸运率";
+            switch (e.Value)
             {
-                select1.Items = new AntdUI.BaseCollection() { "按伤害排序", "按秒伤排序", "按命中次数排序", "按暴击率排序" };
+                case 0:
+                    select1.Items = new AntdUI.BaseCollection() { "按伤害排序", "按秒伤排序", "按命中次数排序", "按暴击率排序" };
+                    break;
+                case 1:
+                    select1.Items = new AntdUI.BaseCollection() { "按治疗量排序", "按HPS排序", "按命中次数排序", "按暴击率排序" };
+                    break;
+                case 2:
+                    select1.Items = new AntdUI.BaseCollection() { "按承伤排序", "按秒承伤排序", "按受击次数排序", "按暴击率排序" };
+                    label3.Text = "承伤信息";
+                    label1.Text = "总承伤";
+                    label2.Text = "秒承伤";
+                    label4.Text = "最大承伤";
+                    label5.Text = "最小承伤";
+                    break;
             }
-            else
-            {
-                select1.Items = new AntdUI.BaseCollection() { "按治疗量排序", "按HPS排序", "按命中次数排序", "按暴击率排序" };
-            }
+
             select1.SelectedValue = select1.Items[0];
             // 手动刷新 UI
 

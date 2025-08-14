@@ -110,7 +110,7 @@
             panel1.Dock = DockStyle.Left;
             panel1.Location = new Point(0, 38);
             panel1.Name = "panel1";
-            panel1.Size = new Size(10, 1209);
+            panel1.Size = new Size(10, 1184);
             panel1.TabIndex = 30;
             panel1.Text = "panel1";
             // 
@@ -147,7 +147,7 @@
             BackgroundPanel.Location = new Point(10, 89);
             BackgroundPanel.Name = "BackgroundPanel";
             BackgroundPanel.Radius = 3;
-            BackgroundPanel.Size = new Size(1054, 1093);
+            BackgroundPanel.Size = new Size(1054, 1068);
             BackgroundPanel.TabIndex = 32;
             BackgroundPanel.Text = "panel3";
             // 
@@ -481,7 +481,7 @@
             panel7.Controls.Add(button4);
             panel7.Controls.Add(SaveButton);
             panel7.Dock = DockStyle.Bottom;
-            panel7.Location = new Point(10, 1182);
+            panel7.Location = new Point(10, 1157);
             panel7.Name = "panel7";
             panel7.Radius = 3;
             panel7.Shadow = 6;
@@ -535,7 +535,7 @@
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1064, 1247);
+            ClientSize = new Size(1064, 1222);
             Controls.Add(BackgroundPanel);
             Controls.Add(panel7);
             Controls.Add(panel2);

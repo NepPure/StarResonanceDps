@@ -213,7 +213,7 @@
             button1.DefaultBack = Color.FromArgb(153, 204, 255);
             button1.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             button1.ForeColor = Color.White;
-            button1.Location = new Point(6, 9);
+            button1.Location = new Point(18, 9);
             button1.Name = "button1";
             button1.Radius = 3;
             button1.Size = new Size(249, 56);
@@ -282,6 +282,7 @@
             Controls.Add(pageHeader1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "RankingsForm";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "RankingsForm";
             Load += RankingsForm_Load;
             ForeColorChanged += RankingsForm_ForeColorChanged;

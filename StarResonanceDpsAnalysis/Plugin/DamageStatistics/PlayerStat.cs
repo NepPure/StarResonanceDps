@@ -650,6 +650,113 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         }
 
         #endregion
+
+        #region 查询承伤
+
+        // ================================
+        // # 承伤（按技能）- 单玩家
+        // ================================
+
+        /// <summary>
+        /// 获取当前玩家的承伤技能汇总列表。
+        /// 用于查看该玩家在整场战斗中，被哪些技能打到、总承伤量、次数、平均值、最大值、占比等。
+        /// </summary>
+        /// <param name="topN">
+        ///     仅返回前 N 条记录（按承伤总量降序）。
+        ///     - 传 null 或 <= 0 表示返回全部技能。
+        /// </param>
+        /// <param name="orderByTotalDesc">
+        ///     是否按承伤总量降序排序。
+        ///     - true  = 按从大到小排序（默认）
+        ///     - false = 保持技能字典原始顺序
+        /// </param>
+        /// <returns>
+        /// 返回 <see cref="SkillSummary"/> 列表，
+        /// 每条记录包含技能ID、技能名、总承伤、次数、最大/最小、平均承伤、占比等信息。
+        /// </returns>
+        public List<SkillSummary> GetTakenDamageSummaries(int? topN = null, bool orderByTotalDesc = true)
+        {
+            // 如果没有任何承伤记录，直接返回空列表
+            if (TakenDamageBySkill.Count == 0) return new();
+
+            // 分母：该玩家的总承伤量（用于计算占比）
+            ulong denom = 0;
+            foreach (var kv in TakenDamageBySkill) denom += kv.Value.Total;
+            if (denom == 0) denom = 1; // 防止除 0
+
+            var list = new List<SkillSummary>(TakenDamageBySkill.Count);
+            foreach (var kv in TakenDamageBySkill)
+            {
+                var id = kv.Key;        // 技能 ID
+                var s = kv.Value;       // 该技能的统计数据
+                var meta = SkillBook.Get(id); // 技能元数据（名称等）
+
+                list.Add(new SkillSummary
+                {
+                    SkillId = id,
+                    SkillName = meta.Name,
+                    Total = s.Total,                 // 承伤总量
+                    HitCount = s.CountTotal,         // 被打次数
+                    AvgPerHit = s.GetAveragePerHit(),// 平均每次承伤
+                    CritRate = 0,                    // 承伤不区分暴击，这里固定为 0
+                    LuckyRate = 0,                   // 承伤不区分幸运，这里固定为 0
+                    MaxSingleHit = s.MaxSingleHit,   // 单次最大承伤
+                    MinSingleHit = s.MinSingleHit == ulong.MaxValue ? 0 : s.MinSingleHit, // 单次最小承伤
+                    RealtimeValue = s.RealtimeValue, // 实时窗口内的承伤
+                    RealtimeMax = s.RealtimeMax,     // 实时窗口内的最大承伤
+                    TotalDps = s.GetTotalPerSecond(),// 严格说是“平均每秒承伤”
+                    LastTime = s.LastRecordTime,     // 最后一次受到该技能承伤的时间
+                    ShareOfTotal = (double)s.Total / denom // 该技能承伤占总承伤的比例（0~1）
+                });
+            }
+
+            // 排序
+            if (orderByTotalDesc)
+                list = list.OrderByDescending(x => x.Total).ToList();
+
+            // 截断
+            if (topN.HasValue && topN.Value > 0 && list.Count > topN.Value)
+                list = list.Take(topN.Value).ToList();
+
+            return list;
+        }
+
+
+        /// <summary>
+        /// 获取该玩家被某个技能打到的详细承伤统计。
+        /// </summary>
+        /// <param name="skillId">技能ID</param>
+        /// <returns>
+        /// 返回一个 <see cref="SkillSummary"/>，包含该技能造成的总承伤、次数、最大/最小值等；
+        /// — 若没有该技能的承伤记录则返回 null。
+        /// </returns>
+        public SkillSummary? GetTakenDamageDetail(ulong skillId)
+        {
+            // 没有该技能的承伤记录
+            if (!TakenDamageBySkill.TryGetValue(skillId, out var stat))
+                return null;
+
+            var meta = SkillBook.Get(skillId);
+            return new SkillSummary
+            {
+                SkillId = skillId,
+                SkillName = meta.Name,
+                Total = stat.Total,
+                HitCount = stat.CountTotal,
+                AvgPerHit = stat.GetAveragePerHit(),
+                CritRate = 0,
+                LuckyRate = 0,
+                MaxSingleHit = stat.MaxSingleHit,
+                MinSingleHit = stat.MinSingleHit == ulong.MaxValue ? 0 : stat.MinSingleHit,
+                RealtimeValue = stat.RealtimeValue,
+                RealtimeMax = stat.RealtimeMax,
+                TotalDps = stat.GetTotalPerSecond(),
+                LastTime = stat.LastRecordTime
+            };
+        }
+
+        #endregion
+
     }
 
     /// <summary>
@@ -1242,6 +1349,115 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 dmg.LastRecordTime
             );
         }
+
+
+        #region 查询承伤
+        /// <summary>
+        /// 已有：返回玩家总承伤
+        /// </summary>
+        public ulong GetPlayerTakenDamageTotal(ulong uid)
+            => GetOrCreate(uid).TakenDamage;
+
+        /// <summary>
+        /// 总承伤概览：总承伤 / 平均每秒承伤 / 实时承伤 / 单次最大最小 / 最后一次承伤时间
+        /// - 平均每秒承伤 = 玩家总承伤 ÷ 当前整场战斗时长（用全局战斗时钟）
+        /// - 实时承伤 = 1秒窗口内（你当前设为1秒）的各技能承伤 RealtimeValue 之和
+        /// </summary>
+        public (
+            ulong Total,              // 总承伤
+            double AvgTakenPerSec,    // 平均每秒承伤（整场）
+            ulong RealtimeTaken,      // 当前实时承伤（1秒窗口）
+            ulong MaxSingleHit,       // 单次最大承伤
+            ulong MinSingleHit,       // 单次最小承伤（无记录则为0）
+            DateTime? LastTime        // 最后一次承伤时间
+        ) GetPlayerTakenOverview(ulong uid)
+        {
+            var p = GetOrCreate(uid);
+
+            // 1) 总承伤
+            ulong total = p.TakenDamage;
+
+            // 2) 平均每秒承伤（用全局战斗时长）
+            var dur = GetCombatDuration().TotalSeconds;
+            double avgPerSec = (dur > 0) ? total / dur : 0.0;
+
+            // 3) 实时承伤、单次极值、最后一次承伤时间
+            ulong realtime = 0;
+            ulong maxHit = 0;
+            ulong minHit = ulong.MaxValue;
+            DateTime? last = null;
+
+            foreach (var kv in p.TakenDamageBySkill)
+            {
+                var s = kv.Value;
+
+                // 实时窗口内总承伤
+                realtime += s.RealtimeValue;
+
+                // 单次极值
+                if (s.MaxSingleHit > maxHit) maxHit = s.MaxSingleHit;
+                if (s.MinSingleHit != ulong.MaxValue && s.MinSingleHit > 0 && s.MinSingleHit < minHit)
+                    minHit = s.MinSingleHit;
+
+                // 最后一次承伤时间（取最大）
+                if (s.LastRecordTime.HasValue)
+                {
+                    if (!last.HasValue || s.LastRecordTime > last)
+                        last = s.LastRecordTime;
+                }
+            }
+
+            if (minHit == ulong.MaxValue) minHit = 0;
+
+            return (total, avgPerSec, realtime, maxHit, minHit, last);
+        }
+
+
+        /// <summary>
+        /// 获取指定玩家的承伤技能汇总列表。
+        /// </summary>
+        /// <param name="uid">
+        ///     玩家 UID（唯一标识玩家）
+        /// </param>
+        /// <param name="topN">
+        ///     仅返回前 N 条记录（按承伤总量降序）。
+        ///     - 传 null 或 <= 0 表示返回全部技能。
+        /// </param>
+        /// <param name="orderByTotalDesc">
+        ///     是否按承伤总量降序排序。
+        ///     - true  = 从大到小排序（默认）
+        ///     - false = 保持技能字典原始顺序。
+        /// </param>
+        /// <returns>
+        /// 返回 <see cref="SkillSummary"/> 列表，每项包含技能ID、技能名、总承伤、次数、最大/最小、平均承伤、占比等信息。
+        /// </returns>
+        public List<SkillSummary> GetPlayerTakenDamageSummaries(ulong uid, int? topN = null, bool orderByTotalDesc = true)
+        {
+            var p = GetOrCreate(uid);
+            return p.GetTakenDamageSummaries(topN, orderByTotalDesc);
+        }
+
+
+        /// <summary>
+        /// 获取指定玩家被某个技能打到的详细承伤统计。
+        /// </summary>
+        /// <param name="uid">
+        ///     玩家 UID（唯一标识玩家）
+        /// </param>
+        /// <param name="skillId">
+        ///     技能 ID（唯一标识技能）
+        /// </param>
+        /// <returns>
+        /// 返回一个 <see cref="SkillSummary"/>，包含该技能造成的总承伤、次数、最大/最小值等；
+        /// 若没有该技能的承伤记录则返回 null。
+        /// </returns>
+        public SkillSummary? GetPlayerTakenDamageDetail(ulong uid, ulong skillId)
+        {
+            var p = GetOrCreate(uid);
+            return p.GetTakenDamageDetail(skillId);
+        }
+
+        #endregion
 
 
         #endregion
