@@ -152,12 +152,12 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void button5_Click(object sender, EventArgs e)
         {
-          
+
 
             // 保存到配置
             AppConfig.Transparency = slider1.Value;
             AppConfig.CombatTimeClearDelaySeconds = (int)inputNumber2.Value;
-          
+
 
 
             this.Close();
@@ -165,7 +165,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void button4_Click(object sender, EventArgs e)
         {
-           
+
 
             this.Close();
         }
@@ -191,13 +191,13 @@ namespace StarResonanceDpsAnalysis.Forms
             {
                 //浅色
                 BasicSetupPanel.Back = KeySettingsPanel.Back = CombatSettingsPanel.Back = ColorTranslator.FromHtml("#FFFFFF");
-                BackgroundPanel.Back = ColorTranslator.FromHtml("#EFEFEF");
+                stackPanel1.Back = ColorTranslator.FromHtml("#EFEFEF");
                 //transparencyKnob1.IsDarkMode = false;
             }
             else
             {
                 BasicSetupPanel.Back = KeySettingsPanel.Back = CombatSettingsPanel.Back = ColorTranslator.FromHtml("#282828");
-                BackgroundPanel.Back = ColorTranslator.FromHtml("#1E1E1E");
+                stackPanel1.Back = ColorTranslator.FromHtml("#1E1E1E");
                 //transparencyKnob1.IsDarkMode = true;
             }
         }
@@ -207,11 +207,16 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void slider1_ValueChanged(object sender, IntEventArgs e)
         {
-            
-            this.Opacity = (double)e.Value/100;
+
+            this.Opacity = (double)e.Value / 100;
             //this.BackColor = Color.Transparent;
             //this.TransparencyKey = Color.Transparent;
-         
+
+        }
+
+        private void KeySettingsPanel_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
