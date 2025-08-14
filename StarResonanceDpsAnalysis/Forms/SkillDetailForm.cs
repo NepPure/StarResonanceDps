@@ -229,6 +229,11 @@ namespace StarResonanceDpsAnalysis.Control
                     break;
                 case 1:
                     select1.Items = new AntdUI.BaseCollection() { "按治疗量排序", "按HPS排序", "按命中次数排序", "按暴击率排序" };
+                    label3.Text = "治疗信息";
+                    label1.Text = "总治疗";
+                    label2.Text = "秒治疗";
+                    label4.Text = "暴击率";
+                    label5.Text = "幸运率";
                     break;
                 case 2:
                     select1.Items = new AntdUI.BaseCollection() { "按承伤排序", "按秒承伤排序", "按受击次数排序", "按暴击率排序" };
@@ -610,7 +615,7 @@ namespace StarResonanceDpsAnalysis.Control
                 }
                 else
                 {
-                    Console.WriteLine($"[SKIP] 参数未变化，跳过更新");
+                   // Console.WriteLine($"[SKIP] 参数未变化，跳过更新");
                 }
             }
             else

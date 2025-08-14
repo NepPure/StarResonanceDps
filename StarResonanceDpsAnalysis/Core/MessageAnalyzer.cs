@@ -570,7 +570,7 @@ namespace StarResonanceDpsAnalysis.Core
 
 
 
-                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage);
+                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage,isCrit,isLucky,hpLessen);
                     }
 
                 }
@@ -588,9 +588,9 @@ namespace StarResonanceDpsAnalysis.Core
                     if (AppConfig.NpcsTakeDamage)
                     {
                         //添加怪物承伤记录
-                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage);
+                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage,isCrit,isLucky,hpLessen);
 
-
+                        
                         Console.WriteLine(@$"怪物ID：{targetUuid}受到伤害{damage},来自{attackerUuid}的技能{skillId}");
                     }
 

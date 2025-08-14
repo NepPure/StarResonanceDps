@@ -228,7 +228,7 @@
         /// - 不计入队伍/玩家DPS（如需“受伤DPS”，可扩展）。
         /// </summary>
         public static void RecordTakenDamage(
-            ulong uid, ulong skillId, ulong value,
+            ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
             string nickname, int combatPower, string profession)
         {
             if (!IsRecording || value == 0) return;
@@ -236,15 +236,18 @@
             LastEventAt = DateTime.Now;
             var p = GetOrCreate(uid, nickname, combatPower, profession);
 
-            p.TakenDamage += value;
+            // hpLessen 兜底：未传或为0时，用 value
+            var lessen = hpLessen > 0 ? hpLessen : value;
+            p.TakenDamage += lessen;
 
             var s = p.TakenSkills.TryGetValue(skillId, out var tmp) ? tmp : (p.TakenSkills[skillId] = new StatAcc());
-            // 承伤不分暴击幸运，hpLessen 用总值
-            Accumulate(s, value, isCrit: false, isLucky: false, hpLessen: value);
+            // 承伤也记录暴击/幸运，并把 hpLessen 写入累加器
+            Accumulate(s, value, isCrit: isCrit, isLucky: isLucky, hpLessen: lessen);
 
-            // 承伤不参与队伍/玩家DPS（如果你希望算“受伤DPS”，可在此处扩展）
+            // 承伤不参与队伍/玩家DPS（如需“受伤DPS”，可在此扩展）
             UpdateRealtimeDps(p, includeHealing: false);
         }
+
 
         // # 内部调用
         /// <summary>
@@ -297,19 +300,26 @@
             var duration = end - start;
             if (duration < TimeSpan.Zero) duration = TimeSpan.Zero;
 
-            ulong teamDmg = 0, teamHeal = 0;
+            ulong teamDmg = 0, teamHeal = 0, teamTaken = 0;   // ★ teamTaken 新增
             var players = new Dictionary<ulong, SnapshotPlayer>(_players.Count);
 
             foreach (var p in _players.Values)
             {
                 teamDmg += p.Damage.Total;
                 teamHeal += p.Healing.Total;
+                teamTaken += p.TakenDamage;                   // ★ 新增
+
 
                 var damageSkills = p.DamageSkills
                     .Select(kv => ToSkillSummary(kv.Key, kv.Value, duration))
                     .OrderByDescending(x => x.Total).ToList();
 
                 var healingSkills = p.HealingSkills
+                    .Select(kv => ToSkillSummary(kv.Key, kv.Value, duration))
+                    .OrderByDescending(x => x.Total).ToList();
+
+                // ★ 新增：承伤按技能
+                var takenSkills = p.TakenSkills
                     .Select(kv => ToSkillSummary(kv.Key, kv.Value, duration))
                     .OrderByDescending(x => x.Total).ToList();
 
@@ -328,7 +338,9 @@
                     LastRecordTime = null,
 
                     DamageSkills = damageSkills,
-                    HealingSkills = healingSkills
+                    HealingSkills = healingSkills,
+                    TakenSkills = takenSkills          // ★ 新增
+
                 };
             }
 
@@ -339,6 +351,7 @@
                 Duration = duration,
                 TeamTotalDamage = teamDmg,
                 TeamTotalHealing = teamHeal,
+                TeamTotalTakenDamage = teamTaken,   // ★ 新增
                 Players = players
             };
         }
@@ -537,5 +550,7 @@
         public ulong TeamTotalDamage { get; init; }
         public ulong TeamTotalHealing { get; init; }
         public Dictionary<ulong, SnapshotPlayer> Players { get; init; } = new();
+        public ulong TeamTotalTakenDamage { get; init; }   // ★ 新增
+
     }
 }
