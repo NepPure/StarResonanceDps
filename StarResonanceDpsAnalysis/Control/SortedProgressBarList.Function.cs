@@ -12,17 +12,17 @@ namespace StarResonanceDpsAnalysis.Control
 {
     public partial class SortedProgressBarList
     {
-        private static readonly Dictionary<Quality, int> _animationDelayQuality = new()
+        private static readonly Dictionary<Quality, int> _animationFpsQuality = new()
         {
-            { Quality.VeryLow, 100 },
-            { Quality.Low, 50 },
-            { Quality.Medium, 33 },
-            { Quality.High, 16 },
-            { Quality.VeryHigh, 8 },
-            { Quality.Extreme, 6 },
-            { Quality.AlmostAccurate, 1 }
+            { Quality.VeryLow, 10 },
+            { Quality.Low, 20 },
+            { Quality.Medium, 30 },
+            { Quality.High, 60 },
+            { Quality.VeryHigh, 120 },
+            { Quality.Extreme, 160 },
+            { Quality.AlmostAccurate, 1000 }
         };
-        private int _animationDelay = 33;
+        private PeriodicTimer _animationPeriodicTimer;
         private CubicBezier _moveAnimationCubicBezier;
         private CubicBezier _fadeAnimationCubicBezier;
 
@@ -34,7 +34,8 @@ namespace StarResonanceDpsAnalysis.Control
         private bool _animating = false;
         private List<int> _prevIdOrder = [];
         private List<SortAnimatingInfo> _animatingInfoBuffer = [];
-        private Bitmap? _frameBuffer = null;
+
+        private CancellationTokenSource? _animationCancellation = null;
 
         public void Redraw(PaintEventArgs e)
         {
@@ -42,13 +43,7 @@ namespace StarResonanceDpsAnalysis.Control
 
             lock (_lock)
             {
-                if (_frameBuffer == null || _frameBuffer.Width != Width || _frameBuffer.Height != Height)
-                {
-                    _frameBuffer?.Dispose();
-                    _frameBuffer = new Bitmap(Width, Height);
-                }
-
-                using var g = Graphics.FromImage(_frameBuffer);
+                var g = e.Graphics;
 
                 g.Clear(BackColor);
 
@@ -85,33 +80,37 @@ namespace StarResonanceDpsAnalysis.Control
                     else
                     {
                         var timePersent = 1f * aniMs / AnimationDuration;
-                        Console.WriteLine($"aniMs: {aniMs}, timePersent: {timePersent}");
+                        var moveBezier = _moveAnimationCubicBezier.GetProximateBezierValue(timePersent);
+                        var fadeBezier = _fadeAnimationCubicBezier.GetProximateBezierValue(timePersent);
 
                         var opacity = byte.MaxValue;
                         if (data.FromIndex == -1)
                         {
-                            top = ProgressBarHeight * data.ToIndex * _moveAnimationCubicBezier.GetProximateBezierValue(timePersent);
-                            Console.WriteLine($"text: {data.Data.Text}, top: {top}");
-                            opacity = (byte)(opacity * _fadeAnimationCubicBezier.GetProximateBezierValue(timePersent));
+                            top = ProgressBarHeight * data.ToIndex * moveBezier;
+                            opacity = (byte)(opacity * fadeBezier);
                         }
                         else if (data.ToIndex == -1)
                         {
-                            top += ProgressBarHeight * (_animatingInfoBuffer.Count - 1) * _moveAnimationCubicBezier.GetProximateBezierValue(timePersent);
-                            Console.WriteLine($"text: {data.Data.Text}, top: {top}");
-                            opacity = (byte)(255 - opacity * _fadeAnimationCubicBezier.GetProximateBezierValue(timePersent));
+                            top += ProgressBarHeight * (_animatingInfoBuffer.Count - 1) * moveBezier;
+                            opacity = (byte)(255 - opacity * fadeBezier);
                         }
                         else
                         {
-                            top += ProgressBarHeight * (data.ToIndex - data.FromIndex) * _moveAnimationCubicBezier.GetProximateBezierValue(timePersent);
-                            Console.WriteLine($"text: {data.Data.Text}, top: {top}");
+                            top += ProgressBarHeight * (data.ToIndex - data.FromIndex) * moveBezier;
+                        }
+
+                        if (data.Data.Text?.Contains("1:") ?? false) 
+                        {
+                            Console.WriteLine($"top: {top:F2}, moveBezier: {moveBezier:F4}");
                         }
 
                         DrawProgressBar(g, data.Data, top, opacity);
                     }
                 }
 
-                e.Graphics.DrawImage(_frameBuffer, 0, 0, Width, Height);
             }
+
+            Console.WriteLine($"{DateTime.Now:ss.fffff}");
         }
         private bool Resort()
         {
@@ -165,7 +164,7 @@ namespace StarResonanceDpsAnalysis.Control
                 .OrderByDescending(e => e.Data.ProgressBarValue)
                 .Select(e => // 潜在的问题
                 {
-                    e.ToIndex = ++tmpIndex;
+                    e.ToIndex = tmpIndex++;
                     return e;
                 })];
 
@@ -185,13 +184,14 @@ namespace StarResonanceDpsAnalysis.Control
 
         private void InitAnimation()
         {
-            Task.Run(() =>
+            _animationCancellation?.Cancel();
+            _animationCancellation = new CancellationTokenSource();
+
+            Task.Run(async () =>
             {
-                while (true)
+                while (await _animationPeriodicTimer.WaitForNextTickAsync(_animationCancellation.Token).ConfigureAwait(false))
                 {
                     Invalidate();
-
-                    Thread.Sleep(_animationDelay);
                 }
             });
         }

@@ -62,12 +62,12 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 if (_animationQuality != value)
                 {
-                    var flag = _animationDelayQuality.TryGetValue(value, out var delay);
+                    var flag = _animationFpsQuality.TryGetValue(value, out var fps);
                     if (!flag)
                     {
                         throw new ArgumentException($"Invalid animation quality: {value}");
                     }
-                    _animationDelay = delay;
+                    _animationPeriodicTimer.Period = TimeSpan.FromMilliseconds(1000d / fps);
                     _animationQuality = value;
                 }
             }
@@ -88,6 +88,7 @@ namespace StarResonanceDpsAnalysis.Control
         {
             InitializeComponent();
 
+            _animationPeriodicTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(1000d / _animationFpsQuality[Quality.Medium]));
             _moveAnimationCubicBezier = new CubicBezier(0.65f, 0f, 0.35f, 1f, AnimationQuality);
             _fadeAnimationCubicBezier = new CubicBezier(0.3f, 0.45f, 0.25f, 1f, AnimationQuality);
 
@@ -97,6 +98,14 @@ namespace StarResonanceDpsAnalysis.Control
         protected override void OnPaint(PaintEventArgs e)
         {
             Redraw(e);
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            base.OnHandleDestroyed(e);
+
+            _animationCancellation?.Cancel();
+            _animationPeriodicTimer?.Dispose();
         }
     }
 

@@ -42,6 +42,7 @@
             numericUpDown9 = new NumericUpDown();
             numericUpDown10 = new NumericUpDown();
             button1 = new Button();
+            panel1 = new Panel();
             ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown3).BeginInit();
@@ -161,6 +162,13 @@
             button1.Text = "button1";
             button1.UseVisualStyleBackColor = true;
             // 
+            // panel1
+            // 
+            panel1.Location = new Point(183, 101);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(461, 303);
+            panel1.TabIndex = 4;
+            // 
             // TestForm
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
@@ -179,6 +187,7 @@
             Controls.Add(numericUpDown1);
             Controls.Add(textProgressBar1);
             Controls.Add(sortedProgressBarList1);
+            Controls.Add(panel1);
             Margin = new Padding(2);
             Name = "TestForm";
             Text = "TestForm";
@@ -209,5 +218,6 @@
         private NumericUpDown numericUpDown9;
         private NumericUpDown numericUpDown10;
         private Button button1;
+        private Panel panel1;
     }
 }
