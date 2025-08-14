@@ -360,11 +360,11 @@ namespace StarResonanceDpsAnalysis.Forms
                 // 更新数据点
                 ChartVisualizationService.UpdateAllDataPoints();
 
-                // 刷新所有图表，并重新加载持久化数据
+                // 刷新所有图表，避免用户记录丢失
                 if (_dpsTrendChart != null)
                 {
-                    ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart);
-                    _dpsTrendChart.ReloadPersistentData(); // 重新加载数据防止消失
+                    ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, null, ChartDataType.Damage);
+                    _dpsTrendChart.ReloadPersistentData(); // 重新加载数据防止丢失
                 }
 
                 if (_skillPieChart != null)

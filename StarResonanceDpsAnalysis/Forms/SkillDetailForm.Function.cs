@@ -191,11 +191,17 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 var p = StatisticData._manager.GetOrCreate(Uid);
 
-                // 获取当前模式下的统计数据
-                var stats = segmented1.SelectIndex == 0 ? p.DamageStats : p.HealingStats;
+                // 根据当前模式获取对应的统计数据
+                var stats = segmented1.SelectIndex switch
+                {
+                    0 => p.DamageStats,      // 伤害数据
+                    1 => p.HealingStats,     // 治疗数据  
+                    2 => p.TakenStats,       // 承伤数据
+                    _ => p.DamageStats       // 默认伤害数据
+                };
 
-                var critRate = stats.GetCritRate() ;
-                var luckyRate = stats.GetLuckyRate() ;
+                var critRate = stats.GetCritRate();
+                var luckyRate = stats.GetLuckyRate();
                 var normalRate = 100 - critRate - luckyRate;
 
                 var chartData = new List<(string, double)>();
@@ -208,8 +214,6 @@ namespace StarResonanceDpsAnalysis.Control
                     chartData.Add(("幸运", luckyRate));
 
                 _skillDistributionChart.SetData(chartData);
-                // 移除Y轴标签设置，去掉右侧的百分比文字
-                // _skillDistributionChart.YAxisLabel = "百分比(%)";
             }
             catch (Exception ex)
             {
@@ -226,15 +230,33 @@ namespace StarResonanceDpsAnalysis.Control
 
             try
             {
-                // 获取当前模式下的技能数据
-                bool isHeal = segmented1.SelectIndex != 0;
-                var skillType = isHeal
-                    ? StarResonanceDpsAnalysis.Core.SkillType.Heal
-                    : StarResonanceDpsAnalysis.Core.SkillType.Damage;
+                List<SkillSummary> skills;
 
-                var skills = StatisticData._manager
-                    .GetPlayerSkillSummaries(Uid, topN: 10, orderByTotalDesc: true, skillType)
-                    .ToList();
+                // 根据当前模式获取相应的技能数据
+                switch (segmented1.SelectIndex)
+                {
+                    case 0: // 伤害分析
+                        skills = StatisticData._manager
+                            .GetPlayerSkillSummaries(Uid, topN: 10, orderByTotalDesc: true, StarResonanceDpsAnalysis.Core.SkillType.Damage)
+                            .ToList();
+                        break;
+
+                    case 1: // 治疗分析
+                        skills = StatisticData._manager
+                            .GetPlayerSkillSummaries(Uid, topN: 10, orderByTotalDesc: true, StarResonanceDpsAnalysis.Core.SkillType.Heal)
+                            .ToList();
+                        break;
+
+                    case 2: // 承伤分析
+                        skills = StatisticData._manager
+                            .GetPlayerTakenDamageSummaries(Uid, topN: 10, orderByTotalDesc: true)
+                            .ToList();
+                        break;
+
+                    default:
+                        skills = new List<SkillSummary>();
+                        break;
+                }
 
                 var chartData = skills.Select(skill =>
                     (skill.SkillName, (double)skill.Total)

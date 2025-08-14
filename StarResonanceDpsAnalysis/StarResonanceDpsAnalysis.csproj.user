@@ -11,6 +11,9 @@
     <Compile Update="Control\SortedProgressBarList.Function.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Control\SortedProgressBarList.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Control\TextProgressBar.Function.cs">
       <SubType>UserControl</SubType>
     </Compile>
