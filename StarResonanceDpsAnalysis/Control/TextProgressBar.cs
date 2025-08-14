@@ -8,42 +8,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using StarResonanceDpsAnalysis.Control.GDI;
+
 namespace StarResonanceDpsAnalysis.Control
 {
     public partial class TextProgressBar : UserControl
     {
-        private bool _autoTextColor = false;
         private double _progressBarValue = 0.0d;
         private Color _progressBarColor = Color.FromArgb(0x56, 0x9C, 0xD6);
-        private Color _foreColor = Color.White;
-        private Color? _autoForeColor = null;
         private int _progressBarCornerRadius = 3;
-        private string _text = string.Empty;
-        private Padding _textPadding = new(3, 3, 3, 3);
-
-        /// <summary>
-        /// 自动设置进度条上方文字颜色
-        /// </summary>
-        /// <remarks>
-        /// 启用后, 文字颜色默认设置为进度条颜色的反色; 为防止靠色, 灰色背景下会根据亮度仅调整为白色或黑色
-        /// </remarks>
-        [Browsable(true)]
-        [Category("外观")]
-        [Description("自动设置进度条上方文字颜色\r\n启用后, 文字颜色默认设置为进度条颜色的反色; 为防止靠色, 灰色背景下会根据亮度仅调整为白色或黑色")]
-        [DefaultValue(true)]
-        public bool AutoTextColor
-        {
-            get => _autoTextColor;
-            set
-            {
-                if (_autoTextColor != value)
-                {
-                    _autoTextColor = value;
-
-                    Invalidate();
-                }
-            }
-        }
+        private IEnumerable<RenderContent> _contentList = [];
 
         /// <summary>
         /// 进度条进度
@@ -85,62 +59,10 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 if (_progressBarColor != value)
                 {
-                    // 重置 _autoForeColor, 下次 get 重新计算
-                    _autoForeColor = null;
                     _progressBarColor = value;
 
                     Invalidate();
                 }
-            }
-        }
-
-        /// <summary>
-        /// 进度条文字颜色
-        /// </summary>
-        [Browsable(true)]
-        [Category("外观")]
-        [Description("进度条文字颜色")]
-        public override Color ForeColor
-        {
-            get
-            {
-                // 如果不允许自动设置文字颜色, 则直接返回基类 ForeColor
-                if (!AutoTextColor) return _foreColor;
-
-                if (_autoForeColor == null)
-                {
-                    var max = Math.Max(ProgressBarColor.R, Math.Max(ProgressBarColor.G, ProgressBarColor.B));
-                    var min = Math.Min(ProgressBarColor.R, Math.Min(ProgressBarColor.G, ProgressBarColor.B));
-                    var delta = max - min;
-
-                    // 饱和度过低 (发灰 -> 反色依然为灰 = 撞色)
-                    if (delta < 20)
-                    {
-                        _autoForeColor = max + min / 2d > 127 ? Color.Black : Color.White;
-                    }
-
-                    _autoForeColor = Color.FromArgb(
-                        255 - ProgressBarColor.R,
-                        255 - ProgressBarColor.G,
-                        255 - ProgressBarColor.B
-                    );
-                }
-
-                return _autoForeColor.Value;
-            }
-            set
-            {
-                if (_foreColor != value)
-                {
-                    _foreColor = value;
-
-                    // 只有不使用自动文本颜色的时候, 才要求重绘
-                    if (!AutoTextColor)
-                    {
-                        Invalidate();
-                    }
-                }
-
             }
         }
 
@@ -168,47 +90,16 @@ namespace StarResonanceDpsAnalysis.Control
         }
 
         /// <summary>
-        /// 与控件关联的文本
+        /// 渲染内容列表
         /// </summary>
-        [Browsable(true)]
-        [Category("外观")]
-        [Description("与控件关联的文本")]
-        [DefaultValue("")]
-        public new string Text
+        public IEnumerable<RenderContent> ContentList
         {
-            get => _text;
+            get => _contentList;
             set
             {
-                if (_text != value)
-                {
-                    _text = value;
+                _contentList = value;
 
-                    Invalidate();
-                }
-            }
-        }
-
-        /// <summary>
-        /// 文字距离 ProgressBar 的距离
-        /// </summary>
-        /// <remarks>
-        /// 右间距无效, 文字过长时会无视右边距设定超长(懒得修...)
-        /// </remarks>
-        [Browsable(true)]
-        [Category("外观")]
-        [Description("文字距离 ProgressBar 的距离\r\n右间距无效, 文字过长时会无视右边距设定超长")]
-        [DefaultValue(typeof(Padding), "3, 3, 3, 3")]
-        public Padding TextPadding
-        {
-            get => _textPadding;
-            set
-            {
-                if (_textPadding != value)
-                {
-                    _textPadding = value;
-
-                    Invalidate();
-                }
+                Invalidate();
             }
         }
 
@@ -219,8 +110,6 @@ namespace StarResonanceDpsAnalysis.Control
             SetStyle(ControlStyles.UserPaint
                 | ControlStyles.AllPaintingInWmPaint
                 | ControlStyles.OptimizedDoubleBuffer, true);
-
-            _foreColor = Parent?.ForeColor ?? _foreColor;
         }
 
         protected override void OnPaint(PaintEventArgs e)

@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
 using StarResonanceDpsAnalysis.Control;
+using StarResonanceDpsAnalysis.Control.GDI;
 using StarResonanceDpsAnalysis.Effects.Enum;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
@@ -18,7 +19,6 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
             textProgressBar1.Padding = new Padding(3, 3, 3, 3);
-            textProgressBar1.TextPadding = new Padding(3, 3, 3, 3);
             textProgressBar1.ProgressBarCornerRadius = 3; // 超大圆角
 
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
@@ -26,7 +26,7 @@ namespace StarResonanceDpsAnalysis.Forms
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
             sortedProgressBarList1.AnimationQuality = Quality.High; // 动画品质（你项目里的枚举）
 
- 
+
 
 
         }
@@ -75,9 +75,20 @@ namespace StarResonanceDpsAnalysis.Forms
                 if (existing != null)
                 {
                     // 更新
-                    existing.Text = $"  {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}";
+                    existing.ContentList =
+                    [
+                        new RenderContent
+                        {
+                            Type = RenderContent.ContentType.Text,
+                            Align = RenderContent.ContentAlign.MiddleLeft,
+                            Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
+                            Text =  $"  {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
+                            ForeColor = Color.Black,
+                            Font = SystemFonts.DefaultFont,
+                        }
+                    ];
                     existing.ProgressBarValue = progress;
-                    
+
                 }
                 else
                 {
@@ -85,14 +96,21 @@ namespace StarResonanceDpsAnalysis.Forms
                     list.Add(new ProgressBarData
                     {
                         ID = uid,
-                        Text = $"   {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
+                        ContentList = 
+                        [
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
+                                Text = $"   {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
+                                ForeColor = Color.Black,
+                                Font = SystemFonts.DefaultFont
+                            }    
+                        ],
                         ProgressBarCornerRadius = 3,
                         ProgressBarValue = progress,
                         ProgressBarColor = colorDict[p.Profession],
-                        
-
-                        
-
                     });
                 }
             }

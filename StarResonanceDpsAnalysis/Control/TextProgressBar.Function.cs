@@ -20,13 +20,10 @@ namespace StarResonanceDpsAnalysis.Control
             _drawInfo.Width = Width;
             _drawInfo.Height = Height;
             _drawInfo.BackColor = BackColor;
-            _drawInfo.ForeColor = ForeColor;
             _drawInfo.ProgressBarColor = ProgressBarColor;
             _drawInfo.ProgressBarValue = ProgressBarValue;
-            _drawInfo.Text = Text;
-            _drawInfo.Font = Font;
             _drawInfo.ProgressBarCornerRadius = ProgressBarCornerRadius;
-            _drawInfo.TextPadding = TextPadding;
+            _drawInfo.ContentList = ContentList;
 
             e.Graphics.Clear(BackColor);
 

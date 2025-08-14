@@ -224,7 +224,6 @@
             // 
             // textProgressBar1
             // 
-            textProgressBar1.AutoTextColor = false;
             textProgressBar1.BackColor = Color.White;
             textProgressBar1.Dock = DockStyle.Fill;
             textProgressBar1.Font = new Font("SAO Welcome TT", 10F);

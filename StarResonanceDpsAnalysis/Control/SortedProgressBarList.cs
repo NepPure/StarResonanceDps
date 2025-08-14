@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using StarResonanceDpsAnalysis.Control.GDI;
 using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Effects.Enum;
 
@@ -118,13 +118,10 @@ namespace StarResonanceDpsAnalysis.Control
     public class ProgressBarData
     {
         public long ID { get; set; }
-        public bool AutoTextColor { get; set; } = false;
         public double ProgressBarValue { get; set; }
         public Color ProgressBarColor { get; set; } = Color.FromArgb(0x56, 0x9C, 0xD6);
-        public Color ForeColor { get; set; } = Color.Black;
         public int ProgressBarCornerRadius { get; set; }
-        public string? Text { get; set; }
+        public IEnumerable<RenderContent>? ContentList { get; set; }
         public Padding ProgressBarPadding { get; set; } = new(3, 3, 3, 3);
-        public Padding TextPadding { get; set; } = new(3, 3, 3, 3);
     }
 }
