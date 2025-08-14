@@ -31,9 +31,17 @@ namespace StarResonanceDpsAnalysis.Forms
 
         }
         readonly static List<ProgressBarData> list = new List<ProgressBarData>();
-        Dictionary<string,Color> colorDict = new Dictionary<string, Color>() 
+        Dictionary<string, Color> colorDict = new Dictionary<string, Color>()
         {
-
+            { "神射手", ColorTranslator.FromHtml("#fffca3") }, //
+            { "冰魔导师", ColorTranslator.FromHtml("#aaa6ff") }, // 
+            { "巨刃守护者", ColorTranslator.FromHtml("#51a55d") }, // 
+            { "雷影剑士", ColorTranslator.FromHtml("#9676ff") }, // 
+            { "灵魂乐手", ColorTranslator.FromHtml("#ff5353") }, // 
+            { "青岚骑士", ColorTranslator.FromHtml("#abfaff") }, // 
+            { "森语者", ColorTranslator.FromHtml("#78ff95") }, // 
+            { "神盾骑士", ColorTranslator.FromHtml("#2E86AB") }, // 
+            {"未知",  ColorTranslator.FromHtml("#2E86AB")}
         };
         public void RefreshDpsTable()
         {
@@ -67,8 +75,9 @@ namespace StarResonanceDpsAnalysis.Forms
                 if (existing != null)
                 {
                     // 更新
-                    existing.Text = $"{ranking} [图标] {p.Nickname} ({p.CombatPower})   {totalFmt} ({realtime}) {share}";
+                    existing.Text = $"  {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}";
                     existing.ProgressBarValue = progress;
+                    
                 }
                 else
                 {
@@ -76,11 +85,14 @@ namespace StarResonanceDpsAnalysis.Forms
                     list.Add(new ProgressBarData
                     {
                         ID = uid,
-                        Text = $"{ranking} [图标] {p.Nickname} ({p.CombatPower})   {totalFmt} ({realtime}) {share}",
+                        Text = $"   {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
                         ProgressBarCornerRadius = 3,
                         ProgressBarValue = progress,
-                        ProgressBarColor = 
-                       
+                        ProgressBarColor = colorDict[p.Profession],
+                        
+
+                        
+
                     });
                 }
             }

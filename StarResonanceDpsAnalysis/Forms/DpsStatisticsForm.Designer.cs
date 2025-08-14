@@ -216,7 +216,7 @@
             panel1.Location = new Point(0, 418);
             panel1.Name = "panel1";
             panel1.Radius = 3;
-            panel1.Shadow = 2;
+            panel1.Shadow = 6;
             panel1.ShadowAlign = AntdUI.TAlignMini.Top;
             panel1.Size = new Size(471, 47);
             panel1.TabIndex = 17;
@@ -228,23 +228,23 @@
             textProgressBar1.BackColor = Color.White;
             textProgressBar1.Dock = DockStyle.Fill;
             textProgressBar1.Font = new Font("SAO Welcome TT", 10F);
-            textProgressBar1.Location = new Point(0, 3);
+            textProgressBar1.Location = new Point(0, 9);
             textProgressBar1.Margin = new Padding(4);
             textProgressBar1.Name = "textProgressBar1";
             textProgressBar1.Padding = new Padding(4);
             textProgressBar1.ProgressBarColor = Color.FromArgb(86, 156, 214);
             textProgressBar1.ProgressBarCornerRadius = 3;
             textProgressBar1.ProgressBarValue = 0.2D;
-            textProgressBar1.Size = new Size(383, 44);
+            textProgressBar1.Size = new Size(383, 38);
             textProgressBar1.TabIndex = 19;
             // 
             // BattleTimeText
             // 
             BattleTimeText.Dock = DockStyle.Right;
             BattleTimeText.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            BattleTimeText.Location = new Point(383, 3);
+            BattleTimeText.Location = new Point(383, 9);
             BattleTimeText.Name = "BattleTimeText";
-            BattleTimeText.Size = new Size(88, 44);
+            BattleTimeText.Size = new Size(88, 38);
             BattleTimeText.TabIndex = 18;
             BattleTimeText.Text = "00:00:00";
             // 
@@ -261,14 +261,14 @@
             // 
             sortedProgressBarList1.AnimationDuration = 300;
             sortedProgressBarList1.AnimationQuality = Effects.Enum.Quality.Medium;
-            sortedProgressBarList1.AutoScroll = true;
+            sortedProgressBarList1.BackColor = Color.White;
             sortedProgressBarList1.Dock = DockStyle.Fill;
             sortedProgressBarList1.Location = new Point(0, 33);
             sortedProgressBarList1.Margin = new Padding(5, 4, 5, 4);
             sortedProgressBarList1.Name = "sortedProgressBarList1";
             sortedProgressBarList1.ProgressBarHeight = 20;
             sortedProgressBarList1.ProgressBarPadding = new Padding(3);
-            sortedProgressBarList1.Size = new Size(471, 432);
+            sortedProgressBarList1.Size = new Size(471, 385);
             sortedProgressBarList1.TabIndex = 18;
             // 
             // DpsStatisticsForm
@@ -278,12 +278,12 @@
             BackColor = Color.White;
             BorderWidth = 0;
             ClientSize = new Size(471, 465);
-            Controls.Add(panel1);
             Controls.Add(sortedProgressBarList1);
+            Controls.Add(panel1);
             Controls.Add(pageHeader1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "DpsStatisticsForm";
-            Opacity = 0.9D;
+            Opacity = 0.85D;
             Radius = 3;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "DpsStatistics";
