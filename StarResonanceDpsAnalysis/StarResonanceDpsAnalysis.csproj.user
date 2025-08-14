@@ -53,6 +53,9 @@
     <Compile Update="Forms\DetailsPreviewForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\DpsStatisticsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -167,7 +170,7 @@
     <Compile Update="Control\UserUidSetForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\DpsStatistics.cs">
+    <Compile Update="Forms\DpsStatisticsForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\MainForm.cs">
@@ -229,6 +232,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="Forms\SkillDetailForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <!-- 把任意 *.Function.cs 的文件类型识别改回正常的代码文件 -->
     <Compile Update="**/*.Function.cs">
       <SubType>Code</SubType>
@@ -240,10 +248,5 @@
       <!-- %(Filename) 不带扩展名 -->
       <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.Function','')).cs</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Forms\SkillDetailForm.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>

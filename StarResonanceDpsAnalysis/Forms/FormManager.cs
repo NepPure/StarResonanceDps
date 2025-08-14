@@ -13,7 +13,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         public static SettingsForm settingsForm;//设置窗体
 
-        public static DpsStatistics dpsStatistics;//DPS统计窗体
+        public static DpsStatisticsForm dpsStatistics;//DPS统计窗体
 
         public static UserUidSetForm userUidSetForm;//用户Uid设置窗体
 

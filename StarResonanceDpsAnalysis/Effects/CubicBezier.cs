@@ -16,7 +16,7 @@ namespace StarResonanceDpsAnalysis.Effects
     /// </remarks>
     public class CubicBezier
     {
-        private Dictionary<Quality, int> QualityConfig { get; } = new() 
+        private Dictionary<Quality, int> QualityConfig { get; } = new()
         {
             { Quality.VeryLow, 5 },
             { Quality.Low, 10 },
@@ -47,7 +47,7 @@ namespace StarResonanceDpsAnalysis.Effects
             Quality = quality;
 
             var flag = QualityConfig.TryGetValue(quality, out var points);
-            if (!flag) 
+            if (!flag)
             {
                 throw new ArgumentException($"Unsupported CalcQuality: {quality}", nameof(quality));
             }
@@ -57,13 +57,13 @@ namespace StarResonanceDpsAnalysis.Effects
             InitPoints(s, p1, p2, e, points);
         }
 
-        private void InitPoints(PointF s, PointF p1, PointF p2, PointF e, int points) 
+        private void InitPoints(PointF s, PointF p1, PointF p2, PointF e, int points)
         {
             PreCalcedPoints[0] = s;
             PreCalcedPoints[^1] = e;
 
             var steps = points + 1;
-            for (var i = 1; i < steps; ++i) 
+            for (var i = 1; i < steps; ++i)
             {
                 var p = GetBezierPointF(s, p1, p2, e, (float)i / steps);
                 PreCalcedPoints[i] = p;
@@ -87,7 +87,7 @@ namespace StarResonanceDpsAnalysis.Effects
         }
 
 
-        public float GetProximateBezierValue(float persent) 
+        public float GetProximateBezierValue(float persent)
         {
             if (persent <= PreCalcedPoints[0].X) return PreCalcedPoints[0].X;
             if (persent >= PreCalcedPoints[^1].X) return PreCalcedPoints[^1].X;
@@ -105,7 +105,7 @@ namespace StarResonanceDpsAnalysis.Effects
                 {
                     left = mid + 1;
                 }
-                else 
+                else
                 {
                     right = mid - 1;
                 }
@@ -117,7 +117,7 @@ namespace StarResonanceDpsAnalysis.Effects
             var lower = PreCalcedPoints[Math.Max(right, 0)];
 
             // 线性插值
-            return Lerp(higher.Y, lower.Y, (persent - lower.X) / (higher.X - lower.X));
+            return Lerp(lower.Y, higher.Y, (persent - lower.X) / (higher.X - lower.X));
         }
     }
 }

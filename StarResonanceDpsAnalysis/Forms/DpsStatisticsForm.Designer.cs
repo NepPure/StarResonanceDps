@@ -1,6 +1,6 @@
 ﻿namespace StarResonanceDpsAnalysis.Forms
 {
-    partial class DpsStatistics
+    partial class DpsStatisticsForm
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DpsStatistics));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DpsStatisticsForm));
             pageHeader1 = new AntdUI.PageHeader();
             PilingModeCheckbox = new AntdUI.Checkbox();
             button2 = new AntdUI.Button();
@@ -44,6 +44,8 @@
             BattleTimeText = new AntdUI.Label();
             timer_RefreshRunningTime = new System.Windows.Forms.Timer(components);
             timer1 = new System.Windows.Forms.Timer(components);
+            sortedProgressBarList1 = new StarResonanceDpsAnalysis.Control.SortedProgressBarList();
+            textProgressBar1 = new StarResonanceDpsAnalysis.Control.TextProgressBar();
             pageHeader1.SuspendLayout();
             panel1.SuspendLayout();
             SuspendLayout();
@@ -71,7 +73,7 @@
             pageHeader1.MinimizeBox = false;
             pageHeader1.Mode = AntdUI.TAMode.Dark;
             pageHeader1.Name = "pageHeader1";
-            pageHeader1.Size = new Size(514, 33);
+            pageHeader1.Size = new Size(471, 33);
             pageHeader1.SubFont = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold);
             pageHeader1.SubGap = 0;
             pageHeader1.SubText = "";
@@ -84,7 +86,7 @@
             PilingModeCheckbox.Dock = DockStyle.Right;
             PilingModeCheckbox.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             PilingModeCheckbox.ForeColor = Color.White;
-            PilingModeCheckbox.Location = new Point(295, 0);
+            PilingModeCheckbox.Location = new Point(252, 0);
             PilingModeCheckbox.Name = "PilingModeCheckbox";
             PilingModeCheckbox.Size = new Size(114, 33);
             PilingModeCheckbox.TabIndex = 17;
@@ -99,7 +101,7 @@
             button2.Ghost = true;
             button2.IconRatio = 0.8F;
             button2.IconSvg = resources.GetString("button2.IconSvg");
-            button2.Location = new Point(409, 0);
+            button2.Location = new Point(366, 0);
             button2.Name = "button2";
             button2.Size = new Size(24, 33);
             button2.TabIndex = 20;
@@ -139,7 +141,7 @@
             button_AlwaysOnTop.Ghost = true;
             button_AlwaysOnTop.IconRatio = 0.8F;
             button_AlwaysOnTop.IconSvg = resources.GetString("button_AlwaysOnTop.IconSvg");
-            button_AlwaysOnTop.Location = new Point(433, 0);
+            button_AlwaysOnTop.Location = new Point(390, 0);
             button_AlwaysOnTop.Name = "button_AlwaysOnTop";
             button_AlwaysOnTop.Size = new Size(26, 33);
             button_AlwaysOnTop.TabIndex = 5;
@@ -154,7 +156,7 @@
             button1.Ghost = true;
             button1.IconRatio = 0.8F;
             button1.IconSvg = resources.GetString("button1.IconSvg");
-            button1.Location = new Point(459, 0);
+            button1.Location = new Point(416, 0);
             button1.Name = "button1";
             button1.Size = new Size(24, 33);
             button1.TabIndex = 4;
@@ -173,7 +175,7 @@
             button_Settings.Icon = Properties.Resources.setting_hover;
             button_Settings.IconRatio = 1F;
             button_Settings.IconSvg = "";
-            button_Settings.Location = new Point(483, 0);
+            button_Settings.Location = new Point(440, 0);
             button_Settings.Name = "button_Settings";
             button_Settings.Size = new Size(31, 33);
             button_Settings.TabIndex = 3;
@@ -208,14 +210,15 @@
             // panel1
             // 
             panel1.BackColor = Color.Transparent;
+            panel1.Controls.Add(textProgressBar1);
             panel1.Controls.Add(BattleTimeText);
             panel1.Dock = DockStyle.Bottom;
-            panel1.Location = new Point(0, 372);
+            panel1.Location = new Point(0, 418);
             panel1.Name = "panel1";
             panel1.Radius = 3;
             panel1.Shadow = 2;
             panel1.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel1.Size = new Size(514, 51);
+            panel1.Size = new Size(471, 47);
             panel1.TabIndex = 17;
             panel1.Text = "panel1";
             // 
@@ -223,9 +226,9 @@
             // 
             BattleTimeText.Dock = DockStyle.Right;
             BattleTimeText.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            BattleTimeText.Location = new Point(426, 3);
+            BattleTimeText.Location = new Point(383, 3);
             BattleTimeText.Name = "BattleTimeText";
-            BattleTimeText.Size = new Size(88, 48);
+            BattleTimeText.Size = new Size(88, 44);
             BattleTimeText.TabIndex = 18;
             BattleTimeText.Text = "00:00:00";
             // 
@@ -238,17 +241,47 @@
             // 
             timer1.Tick += timer1_Tick;
             // 
-            // DpsStatistics
+            // sortedProgressBarList1
+            // 
+            sortedProgressBarList1.AnimationDuration = 300;
+            sortedProgressBarList1.AnimationQuality = Effects.Enum.Quality.Medium;
+            sortedProgressBarList1.Dock = DockStyle.Fill;
+            sortedProgressBarList1.Location = new Point(0, 33);
+            sortedProgressBarList1.Margin = new Padding(5, 4, 5, 4);
+            sortedProgressBarList1.Name = "sortedProgressBarList1";
+            sortedProgressBarList1.ProgressBarHeight = 20;
+            sortedProgressBarList1.ProgressBarPadding = new Padding(3);
+            sortedProgressBarList1.Size = new Size(471, 432);
+            sortedProgressBarList1.TabIndex = 18;
+            // 
+            // textProgressBar1
+            // 
+            textProgressBar1.AutoTextColor = false;
+            textProgressBar1.BackColor = Color.White;
+            textProgressBar1.Dock = DockStyle.Fill;
+            textProgressBar1.Font = new Font("SAO Welcome TT", 10F);
+            textProgressBar1.Location = new Point(0, 3);
+            textProgressBar1.Margin = new Padding(4, 4, 4, 4);
+            textProgressBar1.Name = "textProgressBar1";
+            textProgressBar1.Padding = new Padding(4, 4, 4, 4);
+            textProgressBar1.ProgressBarColor = Color.FromArgb(86, 156, 214);
+            textProgressBar1.ProgressBarCornerRadius = 3;
+            textProgressBar1.ProgressBarValue = 0.2D;
+            textProgressBar1.Size = new Size(383, 44);
+            textProgressBar1.TabIndex = 19;
+            // 
+            // DpsStatisticsForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             BorderWidth = 0;
-            ClientSize = new Size(514, 423);
+            ClientSize = new Size(471, 465);
             Controls.Add(panel1);
+            Controls.Add(sortedProgressBarList1);
             Controls.Add(pageHeader1);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            Name = "DpsStatistics";
+            Name = "DpsStatisticsForm";
             Opacity = 0.9D;
             Radius = 3;
             StartPosition = FormStartPosition.CenterScreen;
@@ -275,5 +308,7 @@
         private System.Windows.Forms.Timer timer_RefreshRunningTime;
         private System.Windows.Forms.Timer timer1;
         private AntdUI.Label DamageModeLabel;
+        private Control.SortedProgressBarList sortedProgressBarList1;
+        private Control.TextProgressBar textProgressBar1;
     }
 }

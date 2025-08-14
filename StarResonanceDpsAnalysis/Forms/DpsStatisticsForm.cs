@@ -9,9 +9,9 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
-    public partial class DpsStatistics : BorderlessForm
+    public partial class DpsStatisticsForm : BorderlessForm
     {
-        public DpsStatistics()
+        public DpsStatisticsForm()
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);

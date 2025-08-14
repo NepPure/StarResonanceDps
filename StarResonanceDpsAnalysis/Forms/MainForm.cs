@@ -390,7 +390,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             if (FormManager.dpsStatistics == null || FormManager.dpsStatistics.IsDisposed)
             {
-                FormManager.dpsStatistics = new DpsStatistics();
+                FormManager.dpsStatistics = new DpsStatisticsForm();
             }
 
             FormManager.dpsStatistics.Show();
