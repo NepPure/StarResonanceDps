@@ -866,6 +866,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
     {
         #region 存储
 
+
+
         /// <summary>
         /// 快照 战斗数据历史列表。
         /// </summary>

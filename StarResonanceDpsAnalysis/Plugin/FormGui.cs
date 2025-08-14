@@ -41,6 +41,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 window.BackColor = Color.FromArgb(31, 31, 31);
                 window.ForeColor = Color.White;
             }
+            window.Opacity = AppConfig.Transparency/100;
 
         }
 

@@ -86,6 +86,8 @@ namespace StarResonanceDpsAnalysis.Forms
         private void button1_Click(object sender, EventArgs e)
         {
             list.Clear();
+            sortedProgressBarList1.Data=null;
+           
         }
 
         private void button_Settings_Click(object sender, EventArgs e)

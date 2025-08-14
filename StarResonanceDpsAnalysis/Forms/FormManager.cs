@@ -1,4 +1,5 @@
-﻿using StarResonanceDpsAnalysis.Control;
+﻿using ScottPlot.AxisLimitManagers;
+using StarResonanceDpsAnalysis.Control;
 using System.Runtime.InteropServices;
 
 namespace StarResonanceDpsAnalysis.Forms
@@ -19,6 +20,27 @@ namespace StarResonanceDpsAnalysis.Forms
 
         public static RankingsForm rankingsForm;//排行榜窗体
 
+
+        /// <summary>
+        /// 统一设置透明度
+        /// </summary>
+        /// <param name="opacity"></param>
+        public static void FullFormTransparency(double opacity)
+        {
+            foreach (var form in new Form[]
+            {
+                skillDiary,
+                skillDetailForm,
+                settingsForm,
+                dpsStatistics,
+                userUidSetForm,
+                rankingsForm
+            })
+            {
+                if (form != null)
+                    form.Opacity = opacity;
+            }
+        }
 
         public const int WM_NCLBUTTONDOWN = 0xA1;
         public const int HTCAPTION = 0x2;
