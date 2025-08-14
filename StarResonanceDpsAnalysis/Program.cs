@@ -1,5 +1,7 @@
 using System.Text;
 
+using StarResonanceDpsAnalysis.Forms;
+
 namespace StarResonanceDpsAnalysis
 {
     internal static class Program

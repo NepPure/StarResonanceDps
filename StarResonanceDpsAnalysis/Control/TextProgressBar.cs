@@ -1,17 +1,25 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace StarResonanceDpsAnalysis.Control
 {
     public partial class TextProgressBar : UserControl
     {
-        private bool _autoTextColor = true;
+        private bool _autoTextColor = false;
         private double _progressBarValue = 0.0d;
         private Color _progressBarColor = Color.FromArgb(0x56, 0x9C, 0xD6);
-        private Color _foreColor = Color.Black;
+        private Color _foreColor = Color.White;
         private Color? _autoForeColor = null;
         private int _progressBarCornerRadius = 3;
         private string _text = string.Empty;
-        private Padding _textPadding = new();
+        private Padding _textPadding = new(3, 3, 3, 3);
 
         /// <summary>
         /// 自动设置进度条上方文字颜色
@@ -79,10 +87,6 @@ namespace StarResonanceDpsAnalysis.Control
                 {
                     // 重置 _autoForeColor, 下次 get 重新计算
                     _autoForeColor = null;
-                    // 重置 ProgressBarBrush, 下次 Paint 重新创建
-                    ProgressBarBrush?.Dispose();
-                    ProgressBarBrush = null;
-
                     _progressBarColor = value;
 
                     Invalidate();
@@ -133,10 +137,6 @@ namespace StarResonanceDpsAnalysis.Control
                     // 只有不使用自动文本颜色的时候, 才要求重绘
                     if (!AutoTextColor)
                     {
-                        // 重置 ProgressBarTextBrush, 下次 Paint 重新创建
-                        ProgressBarTextBrush?.Dispose();
-                        ProgressBarTextBrush = null;
-
                         Invalidate();
                     }
                 }
@@ -150,7 +150,7 @@ namespace StarResonanceDpsAnalysis.Control
         [Browsable(true)]
         [Category("外观")]
         [Description("圆角半径")]
-        [DefaultValue(1.0)]
+        [DefaultValue(0)]
         public int ProgressBarCornerRadius
         {
             get => _progressBarCornerRadius;
@@ -197,7 +197,7 @@ namespace StarResonanceDpsAnalysis.Control
         [Browsable(true)]
         [Category("外观")]
         [Description("文字距离 ProgressBar 的距离\r\n右间距无效, 文字过长时会无视右边距设定超长")]
-        [DefaultValue(typeof(Padding), "0,0,0,0")]
+        [DefaultValue(typeof(Padding), "3, 3, 3, 3")]
         public Padding TextPadding
         {
             get => _textPadding;
@@ -215,16 +215,17 @@ namespace StarResonanceDpsAnalysis.Control
         public TextProgressBar()
         {
             InitializeComponent();
+
+            SetStyle(ControlStyles.UserPaint
+                | ControlStyles.AllPaintingInWmPaint
+                | ControlStyles.OptimizedDoubleBuffer, true);
+
+            _foreColor = Parent?.ForeColor ?? _foreColor;
         }
 
-        public void TextProgressBar_Paint(object sender, PaintEventArgs e)
+        protected override void OnPaint(PaintEventArgs e)
         {
             DrawTextProgressBarControl(e);
-        }
-
-        public void TextProgressBar_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }

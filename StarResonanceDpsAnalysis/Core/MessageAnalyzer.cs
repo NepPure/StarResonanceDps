@@ -1,9 +1,13 @@
-﻿using BlueProto;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+﻿using System;
 using System.Runtime.CompilerServices;
 using System.Text;
+
+using BlueProto;
+using StarResonanceDpsAnalysis.Forms;
+using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using ZstdNet;
+
 namespace StarResonanceDpsAnalysis.Core
 {
     public class MessageAnalyzer
