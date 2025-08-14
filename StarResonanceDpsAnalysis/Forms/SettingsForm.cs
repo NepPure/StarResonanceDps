@@ -208,7 +208,8 @@ namespace StarResonanceDpsAnalysis.Forms
         private void slider1_ValueChanged(object sender, IntEventArgs e)
         {
 
-            this.Opacity = (double)e.Value / 100;
+
+            FormManager.FullFormTransparency((double)e.Value / 100);
             //this.BackColor = Color.Transparent;
             //this.TransparencyKey = Color.Transparent;
 

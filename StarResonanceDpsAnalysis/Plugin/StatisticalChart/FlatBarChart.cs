@@ -128,7 +128,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         #endregion
 
-        # region 主题设置
+        #region 主题设置
 
         private void ApplyTheme()
         {
@@ -278,8 +278,8 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         private void DrawBars(Graphics g, Rectangle chartRect, double maxValue)
         {
-            var barWidth = (float)chartRect.Width / _data.Count * 0.85f; // ???????????0.8f??0.85f
-            var barSpacing = (float)chartRect.Width / _data.Count * 0.075f; // ??????
+            var barWidth = (float)chartRect.Width / _data.Count * 0.85f; // 增加条形宽度从0.8f到0.85f
+            var barSpacing = (float)chartRect.Width / _data.Count * 0.075f; // 减少间距
 
             for (int i = 0; i < _data.Count; i++)
             {
@@ -291,35 +291,35 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
                 var barRect = new RectangleF(x, y, barWidth, barHeight);
 
-                // ????????? - ???????????
+                // 绘制条形 - 扁平化无边框设计
                 using var brush = new SolidBrush(data.Color);
                 g.FillRectangle(brush, barRect);
 
-                // ?????????? - ???????????????λ??
-                if (barHeight > 15) // ??????????????
+                // 绘制数值标签 - 智能调整标签位置
+                if (barHeight > 15) // 只有足够高的条形才显示标签
                 {
-                    var valueText = $"{data.Value:F1}%"; // ??????????????
-                    using var font = new Font("Microsoft YaHei", 6, FontStyle.Regular); // ??8?????6
+                    var valueText = $"{data.Value:F1}%"; // 简化数值格式显示
+                    using var font = new Font("Microsoft YaHei", 6, FontStyle.Regular); // 从8减少到6
                     using var textBrush = new SolidBrush(ForeColor);
 
                     var textSize = g.MeasureString(valueText, font);
                     var textX = x + (barWidth - textSize.Width) / 2;
 
-                    // ??????????????λ????????????????????
-                    var textAboveY = y - textSize.Height - 2; // ?????????λ??
-                    var textInsideY = y + 2; // ????????????λ??
+                    // 智能选择标签位置：优先放在条形上方，否则放在条形内部
+                    var textAboveY = y - textSize.Height - 2; // 条形上方位置
+                    var textInsideY = y + 2; // 条形内部上端位置
 
-                    // ??鸺??????????????????
+                    // 检查上方位置是否有足够空间
                     var textY = (textAboveY >= chartRect.Y) ? textAboveY : textInsideY;
 
-                    // ?????????????????????
+                    // 确保标签在图表区域内
                     if (textY + textSize.Height <= chartRect.Bottom && textY >= chartRect.Y)
                     {
-                        // ????????????λ???????????????????
+                        // 根据标签位置选择合适的文本颜色
                         Color textColor = ForeColor;
-                        if (textY == textInsideY) // ???????????????
+                        if (textY == textInsideY) // 如果标签在条形内部
                         {
-                            // ???????????????Α??
+                            // 使用与背景对比的颜色
                             textColor = GetContrastColor(data.Color);
                         }
 
@@ -331,14 +331,14 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         }
 
         /// <summary>
-        /// ???????????????????????
+        /// 根据背景色获取对比色（黑色或白色）
         /// </summary>
         private Color GetContrastColor(Color backgroundColor)
         {
-            // ????RGB????????
+            // 计算RGB亮度值
             var brightness = (backgroundColor.R * 0.299 + backgroundColor.G * 0.587 + backgroundColor.B * 0.114);
 
-            // ??????????????????????????
+            // 根据亮度选择黑色或白色作为对比色
             return brightness > 128 ? Color.Black : Color.White;
         }
 
