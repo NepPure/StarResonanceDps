@@ -1,4 +1,5 @@
 ﻿using AntdUI;
+using DocumentFormat.OpenXml.Wordprocessing;
 using StarResonanceDpsAnalysis.Plugin;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,12 @@ using System.Windows.Forms;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
+
+
     public partial class DetailsPreviewForm : BorderlessForm
     {
+
+        
         public DetailsPreviewForm()
         {
             InitializeComponent();
