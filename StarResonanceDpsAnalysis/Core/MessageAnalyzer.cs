@@ -8,6 +8,7 @@ using ZstdNet;
 using BlueProto;
 using System.Runtime.CompilerServices;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Tab;
+using StarResonanceDpsAnalysis.Forms;
 namespace StarResonanceDpsAnalysis.Core
 {
     public class MessageAnalyzer

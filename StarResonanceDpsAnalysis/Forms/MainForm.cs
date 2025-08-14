@@ -8,13 +8,10 @@ using AntdUI;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Core;
-using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Properties;
-using ZstdNet;
-using static System.Windows.Forms.AxHost;
 
-namespace StarResonanceDpsAnalysis
+namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class MainForm : BorderlessForm
     {
@@ -127,7 +124,7 @@ namespace StarResonanceDpsAnalysis
             ToggleTableView();
             LoadFromEmbeddedSkillConfig();
 
-
+            new TestForm().Show();
         }
 
         private void MainForm_Load(object sender, EventArgs e)

@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis
+﻿namespace StarResonanceDpsAnalysis.Forms
 {
     partial class MainForm
     {

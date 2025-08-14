@@ -13,7 +13,7 @@ using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Core;
 using StarResonanceDpsAnalysis.Plugin;
 
-namespace StarResonanceDpsAnalysis
+namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class MainForm
     {

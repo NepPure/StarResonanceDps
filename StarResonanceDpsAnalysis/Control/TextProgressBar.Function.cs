@@ -5,64 +5,34 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Vanara.PInvoke;
+using StarResonanceDpsAnalysis.Control.GDI;
+using StarResonanceDpsAnalysis.Extends;
 
 namespace StarResonanceDpsAnalysis.Control
 {
     public partial class TextProgressBar
     {
+        private readonly GDI_ProgressBar _gdiProgressBar = new();
+        private readonly DrawInfo _drawInfo = new();
 
-        private Brush? ProgressBarBrush { get; set; } = null;
-        private Brush? ProgressBarTextBrush { get; set; } = null;
-        private void DrawTextProgressBarControl(PaintEventArgs e)
+        private void DrawTextProgressBarControl(PaintEventArgs e) 
         {
-            if (Width <= 0 || Height <= 0) return;
+            if (Width == 0 || Height == 0) return;
 
-            /* 这里的 Graphics 不要使用 using, 也不要 Dispose, 
-             * 因为双重缓冲机制, 在我们自己的绘制结束后, 系统会继续使用这个 Graphics 进行收尾工作,
-             * 如果我们在这里 Dispose, 会导致报错: System.ArgumentException:“Parameter is not valid.”
-             * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-            var g = e.Graphics;
-            g.Clear(BackColor);
+            _drawInfo.Width = Width;
+            _drawInfo.Height = Height;
+            _drawInfo.BackColor = BackColor;
+            _drawInfo.ForeColor = ForeColor;
+            _drawInfo.ProgressBarColor = ProgressBarColor;
+            _drawInfo.ProgressBarValue = ProgressBarValue;
+            _drawInfo.Text = Text;
+            _drawInfo.Font = Font;
+            _drawInfo.ProgressBarCornerRadius = ProgressBarCornerRadius;
+            _drawInfo.TextPadding = TextPadding;
 
-            var barWidth = (Width - Padding.Left - Padding.Right) * ProgressBarValue;
-            if (barWidth >= 1)
-            {
-                ProgressBarBrush ??= new SolidBrush(ProgressBarColor);
+            e.Graphics.Clear(BackColor);
 
-                g.SmoothingMode = SmoothingMode.HighQuality;
-                g.CompositingQuality = CompositingQuality.HighQuality;
-
-                var barHeight = Height - Padding.Top - Padding.Bottom;
-                var diameter = Math.Min(ProgressBarCornerRadius * 2, Math.Min(barWidth, barHeight));
-                var rect = new RectangleF(0, 0, (float)diameter, (float)diameter);
-
-                using var path = new GraphicsPath();
-                // 左上角
-                rect.X = Padding.Left;
-                rect.Y = Padding.Top;
-                path.AddArc(rect, 180, 90);
-                // 右上角
-                rect.X = Padding.Left + (int)(barWidth - diameter);
-                path.AddArc(rect, 270, 90);
-                // 右下角
-                rect.Y = (int)(Height - Padding.Bottom - diameter);
-                path.AddArc(rect, 0, 90);
-                // 左下角
-                rect.X = Padding.Left;
-                path.AddArc(rect, 90, 90);
-                // 闭合图形
-                path.CloseFigure();
-
-                g.FillPath(ProgressBarBrush, path);
-            }
-
-            ProgressBarTextBrush ??= new SolidBrush(ForeColor);
-
-            var textLeft = Padding.Left + TextPadding.Left;
-            var textTop = (Height - Padding.Top - Padding.Bottom - TextPadding.Top - TextPadding.Bottom - Font.Size) / 2;
-
-            g.DrawString(Text, Font, ProgressBarTextBrush, new PointF(textLeft, textTop));
+            _gdiProgressBar.Draw(e.Graphics, _drawInfo);
         }
 
         private void RGB2HSL(Color color, out double h, out double s, out double l)
