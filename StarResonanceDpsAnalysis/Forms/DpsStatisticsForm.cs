@@ -3,7 +3,9 @@ using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Forms.PopUp;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 using StarResonanceDpsAnalysis.Properties;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
@@ -15,8 +17,19 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
+            //加载钩子
+            RegisterKeyboardHook();
+            //先加载基础配置
+            InitTableColumnsConfigAtFirstRun();
+            //加载网卡
+            LoadNetworkDevices();
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
+            //加载技能配置
+            StartupInitializer.LoadFromEmbeddedSkillConfig();
+            //开启DPS统计
+            StartCapture();
             SetStyle();
+            new TestForm().Show(); // # 调试/测试窗体：启动即显示
         }
 
         private void DpsStatistics_Load(object sender, EventArgs e)
@@ -123,6 +136,13 @@ namespace StarResonanceDpsAnalysis.Forms
                     case "基础设置":
                         OpenSettingsDialog();
                         break;
+                    case "主窗体":
+                        if(FormManager.mainForm==null|| FormManager.mainForm.IsDisposed)
+                        {
+                            FormManager.mainForm = new MainForm();
+                        }
+                        FormManager.mainForm.Show();
+                        break;
                     case "数据显示设置":
                         //dataDisplay(); 
                         break;
@@ -157,17 +177,6 @@ namespace StarResonanceDpsAnalysis.Forms
             }
             FormManager.settingsForm.Show();
 
-        }
-        /// <summary>
-        /// 用户设置，但是用不到了
-        /// </summary>
-        private void SetUserUid()
-        {
-            if (FormManager.userUidSetForm == null || FormManager.userUidSetForm.IsDisposed)
-            {
-                FormManager.userUidSetForm = new UserUidSetForm();
-            }
-            FormManager.userUidSetForm.Show();
         }
 
         private void button_AlwaysOnTop_MouseEnter(object sender, EventArgs e)
@@ -313,5 +322,104 @@ namespace StarResonanceDpsAnalysis.Forms
 
             }
         }
+
+
+        #region 钩子
+        /// <summary>
+        /// 键盘钩子
+        /// </summary>
+        private KeyboardHook KbHook { get; } = new(); // # 全局输入：全局热键钩子，用于响应窗口控制/穿透/清空等快捷键
+        public void RegisterKeyboardHook()
+        {
+            // 键盘钩子初始化
+            KbHook.SetHook(); // # 全局输入：安装键盘钩子
+            KbHook.OnKeyDownEvent += kbHook_OnKeyDownEvent; // # 热键绑定：统一在此监听
+        }
+
+        /// <summary>
+        /// 窗体关闭时的清理工作
+        /// </summary>
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            try
+            {
+                // 释放键盘钩子
+                KbHook?.UnHook(); // # 全局输入：卸载键盘钩子，避免句柄泄漏
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"窗体关闭清理时出错: {ex.Message}");
+            }
+
+            base.OnFormClosed(e);
+        }
+
+        #region —— 全局热键 —— 
+
+        public void kbHook_OnKeyDownEvent(object? sender, KeyEventArgs e)
+        {
+            // # 将按键与配置的功能键匹配，解耦具体键位
+            if (e.KeyData == AppConfig.MouseThroughKey) { HandleMouseThrough(); } // # 切换鼠标穿透
+            else if (e.KeyData == AppConfig.FormTransparencyKey) { HandleFormTransparency(); } // # 切换窗体透明度
+            else if (e.KeyData == AppConfig.WindowToggleKey) {  } // # 开关监控/窗口
+            else if (e.KeyData == AppConfig.ClearDataKey) { HandleClearData(); } // # 清空当前统计
+            else if (e.KeyData == AppConfig.ClearHistoryKey) { }//等待重写实现 // # 预留：清空历史
+        }
+
+        #endregion
+
+        #region HandleMouseThrough() 响应鼠标穿透
+        private void HandleMouseThrough()
+        {
+          
+            // 判断当前窗体是否在穿透模式
+            if (!MousePenetrationHelper.IsPenetrating(this.Handle))
+            {
+                // 当前不是穿透模式 → 开启穿透
+                MousePenetrationHelper.SetMousePenetrate(this, enable: true, alpha: 230);
+                Opacity = AppConfig.Transparency;
+            }
+            else
+            {
+                // 当前是穿透模式 → 关闭穿透
+                MousePenetrationHelper.SetMousePenetrate(this, enable: false);
+                Opacity = 1.0;
+            }
+
+        }
+
+        #endregion
+
+
+        #region HandleFormTransparency() 响应窗体透明
+
+        /// <summary>
+        /// 是否开启透明
+        /// </summary>
+        bool hyaline = false;
+ 
+        private void HandleFormTransparency()
+        {
+           
+
+            if (hyaline)
+            {
+                // 当前是透明状态（1.0），要切换到配置透明度
+             
+                Opacity = AppConfig.Transparency/100;
+                hyaline = false;
+                Console.WriteLine($"切换到配置透明度: {AppConfig.Transparency}%)");
+            }
+            else
+            {
+                // 当前是配置透明度，要切换到完全不透明（1.0）
+                Opacity = 1.0;
+                hyaline = true;
+                Console.WriteLine($"切换到完全不透明: 100% (Opacity: 1.0)");
+            }
+        }
+
+        #endregion
+        #endregion
     }
 }

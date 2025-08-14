@@ -15,7 +15,6 @@
 
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             pageHeader_MainHeader = new AntdUI.PageHeader();
             button1 = new AntdUI.Button();
@@ -24,15 +23,7 @@
             button_AlwaysOnTop = new AntdUI.Button();
             button_ThemeSwitch = new AntdUI.Button();
             button_Settings = new AntdUI.Button();
-            label_SettingTip = new AntdUI.Label();
-            table_DpsDataTable = new AntdUI.Table();
-            timer_RefreshDpsTable = new System.Windows.Forms.Timer(components);
-            label_HotKeyTips = new AntdUI.Label();
-            timer_RefreshRunningTime = new System.Windows.Forms.Timer(components);
-            switch_IsMonitoring = new AntdUI.Switch();
-            panel_FooterPanel = new AntdUI.Panel();
             pageHeader_MainHeader.SuspendLayout();
-            panel_FooterPanel.SuspendLayout();
             SuspendLayout();
             // 
             // pageHeader_MainHeader
@@ -133,87 +124,12 @@
             button_Settings.ToggleIconSvg = "";
             button_Settings.MouseClick += button_Settings_MouseClick;
             // 
-            // label_SettingTip
-            // 
-            label_SettingTip.AutoSizeMode = AntdUI.TAutoSize.Width;
-            label_SettingTip.Dock = DockStyle.Right;
-            label_SettingTip.ForeColor = Color.Red;
-            label_SettingTip.Location = new Point(826, 0);
-            label_SettingTip.Margin = new Padding(2, 1, 2, 1);
-            label_SettingTip.Name = "label_SettingTip";
-            label_SettingTip.Size = new Size(252, 30);
-            label_SettingTip.TabIndex = 16;
-            label_SettingTip.Text = "请先右上角设置网卡在启动哟！";
-            label_SettingTip.TextAlign = ContentAlignment.MiddleCenter;
-            // 
-            // table_DpsDataTable
-            // 
-            table_DpsDataTable.Dock = DockStyle.Fill;
-            table_DpsDataTable.FixedHeader = false;
-            table_DpsDataTable.Gap = 8;
-            table_DpsDataTable.Gaps = new Size(8, 8);
-            table_DpsDataTable.Location = new Point(0, 43);
-            table_DpsDataTable.Name = "table_DpsDataTable";
-            table_DpsDataTable.Size = new Size(1191, 619);
-            table_DpsDataTable.TabIndex = 13;
-            table_DpsDataTable.Text = "table1";
-            table_DpsDataTable.CellClick += table_DpsDataTable_CellClick;
-            table_DpsDataTable.SortRows += table_DpsDataTable_SortRows;
-            // 
-            // timer_RefreshDpsTable
-            // 
-            timer_RefreshDpsTable.Interval = 600;
-            timer_RefreshDpsTable.Tick += timer_RefreshDpsTable_Tick;
-            // 
-            // label_HotKeyTips
-            // 
-            label_HotKeyTips.AutoSizeMode = AntdUI.TAutoSize.Width;
-            label_HotKeyTips.Dock = DockStyle.Left;
-            label_HotKeyTips.Location = new Point(9, 0);
-            label_HotKeyTips.Margin = new Padding(2, 1, 2, 1);
-            label_HotKeyTips.Name = "label_HotKeyTips";
-            label_HotKeyTips.Size = new Size(631, 30);
-            label_HotKeyTips.TabIndex = 14;
-            label_HotKeyTips.Text = "F6：鼠标穿透 | F7：窗体透明 | F8：开启/关闭 | F9：清空数据 | F10：清空历史";
-            // 
-            // timer_RefreshRunningTime
-            // 
-            timer_RefreshRunningTime.Tick += timer_RefreshRunningTime_Tick;
-            // 
-            // switch_IsMonitoring
-            // 
-            switch_IsMonitoring.CheckedText = "开启中";
-            switch_IsMonitoring.Dock = DockStyle.Right;
-            switch_IsMonitoring.Location = new Point(1078, 0);
-            switch_IsMonitoring.Name = "switch_IsMonitoring";
-            switch_IsMonitoring.Size = new Size(113, 30);
-            switch_IsMonitoring.TabIndex = 18;
-            switch_IsMonitoring.UnCheckedText = "关闭中";
-            switch_IsMonitoring.CheckedChanged += switch_IsMonitoring_CheckedChanged;
-            // 
-            // panel_FooterPanel
-            // 
-            panel_FooterPanel.Back = Color.Transparent;
-            panel_FooterPanel.BackColor = Color.Transparent;
-            panel_FooterPanel.Controls.Add(label_HotKeyTips);
-            panel_FooterPanel.Controls.Add(label_SettingTip);
-            panel_FooterPanel.Controls.Add(switch_IsMonitoring);
-            panel_FooterPanel.Dock = DockStyle.Bottom;
-            panel_FooterPanel.Location = new Point(0, 632);
-            panel_FooterPanel.Name = "panel_FooterPanel";
-            panel_FooterPanel.Padding = new Padding(9, 0, 0, 0);
-            panel_FooterPanel.Size = new Size(1191, 30);
-            panel_FooterPanel.TabIndex = 19;
-            panel_FooterPanel.Text = "panel1";
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(1191, 662);
-            Controls.Add(panel_FooterPanel);
-            Controls.Add(table_DpsDataTable);
             Controls.Add(pageHeader_MainHeader);
             Dark = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -225,23 +141,14 @@
             Text = "DPS 统计工具";
             Load += MainForm_Load;
             pageHeader_MainHeader.ResumeLayout(false);
-            panel_FooterPanel.ResumeLayout(false);
-            panel_FooterPanel.PerformLayout();
             ResumeLayout(false);
         }
         private AntdUI.PageHeader pageHeader_MainHeader;
-        private AntdUI.Table table_DpsDataTable;
-        private System.Windows.Forms.Timer timer_RefreshDpsTable;
         private AntdUI.Button button_ThemeSwitch;
         private AntdUI.Button button_AlwaysOnTop;
         private AntdUI.Button button_Settings;
-        private AntdUI.Label label_HotKeyTips;
-        public AntdUI.Label label_SettingTip;
         private AntdUI.Dropdown dropdown_History;
         private AntdUI.Button button_SkillDiary;
-        private System.Windows.Forms.Timer timer_RefreshRunningTime;
-        private AntdUI.Switch switch_IsMonitoring;
-        private AntdUI.Panel panel_FooterPanel;
         private AntdUI.Button button1;
     }
 }

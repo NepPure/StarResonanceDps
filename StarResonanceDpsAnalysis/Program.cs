@@ -1,6 +1,7 @@
 using System.Text;
 
 using StarResonanceDpsAnalysis.Forms;
+using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 
 namespace StarResonanceDpsAnalysis
 {
@@ -19,8 +20,10 @@ namespace StarResonanceDpsAnalysis
             //AntdUI.Config.SetCorrectionTextRendering("SAO Welcome TT", "Î¢ÈíÑÅºÚ");
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
+        
             ApplicationConfiguration.Initialize();
-            Application.Run(new MainForm());
+            FormManager.dpsStatistics = new DpsStatisticsForm();
+            Application.Run(FormManager.dpsStatistics);
         }
 
 
