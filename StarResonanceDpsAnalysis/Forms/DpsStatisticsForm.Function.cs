@@ -218,12 +218,36 @@ namespace StarResonanceDpsAnalysis.Forms
             // 在清空数据前，通知图表服务战斗结束
             ChartVisualizationService.OnCombatEnd();
 
-           
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
             list.Clear();
-            //sortedProgressBarList1.Data = null;
+
+            // 强制清空进度条列表控件的数据缓存（确保在 UI 线程调用）
+            try
+            {
+                var ctrl = DpsStatisticsForm.sortedProgressBarList1;
+                if (ctrl != null)
+                {
+                    if (ctrl.InvokeRequired)
+                    {
+                        ctrl.BeginInvoke(new Action(() =>
+                        {
+                            ctrl.Data = null; // 置空以触发控件内部清理
+                            ctrl.Invalidate();
+                            ctrl.Refresh();
+                        }));
+                    }
+                    else
+                    {
+                        ctrl.Data = null; // 置空以触发控件内部清理
+                        ctrl.Invalidate();
+                        ctrl.Refresh();
+                    }
+                }
+            }
+            catch { }
+
             // 完全重置所有图表（包括清空历史数据和重置视图状态）
             ChartVisualizationService.FullResetAllCharts();
 

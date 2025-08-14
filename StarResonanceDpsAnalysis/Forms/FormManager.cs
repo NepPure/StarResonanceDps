@@ -22,6 +22,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         public static MainForm mainForm;//主窗口
 
+        public static SkillRotationMonitorForm skillRotationMonitorForm;//技能循环监控窗体
 
         /// <summary>
         /// 统一设置透明度
@@ -36,7 +37,8 @@ namespace StarResonanceDpsAnalysis.Forms
                 settingsForm,
                 dpsStatistics,
                 userUidSetForm,
-                rankingsForm
+                rankingsForm,
+                skillRotationMonitorForm
             })
             {
                 if (form != null)

@@ -101,6 +101,9 @@
     <Compile Update="Forms\SkillDiary.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\SkillRotationMonitorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\TestForm.cs">
       <SubType>Form</SubType>
     </Compile>
