@@ -260,7 +260,7 @@
             // 
             sortedProgressBarList1.AnimationDuration = 300;
             sortedProgressBarList1.AnimationQuality = Effects.Enum.Quality.Medium;
-            sortedProgressBarList1.BackColor = Color.White;
+            sortedProgressBarList1.BackColor = Color.FromArgb(224, 224, 224);
             sortedProgressBarList1.Dock = DockStyle.Fill;
             sortedProgressBarList1.Location = new Point(0, 33);
             sortedProgressBarList1.Margin = new Padding(5, 4, 5, 4);
@@ -309,7 +309,7 @@
         private System.Windows.Forms.Timer timer_RefreshRunningTime;
         private System.Windows.Forms.Timer timer1;
         private AntdUI.Label DamageModeLabel;
-        private static Control.SortedProgressBarList sortedProgressBarList1;
         private Control.TextProgressBar textProgressBar1;
+        private Control.SortedProgressBarList sortedProgressBarList1;
     }
 }

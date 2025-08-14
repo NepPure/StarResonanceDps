@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using StarResonanceDpsAnalysis.Extends;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
+using StarResonanceDpsAnalysis.Properties;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -218,12 +220,36 @@ namespace StarResonanceDpsAnalysis.Forms
             // 在清空数据前，通知图表服务战斗结束
             ChartVisualizationService.OnCombatEnd();
 
-           
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
             list.Clear();
-            //sortedProgressBarList1.Data = null;
+
+            // 强制清空进度条列表控件的数据缓存（确保在 UI 线程调用）
+            //try
+            //{
+            //    var ctrl = DpsStatisticsForm.sortedProgressBarList1;
+            //    if (ctrl != null)
+            //    {
+            //        if (ctrl.InvokeRequired)
+            //        {
+            //            ctrl.BeginInvoke(new Action(() =>
+            //            {
+            //                ctrl.Data = null; // 置空以触发控件内部清理
+            //                ctrl.Invalidate();
+            //                ctrl.Refresh();
+            //            }));
+            //        }
+            //        else
+            //        {
+            //            ctrl.Data = null; // 置空以触发控件内部清理
+            //            ctrl.Invalidate();
+            //            ctrl.Refresh();
+            //        }
+            //    }
+            //}
+            //catch { }
+
             // 完全重置所有图表（包括清空历史数据和重置视图状态）
             ChartVisualizationService.FullResetAllCharts();
 
@@ -294,7 +320,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 string share = (p.DamageStats.Total / totalDamageSum * 100).ToString("0") + "%";
 
                 float progress = maxDamage > 0 ? (float)(p.DamageStats.Total / maxDamage) : 0f;
-
+                var img = GetImageByName(p.Profession);
                 var existing = list.FirstOrDefault(x => x.ID == uid);
                 if (existing != null)
                 {
@@ -305,14 +331,15 @@ namespace StarResonanceDpsAnalysis.Forms
                         {
                             Type = RenderContent.ContentType.Text,
                             Align = RenderContent.ContentAlign.MiddleLeft,
-                            Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
+                            Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
                             Text =  $"  {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
-                            ForeColor = Color.Black,
-                            Font = SystemFonts.DefaultFont,
+                            Image =img,
+                            ForeColor =Color.Black,
+                            Font = AppConfig.SaoFontBold,
                         }
                     ];
                     existing.ProgressBarValue = progress;
-
+                    
                 }
                 else
                 {
@@ -320,17 +347,20 @@ namespace StarResonanceDpsAnalysis.Forms
                     list.Add(new ProgressBarData
                     {
                         ID = uid,
-                        ContentList = 
+
+                        ContentList =
                         [
                             new RenderContent
                             {
                                 Type = RenderContent.ContentType.Text,
                                 Align = RenderContent.ContentAlign.MiddleLeft,
-                                Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
+                                Offset = new RenderContent.ContentOffset { X = 10, Y = 20},
                                 Text = $"   {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
+                                Image = img,
                                 ForeColor = Color.Black,
-                                Font = SystemFonts.DefaultFont
-                            }    
+
+                                Font =AppConfig.SaoFontBold
+                            }
                         ],
                         ProgressBarCornerRadius = 3,
                         ProgressBarValue = progress,
@@ -343,6 +373,30 @@ namespace StarResonanceDpsAnalysis.Forms
 
 
         }
+
+        /// <summary>
+        /// 从 Properties.Resources 中按名字获取图片；兼容资源为 Image 或 byte[] 两种情况。
+        /// 返回 null 表示未找到或格式不正确。
+        /// </summary>
+        public static Image? GetImageByName(string imageName)
+        {
+            if (string.IsNullOrWhiteSpace(imageName))
+                return null;
+
+            object? obj = Properties.Resources.ResourceManager.GetObject(imageName, CultureInfo.InvariantCulture);
+
+            if (obj is Image img)
+                return (Image)img.Clone(); // 克隆避免被 Dispose 影响
+
+            if (obj is byte[] bytes)
+            {
+                using var ms = new MemoryStream(bytes, writable: false);
+                return Image.FromStream(ms);
+            }
+
+            return null;
+        }
+
 
     }
 }

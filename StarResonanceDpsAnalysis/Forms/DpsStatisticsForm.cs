@@ -122,8 +122,8 @@ namespace StarResonanceDpsAnalysis.Forms
                     },
                     new ContextMenuStripItem("基础设置"){ IconSvg = Resources.set_up},
                     new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, },
-                    
-                    //new ContextMenuStripItem("用户设置"){ IconSvg = Resources.userUid, },
+                    new ContextMenuStripItem("技能循环监测"),
+                    //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, },
                     new ContextMenuStripItem("统计排除"){ IconSvg = Resources.exclude, },
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes },
                     new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, },
@@ -143,6 +143,14 @@ namespace StarResonanceDpsAnalysis.Forms
                             FormManager.mainForm = new MainForm();
                         }
                         FormManager.mainForm.Show();
+                        break;
+                    case "技能循环监测":
+                        if (FormManager.skillRotationMonitorForm == null || FormManager.skillRotationMonitorForm.IsDisposed)
+                        {
+                            FormManager.skillRotationMonitorForm = new SkillRotationMonitorForm();
+                        }
+                        FormManager.skillRotationMonitorForm.Show();
+                        FormGui.SetColorMode(FormManager.skillRotationMonitorForm, AppConfig.IsLight);
                         break;
                     case "数据显示设置":
                         //dataDisplay(); 
@@ -312,7 +320,7 @@ namespace StarResonanceDpsAnalysis.Forms
             {
                 //浅色
                
-                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#FFFFFF");
+                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#E0E0E0");
                 textProgressBar1.BackColor = ColorTranslator.FromHtml("#FFFFFF");
             }
             else
