@@ -20,6 +20,8 @@ namespace StarResonanceDpsAnalysis.Forms
 
         public static RankingsForm rankingsForm;//排行榜窗体
 
+        public static MainForm mainForm;//主窗口
+
 
         /// <summary>
         /// 统一设置透明度

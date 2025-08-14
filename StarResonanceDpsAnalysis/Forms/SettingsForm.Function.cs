@@ -5,7 +5,7 @@ namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class SettingsForm
     {
-        private bool combox_changed = false;
+        private static bool combox_changed = false;
 
         /// <summary>
         /// 加载本机所有网卡到下拉框

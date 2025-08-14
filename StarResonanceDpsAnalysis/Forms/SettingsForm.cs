@@ -1,6 +1,7 @@
 ﻿using AntdUI;
 using DocumentFormat.OpenXml.Math;
 using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 using System.Runtime.InteropServices;
 
 namespace StarResonanceDpsAnalysis.Forms
@@ -25,30 +26,6 @@ namespace StarResonanceDpsAnalysis.Forms
 
             slider1.Value = (int)AppConfig.Transparency;
             inputNumber2.Value = (decimal)AppConfig.CombatTimeClearDelaySeconds;
-        }
-
-        private void TransparencyKnob_ValueChanged(object sender, int value)
-        {
-            // 实时更新透明度（用于实时预览效果）
-            try
-            {
-                // 获取MainForm实例
-                var mainForm = Application.OpenForms.OfType<MainForm>().FirstOrDefault();
-                if (mainForm != null)
-                {
-                    // 检查透明度值的有效性（10-100之间）
-                    if (value >= 10 && value <= 100)
-                    {
-                        // 实时更新MainForm的透明度进行预览
-                        mainForm.Opacity = value / 100.0;
-                        Console.WriteLine($"实时透明度预览: {value}% (Opacity: {mainForm.Opacity})");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"更新透明度预览时出错: {ex.Message}");
-            }
         }
 
         /// <summary>
@@ -140,8 +117,8 @@ namespace StarResonanceDpsAnalysis.Forms
                 // 通知MainForm更新网卡设置提示
                 try
                 {
-                    var mainForm = Application.OpenForms.OfType<MainForm>().FirstOrDefault();
-                    mainForm?.RefreshNetworkCardSettingTip();
+                    // var mainForm = Application.OpenForms.OfType<MainForm>().FirstOrDefault();
+                    StartupInitializer.RefreshNetworkCardSettingTip();
                 }
                 catch (Exception ex)
                 {
@@ -209,7 +186,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
 
 
-            FormManager.FullFormTransparency((double)e.Value / 100);
+            FormManager.FullFormTransparency((double)e.Value/100);
             //this.BackColor = Color.Transparent;
             //this.TransparencyKey = Color.Transparent;
 
