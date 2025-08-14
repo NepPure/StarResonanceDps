@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 using BlueProto;
+using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using ZstdNet;
