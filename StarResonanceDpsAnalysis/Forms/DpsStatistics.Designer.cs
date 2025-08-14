@@ -35,15 +35,15 @@
             button2 = new AntdUI.Button();
             button3 = new AntdUI.Button();
             RightHandoffButton = new AntdUI.Button();
-            LeftHandoffButton = new AntdUI.Button();
             button_AlwaysOnTop = new AntdUI.Button();
             button1 = new AntdUI.Button();
             button_Settings = new AntdUI.Button();
+            DamageModeLabel = new AntdUI.Label();
+            LeftHandoffButton = new AntdUI.Button();
             panel1 = new AntdUI.Panel();
             BattleTimeText = new AntdUI.Label();
             timer_RefreshRunningTime = new System.Windows.Forms.Timer(components);
             timer1 = new System.Windows.Forms.Timer(components);
-            DamageModeLabel = new AntdUI.Label();
             pageHeader1.SuspendLayout();
             panel1.SuspendLayout();
             SuspendLayout();
@@ -71,7 +71,7 @@
             pageHeader1.MinimizeBox = false;
             pageHeader1.Mode = AntdUI.TAMode.Dark;
             pageHeader1.Name = "pageHeader1";
-            pageHeader1.Size = new Size(463, 33);
+            pageHeader1.Size = new Size(514, 33);
             pageHeader1.SubFont = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold);
             pageHeader1.SubGap = 0;
             pageHeader1.SubText = "";
@@ -84,7 +84,7 @@
             PilingModeCheckbox.Dock = DockStyle.Right;
             PilingModeCheckbox.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             PilingModeCheckbox.ForeColor = Color.White;
-            PilingModeCheckbox.Location = new Point(244, 0);
+            PilingModeCheckbox.Location = new Point(295, 0);
             PilingModeCheckbox.Name = "PilingModeCheckbox";
             PilingModeCheckbox.Size = new Size(114, 33);
             PilingModeCheckbox.TabIndex = 17;
@@ -99,7 +99,7 @@
             button2.Ghost = true;
             button2.IconRatio = 0.8F;
             button2.IconSvg = resources.GetString("button2.IconSvg");
-            button2.Location = new Point(358, 0);
+            button2.Location = new Point(409, 0);
             button2.Name = "button2";
             button2.Size = new Size(24, 33);
             button2.TabIndex = 20;
@@ -132,19 +132,6 @@
             RightHandoffButton.TabIndex = 18;
             RightHandoffButton.Click += RightHandoffButton_Click;
             // 
-            // LeftHandoffButton
-            // 
-            LeftHandoffButton.Dock = DockStyle.Left;
-            LeftHandoffButton.Ghost = true;
-            LeftHandoffButton.Icon = Properties.Resources.left_normal;
-            LeftHandoffButton.IconHover = Properties.Resources.left_hover;
-            LeftHandoffButton.IconRatio = 0.6F;
-            LeftHandoffButton.Location = new Point(0, 0);
-            LeftHandoffButton.Name = "LeftHandoffButton";
-            LeftHandoffButton.Size = new Size(45, 33);
-            LeftHandoffButton.TabIndex = 17;
-            LeftHandoffButton.Click += LeftHandoffButton_Click;
-            // 
             // button_AlwaysOnTop
             // 
             button_AlwaysOnTop.ColorScheme = AntdUI.TAMode.Dark;
@@ -152,7 +139,7 @@
             button_AlwaysOnTop.Ghost = true;
             button_AlwaysOnTop.IconRatio = 0.8F;
             button_AlwaysOnTop.IconSvg = resources.GetString("button_AlwaysOnTop.IconSvg");
-            button_AlwaysOnTop.Location = new Point(382, 0);
+            button_AlwaysOnTop.Location = new Point(433, 0);
             button_AlwaysOnTop.Name = "button_AlwaysOnTop";
             button_AlwaysOnTop.Size = new Size(26, 33);
             button_AlwaysOnTop.TabIndex = 5;
@@ -167,7 +154,7 @@
             button1.Ghost = true;
             button1.IconRatio = 0.8F;
             button1.IconSvg = resources.GetString("button1.IconSvg");
-            button1.Location = new Point(408, 0);
+            button1.Location = new Point(459, 0);
             button1.Name = "button1";
             button1.Size = new Size(24, 33);
             button1.TabIndex = 4;
@@ -186,24 +173,49 @@
             button_Settings.Icon = Properties.Resources.setting_hover;
             button_Settings.IconRatio = 1F;
             button_Settings.IconSvg = "";
-            button_Settings.Location = new Point(432, 0);
+            button_Settings.Location = new Point(483, 0);
             button_Settings.Name = "button_Settings";
             button_Settings.Size = new Size(31, 33);
             button_Settings.TabIndex = 3;
             button_Settings.ToggleIconSvg = "";
             button_Settings.Click += button_Settings_Click;
             // 
+            // DamageModeLabel
+            // 
+            DamageModeLabel.BackColor = Color.Transparent;
+            DamageModeLabel.Dock = DockStyle.Left;
+            DamageModeLabel.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            DamageModeLabel.ForeColor = Color.White;
+            DamageModeLabel.Location = new Point(45, 0);
+            DamageModeLabel.Name = "DamageModeLabel";
+            DamageModeLabel.Size = new Size(80, 33);
+            DamageModeLabel.TabIndex = 18;
+            DamageModeLabel.Text = "单次伤害";
+            // 
+            // LeftHandoffButton
+            // 
+            LeftHandoffButton.Dock = DockStyle.Left;
+            LeftHandoffButton.Ghost = true;
+            LeftHandoffButton.Icon = Properties.Resources.left_normal;
+            LeftHandoffButton.IconHover = Properties.Resources.left_hover;
+            LeftHandoffButton.IconRatio = 0.6F;
+            LeftHandoffButton.Location = new Point(0, 0);
+            LeftHandoffButton.Name = "LeftHandoffButton";
+            LeftHandoffButton.Size = new Size(45, 33);
+            LeftHandoffButton.TabIndex = 17;
+            LeftHandoffButton.Click += LeftHandoffButton_Click;
+            // 
             // panel1
             // 
             panel1.BackColor = Color.Transparent;
             panel1.Controls.Add(BattleTimeText);
             panel1.Dock = DockStyle.Bottom;
-            panel1.Location = new Point(0, 323);
+            panel1.Location = new Point(0, 372);
             panel1.Name = "panel1";
             panel1.Radius = 3;
             panel1.Shadow = 2;
             panel1.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel1.Size = new Size(463, 51);
+            panel1.Size = new Size(514, 51);
             panel1.TabIndex = 17;
             panel1.Text = "panel1";
             // 
@@ -211,7 +223,7 @@
             // 
             BattleTimeText.Dock = DockStyle.Right;
             BattleTimeText.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            BattleTimeText.Location = new Point(375, 3);
+            BattleTimeText.Location = new Point(426, 3);
             BattleTimeText.Name = "BattleTimeText";
             BattleTimeText.Size = new Size(88, 48);
             BattleTimeText.TabIndex = 18;
@@ -226,25 +238,13 @@
             // 
             timer1.Tick += timer1_Tick;
             // 
-            // DamageModeLabel
-            // 
-            DamageModeLabel.BackColor = Color.Transparent;
-            DamageModeLabel.Dock = DockStyle.Left;
-            DamageModeLabel.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            DamageModeLabel.ForeColor = Color.White;
-            DamageModeLabel.Location = new Point(45, 0);
-            DamageModeLabel.Name = "DamageModeLabel";
-            DamageModeLabel.Size = new Size(80, 33);
-            DamageModeLabel.TabIndex = 18;
-            DamageModeLabel.Text = "单次伤害";
-            // 
             // DpsStatistics
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             BorderWidth = 0;
-            ClientSize = new Size(463, 374);
+            ClientSize = new Size(514, 423);
             Controls.Add(panel1);
             Controls.Add(pageHeader1);
             Icon = (Icon)resources.GetObject("$this.Icon");

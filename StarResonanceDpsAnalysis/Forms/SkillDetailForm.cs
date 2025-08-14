@@ -137,9 +137,16 @@ namespace StarResonanceDpsAnalysis.Control
                             ChartVisualizationService.UpdateAllDataPoints();
                         }
 
-                        // 根据当前选择的模式决定显示DPS还是HPS
-                        bool showHps = segmented1.SelectIndex != 0; // 0是伤害，1是治疗
-                        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, showHps);
+                        // 根据当前选择的模式决定显示的数据类型
+                        var dataType = segmented1.SelectIndex switch
+                        {
+                            0 => ChartDataType.Damage,      // 伤害
+                            1 => ChartDataType.Healing,     // 治疗
+                            2 => ChartDataType.TakenDamage, // 承伤
+                            _ => ChartDataType.Damage       // 默认伤害
+                        };
+
+                        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType);
                     }
                     catch (Exception ex)
                     {
@@ -188,11 +195,17 @@ namespace StarResonanceDpsAnalysis.Control
                         ChartVisualizationService.UpdateAllDataPoints();
                     }
 
-                    // 根据当前选择的模式决定显示DPS还是HPS
-                    bool showHps = segmented1.SelectIndex != 0; // 0是伤害，1是治疗
+                    // 根据当前选择的模式决定显示的数据类型
+                    var dataType = segmented1.SelectIndex switch
+                    {
+                        0 => ChartDataType.Damage,      // 伤害
+                        1 => ChartDataType.Healing,     // 治疗
+                        2 => ChartDataType.TakenDamage, // 承伤
+                        _ => ChartDataType.Damage       // 默认伤害
+                    };
 
                     // 刷新图表，传入当前玩家ID和数据类型
-                    ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, showHps);
+                    ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType);
                 }
                 catch (Exception ex)
                 {
@@ -470,9 +483,16 @@ namespace StarResonanceDpsAnalysis.Control
                             ChartVisualizationService.UpdateAllDataPoints();
                         }
 
-                        // 根据当前选择的模式决定显示DPS还是HPS
-                        bool showHps = segmented1.SelectIndex != 0; // 0是伤害，1是治疗
-                        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, showHps);
+                        // 根据当前选择的模式决定显示的数据类型
+                        var dataType = segmented1.SelectIndex switch
+                        {
+                            0 => ChartDataType.Damage,      // 伤害
+                            1 => ChartDataType.Healing,     // 治疗
+                            2 => ChartDataType.TakenDamage, // 承伤
+                            _ => ChartDataType.Damage       // 默认伤害
+                        };
+
+                        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType);
                     }
                     catch (Exception ex)
                     {
