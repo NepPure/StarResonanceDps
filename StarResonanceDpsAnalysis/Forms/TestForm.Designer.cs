@@ -205,6 +205,7 @@
             Controls.Add(panel1);
             Name = "TestForm";
             Text = "TestForm";
+            Load += TestForm_Load;
             ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown2).EndInit();
             ((System.ComponentModel.ISupportInitialize)numericUpDown3).EndInit();

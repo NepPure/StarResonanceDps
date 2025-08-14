@@ -41,11 +41,11 @@
             DamageModeLabel = new AntdUI.Label();
             LeftHandoffButton = new AntdUI.Button();
             panel1 = new AntdUI.Panel();
+            textProgressBar1 = new StarResonanceDpsAnalysis.Control.TextProgressBar();
             BattleTimeText = new AntdUI.Label();
             timer_RefreshRunningTime = new System.Windows.Forms.Timer(components);
             timer1 = new System.Windows.Forms.Timer(components);
             sortedProgressBarList1 = new StarResonanceDpsAnalysis.Control.SortedProgressBarList();
-            textProgressBar1 = new StarResonanceDpsAnalysis.Control.TextProgressBar();
             pageHeader1.SuspendLayout();
             panel1.SuspendLayout();
             SuspendLayout();
@@ -222,6 +222,22 @@
             panel1.TabIndex = 17;
             panel1.Text = "panel1";
             // 
+            // textProgressBar1
+            // 
+            textProgressBar1.AutoTextColor = false;
+            textProgressBar1.BackColor = Color.White;
+            textProgressBar1.Dock = DockStyle.Fill;
+            textProgressBar1.Font = new Font("SAO Welcome TT", 10F);
+            textProgressBar1.Location = new Point(0, 3);
+            textProgressBar1.Margin = new Padding(4);
+            textProgressBar1.Name = "textProgressBar1";
+            textProgressBar1.Padding = new Padding(4);
+            textProgressBar1.ProgressBarColor = Color.FromArgb(86, 156, 214);
+            textProgressBar1.ProgressBarCornerRadius = 3;
+            textProgressBar1.ProgressBarValue = 0.2D;
+            textProgressBar1.Size = new Size(383, 44);
+            textProgressBar1.TabIndex = 19;
+            // 
             // BattleTimeText
             // 
             BattleTimeText.Dock = DockStyle.Right;
@@ -245,6 +261,7 @@
             // 
             sortedProgressBarList1.AnimationDuration = 300;
             sortedProgressBarList1.AnimationQuality = Effects.Enum.Quality.Medium;
+            sortedProgressBarList1.AutoScroll = true;
             sortedProgressBarList1.Dock = DockStyle.Fill;
             sortedProgressBarList1.Location = new Point(0, 33);
             sortedProgressBarList1.Margin = new Padding(5, 4, 5, 4);
@@ -253,22 +270,6 @@
             sortedProgressBarList1.ProgressBarPadding = new Padding(3);
             sortedProgressBarList1.Size = new Size(471, 432);
             sortedProgressBarList1.TabIndex = 18;
-            // 
-            // textProgressBar1
-            // 
-            textProgressBar1.AutoTextColor = false;
-            textProgressBar1.BackColor = Color.White;
-            textProgressBar1.Dock = DockStyle.Fill;
-            textProgressBar1.Font = new Font("SAO Welcome TT", 10F);
-            textProgressBar1.Location = new Point(0, 3);
-            textProgressBar1.Margin = new Padding(4, 4, 4, 4);
-            textProgressBar1.Name = "textProgressBar1";
-            textProgressBar1.Padding = new Padding(4, 4, 4, 4);
-            textProgressBar1.ProgressBarColor = Color.FromArgb(86, 156, 214);
-            textProgressBar1.ProgressBarCornerRadius = 3;
-            textProgressBar1.ProgressBarValue = 0.2D;
-            textProgressBar1.Size = new Size(383, 44);
-            textProgressBar1.TabIndex = 19;
             // 
             // DpsStatisticsForm
             // 

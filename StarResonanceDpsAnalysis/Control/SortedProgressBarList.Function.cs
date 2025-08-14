@@ -27,12 +27,12 @@ namespace StarResonanceDpsAnalysis.Control
         private CubicBezier _fadeAnimationCubicBezier;
 
         private readonly object _lock = new();
-        private readonly Dictionary<int, GDI_ProgressBar> _gdiProgressBarDict = [];
+        private readonly Dictionary<long, GDI_ProgressBar> _gdiProgressBarDict = [];
         private readonly DrawInfo _drawInfo = new();
 
         private Stopwatch _animationWatch = new();
         private bool _animating = false;
-        private List<int> _prevIdOrder = [];
+        private List<long> _prevIdOrder = [];
         private List<SortAnimatingInfo> _animatingInfoBuffer = [];
 
         private CancellationTokenSource? _animationCancellation = null;
@@ -99,18 +99,11 @@ namespace StarResonanceDpsAnalysis.Control
                             top += ProgressBarHeight * (data.ToIndex - data.FromIndex) * moveBezier;
                         }
 
-                        if (data.Data.Text?.Contains("1:") ?? false) 
-                        {
-                            Console.WriteLine($"top: {top:F2}, moveBezier: {moveBezier:F4}");
-                        }
-
                         DrawProgressBar(g, data.Data, top, opacity);
                     }
                 }
 
             }
-
-            Console.WriteLine($"{DateTime.Now:ss.fffff}");
         }
         private bool Resort()
         {
@@ -224,7 +217,7 @@ namespace StarResonanceDpsAnalysis.Control
 
         private struct SortAnimatingInfo
         {
-            public int ID { get; set; }
+            public long ID { get; set; }
             public int FromIndex { get; set; }
             public int ToIndex { get; set; }
             public ProgressBarData Data { get; set; }

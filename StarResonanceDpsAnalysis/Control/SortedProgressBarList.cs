@@ -15,7 +15,7 @@ namespace StarResonanceDpsAnalysis.Control
 {
     public partial class SortedProgressBarList : UserControl
     {
-        private readonly Dictionary<int, ProgressBarData> _dataDict = [];
+        private readonly Dictionary<long, ProgressBarData> _dataDict = [];
         private int _animationDuration = 300;
         private Quality _animationQuality = Quality.Medium;
         private int _progressBarHeight = 20;
@@ -111,7 +111,7 @@ namespace StarResonanceDpsAnalysis.Control
 
     public class ProgressBarData
     {
-        public int ID { get; set; }
+        public long ID { get; set; }
         public bool AutoTextColor { get; set; } = false;
         public double ProgressBarValue { get; set; }
         public Color ProgressBarColor { get; set; } = Color.FromArgb(0x56, 0x9C, 0xD6);

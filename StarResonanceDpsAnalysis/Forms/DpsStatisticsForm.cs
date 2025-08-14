@@ -16,6 +16,7 @@ namespace StarResonanceDpsAnalysis.Forms
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
+            SetStyle();
         }
 
         private void DpsStatistics_Load(object sender, EventArgs e)
@@ -84,7 +85,7 @@ namespace StarResonanceDpsAnalysis.Forms
         /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
-
+            list.Clear();
         }
 
         private void button_Settings_Click(object sender, EventArgs e)
@@ -199,7 +200,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             var duration = StatisticData._manager.GetFormattedCombatDuration();
             BattleTimeText.Text = duration;
-
+            RefreshDpsTable();
         }
 
         private async void timer1_Tick(object sender, EventArgs e)
