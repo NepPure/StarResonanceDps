@@ -65,7 +65,7 @@ namespace StarResonanceDpsAnalysis.Forms
             panel_SkillRotation.Location = new Point(14, 163);
             panel_SkillRotation.Margin = new Padding(5, 4, 5, 4);
             panel_SkillRotation.Name = "panel_SkillRotation";
-            panel_SkillRotation.Size = new Size(1385, 111);
+            panel_SkillRotation.Size = new Size(1385, 131);
             panel_SkillRotation.TabIndex = 0;
             // 
             // panel_Controls

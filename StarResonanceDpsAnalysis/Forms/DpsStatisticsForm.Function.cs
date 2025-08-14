@@ -26,9 +26,9 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             if (AppConfig.GetConfigExists())
             {
-                AppConfig.NickName = AppConfig.GetValue("UserConfig", "NickName", "未知昵称");
+                AppConfig.NickName = AppConfig.GetValue("UserConfig", "NickName", "未知");
                 AppConfig.Uid = (ulong)AppConfig.GetValue("UserConfig", "Uid", "0").ToInt();
-                AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知职业");
+                AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知");
                 AppConfig.CombatPower = AppConfig.GetValue("UserConfig", "CombatPower", "0").ToInt();
                 StatisticData._manager.SetNickname(AppConfig.Uid, AppConfig.NickName);
                 StatisticData._manager.SetProfession(AppConfig.Uid, AppConfig.Profession);
@@ -341,14 +341,14 @@ namespace StarResonanceDpsAnalysis.Forms
                             ForeColor =Color.Black,
                             Font = AppConfig.SaoFontBold,
                         },
-                        new RenderContent
-                        {
-                            Type = RenderContent.ContentType.Image,
-                            Align = RenderContent.ContentAlign.MiddleLeft,
-                            Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
-                            Image = img,
+                        //new RenderContent
+                        //{
+                        //    Type = RenderContent.ContentType.Image,
+                        //    Align = RenderContent.ContentAlign.MiddleLeft,
+                        //    Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
+                        //    Image = img,
                      
-                        }
+                        //}
                     ];
                     existing.ProgressBarValue = progress;
                     
@@ -373,14 +373,14 @@ namespace StarResonanceDpsAnalysis.Forms
 
                                 Font =AppConfig.SaoFontBold
                             },
-                            new RenderContent
-                            {
-                                Type = RenderContent.ContentType.Image,
-                                Align = RenderContent.ContentAlign.MiddleLeft,
-                                Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
-                                Image = img,
+                            //new RenderContent
+                            //{
+                            //    Type = RenderContent.ContentType.Image,
+                            //    Align = RenderContent.ContentAlign.MiddleLeft,
+                            //    Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
+                            //    Image = img,
 
-                            }
+                            //}
                         ],
                         ProgressBarCornerRadius = 3,
                         ProgressBarValue = progress,
