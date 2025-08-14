@@ -8,8 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-// 下面这些命名空间来自你的项目：自定义控件、效果、扩展
 using StarResonanceDpsAnalysis.Control;
+using StarResonanceDpsAnalysis.Control.GDI;
 using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Effects.Enum;
 using StarResonanceDpsAnalysis.Extends;
@@ -40,14 +40,35 @@ namespace StarResonanceDpsAnalysis.Forms
                     {
                         ID = id,
                         ProgressBarValue = (double)numericUpDown2.Value / 100d,
-                        Text = $"{id++}: {numericUpDown2.Value}"
+                        ContentList =
+                        [
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
+                                Text = $"{id++}: {numericUpDown2.Value}",
+                                ForeColor = Color.Black,
+                                Font = SystemFonts.DefaultFont
+                            }
+                        ],
                     });
                 }
                 else
                 {
                     var index = (int)numericUpDown1.Value - 1;
                     data[index].ProgressBarValue = (double)numericUpDown2.Value / 100d;
-                    data[index].Text = $"{index + 1}: {numericUpDown2.Value}";
+                    data[index].ContentList = 
+                    [
+                        new RenderContent
+                        {
+                            Type = RenderContent.ContentType.Text,
+                            Align = RenderContent.ContentAlign.MiddleLeft,
+                            Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
+                            Text = $"{index + 1}: {numericUpDown2.Value}",
+                            ForeColor = Color.Black,
+                        }
+                    ] ;
                 }
 
                 sortedProgressBarList1.Data = data;
@@ -75,7 +96,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
-            // 设计器生成的空事件，可删除或保留
+
         }
 
         private void TestForm_Load(object sender, EventArgs e)

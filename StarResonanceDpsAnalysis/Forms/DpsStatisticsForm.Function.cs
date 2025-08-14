@@ -1,18 +1,18 @@
-﻿using DocumentFormat.OpenXml.Office2010.ExcelAc;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 using SharpPcap;
 using StarResonanceDpsAnalysis.Control;
+using StarResonanceDpsAnalysis.Control.GDI;
 using StarResonanceDpsAnalysis.Core;
 using StarResonanceDpsAnalysis.Effects.Enum;
 using StarResonanceDpsAnalysis.Extends;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Windows.Forms.AxHost;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -218,12 +218,36 @@ namespace StarResonanceDpsAnalysis.Forms
             // 在清空数据前，通知图表服务战斗结束
             ChartVisualizationService.OnCombatEnd();
 
-           
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
             list.Clear();
-            //sortedProgressBarList1.Data = null;
+
+            // 强制清空进度条列表控件的数据缓存（确保在 UI 线程调用）
+            try
+            {
+                var ctrl = DpsStatisticsForm.sortedProgressBarList1;
+                if (ctrl != null)
+                {
+                    if (ctrl.InvokeRequired)
+                    {
+                        ctrl.BeginInvoke(new Action(() =>
+                        {
+                            ctrl.Data = null; // 置空以触发控件内部清理
+                            ctrl.Invalidate();
+                            ctrl.Refresh();
+                        }));
+                    }
+                    else
+                    {
+                        ctrl.Data = null; // 置空以触发控件内部清理
+                        ctrl.Invalidate();
+                        ctrl.Refresh();
+                    }
+                }
+            }
+            catch { }
+
             // 完全重置所有图表（包括清空历史数据和重置视图状态）
             ChartVisualizationService.FullResetAllCharts();
 
@@ -243,7 +267,6 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
             textProgressBar1.Padding = new Padding(3, 3, 3, 3);
-            textProgressBar1.TextPadding = new Padding(3, 3, 3, 3);
             textProgressBar1.ProgressBarCornerRadius = 3; // 超大圆角
 
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
@@ -251,7 +274,7 @@ namespace StarResonanceDpsAnalysis.Forms
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
             sortedProgressBarList1.AnimationQuality = Quality.High; // 动画品质（你项目里的枚举）
 
- 
+
 
 
         }
@@ -300,9 +323,20 @@ namespace StarResonanceDpsAnalysis.Forms
                 if (existing != null)
                 {
                     // 更新
-                    existing.Text = $"  {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}";
+                    existing.ContentList =
+                    [
+                        new RenderContent
+                        {
+                            Type = RenderContent.ContentType.Text,
+                            Align = RenderContent.ContentAlign.MiddleLeft,
+                            Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
+                            Text =  $"  {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
+                            ForeColor = Color.Black,
+                            Font = SystemFonts.DefaultFont,
+                        }
+                    ];
                     existing.ProgressBarValue = progress;
-                    
+
                 }
                 else
                 {
@@ -310,12 +344,21 @@ namespace StarResonanceDpsAnalysis.Forms
                     list.Add(new ProgressBarData
                     {
                         ID = uid,
-                        Text = $"   {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
+                        ContentList = 
+                        [
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
+                                Text = $"   {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
+                                ForeColor = Color.Black,
+                                Font = SystemFonts.DefaultFont
+                            }    
+                        ],
                         ProgressBarCornerRadius = 3,
                         ProgressBarValue = progress,
                         ProgressBarColor = colorDict[p.Profession],
-                       
-
                     });
                 }
             }
