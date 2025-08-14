@@ -310,7 +310,7 @@
         private System.Windows.Forms.Timer timer_RefreshRunningTime;
         private System.Windows.Forms.Timer timer1;
         private AntdUI.Label DamageModeLabel;
-        private Control.SortedProgressBarList sortedProgressBarList1;
+        private static Control.SortedProgressBarList sortedProgressBarList1;
         private Control.TextProgressBar textProgressBar1;
     }
 }

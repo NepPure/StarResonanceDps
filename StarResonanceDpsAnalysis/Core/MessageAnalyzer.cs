@@ -605,7 +605,8 @@ namespace StarResonanceDpsAnalysis.Core
 
             // UI 刷新放在循环外，避免高频阻塞消息处理线程
             // NOTE: 强烈建议节流，例如 100–200ms 合并一次刷新（BeginInvoke + 计时器）
-           // MainForm.RefreshDpsTable();
+            // MainForm.RefreshDpsTable();
+            FormManager.dpsStatistics.RefreshDpsTable();
         }
         public static long currentUserUuid = 0;
         //获取承伤信息DPS

@@ -18,6 +18,7 @@ namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class DpsStatisticsForm
     {
+        #region 加载 网卡 启动设备/初始化 统计数据/ 启动 抓包/停止抓包/清空数据/ 关闭 事件
         private void InitTableColumnsConfigAtFirstRun()
         {
             if (AppConfig.GetConfigExists())
@@ -217,11 +218,12 @@ namespace StarResonanceDpsAnalysis.Forms
             // 在清空数据前，通知图表服务战斗结束
             ChartVisualizationService.OnCombatEnd();
 
-
+           
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
-
+            list.Clear();
+            //sortedProgressBarList1.Data = null;
             // 完全重置所有图表（包括清空历史数据和重置视图状态）
             ChartVisualizationService.FullResetAllCharts();
 
@@ -234,7 +236,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         #endregion
         #endregion
-
+        #endregion
 
 
         public void SetStyle()
@@ -268,8 +270,8 @@ namespace StarResonanceDpsAnalysis.Forms
         };
         public void RefreshDpsTable()
         {
-            var statsList = StatisticData._manager.GetPlayersWithCombatData().ToList();
-            if (statsList.Count == 0) return;
+            var statsList = StatisticData._manager.GetPlayersWithCombatData().ToArray();
+            if (statsList.Count() == 0) return;
 
             float totalDamageSum = statsList
                 .Where(p => p?.DamageStats != null)
@@ -312,9 +314,7 @@ namespace StarResonanceDpsAnalysis.Forms
                         ProgressBarCornerRadius = 3,
                         ProgressBarValue = progress,
                         ProgressBarColor = colorDict[p.Profession],
-                        
-
-                        
+                       
 
                     });
                 }

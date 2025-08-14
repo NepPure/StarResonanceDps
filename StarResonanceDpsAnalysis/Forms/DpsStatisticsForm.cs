@@ -26,15 +26,15 @@ namespace StarResonanceDpsAnalysis.Forms
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
             //加载技能配置
             StartupInitializer.LoadFromEmbeddedSkillConfig();
-            //开启DPS统计
-            StartCapture();
+           
             SetStyle();
             new TestForm().Show(); // # 调试/测试窗体：启动即显示
         }
 
         private void DpsStatistics_Load(object sender, EventArgs e)
         {
-
+            //开启DPS统计
+            StartCapture();
         }
 
 
@@ -98,8 +98,9 @@ namespace StarResonanceDpsAnalysis.Forms
         /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
-            list.Clear();
-            sortedProgressBarList1.Data = null;
+            HandleClearData();
+
+
 
         }
 
@@ -211,7 +212,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             var duration = StatisticData._manager.GetFormattedCombatDuration();
             BattleTimeText.Text = duration;
-            RefreshDpsTable();
+            //RefreshDpsTable();
         }
 
         private async void timer1_Tick(object sender, EventArgs e)
