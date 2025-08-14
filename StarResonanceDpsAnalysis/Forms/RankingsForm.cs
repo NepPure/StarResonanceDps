@@ -1,14 +1,6 @@
 ﻿using AntdUI;
 using StarResonanceDpsAnalysis.Plugin;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -18,6 +10,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
+            ToggleTableView();
         }
 
         private void RankingsForm_Load(object sender, EventArgs e)
@@ -25,9 +18,50 @@ namespace StarResonanceDpsAnalysis.Forms
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
         }
 
+
+
         private void button3_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+
+        private void TitleText_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                FormManager.ReleaseCapture();
+                FormManager.SendMessage(this.Handle, FormManager.WM_NCLBUTTONDOWN, FormManager.HTCAPTION, 0);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            divider3.Text = "伤害参考";
+            get_dps_rank();
+        }
+
+
+        private void segmented1_SelectIndexChanged(object sender, IntEventArgs e)
+        {
+            get_dps_rank();
+        }
+
+        private void RankingsForm_ForeColorChanged(object sender, EventArgs e)
+        {
+            if (Config.IsLight)
+            {
+                //浅色
+                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
+                button1.DefaultBack = ColorTranslator.FromHtml("#67AEF6");
+            }
+            else
+            {
+                //深色
+                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#10529a");
+                button1.DefaultBack = ColorTranslator.FromHtml("#255AD0");
+
+            }
         }
     }
 }

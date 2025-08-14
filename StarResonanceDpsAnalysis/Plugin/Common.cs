@@ -1,26 +1,15 @@
 ﻿using Flurl;
 using Flurl.Http;
 using Newtonsoft.Json.Linq;
-using OpenTK.Graphics.ES11;
-using SharpPcap;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
-using StarResonanceDpsAnalysis.Control;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using System.Security.Cryptography;
 
 
 namespace StarResonanceDpsAnalysis.Plugin
 {
     public class Common
     {
-        public static SkillDiary skillDiary;//
 
- 
-
-        public static SkillDetailForm skillDetailForm;//技能详情窗体
 
 
 
@@ -444,6 +433,29 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
 
         /// <summary>
+        /// 用于生成战斗标识
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static string GenerateToken(int length = 16)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var tokenChars = new char[length];
+
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                byte[] data = new byte[length];
+                rng.GetBytes(data);
+
+                for (int i = 0; i < length; i++)
+                {
+                    tokenChars[i] = chars[data[i] % chars.Length];
+                }
+            }
+
+            return new string(tokenChars);
+        }
+        /// <summary>
         /// 输出单位换算
         /// </summary>
         /// <param name="value"></param>
@@ -460,6 +472,83 @@ namespace StarResonanceDpsAnalysis.Plugin
             return (value / 1_000.0).ToString("0.##") + "K";
         }
 
+        /// <summary>
+        /// 上报一次快照中的本机玩家数据（优先用快照，缺项回退到运行时）。
+        /// </summary>
+        public static async Task<bool> AddUserDps(BattleSnapshot snapshot)
+        {
+            if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
+
+            // 1) 先从快照里找当前 UID
+            if (!snapshot.Players.TryGetValue(AppConfig.Uid, out var sp))
+            {
+                // 快照里没有该玩家，返回 null
+                return false;
+            }
+
+            // 2) 基本信息（全部来自快照，保证与快照一致）
+            string nickName = sp.Nickname;
+            string professional = sp.Profession;
+            int combatPower = sp.CombatPower;
+
+            // 3) 伤害/治疗汇总（快照）
+            ulong totalDamage = sp.TotalDamage;
+
+            // 4) 实时秒伤 / 暴击率 / 幸运率 / 分伤 / 单次最大（快照优先，若快照未包含则用运行时兜底）
+            var runtime = StatisticData._manager.GetOrCreate(AppConfig.Uid);
+
+            ulong instantDps = sp.RealtimeDps > 0 ? sp.RealtimeDps : runtime.DamageStats.RealtimeValue;
+            int critRate = sp.CritRate > 0 ? (int)sp.CritRate : (int)runtime.DamageStats.GetCritRate();
+            int luckyRate = sp.LuckyRate > 0 ? (int)sp.LuckyRate: (int)runtime.DamageStats.GetLuckyRate();
+
+            double criticalDamage = sp.CriticalDamage > 0 ? sp.CriticalDamage : runtime.DamageStats.Critical;
+            double luckyDamage = sp.LuckyDamage > 0 ? sp.LuckyDamage : runtime.DamageStats.Lucky;
+            double critLuckyDamage = sp.CritLuckyDamage > 0 ? sp.CritLuckyDamage : runtime.DamageStats.CritLucky;
+
+            // 你原字段名是 maxInstantDps，但实际含义更像“单发最大命中”
+            double maxInstantDps = sp.MaxSingleHit > 0 ? sp.MaxSingleHit : runtime.DamageStats.MaxSingleHit;
+
+            // 5) 战斗时长（用快照 Duration 按你管理器的格式化规则）
+            string duration = snapshot.Duration.TotalHours >= 1
+                ? snapshot.Duration.ToString(@"hh\:mm\:ss")
+                : snapshot.Duration.ToString(@"mm\:ss");
+
+            // 6) 战斗 ID（你原先是现生成）
+            string battleId = GenerateToken();
+
+            // 7) 技能列表（快照里的伤害技能汇总）
+            List<SkillSummary> kill = sp.DamageSkills ?? new List<SkillSummary>();
+
+            // 8) 组装并上报
+            string url = @$"{AppConfig.url}/add_user_dps";
+            var body = new
+            {
+                uid = AppConfig.Uid,
+                nickName,
+                professional,
+                combatPower,
+                instantDps,
+                totalDamage,
+                critRate,
+                luckyRate,
+                criticalDamage,
+                luckyDamage,
+                critLuckyDamage,
+                maxInstantDps,
+                battleTime = duration,
+                battleId,
+                kill
+            };
+
+            var resp = await Common.RequestPost(url, body);
+            if (resp["code"].ToString()=="200")
+            {
+                return true;
+            }
+
+            // 9) 将返回值稳妥转为 JObject
+            return false;
+        }
 
 
 

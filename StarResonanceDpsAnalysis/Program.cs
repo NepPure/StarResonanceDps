@@ -1,6 +1,6 @@
-using StarResonanceDpsAnalysis.Forms;
-using StarResonanceDpsAnalysis.Plugin;
 using System.Text;
+
+using StarResonanceDpsAnalysis.Forms;
 
 namespace StarResonanceDpsAnalysis
 {
@@ -13,14 +13,16 @@ namespace StarResonanceDpsAnalysis
         static void Main()
         {
             Console.OutputEncoding = Encoding.UTF8;
-
-      
+            AntdUI.Config.SetDpi(1.0F);//Ä¬ÈÏdpi
+            AntdUI.Config.TextRenderingHighQuality = true;
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            //AntdUI.Config.SetCorrectionTextRendering("SAO Welcome TT", "Î¢ÈíÑÅºÚ");
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new TestForm());
+            Application.Run(new MainForm());
         }
 
-   
+
     }
 }

@@ -6,13 +6,13 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>Assets\ApplicationIcon_256x256.ico</ApplicationIcon>
+    <ApplicationIcon>3peai-uy5kt-001.ico</ApplicationIcon>
     <Platforms>AnyCPU;x86;x64</Platforms>
     <Version>1.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Assets\ApplicationIcon_256x256.ico" />
+    <Content Include="3peai-uy5kt-001.ico" />
   </ItemGroup>
 
   <ItemGroup>

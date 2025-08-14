@@ -37,6 +37,7 @@
             AntdUI.SegmentedItem segmentedItem7 = new AntdUI.SegmentedItem();
             AntdUI.SegmentedItem segmentedItem8 = new AntdUI.SegmentedItem();
             AntdUI.SegmentedItem segmentedItem9 = new AntdUI.SegmentedItem();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RankingsForm));
             pageHeader1 = new AntdUI.PageHeader();
             label1 = new AntdUI.Label();
             panel6 = new AntdUI.Panel();
@@ -48,9 +49,14 @@
             segmented1 = new AntdUI.Segmented();
             button1 = new AntdUI.Button();
             divider3 = new AntdUI.Divider();
+            panel1 = new AntdUI.Panel();
+            panel2 = new AntdUI.Panel();
+            label2 = new AntdUI.Label();
             pageHeader1.SuspendLayout();
             panel6.SuspendLayout();
             panel3.SuspendLayout();
+            panel1.SuspendLayout();
+            panel2.SuspendLayout();
             SuspendLayout();
             // 
             // pageHeader1
@@ -74,13 +80,14 @@
             label1.BackColor = Color.Transparent;
             label1.ColorScheme = AntdUI.TAMode.Dark;
             label1.Dock = DockStyle.Fill;
-            label1.Font = new Font("SAO Welcome TT", 12F, FontStyle.Bold);
+            label1.Font = new Font("SAO UI TT", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             label1.Location = new Point(0, 0);
             label1.Name = "label1";
             label1.Size = new Size(1213, 52);
             label1.TabIndex = 26;
-            label1.Text = "Leader Board";
+            label1.Text = "Damage Reference";
             label1.TextAlign = ContentAlignment.MiddleCenter;
+            label1.MouseDown += TitleText_MouseDown;
             // 
             // panel6
             // 
@@ -90,6 +97,7 @@
             panel6.Dock = DockStyle.Bottom;
             panel6.Location = new Point(0, 1105);
             panel6.Name = "panel6";
+            panel6.Radius = 3;
             panel6.Shadow = 6;
             panel6.ShadowAlign = AntdUI.TAlignMini.Top;
             panel6.Size = new Size(1213, 86);
@@ -125,8 +133,8 @@
             // 
             button4.Anchor = AnchorStyles.Bottom;
             button4.Ghost = true;
-            button4.Icon = Properties.Resources.flushed_normal;
-            button4.IconHover = Properties.Resources.flushed_hover;
+            button4.Icon = Properties.Resources.ok_normal;
+            button4.IconHover = Properties.Resources.ok_hover;
             button4.IconPosition = AntdUI.TAlignMini.None;
             button4.IconRatio = 1.5F;
             button4.Location = new Point(487, 24);
@@ -136,17 +144,16 @@
             // 
             // table_DpsDetailDataTable
             // 
-            table_DpsDetailDataTable.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             table_DpsDetailDataTable.BackgroundImageLayout = ImageLayout.Zoom;
+            table_DpsDetailDataTable.Dock = DockStyle.Fill;
             table_DpsDetailDataTable.EmptyImage = Properties.Resources.cancel_hover;
-            table_DpsDetailDataTable.FixedHeader = false;
-            table_DpsDetailDataTable.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            table_DpsDetailDataTable.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             table_DpsDetailDataTable.Gap = 8;
             table_DpsDetailDataTable.Gaps = new Size(8, 8);
-            table_DpsDetailDataTable.Location = new Point(0, 171);
+            table_DpsDetailDataTable.Location = new Point(0, 40);
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
-            table_DpsDetailDataTable.Size = new Size(1213, 940);
+            table_DpsDetailDataTable.Size = new Size(1213, 893);
             table_DpsDetailDataTable.TabIndex = 33;
             table_DpsDetailDataTable.Text = "table1";
             // 
@@ -155,12 +162,12 @@
             panel3.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel3.BackColor = Color.Transparent;
             panel3.Controls.Add(segmented1);
-            panel3.Location = new Point(246, 67);
+            panel3.Location = new Point(279, 5);
             panel3.Name = "panel3";
-            panel3.Radius = 1;
+            panel3.Radius = 3;
             panel3.Shadow = 6;
             panel3.ShadowOpacityHover = 0F;
-            panel3.Size = new Size(958, 65);
+            panel3.Size = new Size(925, 65);
             panel3.TabIndex = 34;
             panel3.Text = "panel3";
             // 
@@ -193,11 +200,12 @@
             segmented1.Items.Add(segmentedItem9);
             segmented1.Location = new Point(9, 9);
             segmented1.Name = "segmented1";
-            segmented1.Radius = 3;
+            segmented1.Radius = 2;
             segmented1.SelectIndex = 0;
-            segmented1.Size = new Size(940, 47);
+            segmented1.Size = new Size(907, 47);
             segmented1.TabIndex = 16;
             segmented1.Text = "segmented1";
+            segmented1.SelectIndexChanged += segmented1_SelectIndexChanged;
             // 
             // button1
             // 
@@ -205,22 +213,62 @@
             button1.DefaultBack = Color.FromArgb(153, 204, 255);
             button1.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             button1.ForeColor = Color.White;
-            button1.Location = new Point(7, 71);
+            button1.Location = new Point(18, 9);
             button1.Name = "button1";
-            button1.Size = new Size(225, 56);
+            button1.Radius = 3;
+            button1.Size = new Size(249, 56);
             button1.TabIndex = 35;
-            button1.Text = "伤害榜";
+            button1.Text = "伤害参考";
+            button1.Click += button1_Click;
             // 
             // divider3
             // 
-            divider3.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             divider3.BackColor = Color.Transparent;
-            divider3.Location = new Point(0, 140);
+            divider3.Dock = DockStyle.Top;
+            divider3.Font = new Font("阿里妈妈数黑体", 10F, FontStyle.Bold);
+            divider3.Location = new Point(0, 0);
             divider3.Name = "divider3";
-            divider3.OrientationMargin = 0F;
-            divider3.Size = new Size(1213, 14);
+            divider3.OrientationMargin = 1F;
+            divider3.Size = new Size(1213, 40);
             divider3.TabIndex = 36;
-            divider3.Text = "";
+            divider3.Text = "伤害参考";
+            // 
+            // panel1
+            // 
+            panel1.Controls.Add(panel3);
+            panel1.Controls.Add(button1);
+            panel1.Dock = DockStyle.Top;
+            panel1.Location = new Point(0, 52);
+            panel1.Name = "panel1";
+            panel1.Radius = 3;
+            panel1.Shadow = 6;
+            panel1.ShadowAlign = AntdUI.TAlignMini.Bottom;
+            panel1.Size = new Size(1213, 84);
+            panel1.TabIndex = 38;
+            panel1.Text = "panel1";
+            // 
+            // panel2
+            // 
+            panel2.Controls.Add(table_DpsDetailDataTable);
+            panel2.Controls.Add(label2);
+            panel2.Controls.Add(divider3);
+            panel2.Dock = DockStyle.Fill;
+            panel2.Location = new Point(0, 136);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(1213, 969);
+            panel2.TabIndex = 38;
+            panel2.Text = "panel2";
+            // 
+            // label2
+            // 
+            label2.Dock = DockStyle.Bottom;
+            label2.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            label2.Location = new Point(0, 933);
+            label2.Name = "label2";
+            label2.Size = new Size(1213, 36);
+            label2.TabIndex = 37;
+            label2.Text = "以上数据仅供自身职业DPS参考，切勿用于战力歧视等破坏游戏社区环境行为，一经发现，关闭此功能";
+            label2.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // RankingsForm
             // 
@@ -228,18 +276,21 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(1213, 1191);
-            Controls.Add(divider3);
-            Controls.Add(button1);
-            Controls.Add(panel3);
-            Controls.Add(table_DpsDetailDataTable);
+            Controls.Add(panel2);
+            Controls.Add(panel1);
             Controls.Add(panel6);
             Controls.Add(pageHeader1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "RankingsForm";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "RankingsForm";
             Load += RankingsForm_Load;
+            ForeColorChanged += RankingsForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);
             panel6.ResumeLayout(false);
             panel3.ResumeLayout(false);
+            panel1.ResumeLayout(false);
+            panel2.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -255,5 +306,8 @@
         private AntdUI.Segmented segmented1;
         private AntdUI.Button button1;
         private AntdUI.Divider divider3;
+        private AntdUI.Panel panel1;
+        private AntdUI.Panel panel2;
+        private AntdUI.Label label2;
     }
 }

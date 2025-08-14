@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-
-using AntdUI;
+﻿using AntdUI;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Core;
+using StarResonanceDpsAnalysis.Extends;
+using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using System.Runtime.InteropServices;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -24,13 +19,18 @@ namespace StarResonanceDpsAnalysis.Forms
             if (AppConfig.GetConfigExists())
             {
                 AppConfig.NickName = AppConfig.GetValue("UserConfig", "NickName", "未知昵称");
-                AppConfig.Uid = Convert.ToUInt64(AppConfig.GetValue("UserConfig", "Uid", "0"));
+                AppConfig.Uid = (ulong)AppConfig.GetValue("UserConfig", "Uid", "0").ToInt();
+                AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知职业");
+                AppConfig.CombatPower = AppConfig.GetValue("UserConfig", "CombatPower", "0").ToInt();
                 StatisticData._manager.SetNickname(AppConfig.Uid, AppConfig.NickName);
+                StatisticData._manager.SetProfession(AppConfig.Uid, AppConfig.Profession);
+                StatisticData._manager.SetCombatPower(AppConfig.Uid, AppConfig.CombatPower);
+               
                 return;
             }
 
-          
-          
+
+
         }
 
         #endregion
@@ -47,9 +47,9 @@ namespace StarResonanceDpsAnalysis.Forms
 
 
             table_DpsDataTable.Columns = ColumnSettingsManager.BuildColumns();
-          
+
             table_DpsDataTable.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
-            
+
 
             table_DpsDataTable.Binding(DpsTableDatas.DpsTable);
 
@@ -185,25 +185,220 @@ namespace StarResonanceDpsAnalysis.Forms
         [DllImport("user32.dll")]
         private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
-        private bool IsMousePenetrate = false;
-
         private const int GWL_EXSTYLE = -20;
 
         private const int WS_EX_TRANSPARENT = 0x00000020;
         private const int WS_EX_LAYERED = 0x00080000;
 
+        private bool IsMousePenetrate = false;
+
+        /// <summary>
+        /// 保存进入穿透模式前的透明度值，用于退出时恢复
+        /// </summary>
+        private double? _savedOpacityBeforePenetrate = null;
+
         private void HandleMouseThrough()
         {
-            var exStyle = GetWindowLong(Handle, GWL_EXSTYLE);
+            try
+            {
+                var exStyle = GetWindowLong(Handle, GWL_EXSTYLE);
 
-            // 根据是否穿透组织传递给 SetWindowLong 的3参
-            var dwNewLong = IsMousePenetrate
-                ? exStyle & ~WS_EX_TRANSPARENT
-                : exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT;
+                // 修正逻辑：切换鼠标穿透状态
+                int dwNewLong;
+                if (IsMousePenetrate)
+                {
+                    // 当前是穿透状态，现在要禁用穿透，恢复正常点击
+                    dwNewLong = exStyle & ~(WS_EX_TRANSPARENT | WS_EX_LAYERED);
+                }
+                else
+                {
+                    // 当前不是穿透状态，现在要启用穿透，让鼠标完全穿过窗体
+                    dwNewLong = exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT;
+                }
 
-            _ = SetWindowLong(Handle, GWL_EXSTYLE, dwNewLong);
+                var result = SetWindowLong(Handle, GWL_EXSTYLE, dwNewLong);
 
-            IsMousePenetrate = !IsMousePenetrate;
+                // 切换状态标志
+                IsMousePenetrate = !IsMousePenetrate;
+
+                // 调试输出
+                Console.WriteLine($"鼠标穿透状态切换: {(IsMousePenetrate ? "启用 - 窗体完全不可点击" : "禁用 - 窗体恢复正常点击")}");
+                Console.WriteLine($"SetWindowLong 调用结果: {result}，当前ExStyle: 0x{exStyle:X8} -> 0x{dwNewLong:X8}");
+
+                // 更新界面显示状态和透明度
+                UpdateMouseThroughStatus();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"切换鼠标穿透状态时出错: {ex.Message}");
+                // 发生错误时确保状态一致
+                IsMousePenetrate = false;
+                UpdateMouseThroughStatus();
+            }
+        }
+
+        /// <summary>
+        /// 更新鼠标穿透状态的界面显示
+        /// </summary>
+        private void UpdateMouseThroughStatus()
+        {
+            try
+            {
+                if (IsMousePenetrate)
+                {
+                    // 穿透状态：在标题中添加提示
+                    if (!pageHeader_MainHeader.SubText.Contains("[鼠标穿透]"))
+                    {
+                        pageHeader_MainHeader.SubText += " [鼠标穿透]";
+                    }
+
+                    // 保存当前透明度设置，然后设置为穿透模式的透明度
+                    _savedOpacityBeforePenetrate = Opacity;
+
+                    // 设置鼠标穿透时的固定透明度（0.4，既透明又能看到界面）
+                    Opacity = 0.4;
+
+                    // 启动光标控制定时器，强制保持默认光标
+                    StartCursorControlTimer();
+
+                    Console.WriteLine($"鼠标穿透模式：透明度已设置为 {Opacity} (40%)");
+                }
+                else
+                {
+                    // 正常状态：移除穿透提示
+                    pageHeader_MainHeader.SubText = pageHeader_MainHeader.SubText.Replace(" [鼠标穿透]", "");
+
+                    // 停止光标控制定时器
+                    StopCursorControlTimer();
+
+                    // 恢复透明度的优先级：
+                    // 1. 使用保存的穿透前透明度（优先）
+                    // 2. 如果没有保存值，使用配置中的透明度设置
+                    // 3. 考虑hyaline状态（窗体透明热键的状态）
+                    if (_savedOpacityBeforePenetrate.HasValue)
+                    {
+                        Opacity = _savedOpacityBeforePenetrate.Value;
+                        _savedOpacityBeforePenetrate = null;
+                        Console.WriteLine($"退出穿透模式：透明度已恢复为保存值 {Opacity}");
+                    }
+                    else
+                    {
+                        // 根据hyaline状态决定透明度
+                        if (hyaline)
+                        {
+                            // 如果hyaline为true，表示用户之前设置为完全不透明
+                            Opacity = 1.0;
+                            Console.WriteLine($"退出穿透模式：透明度已恢复为完全不透明 {Opacity}");
+                        }
+                        else
+                        {
+                            // 否则使用配置中的透明度
+                            Opacity = AppConfig.Transparency / 100.0;
+                            Console.WriteLine($"退出穿透模式：透明度已设置为配置值 {Opacity} ({AppConfig.Transparency}%)");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"更新鼠标穿透状态界面显示时出错: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 强制重置鼠标穿透状态为正常（可点击）状态
+        /// 用于在程序启动时或发生错误时确保窗体可以正常操作
+        /// </summary>
+        public void ResetMouseThroughState()
+        {
+            try
+            {
+                var exStyle = GetWindowLong(Handle, GWL_EXSTYLE);
+                var dwNewLong = exStyle & ~(WS_EX_TRANSPARENT | WS_EX_LAYERED);
+                SetWindowLong(Handle, GWL_EXSTYLE, dwNewLong);
+
+                IsMousePenetrate = false;
+                UpdateMouseThroughStatus();
+
+                Console.WriteLine("鼠标穿透状态已重置为正常（可点击）状态");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"重置鼠标穿透状态时出错: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 启动光标控制定时器，在鼠标穿透模式下强制保持默认光标
+        /// </summary>
+        private void StartCursorControlTimer()
+        {
+            try
+            {
+                // 先停止现有的定时器
+                StopCursorControlTimer();
+
+                // 创建新的定时器
+                _cursorControlTimer = new System.Windows.Forms.Timer();
+                _cursorControlTimer.Interval = 100; // 每100毫秒检查一次
+                _cursorControlTimer.Tick += CursorControlTimer_Tick;
+                _cursorControlTimer.Start();
+
+                Console.WriteLine("光标控制定时器已启动");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"启动光标控制定时器时出错: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 停止光标控制定时器
+        /// </summary>
+        private void StopCursorControlTimer()
+        {
+            try
+            {
+                if (_cursorControlTimer != null)
+                {
+                    _cursorControlTimer.Stop();
+                    _cursorControlTimer.Dispose();
+                    _cursorControlTimer = null;
+                    Console.WriteLine("光标控制定时器已停止");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"停止光标控制定时器时出错: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 光标控制定时器回调，强制设置光标为默认样式
+        /// </summary>
+        private void CursorControlTimer_Tick(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (IsMousePenetrate && IsInMousePenetrateMode())
+                {
+                    // 在鼠标穿透模式下，强制设置光标为默认箭头
+                    if (Cursor.Current != Cursors.Default)
+                    {
+                        Cursor.Current = Cursors.Default;
+                        Console.WriteLine("强制重置光标为默认样式");
+                    }
+                }
+                else
+                {
+                    // 如果不在穿透模式，停止定时器
+                    StopCursorControlTimer();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"光标控制定时器回调出错: {ex.Message}");
+            }
         }
 
         #endregion
@@ -218,10 +413,29 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void HandleFormTransparency()
         {
-            var opacity = hyaline ? 1 : AppConfig.Transparency / 100;
-            Opacity = opacity;
+            // 检查是否在鼠标穿透模式下
+            if (IsMousePenetrate)
+            {
+                // 在鼠标穿透模式下，不允许切换透明度
+                Console.WriteLine("鼠标穿透模式下，透明度由穿透功能控制");
+                return;
+            }
 
-            hyaline = !hyaline;
+            if (hyaline)
+            {
+                // 当前是透明状态（1.0），要切换到配置透明度
+                var opacity = AppConfig.Transparency / 100.0;
+                Opacity = opacity;
+                hyaline = false;
+                Console.WriteLine($"切换到配置透明度: {AppConfig.Transparency}% (Opacity: {opacity})");
+            }
+            else
+            {
+                // 当前是配置透明度，要切换到完全不透明（1.0）
+                Opacity = 1.0;
+                hyaline = true;
+                Console.WriteLine($"切换到完全不透明: 100% (Opacity: 1.0)");
+            }
         }
 
         #endregion
@@ -241,16 +455,26 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void HandleClearData()
         {
-            if (DpsTableDatas.DpsTable.Count >= 0)
-            {
 
-                SaveCurrentDpsSnapshot();
-            }
-           
-            CombatWatch.Restart();
+            // 先停止所有图表的自动刷新
+            ChartVisualizationService.StopAllChartsAutoRefresh();
+
+            // 在清空数据前，通知图表服务战斗结束
+            ChartVisualizationService.OnCombatEnd();
+
+
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
+
+            // 完全重置所有图表（包括清空历史数据和重置视图状态）
+            ChartVisualizationService.FullResetAllCharts();
+
+            // 如果当前正在抓包，重新启动图表自动刷新
+            if (IsCaptureStarted)
+            {
+                ChartVisualizationService.StartAllChartsAutoRefresh(1000);
+            }
         }
 
         #endregion
@@ -258,11 +482,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         #region HandleClearHistory() 响应清空历史
 
-        private void HandleClearHistory()
-        {
-            dropdown_History.Items.Clear();
-            HistoricalRecords.Clear();
-        }
+
 
         #endregion
 
@@ -277,101 +497,9 @@ namespace StarResonanceDpsAnalysis.Forms
         #endregion
 
 
-        #region SaveCurrentDpsSnapshot() 历史记录：保存/显示
-
-        private void SaveCurrentDpsSnapshot()
-        {
-            var statsList = StatisticData._manager
-                .GetAllPlayers()
-                .ToList();
-            if (statsList.Count == 0) return;
-
-            string timeOnly = @$"结束时间：{DateTime.Now:HH:mm:ss}";
-
-            HistoricalRecords[timeOnly] = statsList;
-            dropdown_History.Items.Add(timeOnly);
-            dropdown_History.SelectedValue = -1;
-        }
-
-        private void ShowHistoricalDps(string timeKey)
-        {
-            if (!HistoricalRecords.TryGetValue(timeKey, out var recordList))
-            {
-                MessageBox.Show($"未找到时间 {timeKey} 的历史记录");
-                return;
-            }
-            if (recordList.Count <= 0) return;
-            // 2) 计算最大总伤害，用于归一化进度条
-            var totalDamageSum = recordList
-                .Where(p => p?.DamageStats != null)
-                .Sum(p => (float)p.DamageStats.Total);
-
-            if (totalDamageSum <= 0f) totalDamageSum = 1f;
-
-            // 3) 遍历，新增或更新行
-            foreach (var stat in recordList)
-            {
-                if (stat == null) continue;
-                // 3.1 计算进度条比例
-                float percent = (float)stat.DamageStats.Total / totalDamageSum;
-
-                // 3.2 按 UID 查找已有行
-                var row = DpsTableDatas.DpsTable
-                    .FirstOrDefault(x => x.Uid == stat.Uid);
-
-                // 3.3 计算暴击率/幸运率（以 % 计）
-                double critRate = stat.DamageStats.CountTotal > 0
-                                 ? (double)stat.DamageStats.CountCritical / stat.DamageStats.CountTotal * 100
-                                 : 0.0;
-                double luckyRate = stat.DamageStats.CountTotal > 0
-                                 ? (double)stat.DamageStats.CountLucky / stat.DamageStats.CountTotal * 100
-                                 : 0.0;
-
-
-                if (row == null)
-                {
-                    // 新增一行
-                    DpsTableDatas.DpsTable.Add(new DpsTable(
-                         stat.Uid,
-                         stat.Nickname,
-                         stat.TakenDamage,
-                         stat.HealingStats.Total,
-                         stat.HealingStats.Critical,
-                        stat.HealingStats.Lucky,
-                        stat.HealingStats.CritLucky,
-                        stat.HealingStats.RealtimeValue,
-                        stat.HealingStats.RealtimeMax,
-                         stat.Profession,
-                        stat.DamageStats.Total,
-                        stat.DamageStats.Critical,
-                         stat.DamageStats.Lucky,
-                        stat.DamageStats.CritLucky,
-                        Math.Round(critRate, 1),
-                        Math.Round(luckyRate, 1),
-                       stat.DamageStats.RealtimeValue,     // 即时 DPS
-                        stat.DamageStats.RealtimeMax,       // 峰值 DPS
-                        Math.Round(stat.DamageStats.GetTotalPerSecond(), 1), // 总平均 DPS
-                        Math.Round(stat.HealingStats.GetTotalPerSecond(), 1), // 总平均 HPS
-                    new CellProgress(percent)
-                    {
-                        Size = new Size(200, 10),
-                        Fill = AppConfig.DpsColor
-                    },
-                    stat.CombatPower
-
-                    ));
-                }
-            }
-        }
-        #endregion
 
 
         #region StartCapture() 抓包：开始/停止/事件/统计
-
-        /// <summary>
-        /// 是否开始抓包
-        /// </summary>
-        private bool IsCaptureStarted { get; set; } = false;
 
         /// <summary>
         /// 开始抓包
@@ -404,6 +532,11 @@ namespace StarResonanceDpsAnalysis.Forms
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
 
+            // 清空图表历史数据，开始新的战斗记录
+            ChartVisualizationService.ClearAllHistory();
+
+            // 启动所有图表的自动刷新
+            ChartVisualizationService.StartAllChartsAutoRefresh(1000);
 
             // 事件注册与启动监听 --
             SelectedDevice.Open(new DeviceConfiguration
@@ -426,7 +559,7 @@ namespace StarResonanceDpsAnalysis.Forms
             pageHeader_MainHeader.SubText = "监控已开启";
             label_SettingTip.Visible = true;
             label_SettingTip.Text = "00:00";
-            CombatWatch.Restart();
+
             timer_RefreshRunningTime.Start();
         }
 
@@ -435,8 +568,12 @@ namespace StarResonanceDpsAnalysis.Forms
         /// </summary>
         private void StopCapture()
         {
-            // 保存快照
-            if (DpsTableDatas.DpsTable.Count > 0) SaveCurrentDpsSnapshot();
+            // 先停止所有图表的自动刷新，防止在停止抓包后继续更新数据
+            ChartVisualizationService.StopAllChartsAutoRefresh();
+
+
+            // 在停止抓包时，通知图表服务战斗结束，确保显示最终的0值状态
+            ChartVisualizationService.OnCombatEnd();
 
             if (SelectedDevice != null)
             {
@@ -476,12 +613,14 @@ namespace StarResonanceDpsAnalysis.Forms
             // 状态复位/计时器复位
             timer_RefreshDpsTable.Enabled = false;
             pageHeader_MainHeader.SubText = string.Empty;
-            label_SettingTip.Text = "00:00";
-            CombatWatch.Stop();
+
             timer_RefreshRunningTime.Stop();
 
             // 清空解析/重组状态 ——（按你的实际字段名来）
             PacketAnalyzer.ResetCaptureState();
+
+            // 更新网卡设置提示状态
+            UpdateNetworkCardSettingTip();
         }
 
         #endregion
@@ -494,28 +633,12 @@ namespace StarResonanceDpsAnalysis.Forms
         /// </summary>
         private void OpenSettingsDialog()
         {
-            using var form = new Setup(this);
-            form.inputNumber1.Value = (decimal)AppConfig.Transparency;
-            form.colorPicker1.Value = AppConfig.DpsColor;
-           
-            var title = Localization.Get("systemset", "请选择网卡");
-            AntdUI.Modal.open(new Modal.Config(this, title, form, TType.Info)
+            if (FormManager.settingsForm == null || FormManager.settingsForm.IsDisposed)
             {
-                CloseIcon = true,
-                BtnHeight = 0,
-                
-            });
-
-            AppConfig.Transparency = (double)form.inputNumber1.Value;
-            if (AppConfig.Transparency < 10)
-            {
-                AppConfig.Transparency = 100;
-                MessageBox.Show("透明度不能低于10%，已自动设置为100%");
+                FormManager.settingsForm = new SettingsForm();
             }
+            FormManager.settingsForm.Show();
 
-            RefreshHotKeyTips();
-
-            label_SettingTip.Visible = false;
         }
 
         private void dataDisplay()
@@ -530,24 +653,15 @@ namespace StarResonanceDpsAnalysis.Forms
                 });
 
                 table_DpsDataTable.Columns = ColumnSettingsManager.BuildColumns();
-              
+
                 table_DpsDataTable.StackedHeaderRows = ColumnSettingsManager.BuildStackedHeader();
-                
+
             }
         }
 
         private void SetUserUid()
         {
-            using (var form = new UserUidSet(this))
-            {
-                string title = Localization.Get("UserUidSet", "");
-                AntdUI.Modal.open(new Modal.Config(this, title, form, TType.Info)
-                {
-                    CloseIcon = false,
-                    BtnHeight = 0,
-                });
 
-            }
         }
         #endregion
     }

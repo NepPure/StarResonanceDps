@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace StarResonanceDpsAnalysis.Plugin.Charts
 {
@@ -109,9 +104,9 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
         public FlatScatterChart()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | 
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
                      ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw, true);
-            
+
             ApplyTheme();
         }
 
@@ -128,7 +123,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 Color = _colors[_series.Count % _colors.Length],
                 MarkerSize = 8
             };
-            
+
             _series.Add(series);
             Invalidate();
         }
@@ -164,7 +159,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            
+
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
@@ -183,7 +178,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             if (dataRange.IsEmpty) return;
 
             // 计算绘图区域
-            var chartRect = new Rectangle(PaddingLeft, PaddingTop, 
+            var chartRect = new Rectangle(PaddingLeft, PaddingTop,
                                         Width - PaddingLeft - PaddingRight,
                                         Height - PaddingTop - PaddingBottom);
 
@@ -214,13 +209,13 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             var message = "暂无数据";
             var font = new Font("Microsoft YaHei", 12, FontStyle.Regular);
             var brush = new SolidBrush(_isDarkTheme ? Color.Gray : Color.DarkGray);
-            
+
             var size = g.MeasureString(message, font);
             var x = (Width - size.Width) / 2;
             var y = (Height - size.Height) / 2;
-            
+
             g.DrawString(message, font, brush, x, y);
-            
+
             font.Dispose();
             brush.Dispose();
         }
@@ -238,7 +233,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             // 添加一些边距
             var rangeX = maxX - minX;
             var rangeY = maxY - minY;
-            
+
             if (rangeX == 0) rangeX = 100; // 默认X轴范围
             if (rangeY == 0) rangeY = 1000; // 默认Y轴范围
 
@@ -274,7 +269,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
             // 绘制X轴
             g.DrawLine(axisPen, chartRect.X, chartRect.Bottom, chartRect.Right, chartRect.Bottom);
-            
+
             // 绘制Y轴
             g.DrawLine(axisPen, chartRect.X, chartRect.Y, chartRect.X, chartRect.Bottom);
 
@@ -284,7 +279,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 var x = chartRect.X + (float)chartRect.Width * i / 10;
                 var value = dataRange.X + dataRange.Width * i / 10;
                 var text = $"{value:F0}";
-                
+
                 var size = g.MeasureString(text, font);
                 g.DrawString(text, font, textBrush, x - size.Width / 2, chartRect.Bottom + 5);
             }
@@ -295,7 +290,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
                 var y = chartRect.Bottom - (float)chartRect.Height * i / 10;
                 var value = dataRange.Y + dataRange.Height * i / 10;
                 var text = Common.FormatWithEnglishUnits(value);
-                
+
                 var size = g.MeasureString(text, font);
                 g.DrawString(text, font, textBrush, chartRect.X - size.Width - 5, y - size.Height / 2);
             }
@@ -325,19 +320,19 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
             foreach (var series in _series)
             {
                 using var brush = new SolidBrush(series.Color);
-                
+
                 foreach (var point in series.Points)
                 {
                     var x = chartRect.X + (point.X - dataRange.X) / dataRange.Width * chartRect.Width;
                     var y = chartRect.Bottom - (point.Y - dataRange.Y) / dataRange.Height * chartRect.Height;
-                    
+
                     var markerRect = new RectangleF(
                         x - series.MarkerSize / 2f,
                         y - series.MarkerSize / 2f,
                         series.MarkerSize,
                         series.MarkerSize
                     );
-                    
+
                     // 绘制圆形标记点
                     g.FillEllipse(brush, markerRect);
                 }
@@ -350,11 +345,11 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
 
             using var font = new Font("Microsoft YaHei", 14, FontStyle.Bold);
             using var brush = new SolidBrush(ForeColor);
-            
+
             var size = g.MeasureString(_titleText, font);
             var x = (Width - size.Width) / 2;
             var y = 10;
-            
+
             g.DrawString(_titleText, font, brush, x, y);
         }
 
@@ -362,7 +357,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         {
             using var font = new Font("Microsoft YaHei", 9);
             using var textBrush = new SolidBrush(ForeColor);
-            
+
             var legendHeight = _series.Count * 20 + 10;
             var legendWidth = _series.Max(s => (int)g.MeasureString(s.Name, font).Width) + 30;
             var legendX = Width - legendWidth - 10;

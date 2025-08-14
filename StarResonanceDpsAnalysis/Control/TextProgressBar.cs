@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using StarResonanceDpsAnalysis.Effects.Enum;
 
 namespace StarResonanceDpsAnalysis.Control
 {

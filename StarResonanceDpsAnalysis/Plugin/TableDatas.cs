@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AntdUI;
 using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-
-using AntdUI;
 
 namespace StarResonanceDpsAnalysis.Plugin
 {
@@ -123,7 +115,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             get => uid;
             set
             {
-              
+
                 if (uid == value) return;
                 uid = value;
                 OnPropertyChanged(nameof(Uid));
@@ -136,7 +128,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             get => nickName;
             set
             {
-               
+
                 if (nickName == value) return;
                 nickName = value;
                 OnPropertyChanged(nameof(NickName));
@@ -287,7 +279,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 ulong val = (ulong)Math.Floor(double.Parse(value));
                 string formatted = Common.FormatWithEnglishUnits(val);
- 
+
                 if (totalDps == formatted) return;
                 totalDps = formatted;
                 OnPropertyChanged(nameof(TotalDps));
@@ -445,22 +437,22 @@ namespace StarResonanceDpsAnalysis.Plugin
         private CellText totalDps;//秒伤
         private CellText percentage; //百分比
 
-        private Font SaoFont = new Font("SAO Welcome TT", 10, FontStyle.Regular);
+
         #endregion
 
         #region 构造函数
-        public SkillData(string name, string icon, ulong damage, int hitCount, string critRate, string luckyRate, double share, double avgPerHit,double totalDps)
+        public SkillData(string name, string icon, ulong damage, int hitCount, string critRate, string luckyRate, double share, double avgPerHit, double totalDps)
         {
             Name = name;
             Icon = icon;
-            Damage = new CellText(damage.ToString()) { Font = SaoFont };
-            HitCount = new CellText(hitCount.ToString()) { Font = SaoFont };
-            CritRate = new CellText(critRate) { Font = SaoFont };
-            LuckyRate = new CellText(luckyRate){ Font = SaoFont };
-            Share = new CellProgress((float)share) { Fill = AppConfig.DpsColor ,Size = new Size(200, 10) };
-            this.AvgPerHit = new CellText(avgPerHit.ToString()) { Font = SaoFont };
-            this.TotalDps =new CellText(totalDps.ToString()) { Font = SaoFont };
-            this.Percentage = new CellText(share.ToString()) { Font = SaoFont };
+            Damage = new CellText(damage.ToString()) { Font = AppConfig.SaoFont };
+            HitCount = new CellText(hitCount.ToString()) { Font = AppConfig.SaoFont };
+            CritRate = new CellText(critRate) { Font = AppConfig.SaoFont };
+            LuckyRate = new CellText(luckyRate) { Font = AppConfig.SaoFont };
+            Share = new CellProgress((float)share) { Fill = AppConfig.DpsColor, Size = new Size(200, 10) };
+            this.AvgPerHit = new CellText(avgPerHit.ToString()) { Font = AppConfig.SaoFont };
+            this.TotalDps = new CellText(totalDps.ToString()) { Font = AppConfig.SaoFont };
+            this.Percentage = new CellText(share.ToString()) { Font = AppConfig.SaoFont };
 
         }
         #endregion
@@ -507,7 +499,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             set
             {
                 ulong val = (ulong)Math.Floor(double.Parse(value.Text));
-                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) {Font = SaoFont };
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.SaoFont };
 
                 if (damage == formatted) return;
                 damage = formatted;
@@ -577,7 +569,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             set
             {
                 ulong val = (ulong)Math.Floor(double.Parse(value.Text));
-                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = SaoFont };
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.SaoFont };
 
                 if (avgPerHit == formatted) return;
                 avgPerHit = formatted;
@@ -591,7 +583,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             set
             {
                 ulong val = (ulong)Math.Floor(double.Parse(value.Text));
-                       CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) {Font = SaoFont };
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.SaoFont };
 
 
                 if (totalDps == formatted) return;
@@ -605,8 +597,8 @@ namespace StarResonanceDpsAnalysis.Plugin
             get => percentage;
             set
             {
-                string percentStr = Math.Round(double.Parse(value.Text)*100).ToString();
-                CellText formatted = new CellText(@$"{percentStr}%") { Font = SaoFont };
+                string percentStr = Math.Round(double.Parse(value.Text) * 100).ToString();
+                CellText formatted = new CellText(@$"{percentStr}%") { Font = AppConfig.SaoFont };
                 if (percentage == formatted) return;
                 percentage = formatted;
                 OnPropertyChanged(nameof(Percentage));
@@ -614,6 +606,145 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
         #endregion
     }
+
+    #endregion
+
+
+    #region 排行榜
+    public class LeaderboardTableDatas
+    {
+        /// <summary>
+        /// 表格数据绑定
+        /// </summary>
+        public static BindingList<LeaderboardTable> LeaderboardTable = [];
+        public static readonly object LeaderboardTableLock = new();
+
+    }
+    public class LeaderboardTable: NotifyProperty
+    {
+        #region 字段（私有存储）
+        private string nickName;       // 玩家昵称
+        private string professional; // 职业
+        private CellText combatPower; // 战力
+        private CellText totalDamage;     // 总伤害
+        private CellText instantDps;     // 秒伤
+        private CellText maxInstantDps;     // 最大瞬时DPS
+        #endregion
+
+        #region 构造函数
+        public LeaderboardTable(string nickName, string professional, double combatPower, double totalDamage, double instantDps, double maxInstantDps)
+        {
+            NickName = nickName;
+            Professional = professional;
+            CombatPower = new CellText(combatPower.ToString()) { Font = AppConfig.SaoFont };
+            TotalDamage = new CellText(totalDamage.ToString()) { Font = AppConfig.SaoFont };
+            InstantDps = new CellText(instantDps.ToString()) { Font = AppConfig.SaoFont };
+            MaxInstantDps = new CellText(maxInstantDps.ToString()) { Font = AppConfig.SaoFont };
+        }
+        #endregion
+
+        #region 属性封装（包含通知）
+        // —— 玩家基础信息 —— 
+
+        /// <summary>
+        /// 玩家昵称
+        /// </summary>
+        public string NickName
+        {
+            get => nickName;
+            set
+            {
+                if (nickName == value) return;
+                nickName = value;
+                OnPropertyChanged(nameof(NickName));
+            }
+        }
+
+        /// <summary>
+        /// 职业
+        /// </summary>
+        public string Professional
+        {
+            get => professional;
+            set
+            {
+                if (professional == value) return;
+                professional = value;
+                OnPropertyChanged(nameof(Professional));
+            }
+        }
+
+        /// <summary>
+        /// 战力
+        /// </summary>
+        public CellText CombatPower
+        {
+            get => combatPower;
+            set
+            {
+                if (combatPower == value) return;
+                combatPower = value;
+                OnPropertyChanged(nameof(CombatPower));
+            }
+        }
+
+        // —— 玩家统计数据 —— 
+
+        /// <summary>
+        /// 总伤害
+        /// </summary>
+        public CellText TotalDamage
+        {
+            get => totalDamage;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value.Text));
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.SaoFont };
+                if (totalDamage == formatted) return;
+                totalDamage = formatted;
+                OnPropertyChanged(nameof(TotalDamage));
+            }
+        }
+
+        /// <summary>
+        /// 秒伤
+        /// </summary>
+        public CellText InstantDps
+        {
+            get => instantDps;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value.Text));
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.SaoFont };
+                if (instantDps == formatted) return;
+                instantDps = formatted;
+                OnPropertyChanged(nameof(InstantDps));
+            }
+        }
+
+        /// <summary>
+        /// 最大瞬时DPS
+        /// </summary>
+        public CellText MaxInstantDps
+        {
+            get => maxInstantDps;
+            set
+            {
+                ulong val = (ulong)Math.Floor(double.Parse(value.Text));
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.SaoFont };
+                if (maxInstantDps == formatted) return; 
+                maxInstantDps = formatted;
+                OnPropertyChanged(nameof(MaxInstantDps));
+            }
+        }
+        #endregion
+    
+
+
+
+
+    }
+
 
     #endregion
 

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Timers;
+﻿using System.Timers;
 
-using StarResonanceDpsAnalysis.Plugin;
-
-namespace StarResonanceDpsAnalysis
+namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 {
     /// <summary>
     /// 通用统计类：用于伤害或治疗的数据累计、次数统计、实时窗口统计，以及总 DPS/HPS 计算
@@ -88,17 +83,17 @@ namespace StarResonanceDpsAnalysis
         #endregion
 
         #region 时间范围（用于总平均每秒值）
-
-        /// <summary>本次统计开始时间（首次 AddRecord 触发）</summary>
+        // 首次 AddRecord 触发
         private DateTime? _startTime;
 
-        /// <summary>最近一次记录时间（用于总时长计算）</summary>
+        // 最近一次 AddRecord 的时间（也是“最后一次记录时间”）
         private DateTime? _endTime;
 
         /// <summary>最后一次记录时间（只读暴露给外部）</summary>
         public DateTime? LastRecordTime => _endTime;
 
         #endregion
+
 
         #region 公开方法
 
@@ -176,11 +171,14 @@ namespace StarResonanceDpsAnalysis
         /// <summary>平均每次命中值（Total / CountTotal）</summary>
         public double GetAveragePerHit() => CountTotal > 0 ? (double)Total / CountTotal : 0.0;
 
-        /// <summary>暴击率（包含“暴击且幸运”）</summary>
-        public double GetCritRate() => CountTotal > 0 ? (double)CountCritical / CountTotal : 0.0;
+        /// <summary>暴击率（百分比 0~100，保留 2 位小数）</summary>
+        public double GetCritRate() =>
+            CountTotal > 0 ? Math.Round((double)CountCritical / CountTotal * 100.0, 2) : 0.0;
 
-        /// <summary>幸运率（包含“暴击且幸运”）</summary>
-        public double GetLuckyRate() => CountTotal > 0 ? (double)CountLucky / CountTotal : 0.0;
+        /// <summary>幸运率（百分比 0~100，保留 2 位小数）</summary>
+        public double GetLuckyRate() =>
+            CountTotal > 0 ? Math.Round((double)CountLucky / CountTotal * 100.0, 2) : 0.0;
+
 
         /// <summary>
         /// 重置所有统计数据与状态
@@ -222,10 +220,10 @@ namespace StarResonanceDpsAnalysis
         public string IconPath { get; init; } = "";
 
         // 新增
-        public StarResonanceDpsAnalysis.Core.SkillType Type { get; init; } =
-            StarResonanceDpsAnalysis.Core.SkillType.Unknown;
-        public StarResonanceDpsAnalysis.Core.ElementType Element { get; init; } =
-            StarResonanceDpsAnalysis.Core.ElementType.Unknown;
+        public Core.SkillType Type { get; init; } =
+            Core.SkillType.Unknown;
+        public Core.ElementType Element { get; init; } =
+            Core.ElementType.Unknown;
 
         /// <summary>是否为 DOT 技能（可选）</summary>
         public bool IsDoT { get; init; }
@@ -330,6 +328,9 @@ namespace StarResonanceDpsAnalysis
 
         #region 统计对象与索引
 
+        /// <summary>玩家自定义属性（key=value）</summary>
+        public Dictionary<string, object> Attributes { get; } = new();
+
         /// <summary>玩家伤害统计</summary>
         public StatisticData DamageStats { get; } = new();
 
@@ -347,6 +348,8 @@ namespace StarResonanceDpsAnalysis
 
         // # 分类：按技能分组的治疗统计
         public Dictionary<ulong, StatisticData> HealingBySkill { get; } = new();
+
+
 
         #endregion
 
@@ -372,6 +375,8 @@ namespace StarResonanceDpsAnalysis
             }
 
             stat.AddRecord(damage, isCrit, isLucky, hpLessen);
+            // ★ 新增：同步到全程记录，不影响原逻辑
+            FullRecord.RecordDamage(Uid, skillId, damage, isCrit, isLucky, hpLessen, Nickname, CombatPower, Profession);
         }
 
         /// <summary>
@@ -388,6 +393,8 @@ namespace StarResonanceDpsAnalysis
                 HealingBySkill[skillId] = stat;
             }
             stat.AddRecord(healing, isCrit, isLucky);
+            // ★ 新增同步全程记录
+            FullRecord.RecordHealing(Uid, skillId, healing, isCrit, isLucky, Nickname, CombatPower, Profession);
         }
 
         /// <summary>
@@ -405,6 +412,8 @@ namespace StarResonanceDpsAnalysis
 
             // 承伤不区分暴击/幸运；HpLessen 填伤害值便于总量对齐
             stat.AddRecord(damage, isCrit: false, isLucky: false, hpLessenValue: damage);
+            // ★ 同步全程记录
+            FullRecord.RecordTakenDamage(Uid, skillId, damage, Nickname, CombatPower, Profession);
         }
 
         /// <summary>
@@ -412,6 +421,24 @@ namespace StarResonanceDpsAnalysis
         /// </summary>
         public void SetProfession(string profession) => Profession = profession;
 
+        #endregion
+
+        #region 添加记录 (属性)
+        /// <summary>
+        /// 设置玩家自定义属性
+        /// </summary>
+        public void SetAttrKV(string key, object value)
+        {
+            Attributes[key] = value;
+        }
+
+        /// <summary>
+        /// 获取玩家自定义属性（不存在则返回 null）
+        /// </summary>
+        public object? GetAttrKV(string key)
+        {
+            return Attributes.TryGetValue(key, out var val) ? val : null;
+        }
         #endregion
 
         #region 实时刷新与聚合输出
@@ -448,34 +475,34 @@ namespace StarResonanceDpsAnalysis
             );
 
         /// <summary>
-    /// 获取技能统计汇总列表（可选排序和限制数量）
-    /// </summary>
-    /// <param name="topN">
-    ///     仅返回前 N 条记录（按总伤害/治疗排序后取前 N 条）。
-    ///     - 传 null 或 <= 0 表示返回全部技能。
-    /// </param>
-    /// <param name="orderByTotalDesc">
-    ///     是否按总量降序排序（true = 从大到小，false = 按原顺序）。
-    /// </param>
-    /// <param name="filterType">
-    ///     过滤技能类型：
-    /// —     <list type = "bullet" >
-    ///         <item><description><see cref="SkillType.Damage"/> = 仅统计伤害技能</description></item>
-    ///         <item><description><see cref="SkillType.Heal"/>   = 仅统计治疗技能</description></item>
-    ///         <item><description>null = 暂时等同于伤害技能（如需合并伤害+治疗可扩展）</description></item>
-    ///     </list>
-    /// </param>
-    /// <returns>技能汇总信息列表，每项包含总量、次数、暴击率、幸运率、占比等数据</returns>
+        /// 获取技能统计汇总列表（可选排序和限制数量）
+        /// </summary>
+        /// <param name="topN">
+        ///     仅返回前 N 条记录（按总伤害/治疗排序后取前 N 条）。
+        ///     - 传 null 或 <= 0 表示返回全部技能。
+        /// </param>
+        /// <param name="orderByTotalDesc">
+        ///     是否按总量降序排序（true = 从大到小，false = 按原顺序）。
+        /// </param>
+        /// <param name="filterType">
+        ///     过滤技能类型：
+        /// —     <list type = "bullet" >
+        ///         <item><description><see cref="SkillType.Damage"/> = 仅统计伤害技能</description></item>
+        ///         <item><description><see cref="SkillType.Heal"/>   = 仅统计治疗技能</description></item>
+        ///         <item><description>null = 暂时等同于伤害技能（如需合并伤害+治疗可扩展）</description></item>
+        ///     </list>
+        /// </param>
+        /// <returns>技能汇总信息列表，每项包含总量、次数、暴击率、幸运率、占比等数据</returns>
         public List<SkillSummary> GetSkillSummaries(
             int? topN = null,
             bool orderByTotalDesc = true,
-            StarResonanceDpsAnalysis.Core.SkillType? filterType = StarResonanceDpsAnalysis.Core.SkillType.Damage)
+            Core.SkillType? filterType = Core.SkillType.Damage)
         {
             // 1) 选择数据源
             IEnumerable<KeyValuePair<ulong, StatisticData>> source;
-            if (filterType == StarResonanceDpsAnalysis.Core.SkillType.Damage)
+            if (filterType == Core.SkillType.Damage)
                 source = SkillUsage;                  // 按技能统计的伤害
-            else if (filterType == StarResonanceDpsAnalysis.Core.SkillType.Heal)
+            else if (filterType == Core.SkillType.Heal)
                 source = HealingBySkill;              // 按技能统计的治疗（你已增加该字典/写入）
             else
                 source = SkillUsage;                  // 先用伤害；如需真的“合并伤害+治疗”，我再给你 Merge 版
@@ -623,6 +650,113 @@ namespace StarResonanceDpsAnalysis
         }
 
         #endregion
+
+        #region 查询承伤
+
+        // ================================
+        // # 承伤（按技能）- 单玩家
+        // ================================
+
+        /// <summary>
+        /// 获取当前玩家的承伤技能汇总列表。
+        /// 用于查看该玩家在整场战斗中，被哪些技能打到、总承伤量、次数、平均值、最大值、占比等。
+        /// </summary>
+        /// <param name="topN">
+        ///     仅返回前 N 条记录（按承伤总量降序）。
+        ///     - 传 null 或 <= 0 表示返回全部技能。
+        /// </param>
+        /// <param name="orderByTotalDesc">
+        ///     是否按承伤总量降序排序。
+        ///     - true  = 按从大到小排序（默认）
+        ///     - false = 保持技能字典原始顺序
+        /// </param>
+        /// <returns>
+        /// 返回 <see cref="SkillSummary"/> 列表，
+        /// 每条记录包含技能ID、技能名、总承伤、次数、最大/最小、平均承伤、占比等信息。
+        /// </returns>
+        public List<SkillSummary> GetTakenDamageSummaries(int? topN = null, bool orderByTotalDesc = true)
+        {
+            // 如果没有任何承伤记录，直接返回空列表
+            if (TakenDamageBySkill.Count == 0) return new();
+
+            // 分母：该玩家的总承伤量（用于计算占比）
+            ulong denom = 0;
+            foreach (var kv in TakenDamageBySkill) denom += kv.Value.Total;
+            if (denom == 0) denom = 1; // 防止除 0
+
+            var list = new List<SkillSummary>(TakenDamageBySkill.Count);
+            foreach (var kv in TakenDamageBySkill)
+            {
+                var id = kv.Key;        // 技能 ID
+                var s = kv.Value;       // 该技能的统计数据
+                var meta = SkillBook.Get(id); // 技能元数据（名称等）
+
+                list.Add(new SkillSummary
+                {
+                    SkillId = id,
+                    SkillName = meta.Name,
+                    Total = s.Total,                 // 承伤总量
+                    HitCount = s.CountTotal,         // 被打次数
+                    AvgPerHit = s.GetAveragePerHit(),// 平均每次承伤
+                    CritRate = 0,                    // 承伤不区分暴击，这里固定为 0
+                    LuckyRate = 0,                   // 承伤不区分幸运，这里固定为 0
+                    MaxSingleHit = s.MaxSingleHit,   // 单次最大承伤
+                    MinSingleHit = s.MinSingleHit == ulong.MaxValue ? 0 : s.MinSingleHit, // 单次最小承伤
+                    RealtimeValue = s.RealtimeValue, // 实时窗口内的承伤
+                    RealtimeMax = s.RealtimeMax,     // 实时窗口内的最大承伤
+                    TotalDps = s.GetTotalPerSecond(),// 严格说是“平均每秒承伤”
+                    LastTime = s.LastRecordTime,     // 最后一次受到该技能承伤的时间
+                    ShareOfTotal = (double)s.Total / denom // 该技能承伤占总承伤的比例（0~1）
+                });
+            }
+
+            // 排序
+            if (orderByTotalDesc)
+                list = list.OrderByDescending(x => x.Total).ToList();
+
+            // 截断
+            if (topN.HasValue && topN.Value > 0 && list.Count > topN.Value)
+                list = list.Take(topN.Value).ToList();
+
+            return list;
+        }
+
+
+        /// <summary>
+        /// 获取该玩家被某个技能打到的详细承伤统计。
+        /// </summary>
+        /// <param name="skillId">技能ID</param>
+        /// <returns>
+        /// 返回一个 <see cref="SkillSummary"/>，包含该技能造成的总承伤、次数、最大/最小值等；
+        /// — 若没有该技能的承伤记录则返回 null。
+        /// </returns>
+        public SkillSummary? GetTakenDamageDetail(ulong skillId)
+        {
+            // 没有该技能的承伤记录
+            if (!TakenDamageBySkill.TryGetValue(skillId, out var stat))
+                return null;
+
+            var meta = SkillBook.Get(skillId);
+            return new SkillSummary
+            {
+                SkillId = skillId,
+                SkillName = meta.Name,
+                Total = stat.Total,
+                HitCount = stat.CountTotal,
+                AvgPerHit = stat.GetAveragePerHit(),
+                CritRate = 0,
+                LuckyRate = 0,
+                MaxSingleHit = stat.MaxSingleHit,
+                MinSingleHit = stat.MinSingleHit == ulong.MaxValue ? 0 : stat.MinSingleHit,
+                RealtimeValue = stat.RealtimeValue,
+                RealtimeMax = stat.RealtimeMax,
+                TotalDps = stat.GetTotalPerSecond(),
+                LastTime = stat.LastRecordTime
+            };
+        }
+
+        #endregion
+
     }
 
     /// <summary>
@@ -631,6 +765,19 @@ namespace StarResonanceDpsAnalysis
     public class PlayerDataManager
     {
         #region 存储
+
+
+
+
+        /// <summary>
+        /// 快照 战斗数据历史列表
+        /// </summary>
+        private readonly List<BattleSnapshot> _history = new();
+        /// <summary>
+        /// 只读访问器 读取玩家数据
+        /// </summary>
+        public IReadOnlyList<BattleSnapshot> History => _history;
+
 
         /// <summary>UID → 玩家数据</summary>
         private readonly Dictionary<ulong, PlayerData> _players = new();
@@ -652,6 +799,14 @@ namespace StarResonanceDpsAnalysis
 
         /// <summary>是否处于战斗中</summary>
         public bool IsInCombat => _combatStart.HasValue && !_combatEnd.HasValue;
+
+        /// <summary>无数据多久后自动清空（秒）</summary>
+        private static readonly TimeSpan InactivityTimeout = TimeSpan.FromSeconds(AppConfig.CombatTimeClearDelaySeconds);
+
+
+        /// <summary>上一次全队有数据的时间</summary>
+        private DateTime _lastCombatActivity = DateTime.MinValue;
+
         #endregion
 
         #region 定时器
@@ -661,6 +816,10 @@ namespace StarResonanceDpsAnalysis
 
         /// <summary>最近一次新增玩家时间（用于快速跳过无数据场景）</summary>
         private DateTime _lastAddTime = DateTime.MinValue;
+
+        /// <summary>标记：已超时，等待下次战斗开始时清空上一场数据</summary>
+        private bool _pendingClearOnNextCombat = false;
+
 
         #endregion
         #region 全局战斗时间
@@ -672,13 +831,24 @@ namespace StarResonanceDpsAnalysis
         private void MarkCombatActivity()
         {
             var now = DateTime.Now;
+            // —— 新增：如果上一场已超时结束但未清空，则在此刻（新战斗的首个事件）清空上一场 —— 
+            if (_pendingClearOnNextCombat)
+            {
+
+                // 只清玩家数据与战斗时钟；缓存（昵称/战力/职业）保留
+                ClearAll(false);
+                DpsTableDatas.DpsTable.Clear();
+                _pendingClearOnNextCombat = false;
+            }
+
+            // 原逻辑：未开始或已结束 => 开新场
             if (!_combatStart.HasValue || _combatEnd.HasValue)
             {
-                // 重新开一场
                 _combatStart = now;
                 _combatEnd = null;
             }
-            // 进行中则不动结束时间
+
+            _lastCombatActivity = now;
         }
 
         /// <summary>
@@ -697,6 +867,8 @@ namespace StarResonanceDpsAnalysis
         {
             _combatStart = null;
             _combatEnd = null;
+
+
         }
 
         /// <summary>
@@ -711,6 +883,21 @@ namespace StarResonanceDpsAnalysis
             if (_combatEnd.HasValue) return _combatEnd.Value - _combatStart.Value;
             return DateTime.Now - _combatStart.Value;
         }
+
+        /// <summary>
+        /// 返回整场战斗持续时间的格式化字符串：
+        /// >=1小时 用 hh:mm:ss，否则用 mm:ss
+        /// </summary>
+        public string GetFormattedCombatDuration()
+        {
+            var ts = GetCombatDuration();
+            if (ts < TimeSpan.Zero) ts = TimeSpan.Zero; // 极端情况下兜底
+
+            return ts.TotalHours >= 1
+                ? ts.ToString(@"hh\:mm\:ss")
+                : ts.ToString(@"mm\:ss");
+        }
+
 
         #endregion
 
@@ -732,6 +919,26 @@ namespace StarResonanceDpsAnalysis
         #endregion
 
         #region 获取或创建
+
+        /// <summary>
+        /// 手动创建一次快照
+        /// </summary>
+        /// <returns></returns>
+        public BattleSnapshot? TakeSnapshotAndGet()
+        {
+            if (_players.Count == 0) return null;
+
+            //if (_combatStart.HasValue && !_combatEnd.HasValue)
+            //    _combatEnd = _lastCombatActivity != DateTime.MinValue ? _lastCombatActivity : DateTime.Now;
+
+            // 调用内部保存逻辑
+            SaveCurrentBattleSnapshot();
+
+            // 返回刚保存的那条快照
+            return _history.Count > 0 ? _history[^1] : null; // ^1 是 C# 8.0 的最后一个元素
+        }
+
+
 
         /// <summary>
         /// 获取或创建指定 UID 的玩家数据，并套用已缓存的昵称/战力/职业
@@ -768,6 +975,22 @@ namespace StarResonanceDpsAnalysis
         }
 
 
+
+        /// <summary>
+        /// 设置指定玩家的自定义属性
+        /// </summary>
+        public void SetAttrKV(ulong uid, string key, object value)
+        {
+            GetOrCreate(uid).SetAttrKV(key, value);
+        }
+
+        /// <summary>
+        /// 获取指定玩家的自定义属性
+        /// </summary>
+        public object? GetAttrKV(ulong uid, string key)
+        {
+            return GetOrCreate(uid).GetAttrKV(key);
+        }
         #endregion
 
         #region 定时循环
@@ -781,7 +1004,24 @@ namespace StarResonanceDpsAnalysis
                 return;
 
             UpdateAllRealtimeStats();
-            await System.Threading.Tasks.Task.CompletedTask;
+
+            if (AppConfig.CombatTimeClearDelaySeconds != 0) // 0 表示永不自动结束
+            {
+                if (_lastCombatActivity != DateTime.MinValue &&
+                    DateTime.Now - _lastCombatActivity > InactivityTimeout)
+                {
+                    // —— 不清空 —— 只结束并打标记
+                    if (_combatStart.HasValue && !_combatEnd.HasValue)
+                        _combatEnd = _lastCombatActivity;
+
+                    _pendingClearOnNextCombat = true;   // 下次战斗开始再清空
+                    _lastCombatActivity = DateTime.MinValue;
+                }
+            }
+
+
+
+            await Task.CompletedTask;
         }
 
         #endregion
@@ -844,7 +1084,7 @@ namespace StarResonanceDpsAnalysis
             return _players.Values.Where(p => p != null && p.HasCombatData());
         }
 
-  
+
 
 
         /// <summary>刷新所有玩家的实时统计（滚动窗口）</summary>
@@ -858,12 +1098,24 @@ namespace StarResonanceDpsAnalysis
         /// <summary>获取所有玩家数据对象</summary>
         public IEnumerable<PlayerData> GetAllPlayers() => _players.Values;
 
+
         /// <summary>清空所有玩家数据（缓存仍保留）</summary>
-        public void ClearAll()
+        public void ClearAll(bool keepCombatTime = true)
         {
 
+            // —— 新增：如果当前有战斗数据，先保存快照
+            if (_players.Count > 0)
+            {
+                // 如果还没标记结束，就把结束时间定为最后活动时间/现在
+                if (_combatStart.HasValue && !_combatEnd.HasValue)
+                    _combatEnd = _lastCombatActivity != DateTime.MinValue ? _lastCombatActivity : DateTime.Now;
+
+                SaveCurrentBattleSnapshot();
+            }
             _players.Clear();
-             ResetCombatClock();
+
+            if (!keepCombatTime)//false为清空
+                ResetCombatClock(); // 手动清空计时
 
         }
 
@@ -916,7 +1168,7 @@ namespace StarResonanceDpsAnalysis
             ulong uid,
             int? topN = null,
             bool orderByTotalDesc = true,
-            StarResonanceDpsAnalysis.Core.SkillType? filterType = StarResonanceDpsAnalysis.Core.SkillType.Damage)
+            Core.SkillType? filterType = Core.SkillType.Damage)
         {
             var p = GetOrCreate(uid);
             return p.GetSkillSummaries(topN, orderByTotalDesc, filterType);
@@ -1099,6 +1351,257 @@ namespace StarResonanceDpsAnalysis
         }
 
 
+        #region 查询承伤
+        /// <summary>
+        /// 已有：返回玩家总承伤
+        /// </summary>
+        public ulong GetPlayerTakenDamageTotal(ulong uid)
+            => GetOrCreate(uid).TakenDamage;
+
+        /// <summary>
+        /// 总承伤概览：总承伤 / 平均每秒承伤 / 实时承伤 / 单次最大最小 / 最后一次承伤时间
+        /// - 平均每秒承伤 = 玩家总承伤 ÷ 当前整场战斗时长（用全局战斗时钟）
+        /// - 实时承伤 = 1秒窗口内（你当前设为1秒）的各技能承伤 RealtimeValue 之和
+        /// </summary>
+        public (
+            ulong Total,              // 总承伤
+            double AvgTakenPerSec,    // 平均每秒承伤（整场）
+            ulong RealtimeTaken,      // 当前实时承伤（1秒窗口）
+            ulong MaxSingleHit,       // 单次最大承伤
+            ulong MinSingleHit,       // 单次最小承伤（无记录则为0）
+            DateTime? LastTime        // 最后一次承伤时间
+        ) GetPlayerTakenOverview(ulong uid)
+        {
+            var p = GetOrCreate(uid);
+
+            // 1) 总承伤
+            ulong total = p.TakenDamage;
+
+            // 2) 平均每秒承伤（用全局战斗时长）
+            var dur = GetCombatDuration().TotalSeconds;
+            double avgPerSec = (dur > 0) ? total / dur : 0.0;
+
+            // 3) 实时承伤、单次极值、最后一次承伤时间
+            ulong realtime = 0;
+            ulong maxHit = 0;
+            ulong minHit = ulong.MaxValue;
+            DateTime? last = null;
+
+            foreach (var kv in p.TakenDamageBySkill)
+            {
+                var s = kv.Value;
+
+                // 实时窗口内总承伤
+                realtime += s.RealtimeValue;
+
+                // 单次极值
+                if (s.MaxSingleHit > maxHit) maxHit = s.MaxSingleHit;
+                if (s.MinSingleHit != ulong.MaxValue && s.MinSingleHit > 0 && s.MinSingleHit < minHit)
+                    minHit = s.MinSingleHit;
+
+                // 最后一次承伤时间（取最大）
+                if (s.LastRecordTime.HasValue)
+                {
+                    if (!last.HasValue || s.LastRecordTime > last)
+                        last = s.LastRecordTime;
+                }
+            }
+
+            if (minHit == ulong.MaxValue) minHit = 0;
+
+            return (total, avgPerSec, realtime, maxHit, minHit, last);
+        }
+
+
+        /// <summary>
+        /// 获取指定玩家的承伤技能汇总列表。
+        /// </summary>
+        /// <param name="uid">
+        ///     玩家 UID（唯一标识玩家）
+        /// </param>
+        /// <param name="topN">
+        ///     仅返回前 N 条记录（按承伤总量降序）。
+        ///     - 传 null 或 <= 0 表示返回全部技能。
+        /// </param>
+        /// <param name="orderByTotalDesc">
+        ///     是否按承伤总量降序排序。
+        ///     - true  = 从大到小排序（默认）
+        ///     - false = 保持技能字典原始顺序。
+        /// </param>
+        /// <returns>
+        /// 返回 <see cref="SkillSummary"/> 列表，每项包含技能ID、技能名、总承伤、次数、最大/最小、平均承伤、占比等信息。
+        /// </returns>
+        public List<SkillSummary> GetPlayerTakenDamageSummaries(ulong uid, int? topN = null, bool orderByTotalDesc = true)
+        {
+            var p = GetOrCreate(uid);
+            return p.GetTakenDamageSummaries(topN, orderByTotalDesc);
+        }
+
+
+        /// <summary>
+        /// 获取指定玩家被某个技能打到的详细承伤统计。
+        /// </summary>
+        /// <param name="uid">
+        ///     玩家 UID（唯一标识玩家）
+        /// </param>
+        /// <param name="skillId">
+        ///     技能 ID（唯一标识技能）
+        /// </param>
+        /// <returns>
+        /// 返回一个 <see cref="SkillSummary"/>，包含该技能造成的总承伤、次数、最大/最小值等；
+        /// 若没有该技能的承伤记录则返回 null。
+        /// </returns>
+        public SkillSummary? GetPlayerTakenDamageDetail(ulong uid, ulong skillId)
+        {
+            var p = GetOrCreate(uid);
+            return p.GetTakenDamageDetail(skillId);
+        }
+
+        #endregion
+
+
+        #endregion
+
+        #region 快照类
+        /// <summary>
+        /// 生成并保存当前战斗快照（在清空前调用）
+        /// </summary>
+        private void SaveCurrentBattleSnapshot()
+        {
+            if (_players.Count == 0) return;
+
+            var endedAt = DateTime.Now;
+            var startedAt = _combatStart ?? endedAt;
+            var duration = _combatEnd.HasValue ? _combatEnd.Value - startedAt : endedAt - startedAt;
+            if (duration < TimeSpan.Zero) duration = TimeSpan.Zero;
+
+            var label = $"结束时间：{endedAt:HH:mm:ss}";
+
+            ulong teamDmg = 0;
+            ulong teamHeal = 0;
+
+            var snapPlayers = new Dictionary<ulong, SnapshotPlayer>(_players.Count);
+
+            foreach (var p in _players.Values)
+            {
+                var dmg = p.DamageStats;
+                var heal = p.HealingStats;
+
+                // 确保实时窗口是最新（可选）
+                dmg.UpdateRealtimeStats();
+                heal.UpdateRealtimeStats();
+
+                teamDmg += dmg.Total;
+                teamHeal += heal.Total;
+
+                var damageSkills = p.GetSkillSummaries(
+                    topN: null,
+                    orderByTotalDesc: true,
+                    filterType: Core.SkillType.Damage
+                );
+
+                var healingSkills = p.GetSkillSummaries(
+                    topN: null,
+                    orderByTotalDesc: true,
+                    filterType: Core.SkillType.Heal
+                );
+
+                var sp = new SnapshotPlayer
+                {
+                    Uid = p.Uid,
+                    Nickname = p.Nickname,
+                    CombatPower = p.CombatPower,
+                    Profession = p.Profession,
+
+                    TotalDamage = dmg.Total,
+                    TotalDps = p.GetTotalDps(),
+                    TotalHealing = heal.Total,
+                    TotalHps = p.GetTotalHps(),
+                    TakenDamage = p.TakenDamage,
+                    LastRecordTime = dmg.LastRecordTime,
+
+                    DamageSkills = damageSkills,
+                    HealingSkills = healingSkills,
+
+                    // —— 新增字段赋值 —— //
+                    RealtimeDps = dmg.RealtimeValue,
+                    CritRate = dmg.GetCritRate(),          // 0~100
+                    LuckyRate = dmg.GetLuckyRate(),        // 0~100
+                    CriticalDamage = dmg.Critical,
+                    LuckyDamage = dmg.Lucky,
+                    CritLuckyDamage = dmg.CritLucky,
+                    MaxSingleHit = dmg.MaxSingleHit
+                };
+
+                snapPlayers[p.Uid] = sp;
+            }
+
+            var snapshot = new BattleSnapshot
+            {
+                Label = label,
+                StartedAt = startedAt,
+                EndedAt = _combatEnd ?? endedAt,
+                Duration = duration,
+                TeamTotalDamage = teamDmg,
+                TeamTotalHealing = teamHeal,
+                Players = snapPlayers
+            };
+
+            _history.Add(snapshot);
+        }
+
+
         #endregion
     }
+
+
+    #region 快照类
+
+    /// <summary>一场战斗的完整快照</summary>
+    public sealed class BattleSnapshot
+    {
+        public string Label { get; init; } = "";          // UI 用的标签（如 结束时间）
+        public DateTime StartedAt { get; init; }          // 战斗开始时间（若未知则为 EndedAt）
+        public DateTime EndedAt { get; init; }            // 战斗结束/快照时间
+        public TimeSpan Duration { get; init; }           // 时长
+
+        public ulong TeamTotalDamage { get; init; }       // 全队总伤害
+        public ulong TeamTotalHealing { get; init; }      // 全队总治疗
+
+        /// <summary>UID -> 玩家快照</summary>
+        public Dictionary<ulong, SnapshotPlayer> Players { get; init; } = new();
+    }
+
+    /// <summary>单个玩家在该场战斗的快照</summary>
+    public sealed class SnapshotPlayer
+    {
+        public ulong Uid { get; init; }
+        public string Nickname { get; init; } = "未知";
+        public int CombatPower { get; init; }
+        public string Profession { get; init; } = "未知";
+
+        public ulong RealtimeDps { get; init; }
+        public double CritRate { get; init; }
+        public double LuckyRate { get; init; }
+        public ulong CriticalDamage { get; init; }
+        public ulong LuckyDamage { get; init; }
+        public ulong CritLuckyDamage { get; init; }
+        public ulong MaxSingleHit { get; init; }
+
+
+        // 聚合
+        public ulong TotalDamage { get; init; }
+        public double TotalDps { get; init; }
+        public ulong TotalHealing { get; init; }
+        public double TotalHps { get; init; }
+        public ulong TakenDamage { get; init; }
+        public DateTime? LastRecordTime { get; init; }
+
+        // 技能明细（伤害/治疗分开，使用你已有的 SkillSummary）
+        public List<SkillSummary> DamageSkills { get; init; } = new();
+        public List<SkillSummary> HealingSkills { get; init; } = new();
+    }
+
+
+    #endregion
 }

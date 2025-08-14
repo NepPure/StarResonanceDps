@@ -90,6 +90,15 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1755061232067&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;25570&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M662.016 361.984V102.4H102.4v519.68h219.648V921.6H921.6V361.984z m-19.968 19.968v220.16H342.016v-220.16z m239.616 499.712H361.984v-239.616h320V401.92h199.68z&quot; p-id=&quot;25571&quot;&gt;&lt;/path&gt;&lt;/svg&gt; 的本地化字符串。
+        /// </summary>
+        internal static string exclude {
+            get {
+                return ResourceManager.GetString("exclude", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
         internal static System.Drawing.Bitmap flushed_hover {
@@ -105,6 +114,74 @@ namespace StarResonanceDpsAnalysis.Properties {
         internal static System.Drawing.Bitmap flushed_normal {
             get {
                 object obj = ResourceManager.GetObject("flushed_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap handoff_hover {
+            get {
+                object obj = ResourceManager.GetObject("handoff_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap handoff_normal {
+            get {
+                object obj = ResourceManager.GetObject("handoff_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1755131064483&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;11454&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M512.5 98.29c-227.84 0-412.54 184.7-412.54 412.54s184.7 412.54 412.54 412.54 412.54-184.7 412.54-412.54S740.34 98.29 512.5 98.29z m249.28 661.82c-32.4 32.4-70.1 57.82-112.08 75.58-43.42 18.37-89.59 27.68-137.21 27.68-47.62 0-93.78-9.31-137.2-27.68-41.97-17.75-79.68-43.18-112.08-75.58-32.4-32.4-57.82-70.1-75.58-112.08-18.37-43.42-27.68-89.59-27.68-137.21  [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string historicalRecords {
+            get {
+                return ResourceManager.GetString("historicalRecords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1755130842851&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1025 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;7366&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M779 1024H595V827.6c0-14.4-11.6-26-26-26h-93.2c-14.4 0-26 11.8-26 26V1024H251c-54.8 0-99.4-44.6-99.4-99.4V600.2l-112.2-35-9-9c-26.6-26.6-26.6-69.6 0-96.2L470 20.4c12.8-12.8 29.8-20 48-20s35.2 7 48 20l439.6 439.8c12.8 12.8 20 30 19.8 48 0 18.2-7.2 35.2-20 48l-9 9L878 600.4v324.2c0.2 54.8-44.2 99.4-99 99.4z&quot; p-id=&quot;7367&quot;&gt;&lt;/path&gt;&lt;/svg&gt; 的本地化字符串。
+        /// </summary>
+        internal static string HomeIcon {
+            get {
+                return ResourceManager.GetString("HomeIcon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap left_hover {
+            get {
+                object obj = ResourceManager.GetObject("left_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap left_normal {
+            get {
+                object obj = ResourceManager.GetObject("left_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap minimize_normal {
+            get {
+                object obj = ResourceManager.GetObject("minimize_normal", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -130,11 +207,89 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1755091003951&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1042 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;6442&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M581.632 697.344l126.976 0 0 194.56q0 33.792-10.24 58.88t-27.136 40.96-39.424 23.552-48.128 7.68l-452.608 0q-24.576 0-48.128-9.728t-41.472-27.136-29.184-40.96-11.264-52.224l0-706.56q0-24.576 11.776-47.104t30.208-39.936 40.96-28.16 45.056-10.752l449.536 0q26.624 0 50.176 11.776t41.472 29.696 28.16 40.448 10.24 44.032l0 188.416-126.976 0 1.024-195.584-452.6 [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string quit {
+            get {
+                return ResourceManager.GetString("quit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap right_hover {
+            get {
+                object obj = ResourceManager.GetObject("right_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap right_normal {
+            get {
+                object obj = ResourceManager.GetObject("right_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 &lt;svg t=&quot;1724122928419&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;2893&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M920.5 435.9c-7.6-40.3-36.1-66.8-69.8-66.2h-3.4c-36.6 0-66.3-29.7-66.3-66.3 0-7.8 3.6-19.1 6-24.9 15.4-35.1 3.3-78.1-28.9-100.6l-102-56.9-4.2-2c-31.7-13.7-72.7-5.4-96.4 19.2-15.1 15.6-42.2 33.7-54.6 33.7-12.5 0-39.8-18.5-54.9-34.3-23.6-24.9-62.2-34.4-97.4-19.5l-105.4 57.7-4.2 2.7c-31.7 22-43.8 65.3-28.3 100.1 1.9 4.6 6 16.7 6 24.9 0 36.6-29.7 66.3-66.3 66 [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string set_up {
             get {
                 return ResourceManager.GetString("set_up", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap setting_hover {
+            get {
+                object obj = ResourceManager.GetObject("setting_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap setting_normal {
+            get {
+                object obj = ResourceManager.GetObject("setting_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1755060932429&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;19756&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M637.256674 18.797246c-24.996338-24.996338-65.590392-24.996338-90.586731 0l-239.964849 239.964849c-24.996338 24.996338-24.996338 65.590392 0 90.586731l31.995314 31.995313c24.996338 24.996338 65.590392 24.996338 90.58673 0l7.998828-7.998828 213.568716 213.368745-7.998828 7.998828c-24.996338 24.996338-24.996338 65.590392 0 90.58673l31.995313 31.995314c24.9 [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string Stakes {
+            get {
+                return ResourceManager.GetString("Stakes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap top_hover {
+            get {
+                object obj = ResourceManager.GetObject("top_hover", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap top_normal {
+            get {
+                object obj = ResourceManager.GetObject("top_normal", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
