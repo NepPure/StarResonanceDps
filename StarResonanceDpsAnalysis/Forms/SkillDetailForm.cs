@@ -66,7 +66,7 @@ namespace StarResonanceDpsAnalysis.Control
                 var offsetFrom350 = splitter1.SplitterDistance - 350;
                 var steps = offsetFrom350 / SPLITTER_STEP_PIXELS;
                 var initialPadding = Math.Max(10, Math.Min(300, 160 - steps * PADDING_ADJUSTMENT));
-                var initialGridLines = Math.Max(3, Math.Min(20, 5 + steps));
+                var initialGridLines = Math.Max(3, Math.Min(10, 5 + steps)); // 修改：将最大值从20改为10
 
                 _dpsTrendChart.SetPaddingRight(initialPadding);
                 _dpsTrendChart.SetVerticalGridLines(initialGridLines);
@@ -613,7 +613,8 @@ namespace StarResonanceDpsAnalysis.Control
             // 直接通过分割器位移来控制垂直线条数量
             // 基准：分割器350位置时，垂直线条=5
             // 向右移动增加线条，向左移动减少线条
-            var newGridLines = Math.Max(3, Math.Min(20, 5 + steps));
+            // ★ 修改：将最大垂直线条数从20改为10
+            var newGridLines = Math.Max(3, Math.Min(10, 5 + steps));
 
             // 添加调试输出
             //Console.WriteLine($"[DEBUG] splitter1_SplitterMoving - 位置: {e.SplitX}, 偏移: {offsetFrom350}, 步数: {steps}, 新线条数: {newGridLines}");
@@ -661,7 +662,8 @@ namespace StarResonanceDpsAnalysis.Control
 
                 // 最终计算参数
                 var finalPadding = Math.Max(10, Math.Min(300, 160 - steps * PADDING_ADJUSTMENT));
-                var finalGridLines = Math.Max(3, Math.Min(20, 5 + steps));
+                // ★ 修改：将最大垂直线条数从20改为10
+                var finalGridLines = Math.Max(3, Math.Min(10, 5 + steps));
 
                 // 确保最终设置正确
                 _dpsTrendChart.SetPaddingRight(finalPadding);

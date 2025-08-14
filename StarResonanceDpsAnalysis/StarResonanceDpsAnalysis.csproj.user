@@ -62,6 +62,18 @@
     <Compile Update="Forms\DetailsPreviewForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\DetailsPreviewForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\DetailsPreviewForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\DpsStatisticsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\DpsStatisticsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\DpsStatisticsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>

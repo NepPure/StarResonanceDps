@@ -490,12 +490,12 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         }
 
         /// <summary>
-        /// 添加承伤记录（支持暴击/幸运标记），同时累计到聚合与分技能统计，并写入全程记录。
+        /// 添加承伤记录（支持暴击/幸运标记），同时累计到聚合与分技能統計，并寫入全程記錄。
         /// </summary>
-        /// <param name="skillId">技能 ID（来源技能）。</param>
-        /// <param name="damage">承伤值（一般为命中值）。</param>
-        /// <param name="isCrit">是否暴击（若协议可区分）。</param>
-        /// <param name="isLucky">是否幸运（若协议可区分）。</param>
+        /// <param name="skillId">技能 ID（來源技能）。</param>
+        /// <param name="damage">承傷值（一般為命中值）。</param>
+        /// <param name="isCrit">是否暴擊（若協議可區分）。</param>
+        /// <param name="isLucky">是否幸運（若協議可區分）。</param>
         /// <param name="hpLessen">HP 真实减少值；为 0 时以 <paramref name="damage"/> 作为扣血。</param>
         public void AddTakenDamage(ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0)
         {
@@ -566,6 +566,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         {
             DamageStats.UpdateRealtimeStats();
             HealingStats.UpdateRealtimeStats();
+            TakenStats.UpdateRealtimeStats(); // ★ 修复：添加承伤统计的实时更新
         }
 
         /// <summary>获取总 DPS（总时长平均）。</summary>
@@ -803,8 +804,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                     RealtimeValue = s.RealtimeValue, // 实时窗口内的承伤
                     RealtimeMax = s.RealtimeMax,     // 实时窗口内的最大承伤
                     TotalDps = s.GetTotalPerSecond(),// 严格说是“平均每秒承伤”
-                    LastTime = s.LastRecordTime,     // 最后一次受到该技能承伤的时间
-                    ShareOfTotal = (double)s.Total / denom // 该技能承伤占总承伤的比例（0~1）
+                    LastTime = s.LastRecordTime,     // 如果你没加这个属性，就先删这一行
+                    ShareOfTotal = (double)s.Total / denom // 0~1 占比（与 source 对齐）
                 });
             }
 

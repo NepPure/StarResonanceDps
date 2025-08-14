@@ -254,7 +254,7 @@ namespace StarResonanceDpsAnalysis.Plugin.Charts
         /// </summary>
         public void SetVerticalGridLines(int lineCount)
         {
-            _verticalGridLines = Math.Max(3, Math.Min(20, lineCount)); // 限制在3-20条之间
+            _verticalGridLines = Math.Max(3, Math.Min(10, lineCount)); // 修改：限制范围3-10之间，从20改为10
             Invalidate();
         }
 
