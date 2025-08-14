@@ -1,6 +1,6 @@
 ﻿namespace StarResonanceDpsAnalysis.Control
 {
-    partial class TextProgressBar
+    partial class SortedProgressBarList
     {
         /// <summary> 
         /// 必需的设计器变量。
@@ -30,14 +30,13 @@
         {
             SuspendLayout();
             // 
-            // TextProgressBar
+            // SortedProgressBarList
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.Transparent;
-            Name = "TextProgressBar";
-            Padding = new Padding(3);
-            Size = new Size(280, 30);
+            DoubleBuffered = true;
+            Name = "SortedProgressBarList";
+            Size = new Size(536, 477);
             ResumeLayout(false);
         }
 

@@ -8,7 +8,7 @@ using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using System.Runtime.InteropServices;
 
-namespace StarResonanceDpsAnalysis
+namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class MainForm
     {

@@ -2,65 +2,14 @@ using AntdUI;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Core;
-using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using StarResonanceDpsAnalysis.Properties;
 
-namespace StarResonanceDpsAnalysis
+namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class MainForm : BorderlessForm
     {
-
-        public static void LoadFromEmbeddedSkillConfig()
-        {
-            // 1) 先用 int 键的表（已经解析过字符串）
-            foreach (var kv in EmbeddedSkillConfig.AllByInt)
-            {
-                var id = (ulong)kv.Key;
-                var def = kv.Value;
-
-                // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
-                // 这里用的是整条更新（SetOrUpdate），如果该技能 ID 已存在则覆盖，不存在则添加
-                SkillBook.SetOrUpdate(new SkillMeta
-                {
-                    Id = id,                         // 技能 ID（唯一标识一个技能）
-                    Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
-                    School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
-                    Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
-                    Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
-                });
-
-
-            }
-
-            // 2) 有些 ID 可能超出 int 或不在 AllByInt，可以再兜底遍历字符串键
-            foreach (var kv in EmbeddedSkillConfig.AllByString)
-            {
-                if (ulong.TryParse(kv.Key, out var id))
-                {
-                    // 如果 int 表已覆盖，这里会覆盖同名；没关系，等价
-                    var def = kv.Value;
-                    // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
-                    // 这里用的是整条更新（SetOrUpdate），如果该技能 ID 已存在则覆盖，不存在则添加
-                    SkillBook.SetOrUpdate(new SkillMeta
-                    {
-                        Id = id,                         // 技能 ID（唯一标识一个技能）
-                        Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
-                        School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
-                        Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
-                        Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
-                    });
-
-                }
-            }
-
-            // 你也可以在这里写日志：加载了多少条技能
-            // Console.WriteLine($"SkillBook loaded {EmbeddedSkillConfig.AllByInt.Count} + {EmbeddedSkillConfig.AllByString.Count} entries.");
-        }
-
-
-
         #region ========== 字段与常量 ==========
 
         /// <summary>
@@ -120,7 +69,7 @@ namespace StarResonanceDpsAnalysis
             ToggleTableView();
             LoadFromEmbeddedSkillConfig();
 
-
+            new TestForm().Show();
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -503,6 +452,53 @@ namespace StarResonanceDpsAnalysis
         #endregion
         #endregion
 
+
+        public static void LoadFromEmbeddedSkillConfig()
+        {
+            // 1) 先用 int 键的表（已经解析过字符串）
+            foreach (var kv in EmbeddedSkillConfig.AllByInt)
+            {
+                var id = (ulong)kv.Key;
+                var def = kv.Value;
+
+                // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
+                // 这里用的是整条更新（SetOrUpdate），如果该技能 ID 已存在则覆盖，不存在则添加
+                SkillBook.SetOrUpdate(new SkillMeta
+                {
+                    Id = id,                         // 技能 ID（唯一标识一个技能）
+                    Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
+                    School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
+                    Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
+                    Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
+                });
+
+
+            }
+
+            // 2) 有些 ID 可能超出 int 或不在 AllByInt，可以再兜底遍历字符串键
+            foreach (var kv in EmbeddedSkillConfig.AllByString)
+            {
+                if (ulong.TryParse(kv.Key, out var id))
+                {
+                    // 如果 int 表已覆盖，这里会覆盖同名；没关系，等价
+                    var def = kv.Value;
+                    // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
+                    // 这里用的是整条更新（SetOrUpdate），如果该技能 ID 已存在则覆盖，不存在则添加
+                    SkillBook.SetOrUpdate(new SkillMeta
+                    {
+                        Id = id,                         // 技能 ID（唯一标识一个技能）
+                        Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
+                        School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
+                        Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
+                        Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
+                    });
+
+                }
+            }
+
+            // 你也可以在这里写日志：加载了多少条技能
+            // Console.WriteLine($"SkillBook loaded {EmbeddedSkillConfig.AllByInt.Count} + {EmbeddedSkillConfig.AllByString.Count} entries.");
+        }
 
         /// <summary>
         /// 数据包到达事件
