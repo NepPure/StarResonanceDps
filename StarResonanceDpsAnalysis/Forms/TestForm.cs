@@ -53,7 +53,7 @@ namespace StarResonanceDpsAnalysis.Forms
             sortedProgressBarList1.Data = list;
             sortedProgressBarList1.ProgressBarHeight = 30;
             sortedProgressBarList1.AnimationDuration = 1000;
-            sortedProgressBarList1.AnimationQuality = Quality.High;
+            sortedProgressBarList1.AnimationQuality = Quality.Low;
 
             BindTaskTest1();
 
