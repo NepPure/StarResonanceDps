@@ -232,7 +232,7 @@
             textProgressBar1.Margin = new Padding(4);
             textProgressBar1.Name = "textProgressBar1";
             textProgressBar1.Padding = new Padding(4);
-            textProgressBar1.ProgressBarColor = Color.FromArgb(86, 156, 214);
+            textProgressBar1.ProgressBarColor = Color.FromArgb(103, 174, 246);
             textProgressBar1.ProgressBarCornerRadius = 3;
             textProgressBar1.ProgressBarValue = 0.2D;
             textProgressBar1.Size = new Size(383, 38);
@@ -288,6 +288,7 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "DpsStatistics";
             Load += DpsStatistics_Load;
+            ForeColorChanged += DpsStatisticsForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);
             panel1.ResumeLayout(false);
             ResumeLayout(false);

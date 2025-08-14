@@ -86,8 +86,8 @@ namespace StarResonanceDpsAnalysis.Forms
         private void button1_Click(object sender, EventArgs e)
         {
             list.Clear();
-            sortedProgressBarList1.Data=null;
-           
+            sortedProgressBarList1.Data = null;
+
         }
 
         private void button_Settings_Click(object sender, EventArgs e)
@@ -95,14 +95,14 @@ namespace StarResonanceDpsAnalysis.Forms
             var menulist = new IContextMenuStripItem[]
              {
                     new ContextMenuStripItem("历史战斗")
-                    { 
-                        IconSvg = Resources.historicalRecords, 
+                    {
+                        IconSvg = Resources.historicalRecords,
                         Sub = new IContextMenuStripItem[]
                         {
                             new ContextMenuStripItem("战斗记录")
                             {
-                                
-                         
+
+
                             },
                         }
                     },
@@ -209,7 +209,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             if (PilingModeCheckbox.Checked)
             {
-                if(AppConfig.NickName==null&& AppConfig.Uid==null)
+                if (AppConfig.NickName == null && AppConfig.Uid == null)
                 {
                     PilingModeCheckbox.Checked = false;
                     timer1.Enabled = false;
@@ -231,7 +231,7 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (result == DialogResult.OK)
                     {
                         bool data = await Common.AddUserDps(snapshot);
-                        if(data)
+                        if (data)
                         {
                             AntdUI.Modal.open(new AntdUI.Modal.Config(this, "上传成功", "上传成功")
                             {
@@ -252,11 +252,11 @@ namespace StarResonanceDpsAnalysis.Forms
                     }
                     else
                     {
-                      
+
 
                     }
-                  
-                   
+
+
 
                 }
             }
@@ -269,7 +269,7 @@ namespace StarResonanceDpsAnalysis.Forms
             if (e.Value)
             {
 
-                var result = AppMessageBox.ShowMessage("打桩时间为3分钟，需注意以下3点:\n0.:打桩模式开启后只会记录自己的数据\n1.开启后请找协会内最右侧木桩[靠窗的那根]\n2.确保战斗计时为0开启\n3.如果伤害不满意可关闭打桩模式重新勾选\n4.异常数据会被删除\n",this);
+                var result = AppMessageBox.ShowMessage("打桩时间为3分钟，需注意以下3点:\n0.:打桩模式开启后只会记录自己的数据\n1.开启后请找协会内最右侧木桩[靠窗的那根]\n2.确保战斗计时为0开启\n3.如果伤害不满意可关闭打桩模式重新勾选\n4.异常数据会被删除\n", this);
                 if (result == DialogResult.OK)
                 {
                     DpsTableDatas.DpsTable.Clear();
@@ -283,16 +283,34 @@ namespace StarResonanceDpsAnalysis.Forms
                 else
                 {
                     // 用户关闭或取消
-              
+
                     PilingModeCheckbox.Checked = false;
                 }
-               
+
             }
             else
             {
                 AppConfig.PilingMode = false;
                 //打桩模式关闭
                 timer1.Enabled = false;
+            }
+        }
+
+        private void DpsStatisticsForm_ForeColorChanged(object sender, EventArgs e)
+        {
+            if (Config.IsLight)
+            {
+                //浅色
+               
+                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#FFFFFF");
+                textProgressBar1.BackColor = ColorTranslator.FromHtml("#FFFFFF");
+            }
+            else
+            {
+                //深色
+                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#999999");
+                textProgressBar1.BackColor = ColorTranslator.FromHtml("#000000");
+
             }
         }
     }

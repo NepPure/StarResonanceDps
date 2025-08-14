@@ -1,4 +1,5 @@
 ﻿using AntdUI;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace StarResonanceDpsAnalysis.Plugin
 {
@@ -13,7 +14,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             BorderlessForm.Shadow = 10; //阴影大小
             BorderlessForm.BorderWidth = 0; //边框宽度
             BorderlessForm.UseDwm = false; //关闭系统窗口预览
-
+            BorderlessForm.Opacity = AppConfig.Transparency / 100;
 
             //BorderlessForm.BorderColor = Color.FromArgb(246, 248, 250);
 
@@ -41,7 +42,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 window.BackColor = Color.FromArgb(31, 31, 31);
                 window.ForeColor = Color.White;
             }
-            window.Opacity = AppConfig.Transparency/100;
+           
 
         }
 

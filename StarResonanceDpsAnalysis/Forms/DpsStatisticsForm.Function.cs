@@ -41,7 +41,7 @@ namespace StarResonanceDpsAnalysis.Forms
             { "青岚骑士", ColorTranslator.FromHtml("#abfaff") }, // 
             { "森语者", ColorTranslator.FromHtml("#78ff95") }, // 
             { "神盾骑士", ColorTranslator.FromHtml("#2E86AB") }, // 
-            {"未知",  ColorTranslator.FromHtml("#2E86AB")}
+            {"未知",  ColorTranslator.FromHtml("#67AEF6")}
         };
         public void RefreshDpsTable()
         {

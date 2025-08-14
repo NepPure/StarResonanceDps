@@ -86,6 +86,9 @@
     <Compile Update="Forms\DpsStatisticsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\HistoricalRecordsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
