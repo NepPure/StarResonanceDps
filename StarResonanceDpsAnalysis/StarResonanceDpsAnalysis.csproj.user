@@ -68,6 +68,9 @@
     <Compile Update="Forms\SettingsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\SkillCardStripForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\SkillDetailForm.cs">
       <SubType>Form</SubType>
     </Compile>

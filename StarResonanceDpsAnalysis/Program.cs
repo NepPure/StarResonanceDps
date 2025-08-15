@@ -14,8 +14,9 @@ namespace StarResonanceDpsAnalysis
         static void Main()
         {
             Console.OutputEncoding = Encoding.UTF8;
-            AntdUI.Config.SetDpi(1.0F);//Ä¬ÈÏdpi
+            //AntdUI.Config.SetDpi(1.5F);//Ä¬ÈÏdpi
             AntdUI.Config.TextRenderingHighQuality = true;
+
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             //AntdUI.Config.SetCorrectionTextRendering("SAO Welcome TT", "Î¢ÈíÑÅºÚ");
             // To customize application configuration such as set high DPI settings or default font,

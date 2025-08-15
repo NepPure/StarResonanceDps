@@ -249,7 +249,15 @@ namespace StarResonanceDpsAnalysis.Forms
                     DictList.Clear();
                     list.Clear();
                     userRenderContent.Clear();
-                    SortedProgressBarStatic.Data = null; // UI 组件缓存清空（注意切回 UI 线程）
+                    // UI 组件缓存清空（注意切回 UI 线程）
+                    var ctrl = SortedProgressBarStatic;
+                    if (ctrl != null && !ctrl.IsDisposed)
+                    {
+                        if (ctrl.InvokeRequired)
+                            ctrl.BeginInvoke(new Action(() => ctrl.Data = null));
+                        else
+                            ctrl.Data = null;
+                    }
                 }
             }
             finally
@@ -365,13 +373,13 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(uid, out var data))
                     {
                         data = new List<RenderContent>
-                {
-                    new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset { X = 10, Y = 0 },  ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
-                    new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft,  Offset = new RenderContent.ContentOffset { X = 48, Y = 0 },  Image=profBmp, ImageRenderSize=new Size(32,32) },
-                    new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset { X = 90, Y = 0 },  ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
-                    new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight,Offset = new RenderContent.ContentOffset { X = -55, Y = 0 }, ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
-                    new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset { X = 0, Y = 0 }, ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
-                };
+                    {
+                        new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset { X = 10, Y = 0 },  ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
+                        new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft,  Offset = new RenderContent.ContentOffset { X = 30, Y = 0 },  Image=profBmp, ImageRenderSize=new Size(32,32) },
+                        new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset { X = 65, Y = 0 },  ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
+                        new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight,Offset = new RenderContent.ContentOffset { X = -55, Y = 0 }, ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
+                        new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset { X = 0, Y = 0 }, ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
+                    };
 
                         var progressBarData = new ProgressBarData
                         {
