@@ -25,7 +25,7 @@ namespace StarResonanceDpsAnalysis.Forms
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
 
             slider1.Value = (int)AppConfig.Transparency;
-            inputNumber2.Value = (decimal)AppConfig.CombatTimeClearDelaySeconds;
+            inputNumber2.Value = AppConfig.CombatTimeClearDelaySeconds;
         }
 
         /// <summary>

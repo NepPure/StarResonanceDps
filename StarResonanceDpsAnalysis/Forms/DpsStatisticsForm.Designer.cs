@@ -41,7 +41,6 @@
             DamageModeLabel = new AntdUI.Label();
             LeftHandoffButton = new AntdUI.Button();
             panel1 = new AntdUI.Panel();
-            textProgressBar1 = new StarResonanceDpsAnalysis.Control.TextProgressBar();
             BattleTimeText = new AntdUI.Label();
             timer_RefreshRunningTime = new System.Windows.Forms.Timer(components);
             timer1 = new System.Windows.Forms.Timer(components);
@@ -210,7 +209,6 @@
             // panel1
             // 
             panel1.BackColor = Color.Transparent;
-            panel1.Controls.Add(textProgressBar1);
             panel1.Controls.Add(BattleTimeText);
             panel1.Dock = DockStyle.Bottom;
             panel1.Location = new Point(0, 418);
@@ -221,21 +219,6 @@
             panel1.Size = new Size(471, 47);
             panel1.TabIndex = 17;
             panel1.Text = "panel1";
-            // 
-            // textProgressBar1
-            // 
-            textProgressBar1.BackColor = Color.White;
-            textProgressBar1.Dock = DockStyle.Fill;
-            textProgressBar1.Font = new Font("SAO Welcome TT", 10F);
-            textProgressBar1.Location = new Point(0, 9);
-            textProgressBar1.Margin = new Padding(4);
-            textProgressBar1.Name = "textProgressBar1";
-            textProgressBar1.Padding = new Padding(4);
-            textProgressBar1.ProgressBarColor = Color.FromArgb(103, 174, 246);
-            textProgressBar1.ProgressBarCornerRadius = 3;
-            textProgressBar1.ProgressBarValue = 0.2D;
-            textProgressBar1.Size = new Size(383, 38);
-            textProgressBar1.TabIndex = 19;
             // 
             // BattleTimeText
             // 
@@ -250,6 +233,7 @@
             // timer_RefreshRunningTime
             // 
             timer_RefreshRunningTime.Enabled = true;
+            timer_RefreshRunningTime.Interval = 10;
             timer_RefreshRunningTime.Tick += timer_RefreshRunningTime_Tick;
             // 
             // timer1
@@ -265,8 +249,11 @@
             sortedProgressBarList1.Location = new Point(0, 33);
             sortedProgressBarList1.Margin = new Padding(5, 4, 5, 4);
             sortedProgressBarList1.Name = "sortedProgressBarList1";
+            sortedProgressBarList1.OrderColor = Color.Black;
+            sortedProgressBarList1.OrderFont = new Font("宋体", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             sortedProgressBarList1.ProgressBarHeight = 20;
             sortedProgressBarList1.ProgressBarPadding = new Padding(3);
+            sortedProgressBarList1.SeletedItemColor = Color.FromArgb(86, 156, 214);
             sortedProgressBarList1.Size = new Size(471, 385);
             sortedProgressBarList1.TabIndex = 18;
             // 
@@ -309,7 +296,6 @@
         private System.Windows.Forms.Timer timer_RefreshRunningTime;
         private System.Windows.Forms.Timer timer1;
         private AntdUI.Label DamageModeLabel;
-        private Control.TextProgressBar textProgressBar1;
         private Control.SortedProgressBarList sortedProgressBarList1;
     }
 }

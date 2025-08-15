@@ -21,9 +21,27 @@ namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class DpsStatisticsForm
     {
+        // # 导航
+        // # 本文件主要职责：
+        // #   1) 启动/停止网络抓包的生命周期管理（StartCapture/StopCapture）。
+        // #   2) 清空/重置统计数据与图表（HandleClearData/ListClear）。
+        // #   3) 初始化用户与控件样式（InitTableColumnsConfigAtFirstRun/SetStyle）。
+        // #   4) 处理数据包到达事件，将原始数据交给 PacketAnalyzer（Device_OnPacketArrival）。
+        // #   5) 构建并刷新 DPS/治疗/承伤的 UI 列表（RefreshDpsTable/BuildUiRows）。
+        // # 事件分类索引：
+        // #   * [启动与初始化事件] InitTableColumnsConfigAtFirstRun / LoadNetworkDevices / SetStyle
+        // #   * [抓包事件] StartCapture / StopCapture / Device_OnPacketArrival
+        // #   * [清理与复位事件] HandleClearData / ListClear
+        // #   * [UI 刷新事件] RefreshDpsTable / BuildUiRows
+        // #   * [线程安全与状态] _dataLock / _isClearing / IsCaptureStarted / SelectedDevice
+
         #region 加载 网卡 启动设备/初始化 统计数据/ 启动 抓包/停止抓包/清空数据/ 关闭 事件
         private void InitTableColumnsConfigAtFirstRun()
         {
+            // # 启动与初始化事件：首次运行初始化表头配置 & 绑定本机身份信息
+            // # 步骤：
+            // #  1. 若存在配置文件，则读取昵称/UID/职业/战力并写入统计管理器（在 UI 中显示当前用户）。
+            // #  2. 将当前窗体中的进度条列表控件实例绑定到静态引用（后续刷新列表时使用）。
             if (AppConfig.GetConfigExists())
             {
                 AppConfig.NickName = AppConfig.GetValue("UserConfig", "NickName", "未知");
@@ -31,10 +49,10 @@ namespace StarResonanceDpsAnalysis.Forms
                 AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知");
                 AppConfig.CombatPower = AppConfig.GetValue("UserConfig", "CombatPower", "0").ToInt();
                 StatisticData._manager.SetNickname(AppConfig.Uid, AppConfig.NickName);
+                Console.WriteLine(AppConfig.NickName);
                 StatisticData._manager.SetProfession(AppConfig.Uid, AppConfig.Profession);
                 StatisticData._manager.SetCombatPower(AppConfig.Uid, AppConfig.CombatPower);
-                textProgressBar1.ProgressBarColor = colorDict[AppConfig.Profession];
-                SortedProgressBarStatic = this.sortedProgressBarList1; // 关键：这里绑定实例
+                SortedProgressBarStatic = this.sortedProgressBarList1; // # 关键：这里绑定实例
                 return;
             }
 
@@ -57,6 +75,7 @@ namespace StarResonanceDpsAnalysis.Forms
         /// </summary>
         public void LoadNetworkDevices()
         {
+            // # 启动与初始化事件：应用启动阶段加载网络设备列表，依据配置选择默认网卡
             Console.WriteLine("应用程序启动时加载网卡...");
 
             if (AppConfig.NetworkCard >= 0)
@@ -85,6 +104,8 @@ namespace StarResonanceDpsAnalysis.Forms
         /// </summary>
         private void Device_OnPacketArrival(object sender, PacketCapture e)
         {
+            // # 抓包事件：回调于数据包到达时（SharpPcap线程）
+            // #  目的：将原始网络包交由 PacketAnalyzer 统一解压/解码/分发到统计模块
             try
             {
                 var dev = (ICaptureDevice)sender;
@@ -93,6 +114,7 @@ namespace StarResonanceDpsAnalysis.Forms
             }
             catch (Exception ex)
             {
+                // # 异常保护：避免抓包线程因未处理异常中断
                 Console.WriteLine($"数据包到达后进行处理时发生异常 {ex.Message}\r\n{ex.StackTrace}");
             }
         }
@@ -107,7 +129,8 @@ namespace StarResonanceDpsAnalysis.Forms
         /// </summary>
         public void StartCapture()
         {
-            // 前置校验 ——
+            // # 抓包事件：用户点击“开始”或自动启动时触发
+            // # 步骤 1：前置校验 —— 网络设备索引/可用性检查
             if (AppConfig.NetworkCard < 0)
             {
                 MessageBox.Show("请选择一个网卡设备");
@@ -128,18 +151,18 @@ namespace StarResonanceDpsAnalysis.Forms
                 throw new InvalidOperationException($"无法获取网络设备，索引: {AppConfig.NetworkCard}");
 
 
-            // 清空当前统计 ——
+            // # 步骤 2：清空当前统计 —— 新会话前的干净状态
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
 
-            // 清空图表历史数据，开始新的战斗记录
+            // # 步骤 3：图表历史与自动刷新 —— 开始新的战斗记录
             ChartVisualizationService.ClearAllHistory();
 
             // 启动所有图表的自动刷新
             ChartVisualizationService.StartAllChartsAutoRefresh(1000);
 
-            // 事件注册与启动监听 --
+            // # 步骤 4：打开并启动设备监听 —— 绑定回调、设置过滤器
             SelectedDevice.Open(new DeviceConfiguration
             {
                 Mode = DeviceModes.Promiscuous,
@@ -151,7 +174,9 @@ namespace StarResonanceDpsAnalysis.Forms
             SelectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
             SelectedDevice.StartCapture();
 
+            // # 步骤 5：标记状态、启动全程记录器
             IsCaptureStarted = true;
+            FullRecord.Start();
             Console.WriteLine("开始抓包...");
 
 
@@ -162,7 +187,8 @@ namespace StarResonanceDpsAnalysis.Forms
         /// </summary>
         public void StopCapture()
         {
-            // 先停止所有图表的自动刷新，防止在停止抓包后继续更新数据
+            // # 抓包事件：用户点击“停止”或程序退出前触发
+            // # 步骤 1：先停止所有图表的自动刷新，防止在停止抓包后继续更新数据
             ChartVisualizationService.StopAllChartsAutoRefresh();
 
 
@@ -173,13 +199,13 @@ namespace StarResonanceDpsAnalysis.Forms
             {
                 try
                 {
-                    // 1) 先解绑，避免回调里撞到已释放对象
+                    // # 步骤 2：解绑事件，避免回调访问已释放对象
                     SelectedDevice.OnPacketArrival -= Device_OnPacketArrival;
 
-                    // 2) 停止抓包（异步）
+                    // # 步骤 3：停止抓包（内部通常是异步）
                     SelectedDevice.StopCapture();
 
-                    // 3) 等待后台线程真正退出（最多 ~1s）
+                    // # 步骤 4：等待后台捕获线程真正退出（简单轮询，最多 ~1s）
                     for (int i = 0; i < 100; i++)
                     {
                         // 有的版本有 Started 属性；没有就直接 sleep 一下
@@ -187,7 +213,7 @@ namespace StarResonanceDpsAnalysis.Forms
                         System.Threading.Thread.Sleep(10);
                     }
 
-                    // 4) 关闭并彻底释放驱动句柄
+                    // # 步骤 5：关闭并释放句柄（Dispose 很关键）
                     SelectedDevice.Close();
                     SelectedDevice.Dispose();   // ← 关键：第二次不触发通常是没 Dispose
                     Console.WriteLine("停止抓包");
@@ -202,12 +228,13 @@ namespace StarResonanceDpsAnalysis.Forms
                 }
             }
 
+            // # 步骤 6：状态复位与解析状态清空
             IsCaptureStarted = false;
 
             // 清空解析/重组状态 ——（按你的实际字段名来）
             PacketAnalyzer.ResetCaptureState();
 
-            // 更新网卡设置提示状态
+            // # 步骤 7：更新 UI 上的网卡设置提示（可能提示用户重新选择）
             StartupInitializer.RefreshNetworkCardSettingTip();
         }
 
@@ -216,19 +243,25 @@ namespace StarResonanceDpsAnalysis.Forms
         public void HandleClearData()
         {
 
+            // # 清理与复位事件：用户点击“清空”时触发（不影响抓包的开启/关闭状态）
             // 先停止所有图表的自动刷新
-           ChartVisualizationService.StopAllChartsAutoRefresh();
+            ChartVisualizationService.StopAllChartsAutoRefresh();
 
             // 在清空数据前，通知图表服务战斗结束
             ChartVisualizationService.OnCombatEnd();
-
+            if (FormManager.showTotal)
+            {
+                FullRecord.Reset();//全程统计数据清空
+            }
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
 
             ListClear();
+
             // 完全重置所有图表（包括清空历史数据和重置视图状态）
             ChartVisualizationService.FullResetAllCharts();
+
 
             // 如果当前正在抓包，重新启动图表自动刷新
             if (IsCaptureStarted)
@@ -240,12 +273,14 @@ namespace StarResonanceDpsAnalysis.Forms
         private int _isClearing = 0; // 0: 正常，1: 清空中
         public void ListClear()
         {
+            // # 清理与复位事件：清空 UI 进度条列表与缓存（线程安全）
             if (Interlocked.Exchange(ref _isClearing, 1) == 1) return; // 已在清空中
 
             try
             {
                 lock (_dataLock)
                 {
+                    // # 清空在内存中的数据模型
                     DictList.Clear();
                     list.Clear();
                     userRenderContent.Clear();
@@ -262,6 +297,7 @@ namespace StarResonanceDpsAnalysis.Forms
             }
             finally
             {
+                // # 退出清空状态
                 Volatile.Write(ref _isClearing, 0);
             }
         }
@@ -273,18 +309,17 @@ namespace StarResonanceDpsAnalysis.Forms
 
         public void SetStyle()
         {
+            // # 启动与初始化事件：界面样式与渲染设置（仅 UI 外观，不涉及数据）
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
-            textProgressBar1.Padding = new Padding(3, 3, 3, 3);
-            textProgressBar1.ProgressBarCornerRadius = 3; // 超大圆角
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
-            sortedProgressBarList1.OrderColor = Color.Fuchsia;
+            sortedProgressBarList1.OrderColor = Color.Black;
             sortedProgressBarList1.OrderFont = AppConfig.DpsFontBold;
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
             sortedProgressBarList1.ProgressBarHeight = 30;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
             sortedProgressBarList1.AnimationQuality = Quality.High; // 动画品质（你项目里的枚举）
-       
+
 
 
 
@@ -333,127 +368,240 @@ namespace StarResonanceDpsAnalysis.Forms
         { "神射手", new Bitmap(new MemoryStream(Resources.神射手)) },
         { "雷影剑士", new Bitmap(new MemoryStream(Resources.雷影剑士)) },
         { "青岚骑士", new Bitmap(new MemoryStream(Resources.青岚骑士)) },
+        { "神盾骑士", new Bitmap(new MemoryStream(Resources.神盾骑士)) },
         { "未知", new Bitmap(new MemoryStream(Resources.hp_icon)) }
     };
-
-        public void RefreshDpsTable()
+        public static Dictionary<string, object> StatisticalType = new Dictionary<string, object>()
         {
-            if (Interlocked.CompareExchange(ref _isClearing, 0, 0) == 1)
-                return; // 清空中，直接跳过本轮，避免和 Clear 打架
+            {"单次", StatisticData._manager.GetPlayersWithCombatData().ToArray()},
+            {"全程",  FullRecord.GetPlayersWithTotalsArray().ToArray()}
+        };
 
-            var statsList = StatisticData._manager.GetPlayersWithCombatData().ToArray();
-            if (statsList.Length == 0) return;
+        public enum SourceType { Current, FullRecord }
+        public enum MetricType { Damage, Healing, Taken }
 
-            // 计算部分尽量在锁外完成（减少锁占用时间）
-            float totalDamageSum = statsList.Where(p => p?.DamageStats != null)
-                                            .Sum(p => (float)p.DamageStats.Total);
-            if (totalDamageSum <= 0f) totalDamageSum = 1f;
 
-            var maxDamage = statsList.Max(p => (float)(p?.DamageStats?.Total ?? 0));
-            var ordered = statsList.OrderByDescending(p => p?.DamageStats?.Total ?? 0).ToList();
+        private class UiRow
+        {
+            public long Uid;
+            public string Nickname;
+            public int CombatPower;
+            public string Profession;
+            public ulong Total;
+            public double PerSecond;
+        }
 
+
+        public void RefreshDpsTable(SourceType source, MetricType metric)
+        {
+            // # UI 刷新事件：根据指定数据源（单次/全程）与指标（伤害/治疗/承伤）对进度条列表进行重建与绑定
+            if (Interlocked.CompareExchange(ref _isClearing, 0, 0) == 1) return;
+
+            var uiList = BuildUiRows(source, metric);
+            if (uiList.Count == 0)
+            {
+                // # 无数据时：清空 UI 以避免残影
+                lock (_dataLock)
+                {
+                    // 清空旧行，避免显示上一个视图的数据
+                    DictList.Clear();
+                    list.Clear();
+
+                    // 确保在 UI 线程更新 Data
+                    if (sortedProgressBarList1.InvokeRequired)
+                        sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = null));
+                    else
+                        sortedProgressBarList1.Data = null;
+                }
+                return;
+            }
+            //if (uiList.Count == 0) return;
+
+            // # 统计口径：使用 double 保证占比计算精度稳定
+            double totalSum = uiList.Sum(x => (double)x.Total);
+            if (totalSum <= 0d) totalSum = 1d;
+            var maxTotal = uiList.Max(x => (float)x.Total);
+            var ordered = uiList.OrderByDescending(x => x.Total).ToList();
+
+            if (ordered.Count == 0)
+            {
+                // # 兜底：排序后仍为空则清屏
+                lock (_dataLock)
+                {
+                    DictList.Clear();
+                    list.Clear();
+                    if (sortedProgressBarList1.InvokeRequired)
+                        sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = null));
+                    else
+                        sortedProgressBarList1.Data = null;
+                }
+                return;
+            }
             lock (_dataLock)
             {
-                if (_isClearing == 1) return; // 进入锁后再二次确认
+                if (_isClearing == 1) return;
+                // 这次应出现的 UID 集合
+                var present = new HashSet<long>(ordered.Select(x => x.Uid));
+
+                // 找出需要删除的旧行（上一视图的残留）
+                var toRemove = list.Where(pb => !present.Contains(pb.ID))
+                                   .Select(pb => pb.ID)
+                                   .ToList();
+
+                if (toRemove.Count > 0)
+                {
+                    foreach (var uid in toRemove)
+                    {
+                        DictList.Remove(uid);
+                        list.RemoveAll(pb => pb.ID == uid);
+                    }
+                }
 
                 for (int i = 0; i < ordered.Count; i++)
                 {
                     var p = ordered[i];
-                    if (p is null) continue;
 
-                    long uid = (long)p.Uid;
-                    int ranking = i + 1;
 
-                    var realtime = Common.FormatWithEnglishUnits(Math.Round(p.DamageStats.GetTotalPerSecond(), 1));
-                    
-                    string totalFmt = Common.FormatWithEnglishUnits(p.DamageStats.Total);
-                    string share = (p.DamageStats.Total / totalDamageSum * 100).ToString("0") + "%";
+                    string totalFmt = Common.FormatWithEnglishUnits(p.Total);
+                    string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
 
-                    float progress = maxDamage > 0 ? (float)(p.DamageStats.Total / maxDamage) : 0f;
+                    double shareVal = p.Total / totalSum;                       // 0~1
 
-                    // 注意：重复 new Bitmap(new MemoryStream(...)) 会泄露 GDI 资源，建议把职业图像缓存成 Bitmap
+                    string share = (shareVal * 100.0).ToString("0.0") + "%"; // 建议保留1位小数更稳定
+                    float progress = (float)shareVal;                          // 进度条也用同一口径
+
                     var profBmp = imgDict[p.Profession];
 
-                    if (!DictList.TryGetValue(uid, out var data))
+                    if (!DictList.TryGetValue(p.Uid, out var data))
                     {
-                        data = new List<RenderContent>
-                    {
-                        //new RenderContent 
-                        //{ 
-                        //    Type=RenderContent.ContentType.Text, 
-                        //    Align=RenderContent.ContentAlign.MiddleLeft, 
-                        //    Offset=new RenderContent.ContentOffset { X = 10, Y = 0 }, 
-                        //    ForeColor=Color.Black, Font=AppConfig.DpsFontBold 
-                        //},
-                        new RenderContent { 
-                            
-                            Type=RenderContent.ContentType.Image, 
-                            Align=RenderContent.ContentAlign.MiddleLeft, 
-                            Offset = new RenderContent.ContentOffset { X = 30, Y = 0 },  
-                            Image=profBmp, 
-                            ImageRenderSize=new Size(25,25) },
-                        new RenderContent { 
-                            
-                            Type=RenderContent.ContentType.Text,  
-                            Align=RenderContent.ContentAlign.MiddleLeft,
-                            Offset = new RenderContent.ContentOffset { X = 65, Y = 0 }, 
-                            ForeColor=Color.Black, Font=AppConfig.DpsFontBold 
-                        },
-                        new RenderContent { 
-                            Type=RenderContent.ContentType.Text,  
-                            Align=RenderContent.ContentAlign.MiddleRight,
-                            Offset = new RenderContent.ContentOffset { X = -55, Y = 0 }, 
-                            ForeColor=Color.Black, Font=AppConfig.DpsFontBold 
-                        },
-                        new RenderContent { Type=RenderContent.ContentType.Text, 
-                            Align=RenderContent.ContentAlign.MiddleRight, 
-                            Offset = new RenderContent.ContentOffset { X = 0, Y = 0 }, 
-                            ForeColor=Color.Black, 
-                            Font=AppConfig.DpsFontBold 
-                        },
-                    };
+                        // # 首次出现：为该 UID 构建渲染内容与进度条条目
+                        data = new List<RenderContent> {
+                            new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=30,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
+                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
+                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
+                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
+                        };
 
-                        var progressBarData = new ProgressBarData
+                        list.Add(new ProgressBarData
                         {
-                            ID = uid,
+                            ID = p.Uid,
                             ContentList = data,
                             ProgressBarCornerRadius = 3,
                             ProgressBarValue = progress,
                             ProgressBarColor = colorDict[p.Profession],
-                        };
+                        });
 
-                        list.Add(progressBarData);
-                        DictList[uid] = data;
+                        DictList[p.Uid] = data;
                     }
 
-                    // 更新已有项
-                    var row = DictList[uid];
-                    //row[0].Text = $"{ranking}.";
+                    // # 更新显示文本 & 头像/职业图标
+                    var row = DictList[p.Uid];
                     row[0].Image = profBmp;
                     row[1].Text = $"{p.Nickname}({p.CombatPower})";
-                    row[2].Text = $"{totalFmt}({realtime})";
+                    row[2].Text = $"{totalFmt}({perSec})";
                     row[3].Text = share;
-
-                    if (p.Uid == AppConfig.Uid)
-                    {
-                        if (userRenderContent.Count == 0) userRenderContent = row;
-                        //userRenderContent[0].Text = $"{ranking}.";
-                        userRenderContent[0].Image = profBmp;
-                        userRenderContent[1].Text = $"{totalFmt}({realtime})";
-                        textProgressBar1.ContentList = userRenderContent;
-                        textProgressBar1.ProgressBarValue = progress;
-                    }
                 }
 
-                // 列表绑定（确保在 UI 线程调用）
-                sortedProgressBarList1.Data = list;
+                // 绑定到控件（空则设 null，避免残影）
+                void Bind()
+                {
+                    if (list.Count == 0) // 清屏
+                        sortedProgressBarList1.Data = null;
+                    else
+                        sortedProgressBarList1.Data = list;
+                }
+
+                if (sortedProgressBarList1.InvokeRequired)
+                    sortedProgressBarList1.BeginInvoke((Action)Bind);
+                else
+                    Bind();
             }
         }
 
-        /// <summary>
-        /// 从 Properties.Resources 中按名字获取图片；兼容资源为 Image 或 byte[] 两种情况。
-        /// 返回 null 表示未找到或格式不正确。
-        /// </summary>
+
+        private List<UiRow> BuildUiRows(SourceType source, MetricType metric)
+        {
+            // # UI 刷新事件：根据数据源构建用于展示的轻量行结构（与底层统计对象解耦）
+            if (source == SourceType.Current)
+            {
+                var statsList = StatisticData._manager.GetPlayersWithCombatData().ToArray(); // :contentReference[oaicite:2]{index=2}
+                if (statsList.Length == 0) return new();
+
+                return statsList.Select(p =>
+                {
+                    ulong total;
+                    double ps;
+                    switch (metric)
+                    {
+                        case MetricType.Healing:
+                            total = p.HealingStats.Total;
+                            ps = p.HealingStats.GetTotalPerSecond();
+                            break;
+                        case MetricType.Taken:
+                            total = p.TakenStats.Total;                  // 或 p.TakenDamage（两者口径不同）
+                            ps = p.TakenStats.GetTotalPerSecond();
+                            break;
+                        default: // Damage
+                            total = p.DamageStats.Total;
+                            ps = p.DamageStats.GetTotalPerSecond();
+                            break;
+                    }
+
+                    return new UiRow
+                    {
+                        Uid = (long)p.Uid,
+                        Nickname = p.Nickname,
+                        CombatPower = p.CombatPower,
+                        Profession = p.Profession,
+                        Total = total,
+                        PerSecond = ps
+                    };
+                }).ToList();
+            }
+            else // FullRecord
+            {
+                var fr = FullRecord.GetPlayersWithTotalsArray(); // :contentReference[oaicite:3]{index=3}
+                if (fr.Length == 0) return new();
+
+                // 全程的每人有：TotalDamage / TotalHealing / TakenDamage；秒伤只有 Dps/Hps（承伤秒伤没有固定口径）
+                // 如果你已实现“有效时长秒伤”，可以：TakenPerSecond = p.TakenDamage / FullRecord.GetEffectiveSeconds();
+                // 这里先按会话时长兜底（如你已做 ActiveSeconds，请替换为 ActiveSeconds）
+                var sessionSecs = Math.Max(1.0, FullRecord.GetSessionTotalTimeSpan().TotalSeconds); // :contentReference[oaicite:4]{index=4}
+
+                return fr.Select(p =>
+                {
+                    ulong total;
+                    double ps;
+                    switch (metric)
+                    {
+                        case MetricType.Healing:
+                            total = p.TotalHealing;
+                            ps = p.Hps;                  // 已有全程 Hps:contentReference[oaicite:5]{index=5}
+                            break;
+                        case MetricType.Taken:
+                            total = p.TakenDamage;
+                            ps = total / sessionSecs;    // 先用会话时长兜底；若已做 ActiveSeconds，改成 total / ActiveSeconds
+                            break;
+                        default: // Damage
+                            total = p.TotalDamage;
+                            ps = p.Dps;                  // 已有全程 Dps:contentReference[oaicite:6]{index=6}
+                            break;
+                    }
+
+                    return new UiRow
+                    {
+                        Uid = (long)p.Uid,
+                        Nickname = p.Nickname,
+                        CombatPower = p.CombatPower,
+                        Profession = p.Profession,
+                        Total = total,
+                        PerSecond = ps
+                    };
+                }).ToList();
+            }
+        }
+
+
 
 
 

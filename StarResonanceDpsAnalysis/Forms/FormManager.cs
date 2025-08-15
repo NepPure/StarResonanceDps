@@ -50,5 +50,10 @@ namespace StarResonanceDpsAnalysis.Forms
         public const int HTCAPTION = 0x2;
         [DllImport("user32.dll")] public static extern bool ReleaseCapture();
         [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
+
+        #region 单次伤害/全程伤害
+        public static int currentIndex = 0;        // 当前类别：0伤害/1治疗/2承伤
+        public static bool showTotal = false;      // false=单次；true=全程
+        #endregion
     }
 }

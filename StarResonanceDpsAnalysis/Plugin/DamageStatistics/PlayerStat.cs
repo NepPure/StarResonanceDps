@@ -911,7 +911,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         /// <summary>整场战斗结束时间（手动结束后赋值；进行中则为 null）。</summary>
         private DateTime? _combatEnd;
-
+        
         /// <summary>是否处于战斗中。</summary>
         public bool IsInCombat => _combatStart.HasValue && !_combatEnd.HasValue;
 
@@ -956,7 +956,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
                 // 只清玩家数据与战斗时钟；缓存（昵称/战力/职业）保留
                 ClearAll(false);
-                DpsTableDatas.DpsTable.Clear();
+                FormManager.dpsStatistics.HandleClearData();
                 _pendingClearOnNextCombat = false;
             }
 
@@ -1032,10 +1032,18 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             _checkTimer = new System.Timers.Timer(1000)
             {
                 AutoReset = true,
-                Enabled = true
+                Enabled = false // 先关闭，避免构造期触发回调
             };
             _checkTimer.Elapsed += CheckTimerElapsed;
+
+            // 显式初始化（可选，强调语义）
+            _lastCombatActivity = DateTime.MinValue;
+            _pendingClearOnNextCombat = false;
+
+            // 所有状态就绪后再启动
+            _checkTimer.Start();
         }
+
 
         #endregion
 
@@ -1265,14 +1273,19 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <summary>获取所有玩家数据对象。</summary>
         /// <returns>玩家数据的枚举。</returns>
         public IEnumerable<PlayerData> GetAllPlayers() => _players.Values;
-
+        bool InitialStart = false;
         /// <summary>
         /// 清空所有玩家数据（可选是否保留战斗时钟）。清空前会自动保存当前战斗快照。
         /// </summary>
         /// <param name="keepCombatTime">true=保留战斗时钟；false=同时清除战斗时钟。</param>
         public void ClearAll(bool keepCombatTime = true)
         {
-
+            if(!InitialStart)
+            {
+                InitialStart = true;
+                return;
+            }
+          
             // —— 新增：如果当前有战斗数据，先保存快照
             if (_players.Count > 0)
             {
@@ -1805,7 +1818,12 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         /// <summary>技能明细：承伤。</summary>
         public List<SkillSummary> TakenSkills { get; init; } = new();
+
+        public double ActiveSecondsDamage { get; init; }
+        public double ActiveSecondsHealing { get; init; }
+
     }
+
 
 
     #endregion

@@ -1,4 +1,5 @@
 ﻿using AntdUI;
+using BlueProto;
 using System.ComponentModel;
 
 namespace StarResonanceDpsAnalysis.Plugin
@@ -426,6 +427,7 @@ namespace StarResonanceDpsAnalysis.Plugin
     public class SkillData : NotifyProperty
     {
         #region 字段（私有存储）
+        private ulong skillId;    // 技能ID
         private string name;       // 技能名称
         private string icon;       // 技能图标（文件路径或URL）
         private CellText damage;      // 技能总伤害
@@ -441,8 +443,9 @@ namespace StarResonanceDpsAnalysis.Plugin
         #endregion
 
         #region 构造函数
-        public SkillData(string name, string icon, ulong damage, int hitCount, string critRate, string luckyRate, double share, double avgPerHit, double totalDps)
+        public SkillData(ulong skillId,string name, string icon, ulong damage, int hitCount, string critRate, string luckyRate, double share, double avgPerHit, double totalDps)
         {
+            SkillId = skillId;
             Name = name;
             Icon = icon;
             Damage = new CellText(damage.ToString()) { Font = AppConfig.SaoFont };
@@ -459,6 +462,17 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         #region 属性封装（包含通知）
         // —— 技能基础信息 —— 
+
+        public ulong SkillId
+        {
+            get => skillId;
+            set
+            {
+                if (skillId == value) return;
+                skillId = value;
+                OnPropertyChanged(nameof(SkillId));
+            }
+        }
 
         /// <summary>
         /// 技能名称（用于UI显示）

@@ -1,6 +1,8 @@
 ﻿using AntdUI;
+using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using static StarResonanceDpsAnalysis.Forms.DpsStatisticsForm;
 
 namespace StarResonanceDpsAnalysis.Control
 {
@@ -13,6 +15,7 @@ namespace StarResonanceDpsAnalysis.Control
 
             table_DpsDetailDataTable.Columns = new AntdUI.ColumnCollection
             {
+                 //new AntdUI.Column("SkillId","技能id"),
                 new AntdUI.Column("Name","技能名"),
                 new AntdUI.Column("Damage","伤害"),
                 new AntdUI.Column("AvgPerHit","DPS/秒"),
@@ -38,83 +41,118 @@ namespace StarResonanceDpsAnalysis.Control
         /// <summary>
         /// 刷新玩家技能数据
         /// </summary>
-        public void UpdateSkillTable(ulong uid, bool isHeal = false,bool AcceptInjury=false)
+        public void UpdateSkillTable(ulong uid, SourceType source, MetricType metric)
         {
             SkillTableDatas.SkillTable.Clear();
-            var skillType = isHeal
-                ? StarResonanceDpsAnalysis.Core.SkillType.Heal
-                : StarResonanceDpsAnalysis.Core.SkillType.Damage;
 
-            var skills = StatisticData._manager
-                .GetPlayerSkillSummaries(uid, topN: null, orderByTotalDesc: true, skillType)
-                .OrderByDescending(SkillOrderBySelector)
-                .ToList();
-            //是否属于承伤数据
-            if(AcceptInjury)
+            // 取技能清单（统一成同样的结构）
+            List<StarResonanceDpsAnalysis.Plugin.DamageStatistics.SkillSummary> skills;
+            if (source == SourceType.Current)
             {
-                skills = StatisticData._manager.GetPlayerTakenDamageSummaries(uid,null,true)
-                .OrderByDescending(SkillOrderBySelector)
-                .ToList();
-            }
-
-
-            foreach (var item in skills)
-            {
-
-                string critRateStr = AcceptInjury ? item.CritRate.ToString() :$"{item.CritRate}%";
-                string luckyRateStr = AcceptInjury? item.LuckyRate.ToString() :$"{item.LuckyRate}%";
-
-                var existing = SkillTableDatas.SkillTable.FirstOrDefault(s => s.Name == item.SkillName);
-                if (existing != null)
+                if (metric == MetricType.Taken)
                 {
-                    existing.Damage = new CellText(item.Total.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.HitCount = new CellText(item.HitCount.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.CritRate = new CellText(critRateStr) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.LuckyRate = new CellText(luckyRateStr) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.AvgPerHit = new CellText(item.AvgPerHit.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.TotalDps = new CellText(item.TotalDps.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.Percentage = new CellText((item.ShareOfTotal).ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.Share = new CellProgress((float)item.ShareOfTotal)
-                    {
-                        Fill = AppConfig.DpsColor,
-                        Size = new Size(200, 10),
-                    };
+                    skills = StatisticData._manager
+                                .GetPlayerTakenDamageSummaries(uid, null, true)
+                                .OrderByDescending(SkillOrderBySelector)
+                                .ToList();
                 }
                 else
                 {
+                    var skillType = metric == MetricType.Healing
+                        ? StarResonanceDpsAnalysis.Core.SkillType.Heal
+                        : StarResonanceDpsAnalysis.Core.SkillType.Damage;
+
+                    skills = StatisticData._manager
+                                .GetPlayerSkillSummaries(uid, topN: null, orderByTotalDesc: true, skillType)
+                                .OrderByDescending(SkillOrderBySelector)
+                                .ToList();
+                }
+            }
+            else
+            {
+                var (damageSkills, healingSkills, takenSkills) = FullRecord.GetPlayerSkills(uid); // 
+                skills = metric switch
+                {
+                    MetricType.Healing => healingSkills.OrderByDescending(SkillOrderBySelector).ToList(),
+                    MetricType.Taken => takenSkills.OrderByDescending(SkillOrderBySelector).ToList(),
+                    _ => damageSkills.OrderByDescending(SkillOrderBySelector).ToList()
+                };
+            }
+
+            // 计算 ShareOfTotal（全程/单次统一口径）
+            double grandTotal = skills.Sum(s => (double)s.Total);
+            foreach (var item in skills)
+            {
+                double share = grandTotal > 0 ? (double)item.Total / grandTotal : 0.0;
+
+                string critRateStr = $"{item.CritRate}%";
+                string luckyRateStr = $"{item.LuckyRate}%";
+                // 承伤时，如果你不想显示百分号，可按需改成纯数值字符串
+
+                var existing = SkillTableDatas.SkillTable.FirstOrDefault(s => s.SkillId == item.SkillId);
+                if (existing == null)
+                {
                     SkillTableDatas.SkillTable.Add(new SkillData(
+                        item.SkillId,
                         item.SkillName,
                         null,
                         item.Total,
                         item.HitCount,
                         critRateStr,
                         luckyRateStr,
-                        item.ShareOfTotal,
+                        share,
                         item.AvgPerHit,
                         item.TotalDps
                     )
                     {
-                        Share = new CellProgress((float)item.ShareOfTotal)
+                        Share = new CellProgress((float)share)
                         {
                             Fill = AppConfig.DpsColor,
                             Size = new Size(200, 10)
                         }
                     });
                 }
+                else
+                {
+                    existing.SkillId = item.SkillId;
+                    existing.Name = item.SkillName;
+                    existing.Damage = new CellText(item.Total.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
+                    existing.HitCount = new CellText(item.HitCount.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
+                    existing.CritRate = new CellText(critRateStr) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
+                    existing.LuckyRate = new CellText(luckyRateStr) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
+                    existing.AvgPerHit = new CellText(item.AvgPerHit.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
+                    existing.TotalDps = new CellText(item.TotalDps.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
+                    existing.Percentage = new CellText(share.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
+                    existing.Share = new CellProgress((float)share)
+                    {
+                        Fill = AppConfig.DpsColor,
+                        Size = new Size(200, 10),
+                    };
+                }
             }
         }
+
 
         /// <summary>
         /// 更新技能表
         /// </summary>
         public void SelectDataType()
         {
-            var p = StatisticData._manager.GetOrCreate(Uid);
-
-            switch(segmented1.SelectIndex)
+            var source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
+            var metric = segmented1.SelectIndex switch
             {
-                case 0:
-                    // ===== 伤害总览 =====
+                1 => MetricType.Healing,
+                2 => MetricType.Taken,
+                _ => MetricType.Damage
+            };
+
+            // === 顶部总览 ===
+            if (source == SourceType.Current)
+            {
+                var p = StatisticData._manager.GetOrCreate(Uid);
+
+                if (metric == MetricType.Damage)
+                {
                     TotalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Total);
                     TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalDps());
                     CritRateText.Text = $"{p.DamageStats.GetCritRate()}%";
@@ -124,13 +162,9 @@ namespace StarResonanceDpsAnalysis.Control
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
                     LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Lucky);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());
-
-                    // ===== 技能表（伤害）=====
-                    UpdateSkillTable(Uid, false);
-                    break;
-
-                case 1:
-                    // ===== 治疗总览 =====
+                }
+                else if (metric == MetricType.Healing)
+                {
                     TotalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Total);
                     TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalHps());
                     CritRateText.Text = $"{p.HealingStats.GetCritRate()}%";
@@ -140,42 +174,72 @@ namespace StarResonanceDpsAnalysis.Control
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
                     LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Lucky);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.GetAveragePerHit());
-
-                    // ===== 技能表（治疗）=====
-                    UpdateSkillTable(Uid, true);
-                    break;
-                    case 2:
-                    var takenDamages = StatisticData._manager.GetPlayerTakenOverview(Uid);
-                    TotalDamageText.Text = Common.FormatWithEnglishUnits(takenDamages.Total);//总承伤
-                    TotalDpsText.Text = Common.FormatWithEnglishUnits(takenDamages.AvgTakenPerSec);//平均每秒承伤
-                    CritRateText.Text = Common.FormatWithEnglishUnits(takenDamages.MaxSingleHit);//单次最大承伤
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(takenDamages.MinSingleHit);//单次最小承伤
+                }
+                else // Taken
+                {
+                    var taken = StatisticData._manager.GetPlayerTakenOverview(Uid);
+                    TotalDamageText.Text = Common.FormatWithEnglishUnits(taken.Total);
+                    TotalDpsText.Text = Common.FormatWithEnglishUnits(taken.AvgTakenPerSec);
+                    CritRateText.Text = Common.FormatWithEnglishUnits(taken.MaxSingleHit);
+                    CritDamageText.Text = Common.FormatWithEnglishUnits(taken.MinSingleHit);
 
                     NormalDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Total);
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);
                     LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Lucky);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.GetAveragePerHit());
-                    UpdateSkillTable(Uid, false,true);
+                }
+            }
+            else // === 全程 FullRecord ===
+            {
+                var p = FullRecord.Shim.GetOrCreate(Uid);
 
-                    break;
+                if (metric == MetricType.Damage)
+                {
+                    TotalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Total);
+                    TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalDps());
+                    CritRateText.Text = $"{p.DamageStats.GetCritRate()}%";
+                    LuckyRate.Text = $"{p.DamageStats.GetLuckyRate()}%";
+
+                    NormalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Normal);
+                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
+                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Lucky);
+                    AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());
+                }
+                else if (metric == MetricType.Healing)
+                {
+                    TotalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Total);
+                    TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalHps());
+                    CritRateText.Text = $"{p.HealingStats.GetCritRate()}%";
+                    LuckyRate.Text = $"{p.HealingStats.GetLuckyRate()}%";
+
+                    NormalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Normal);
+                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
+                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Lucky);
+                    AvgDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.GetAveragePerHit());
+                }
+                else // Taken
+                {
+                    var taken = FullRecord.Shim.GetPlayerTakenOverview(Uid);
+                    TotalDamageText.Text = Common.FormatWithEnglishUnits(taken.Total);
+                    TotalDpsText.Text = Common.FormatWithEnglishUnits(taken.AvgTakenPerSec);
+                    CritRateText.Text = Common.FormatWithEnglishUnits(taken.MaxSingleHit); // 你原本就把这里用来显示“单次最大”
+                    CritDamageText.Text = Common.FormatWithEnglishUnits(taken.MinSingleHit); // 你原本就把这里用来显示“单次最小”
+
+                    NormalDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Total);
+                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);
+                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Lucky);
+                    AvgDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.GetAveragePerHit());
+                }
             }
 
+            // === 技能表 ===
+            UpdateSkillTable(Uid, source, metric);
 
-            // 更新图表数据以反映当前选择的数据类型（伤害/治疗）
+            // 图表刷新
             if (_dpsTrendChart != null)
             {
-                try
-                {
-                    // 刷新图表数据，确保显示当前玩家的最新数据
-                    RefreshDpsTrendChart();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"更新图表数据时出错: {ex.Message}");
-                }
+                try { RefreshDpsTrendChart(); } catch (Exception ex) { Console.WriteLine($"更新图表数据时出错: {ex.Message}"); }
             }
-
-            // 更新条形图和饼图数据
             UpdateSkillDistributionChart();
             UpdateCritLuckyChart();
         }

@@ -195,7 +195,7 @@
             inputNumber2.PrefixText = "脱战";
             inputNumber2.Radius = 3;
             inputNumber2.SelectionStart = 1;
-            inputNumber2.Size = new Size(262, 65);
+            inputNumber2.Size = new Size(407, 65);
             inputNumber2.SuffixText = "/秒后清除当前统计";
             inputNumber2.TabIndex = 46;
             inputNumber2.Text = "5";
@@ -499,7 +499,7 @@
             button4.Icon = Properties.Resources.cancel_normal;
             button4.IconHover = Properties.Resources.cancel_hover;
             button4.IconPosition = AntdUI.TAlignMini.None;
-            button4.IconRatio = 1.5F;
+            button4.IconRatio = 1.3F;
             button4.Location = new Point(579, 20);
             button4.Name = "button4";
             button4.Size = new Size(57, 49);
@@ -513,7 +513,7 @@
             SaveButton.Icon = Properties.Resources.ok_normal;
             SaveButton.IconHover = Properties.Resources.ok_hover;
             SaveButton.IconPosition = AntdUI.TAlignMini.None;
-            SaveButton.IconRatio = 1.5F;
+            SaveButton.IconRatio = 1.3F;
             SaveButton.Location = new Point(416, 20);
             SaveButton.Name = "SaveButton";
             SaveButton.Size = new Size(57, 49);

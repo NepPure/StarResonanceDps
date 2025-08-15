@@ -12,6 +12,11 @@ namespace StarResonanceDpsAnalysis.Plugin
 
 
 
+        public static string FormatSeconds(double sec)
+        {
+            var ts = TimeSpan.FromSeconds(sec);
+            return $"{(int)ts.TotalMinutes:D2}:{ts.Seconds:D2}";
+        }
 
 
         private static readonly Dictionary<string, List<ulong>> professionSkills = new()

@@ -2,7 +2,9 @@
 using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.Charts;
+using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using System.Runtime.InteropServices;
+using static StarResonanceDpsAnalysis.Forms.DpsStatisticsForm;
 
 namespace StarResonanceDpsAnalysis.Control
 {
@@ -412,26 +414,44 @@ namespace StarResonanceDpsAnalysis.Control
         //    }
         //}
 
+        // 建议放在类里（如果还没有）
+        // using StarResonanceDpsAnalysis.Plugin.DamageStatistics; // 记得加 using
+ 
+
         private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
         {
             if (isSelect) return;
-            //DPS排序
-            // 判断是否为治疗（true）或伤害（false）
-            bool isHeal = segmented1.SelectIndex != 0;
 
-            // 根据当前排序方式，设置委托
-            SkillOrderBySelector = e.Value switch
+            // 1) 确定指标（segmented1: 0=伤害 1=治疗 2=承伤）
+            MetricType metric = segmented1.SelectIndex switch
             {
-                0 => s => s.Total,
-                1 => s => s.TotalDps,
-                2 => s => s.HitCount,
-                3 => s => s.CritRate,
-                _ => s => s.Total  // 默认排序（可选）
+                1 => MetricType.Healing,
+                2 => MetricType.Taken,
+                _ => MetricType.Damage
             };
 
-            // 更新表格数据
-            UpdateSkillTable(Uid, isHeal);
+            // 2) 设置排序（统一返回 double，避免泛型不变性/类型不一致）
+            SkillOrderBySelector = e.Value switch
+            {
+                0 => s => s.Total,       // 总量
+                1 => s => s.TotalDps,    // 秒伤
+                2 => s => s.HitCount,    // 次数
+                3 => s => s.CritRate,    // 暴击率
+                _ => s => s.Total
+            };
+
+            // 3) 确定数据源（单次/全程）
+            SourceType source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
+
+            // 4) 刷新技能表（内部会按 SkillOrderBySelector 排序）
+            UpdateSkillTable(Uid, source, metric);
+
+            // （可选）如果需要同时更新右侧图表：
+            try { RefreshDpsTrendChart(); } catch { /* 忽略绘图异常 */ }
+            UpdateSkillDistributionChart();
+            UpdateCritLuckyChart();
         }
+
 
         private void panel4_Click(object sender, EventArgs e)
         {

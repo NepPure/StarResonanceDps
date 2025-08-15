@@ -36,7 +36,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// </summary>
         public static Font SaoFontBold = new Font("阿里妈妈数黑体", 10, FontStyle.Bold);//中文字体
 
-        public static Font DpsFontBold = new Font("阿里妈妈数黑体", 8, FontStyle.Bold);//中文字体
+        public static Font DpsFontBold = new Font("HarmonyOS Sans SC", 7, FontStyle.Regular);//中文字体
         #endregion
 
         /// <summary>
@@ -110,13 +110,30 @@ namespace StarResonanceDpsAnalysis.Plugin
         private static string _profession = null;
         private static ulong? _uid = null;//用户UID
         private static int? _combatPower =null;//战斗力
-        public static int CombatTimeClearDelaySeconds = 5;//战斗计时清除延迟
+        public static int _combatTimeClearDelaySeconds =5;//战斗计时清除延迟
 
         public static bool NpcsTakeDamage = false;//NPC承伤
         public static bool PilingMode =false;//打桩模式
 
         public static string url = "http://127.0.0.1:8562";//服务器地址
 
+        public static int CombatTimeClearDelaySeconds
+        {
+            get
+            {
+                if (_combatTimeClearDelaySeconds == null)
+                {
+                    var value = GetValue("SetUp", "CombatTimeClearDelaySeconds", "5").ToInt();
+                    _combatTimeClearDelaySeconds = value;
+                }
+                return _combatTimeClearDelaySeconds;
+            }
+            set
+            {
+                SetValue("SetUp", "CombatTimeClearDelaySeconds", value.ToString());
+                _combatTimeClearDelaySeconds = value;
+            }
+        }
 
         /// <summary>
         /// 昵称
