@@ -109,8 +109,8 @@ namespace StarResonanceDpsAnalysis.Forms
                 {
                     var index = (int)numericUpDown1.Value - 1;
                     data[index].ProgressBarValue = (double)numericUpDown2.Value / 100d;
-                    //data[index].ContentList![0].Text = $"{index + 1:d2}: {numericUpDown2.Value}";
-                    //data[index].ContentList![3].Text = $"{numericUpDown2.Value:f2}%";
+                    data[index].ContentList![0].Text = $"{index + 1:d2}: {numericUpDown2.Value}";
+                    data[index].ContentList![3].Text = $"{numericUpDown2.Value:f2}%";
                 }
 
                 sortedProgressBarList1.Data = data;
@@ -133,6 +133,17 @@ namespace StarResonanceDpsAnalysis.Forms
                 data.RemoveAt(index);
 
                 sortedProgressBarList1.Data = data;
+            };
+
+            sortedProgressBarList1.SelectionChanged += (s, i, d) =>
+            {
+                if (i < 0 || d == null) 
+                {
+                    Console.WriteLine("Nothing Clicked.");
+                    return;
+                }
+
+                Console.WriteLine($"ProgressBar Clicked: ID={d.ID}, Index={i}");
             };
         }
 
