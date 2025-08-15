@@ -224,7 +224,7 @@ namespace StarResonanceDpsAnalysis.Forms
             DpsTableDatas.DpsTable.Clear();
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
-            list.Clear();
+            DictList.Clear();
 
             // 强制清空进度条列表控件的数据缓存（确保在 UI 线程调用）
             //try
@@ -281,8 +281,13 @@ namespace StarResonanceDpsAnalysis.Forms
 
 
         }
-        readonly static List<ProgressBarData> list = new List<ProgressBarData>();
-        Dictionary<string, Color> colorDict = new Dictionary<string, Color>()
+        readonly static Dictionary<long, List<RenderContent>> DictList = new Dictionary<long, List<RenderContent>>();
+
+        List<ProgressBarData> list = [];
+
+        List<ProgressBarData> userList = [];
+
+      Dictionary<string, Color> colorDict = new Dictionary<string, Color>()
         {
             { "神射手", ColorTranslator.FromHtml("#fffca3") }, //
             { "冰魔导师", ColorTranslator.FromHtml("#aaa6ff") }, // 
@@ -293,6 +298,18 @@ namespace StarResonanceDpsAnalysis.Forms
             { "森语者", ColorTranslator.FromHtml("#78ff95") }, // 
             { "神盾骑士", ColorTranslator.FromHtml("#2E86AB") }, // 
             {"未知",  ColorTranslator.FromHtml("#67AEF6")}
+        };
+
+        Dictionary<string, byte[]> imgDict = new Dictionary<string, byte[]>()
+        {
+            { "冰魔导师", Resources.冰魔导师 },
+            { "巨刃守护者", Resources.巨刃守护者 },
+            { "森语者", Resources.森语者 },
+            { "灵魂乐手", Resources.灵魂乐手 },
+            { "神射手", Resources.神射手 },
+            { "雷影剑士", Resources.雷影剑士 },
+            { "青岚骑士", Resources.青岚骑士 },
+            {"未知",null }
         };
         public void RefreshDpsTable()
         {
@@ -305,14 +322,13 @@ namespace StarResonanceDpsAnalysis.Forms
             if (totalDamageSum <= 0f) totalDamageSum = 1f;
 
             var maxDamage = statsList.Max(p => (float)(p?.DamageStats?.Total ?? 0));
-
             var ordered = statsList
                 .OrderByDescending(p => p?.DamageStats?.Total ?? 0)
                 .ToList();
-         
+
             for (int i = 0; i < ordered.Count; i++)
             {
-               
+
 
                 var p = ordered[i];
                 var uid = (long)p.Uid;
@@ -323,72 +339,80 @@ namespace StarResonanceDpsAnalysis.Forms
                 string share = (p.DamageStats.Total / totalDamageSum * 100).ToString("0") + "%";
 
                 float progress = maxDamage > 0 ? (float)(p.DamageStats.Total / maxDamage) : 0f;
-                var img = GetImageByName(p.Profession);
-                var existing = list.FirstOrDefault(x => x.ID == uid);
-                if (existing != null)
-                {
+                var ProfessionImage = imgDict[p.Profession];
+                var existing = DictList.Any(x => x.Key == uid);
 
-                    // 更新
-                    existing.ContentList =
-                    [
-                        new RenderContent
+                if (!DictList.TryGetValue(uid, out var data))
+                {
+                    list.Add(
+                        new ProgressBarData
                         {
-                            Type = RenderContent.ContentType.Text,
-                            Align = RenderContent.ContentAlign.MiddleLeft,
-                            Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
-                            Text =  $"  {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
-                  
-                            ForeColor =Color.Black,
-                            Font = AppConfig.SaoFontBold,
-                        },
-                        //new RenderContent
-                        //{
-                        //    Type = RenderContent.ContentType.Image,
-                        //    Align = RenderContent.ContentAlign.MiddleLeft,
-                        //    Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
-                        //    Image = img,
-                     
-                        //}
-                    ];
-                    existing.ProgressBarValue = progress;
-                    
-                }
-                else
-                {
-                    // 新增
-                    list.Add(new ProgressBarData
-                    {
-                        ID = uid,
-
-                        ContentList =
-                        [
+                            ID = uid,
+                            ContentList = data,
+                            ProgressBarCornerRadius = 3,
+                            ProgressBarValue = progress,
+                            ProgressBarColor = colorDict[p.Profession],
+                        }
+                        );
+                    data =
+                       [
+                           new RenderContent
+                           {
+                               Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                 Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
+                                  ForeColor = Color.Black,
+                                  Font = AppConfig.SaoFontBold,
+                           },
+                           new RenderContent
+                           {
+                                Type = RenderContent.ContentType.Image,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                Offset = new RenderContent.ContentOffset { X = 48, Y = 0 },
+                                Image = new Bitmap(new MemoryStream(ProfessionImage)),
+                                ImageRenderSize = new Size(32, 32)
+                           },
+                           new RenderContent
+                           {
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                Offset = new RenderContent.ContentOffset { X = 90, Y = 0 },
+                                ForeColor = Color.Black,
+                                Font = AppConfig.SaoFontBold,
+                           },
                             new RenderContent
                             {
                                 Type = RenderContent.ContentType.Text,
-                                Align = RenderContent.ContentAlign.MiddleLeft,
-                                Offset = new RenderContent.ContentOffset { X = 10, Y = 20},
-                                Text = $"   {ranking} [图标] {p.Nickname} ({p.CombatPower})      {totalFmt} ({realtime}) {share}",
-                                Image = img,
+                                Align = RenderContent.ContentAlign.MiddleRight,
+                                Offset = new RenderContent.ContentOffset { X = -90, Y = 4 },
                                 ForeColor = Color.Black,
-
-                                Font =AppConfig.SaoFontBold
+                                Font = AppConfig.SaoFontBold,
                             },
-                            //new RenderContent
-                            //{
-                            //    Type = RenderContent.ContentType.Image,
-                            //    Align = RenderContent.ContentAlign.MiddleLeft,
-                            //    Offset = new RenderContent.ContentOffset { X = 10, Y = 20 },
-                            //    Image = img,
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleRight,
+                                Offset = new RenderContent.ContentOffset { X = 0, Y = 0 },
+                                ForeColor = Color.Black,
+                                Font =AppConfig.SaoFontBold,
+                            },
+                       ];
 
-                            //}
-                        ],
-                        ProgressBarCornerRadius = 3,
-                        ProgressBarValue = progress,
-                        ProgressBarColor = colorDict[p.Profession],
-                    });
+                    DictList[uid] = data; 
                 }
+
+                // 别忘了放回字典
+                
+                DictList[uid][0].Text = $"{ranking}.";
+                DictList[uid][1].Image = new Bitmap(new MemoryStream(ProfessionImage));
+                DictList[uid][2].Text = $"{p.Nickname}({p.CombatPower})";
+                DictList[uid][3].Text = $"{totalFmt}({realtime})";
+                DictList[uid][4].Text = $"{share}%";
+               
+              
                 if(p.Uid == AppConfig.Uid)
                 {
+
                     textProgressBar1.ContentList =
                    [
                        new RenderContent
@@ -418,24 +442,7 @@ namespace StarResonanceDpsAnalysis.Forms
         /// 从 Properties.Resources 中按名字获取图片；兼容资源为 Image 或 byte[] 两种情况。
         /// 返回 null 表示未找到或格式不正确。
         /// </summary>
-        public static Image? GetImageByName(string imageName)
-        {
-            if (string.IsNullOrWhiteSpace(imageName))
-                return null;
-
-            object? obj = Properties.Resources.ResourceManager.GetObject(imageName, CultureInfo.InvariantCulture);
-
-            if (obj is Image img)
-                return (Image)img.Clone(); // 克隆避免被 Dispose 影响
-
-            if (obj is byte[] bytes)
-            {
-                using var ms = new MemoryStream(bytes, writable: false);
-                return Image.FromStream(ms);
-            }
-
-            return null;
-        }
+     
 
 
     }
