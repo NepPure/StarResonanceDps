@@ -73,7 +73,7 @@ namespace StarResonanceDpsAnalysis.Control
 
                 foreach (var data in _animatingInfoBuffer)
                 {
-                    var outOfHeightIndex = (Height / ProgressBarHeight) + 1;
+                    var outOfHeightIndex = (Height / ProgressBarHeight) + 1; 
                     var fromIndex = data.FromIndex == -1
                         ? outOfHeightIndex
                         : data.FromIndex;

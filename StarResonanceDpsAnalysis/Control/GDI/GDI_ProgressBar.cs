@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,8 +14,7 @@ namespace StarResonanceDpsAnalysis.Control.GDI
         private static readonly TextFormatFlags _textFormatFlags =
             TextFormatFlags.NoPadding
             | TextFormatFlags.SingleLine
-            | TextFormatFlags.EndEllipsis
-            | TextFormatFlags.VerticalCenter;
+            | TextFormatFlags.EndEllipsis;
 
         private readonly object _lock = new();
         private Color? _prevProgressBarColor = null;
@@ -92,11 +92,11 @@ namespace StarResonanceDpsAnalysis.Control.GDI
             TextRenderer.DrawText(g, content.Text, content.Font, new Point(left, top), content.ForeColor, _textFormatFlags);
         }
 
-        private static void RenderImage(Graphics g, DrawInfo info, RenderContent content)
+        private void RenderImage(Graphics g, DrawInfo info, RenderContent content)
         {
             var (left, top) = GetContentPostion(info, content, content.ImageRenderSize);
 
-            g.DrawImage(content.Image!, new Rectangle(left, top, content.ImageRenderSize.Width, content.ImageRenderSize.Height));
+            g.DrawImage(content.Image!,new Rectangle(left, top, content.ImageRenderSize.Width, content.ImageRenderSize.Height));
         }
 
         private static (int left, int top) GetContentPostion(DrawInfo info, RenderContent content, Size contentSize)

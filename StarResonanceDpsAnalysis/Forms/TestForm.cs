@@ -13,6 +13,7 @@ using StarResonanceDpsAnalysis.Control.GDI;
 using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Effects.Enum;
 using StarResonanceDpsAnalysis.Extends;
+using StarResonanceDpsAnalysis.Properties;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -20,12 +21,25 @@ namespace StarResonanceDpsAnalysis.Forms
     {
         int id = 1;
         List<ProgressBarData> data = [];
+        List<byte[]> images =
+        [
+            Resources.冰魔导师,
+            Resources.巨刃守护者,
+            Resources.森语者,
+            Resources.灵魂乐手,
+            Resources.神射手,
+            Resources.雷影剑士,
+            Resources.青岚骑士
+        ];
+        Random rd = new();
+
         public TestForm()
         {
             InitializeComponent();
 
             sortedProgressBarList1.AnimationDuration = 1000;
             sortedProgressBarList1.AnimationQuality = Quality.High;
+            sortedProgressBarList1.ProgressBarHeight = 50;
 
             numericUpDown1.Minimum = -1;
             numericUpDown2.Minimum = -1;
@@ -39,6 +53,8 @@ namespace StarResonanceDpsAnalysis.Forms
                     data.Add(new ProgressBarData
                     {
                         ID = id,
+                        ProgressBarCornerRadius = 5,
+                        ProgressBarColor = Color.FromArgb(0xF5, 0xEB, 0xAE),
                         ProgressBarValue = (double)numericUpDown2.Value / 100d,
                         ContentList =
                         [
@@ -47,10 +63,45 @@ namespace StarResonanceDpsAnalysis.Forms
                                 Type = RenderContent.ContentType.Text,
                                 Align = RenderContent.ContentAlign.MiddleLeft,
                                 Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
-                                Text = $"{id++}: {numericUpDown2.Value}",
+                                Text = $"{id++:d2}.",
                                 ForeColor = Color.Black,
-                                Font = SystemFonts.DefaultFont
-                            }
+                                Font = new Font("宋体", 24f, FontStyle.Bold, GraphicsUnit.Pixel),
+                            },
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Image,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                Offset = new RenderContent.ContentOffset { X = 48, Y = 0 },
+                                Image = new Bitmap(new MemoryStream(images[rd.Next(images.Count)])),
+                                ImageRenderSize = new Size(32, 32)
+                            },
+                            new RenderContent
+                            { 
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                Offset = new RenderContent.ContentOffset { X = 90, Y = 0 },
+                                Text = $"{RandomName()}({id:d5})",
+                                ForeColor = Color.Black,
+                                Font = new Font("宋体", 24f, FontStyle.Regular, GraphicsUnit.Pixel),
+                            },
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleRight,
+                                Offset = new RenderContent.ContentOffset { X = -90, Y = 4 },
+                                Text = $"3.0万(1.4w)",
+                                ForeColor = Color.Black,
+                                Font = new Font("宋体", 16f, FontStyle.Regular, GraphicsUnit.Pixel),
+                            },
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleRight,
+                                Offset = new RenderContent.ContentOffset { X = 0, Y = 0 },
+                                Text = $"{numericUpDown2.Value:f2}%",
+                                ForeColor = Color.Black,
+                                Font = new Font("黑体", 24f, FontStyle.Regular, GraphicsUnit.Pixel),
+                            },
                         ],
                     });
                 }
@@ -58,17 +109,8 @@ namespace StarResonanceDpsAnalysis.Forms
                 {
                     var index = (int)numericUpDown1.Value - 1;
                     data[index].ProgressBarValue = (double)numericUpDown2.Value / 100d;
-                    data[index].ContentList = 
-                    [
-                        new RenderContent
-                        {
-                            Type = RenderContent.ContentType.Text,
-                            Align = RenderContent.ContentAlign.MiddleLeft,
-                            Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
-                            Text = $"{index + 1}: {numericUpDown2.Value}",
-                            ForeColor = Color.Black,
-                        }
-                    ] ;
+                    data[index].ContentList![0].Text = $"{index + 1:d2}: {numericUpDown2.Value}";
+                    data[index].ContentList![3].Text = $"{numericUpDown2.Value:f2}%";
                 }
 
                 sortedProgressBarList1.Data = data;
@@ -76,7 +118,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
             button2.Click += (s, e) =>
             {
-                if (numericUpDown1.Value == numericUpDown2.Value && numericUpDown2.Value == -1) 
+                if (numericUpDown1.Value == numericUpDown2.Value && numericUpDown2.Value == -1)
                 {
                     data.Clear();
                     sortedProgressBarList1.Data = data;
@@ -102,6 +144,22 @@ namespace StarResonanceDpsAnalysis.Forms
         private void TestForm_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private string RandomName()
+        {
+            var sb = new StringBuilder();
+
+            // 随机长度 2~10
+            int len = rd.Next(2, 11);
+
+            for (int i = 0; i < len; ++i)
+            {
+                int code = rd.Next(0x4E00, 0x9FFF + 1);
+                sb.Append((char)code);
+            }
+
+            return sb.ToString();
         }
     }
 }

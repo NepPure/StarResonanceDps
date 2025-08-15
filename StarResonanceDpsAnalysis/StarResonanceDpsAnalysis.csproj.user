@@ -11,15 +11,6 @@
     <Compile Update="Control\SortedProgressBarList.Function.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="Control\SortedProgressBarList.Function.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Control\TextProgressBar.Function.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Control\TextProgressBar.Function.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Update="Control\TextProgressBar.Function.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -35,13 +26,7 @@
     <Compile Update="Forms\DpsStatisticsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\DpsStatisticsForm.Function.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="Forms\HistoricalRecordsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\MainForm.Function.cs">
@@ -56,13 +41,7 @@
     <Compile Update="Forms\RankingsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\RankingsForm.Function.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Update="Forms\SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\SettingsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\SettingsForm.Function.cs">
@@ -70,15 +49,6 @@
     </Compile>
     <Compile Update="Forms\SkillDetailForm.cs">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\SkillDetailForm.Function.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="Control\TextProgressBar.Function.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="Forms\MainForm.Function.cs">
-      <SubType>Code</SubType>
     </Compile>
     <Compile Update="Control\TextProgressBar.cs">
       <SubType>UserControl</SubType>
@@ -90,9 +60,6 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Forms\SkillDetailForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\SkillDetailForm.Function.cs">
@@ -125,6 +92,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Forms\SkillDetailForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Properties\Resources.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
