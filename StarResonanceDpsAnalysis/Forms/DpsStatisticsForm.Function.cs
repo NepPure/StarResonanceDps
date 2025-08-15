@@ -278,7 +278,7 @@ namespace StarResonanceDpsAnalysis.Forms
             textProgressBar1.ProgressBarCornerRadius = 3; // 超大圆角
 
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
-            sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
+            sortedProgressBarList1.ProgressBarHeight = 30;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
             sortedProgressBarList1.AnimationQuality = Quality.High; // 动画品质（你项目里的枚举）
        
@@ -362,6 +362,7 @@ namespace StarResonanceDpsAnalysis.Forms
                     int ranking = i + 1;
 
                     var realtime = Common.FormatWithEnglishUnits(Math.Round(p.DamageStats.GetTotalPerSecond(), 1));
+                    
                     string totalFmt = Common.FormatWithEnglishUnits(p.DamageStats.Total);
                     string share = (p.DamageStats.Total / totalDamageSum * 100).ToString("0") + "%";
 
@@ -374,11 +375,38 @@ namespace StarResonanceDpsAnalysis.Forms
                     {
                         data = new List<RenderContent>
                     {
-                        new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset { X = 10, Y = 0 },  ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
-                        new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft,  Offset = new RenderContent.ContentOffset { X = 30, Y = 0 },  Image=profBmp, ImageRenderSize=new Size(32,32) },
-                        new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset { X = 65, Y = 0 },  ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
-                        new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight,Offset = new RenderContent.ContentOffset { X = -55, Y = 0 }, ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
-                        new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset { X = 0, Y = 0 }, ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
+                        new RenderContent 
+                        { 
+                            Type=RenderContent.ContentType.Text, 
+                            Align=RenderContent.ContentAlign.MiddleLeft, 
+                            Offset=new RenderContent.ContentOffset { X = 10, Y = 0 }, 
+                            ForeColor=Color.Black, Font=AppConfig.DpsFontBold 
+                        },
+                        new RenderContent { 
+                            Type=RenderContent.ContentType.Image, 
+                            Align=RenderContent.ContentAlign.MiddleLeft, 
+                            Offset = new RenderContent.ContentOffset { X = 30, Y = 0 },  
+                            Image=profBmp, 
+                            ImageRenderSize=new Size(25,25) },
+                        new RenderContent { 
+                            
+                            Type=RenderContent.ContentType.Text,  
+                            Align=RenderContent.ContentAlign.MiddleLeft,
+                            Offset = new RenderContent.ContentOffset { X = 65, Y = 0 }, 
+                            ForeColor=Color.Black, Font=AppConfig.DpsFontBold 
+                        },
+                        new RenderContent { 
+                            Type=RenderContent.ContentType.Text,  
+                            Align=RenderContent.ContentAlign.MiddleRight,
+                            Offset = new RenderContent.ContentOffset { X = -55, Y = 0 }, 
+                            ForeColor=Color.Black, Font=AppConfig.DpsFontBold 
+                        },
+                        new RenderContent { Type=RenderContent.ContentType.Text, 
+                            Align=RenderContent.ContentAlign.MiddleRight, 
+                            Offset = new RenderContent.ContentOffset { X = 0, Y = 0 }, 
+                            ForeColor=Color.Black, 
+                            Font=AppConfig.DpsFontBold 
+                        },
                     };
 
                         var progressBarData = new ProgressBarData

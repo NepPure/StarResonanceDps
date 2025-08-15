@@ -100,7 +100,7 @@
             table_DpsDetailDataTable.Location = new Point(0, 235);
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
-            table_DpsDetailDataTable.Size = new Size(1254, 987);
+            table_DpsDetailDataTable.Size = new Size(1254, 983);
             table_DpsDetailDataTable.TabIndex = 14;
             table_DpsDetailDataTable.Text = "table1";
             // 
@@ -519,11 +519,11 @@
             select1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             select1.DropDownTextAlign = AntdUI.TAlign.Top;
             select1.List = true;
-            select1.Location = new Point(1489, 27);
+            select1.Location = new Point(1448, 31);
             select1.Name = "select1";
             select1.Placement = AntdUI.TAlignFrom.Top;
             select1.Radius = 3;
-            select1.Size = new Size(196, 47);
+            select1.Size = new Size(237, 47);
             select1.TabIndex = 27;
             select1.SelectedIndexChanged += select1_SelectedIndexChanged;
             // 
@@ -533,11 +533,11 @@
             panel6.Controls.Add(button2);
             panel6.Controls.Add(button1);
             panel6.Dock = DockStyle.Bottom;
-            panel6.Location = new Point(0, 1397);
+            panel6.Location = new Point(0, 1393);
             panel6.Name = "panel6";
             panel6.Shadow = 6;
             panel6.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel6.Size = new Size(1696, 86);
+            panel6.Size = new Size(1696, 90);
             panel6.TabIndex = 30;
             panel6.Text = "panel6";
             // 
@@ -549,9 +549,9 @@
             button2.IconHover = Properties.Resources.cancel_hover;
             button2.IconPosition = AntdUI.TAlignMini.None;
             button2.IconRatio = 1.5F;
-            button2.Location = new Point(930, 25);
+            button2.Location = new Point(930, 12);
             button2.Name = "button2";
-            button2.Size = new Size(57, 49);
+            button2.Size = new Size(57, 78);
             button2.TabIndex = 1;
             button2.Click += button2_Click;
             // 
@@ -563,9 +563,9 @@
             button1.IconHover = Properties.Resources.flushed_hover;
             button1.IconPosition = AntdUI.TAlignMini.None;
             button1.IconRatio = 1.5F;
-            button1.Location = new Point(713, 25);
+            button1.Location = new Point(713, 12);
             button1.Name = "button1";
-            button1.Size = new Size(57, 49);
+            button1.Size = new Size(57, 78);
             button1.TabIndex = 0;
             button1.Click += button1_Click;
             // 
@@ -589,8 +589,8 @@
             splitter1.Panel2.Controls.Add(table_DpsDetailDataTable);
             splitter1.Panel2.Controls.Add(divider3);
             splitter1.Panel2.Controls.Add(panel2);
-            splitter1.Size = new Size(1696, 1222);
-            splitter1.SplitterDistance = 432;
+            splitter1.Size = new Size(1696, 1218);
+            splitter1.SplitterDistance = 428;
             splitter1.SplitterWidth = 6;
             splitter1.TabIndex = 27;
             // 
@@ -605,7 +605,7 @@
             collapse1.Items.Add(collapseItem3);
             collapse1.Location = new Point(0, 0);
             collapse1.Name = "collapse1";
-            collapse1.Size = new Size(432, 1222);
+            collapse1.Size = new Size(428, 1218);
             collapse1.TabIndex = 28;
             collapse1.Text = "collapse1";
             // 
@@ -615,7 +615,7 @@
             collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
             collapseItem1.Location = new Point(27, 90);
             collapseItem1.Name = "collapseItem1";
-            collapseItem1.Size = new Size(378, 300);
+            collapseItem1.Size = new Size(374, 300);
             collapseItem1.TabIndex = 0;
             collapseItem1.Text = "Dps/Hps/DTps实时曲线图";
             // 
@@ -624,7 +624,7 @@
             collapseItem2.Expand = true;
             collapseItem2.Location = new Point(27, 501);
             collapseItem2.Name = "collapseItem2";
-            collapseItem2.Size = new Size(378, 300);
+            collapseItem2.Size = new Size(374, 300);
             collapseItem2.TabIndex = 1;
             collapseItem2.Text = "技能占比分布图";
             // 
@@ -635,7 +635,7 @@
             collapseItem3.Expand = true;
             collapseItem3.Location = new Point(27, 912);
             collapseItem3.Name = "collapseItem3";
-            collapseItem3.Size = new Size(378, 300);
+            collapseItem3.Size = new Size(374, 296);
             collapseItem3.TabIndex = 2;
             collapseItem3.Text = "伤害分布";
             // 

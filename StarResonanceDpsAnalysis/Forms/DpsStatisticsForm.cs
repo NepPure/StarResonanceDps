@@ -17,6 +17,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
+            //ApplyResolutionScale();
             //加载钩子
             RegisterKeyboardHook();
             //先加载基础配置
@@ -43,6 +44,58 @@ namespace StarResonanceDpsAnalysis.Forms
             
         }
         
+        private void ApplyResolutionScale()
+        {
+            // 仅针对 Designer 初始尺寸进行一次整体缩放，使在 2K/4K 上更合适
+            float scale = GetPrimaryResolutionScale();
+            if (Math.Abs(scale - 1.0f) < 0.01f) return;
+
+            // 缩放窗体和控件
+            this.Scale(new SizeF(scale, scale));
+
+            // 调整一些固定高度/字体
+            try
+            {
+                pageHeader1.Font = new Font(pageHeader1.Font.FontFamily, pageHeader1.Font.Size * scale, pageHeader1.Font.Style);
+                pageHeader1.SubFont = new Font(pageHeader1.SubFont.FontFamily, pageHeader1.SubFont.Size * scale, pageHeader1.SubFont.Style);
+
+                textProgressBar1.Font = new Font(textProgressBar1.Font.FontFamily, textProgressBar1.Font.Size * scale, textProgressBar1.Font.Style);
+                BattleTimeText.Font = new Font(BattleTimeText.Font.FontFamily, BattleTimeText.Font.Size * scale, BattleTimeText.Font.Style);
+
+                // 调整自定义控件的高度等参数
+                sortedProgressBarList1.ProgressBarHeight = (int)Math.Round(sortedProgressBarList1.ProgressBarHeight * scale);
+                sortedProgressBarList1.ProgressBarPadding = new Padding(
+                    (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Left * scale),
+                    (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Top * scale),
+                    (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Right * scale),
+                    (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Bottom * scale)
+                );
+
+                textProgressBar1.ProgressBarCornerRadius = (int)Math.Round(textProgressBar1.ProgressBarCornerRadius * scale);
+                textProgressBar1.Padding = new Padding(
+                    (int)Math.Round(textProgressBar1.Padding.Left * scale),
+                    (int)Math.Round(textProgressBar1.Padding.Top * scale),
+                    (int)Math.Round(textProgressBar1.Padding.Right * scale),
+                    (int)Math.Round(textProgressBar1.Padding.Bottom * scale)
+                );
+            }
+            catch { }
+        }
+
+        private static float GetPrimaryResolutionScale()
+        {
+            try
+            {
+                var bounds = Screen.PrimaryScreen?.Bounds ?? new Rectangle(0, 0, 1920, 1080);
+                if (bounds.Height >= 2160) return 2.0f;       // 4K
+                if (bounds.Height >= 1440) return 1.3333f;    // 2K
+                return 1.0f;                                   // 1080p
+            }
+            catch
+            {
+                return 1.0f;
+            }
+        }
         
         private void DpsStatistics_Load(object sender, EventArgs e)
         {
@@ -83,7 +136,7 @@ namespace StarResonanceDpsAnalysis.Forms
             }
         }
 
-        #region 切换显示类型（支持单次/全程联动）
+        #region 切换显示类型（支持单次/全程伤害）
         List<string> singleLabels = new() { "单次伤害", "单次治疗", "单次承伤" };
         List<string> totalLabels = new() { "全程伤害", "全程治疗", "全程承伤" };
 
@@ -129,9 +182,6 @@ namespace StarResonanceDpsAnalysis.Forms
         private void button1_Click(object sender, EventArgs e)
         {
             HandleClearData();
-
-
-
         }
 
         private void button_Settings_Click(object sender, EventArgs e)
