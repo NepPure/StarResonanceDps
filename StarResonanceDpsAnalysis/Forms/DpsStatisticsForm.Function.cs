@@ -278,7 +278,7 @@ namespace StarResonanceDpsAnalysis.Forms
             textProgressBar1.ProgressBarCornerRadius = 3; // 超大圆角
 
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
-            sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
+            sortedProgressBarList1.ProgressBarHeight = 30;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
             sortedProgressBarList1.AnimationQuality = Quality.High; // 动画品质（你项目里的枚举）
        
