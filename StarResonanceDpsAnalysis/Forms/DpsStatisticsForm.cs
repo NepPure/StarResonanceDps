@@ -26,21 +26,46 @@ namespace StarResonanceDpsAnalysis.Forms
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
             //加载技能配置
             StartupInitializer.LoadFromEmbeddedSkillConfig();
-           
+            sortedProgressBarList1.SelectionChanged += (s, i, d) =>
+            {
+                if (i < 0 || d == null)
+                {
+                    Console.WriteLine("Nothing Clicked.");
+                    return;
+                }
+                sortedProgressBarList_SelectionChanged((ulong)d.ID);
+
+
+
+            };
             SetStyle();
             new TestForm().Show(); // # 调试/测试窗体：启动即显示
             
         }
-
+        
+        
         private void DpsStatistics_Load(object sender, EventArgs e)
         {
             //开启DPS统计
             StartCapture();
         }
 
-        private void sortedProgressBarList_Click(object sender, EventArgs e)
+        private void sortedProgressBarList_SelectionChanged(ulong uid)
         {
+            
 
+            if (FormManager.skillDetailForm == null || FormManager.skillDetailForm.IsDisposed)
+            {
+                FormManager.skillDetailForm = new SkillDetailForm(); // # 详情窗体：延迟创建
+            }
+            SkillTableDatas.SkillTable.Clear(); // # 清空旧详情数据
+
+            FormManager.skillDetailForm.Uid = uid;
+            //获取玩家信息
+            var info = StatisticData._manager.GetPlayerBasicInfo(uid); // # 查询玩家基础信息（昵称/战力/职业）
+            FormManager.skillDetailForm.GetPlayerInfo(info.Nickname, info.CombatPower, info.Profession);
+            FormManager.skillDetailForm.SelectDataType(); // # 按当前选择的“伤害/治疗/承伤”类型刷新
+            FormManager.skillDetailForm.Show(); // # 显示详情
         }
 
         private void button_AlwaysOnTop_Click(object sender, EventArgs e)

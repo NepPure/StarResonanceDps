@@ -1283,8 +1283,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 SaveCurrentBattleSnapshot();
             }
             _players.Clear();
-            FormManager.dpsStatistics.HandleClearData();
 
+            FormManager.dpsStatistics.ListClear();
 
             if (!keepCombatTime)//false为清空
                 ResetCombatClock(); // 手动清空计时
