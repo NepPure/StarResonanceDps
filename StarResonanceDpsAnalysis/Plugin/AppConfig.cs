@@ -164,10 +164,12 @@ namespace StarResonanceDpsAnalysis.Plugin
         {
             get
             {
-                if (_uid == 0)
+                if (!_uid.HasValue)
                 {
-                    var value =ulong.Parse(GetValue("SetUp", "Uid", "0"));
-                    _uid = value;
+                    var raw = GetValue("SetUp", "Uid", "0");
+                    if (!ulong.TryParse(raw, out var pared) ) pared = 0UL;
+                   
+                    _uid = pared;
                 }
                 return _uid!.Value;
             }
@@ -184,12 +186,13 @@ namespace StarResonanceDpsAnalysis.Plugin
         {
             get
             {
-                if (_combatPower == 0)
+                // 修复：首次访问时 _combatPower 为 null，不能与 0 比较后直接取 Value
+                if (!_combatPower.HasValue)
                 {
                     var value = GetValue("SetUp", "CombatPower", "0").ToInt();
                     _combatPower = value;
                 }
-                return _combatPower!.Value;
+                return _combatPower.Value;
             }
             set
             {

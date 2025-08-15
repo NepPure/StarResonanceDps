@@ -654,7 +654,12 @@ namespace StarResonanceDpsAnalysis.Core
 
             // 玩家 UID
             ulong playerUid = vData.CharId;
-
+            try
+            {
+                //保存玩家UID
+                if (playerUid != 0) AppConfig.Uid = playerUid;
+            }
+            catch { }
 
             // 如果存在角色等级数据
             if (vData.RoleLevel != null && vData.RoleLevel.Level != 0)

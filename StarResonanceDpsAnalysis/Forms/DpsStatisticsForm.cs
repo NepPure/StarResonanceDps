@@ -227,7 +227,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             if (PilingModeCheckbox.Checked)
             {
-                if (AppConfig.NickName == null && AppConfig.Uid == null)
+                if (string.IsNullOrWhiteSpace(AppConfig.NickName) || AppConfig.Uid == 0)
                 {
                     PilingModeCheckbox.Checked = false;
                     timer1.Enabled = false;
