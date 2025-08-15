@@ -315,16 +315,6 @@ namespace StarResonanceDpsAnalysis.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] 圣盾骑士 {
-            get {
-                object obj = ResourceManager.GetObject("圣盾骑士", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   查找 System.Byte[] 类型的本地化资源。
-        /// </summary>
         internal static byte[] 巨刃守护者 {
             get {
                 object obj = ResourceManager.GetObject("巨刃守护者", resourceCulture);
@@ -358,6 +348,16 @@ namespace StarResonanceDpsAnalysis.Properties {
         internal static byte[] 神射手 {
             get {
                 object obj = ResourceManager.GetObject("神射手", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 神盾骑士 {
+            get {
+                object obj = ResourceManager.GetObject("神盾骑士", resourceCulture);
                 return ((byte[])(obj));
             }
         }

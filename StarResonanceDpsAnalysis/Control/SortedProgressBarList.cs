@@ -121,7 +121,7 @@ namespace StarResonanceDpsAnalysis.Control
         public double ProgressBarValue { get; set; }
         public Color ProgressBarColor { get; set; } = Color.FromArgb(0x56, 0x9C, 0xD6);
         public int ProgressBarCornerRadius { get; set; }
-        public IEnumerable<RenderContent>? ContentList { get; set; }
+        public List<RenderContent>? ContentList { get; set; }
         public Padding ProgressBarPadding { get; set; } = new(3, 3, 3, 3);
     }
 }
