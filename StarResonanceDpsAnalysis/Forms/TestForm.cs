@@ -19,7 +19,7 @@ namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class TestForm : Form
     {
-        int id = 1;
+        int id = 0;
         List<ProgressBarData> data = [];
         List<byte[]> images =
         [
@@ -40,6 +40,10 @@ namespace StarResonanceDpsAnalysis.Forms
             sortedProgressBarList1.AnimationDuration = 1000;
             sortedProgressBarList1.AnimationQuality = Quality.High;
             sortedProgressBarList1.ProgressBarHeight = 50;
+            sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
+            sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
+            sortedProgressBarList1.OrderColor = Color.Fuchsia;
+            sortedProgressBarList1.OrderFont = new Font("平方韶华体", 24f, FontStyle.Bold, GraphicsUnit.Pixel);
 
             numericUpDown1.Minimum = -1;
             numericUpDown2.Minimum = -1;
@@ -50,6 +54,8 @@ namespace StarResonanceDpsAnalysis.Forms
 
                 if (numericUpDown1.Value <= 0)
                 {
+                    ++id;
+
                     data.Add(new ProgressBarData
                     {
                         ID = id,
@@ -58,15 +64,6 @@ namespace StarResonanceDpsAnalysis.Forms
                         ProgressBarValue = (double)numericUpDown2.Value / 100d,
                         ContentList =
                         [
-                            new RenderContent
-                            {
-                                Type = RenderContent.ContentType.Text,
-                                Align = RenderContent.ContentAlign.MiddleLeft,
-                                Offset = new RenderContent.ContentOffset { X = 10, Y = 0 },
-                                Text = $"{id++:d2}.",
-                                ForeColor = Color.Black,
-                                Font = new Font("宋体", 24f, FontStyle.Bold, GraphicsUnit.Pixel),
-                            },
                             new RenderContent
                             {
                                 Type = RenderContent.ContentType.Image,
@@ -109,7 +106,6 @@ namespace StarResonanceDpsAnalysis.Forms
                 {
                     var index = (int)numericUpDown1.Value - 1;
                     data[index].ProgressBarValue = (double)numericUpDown2.Value / 100d;
-                    data[index].ContentList![0].Text = $"{index + 1:d2}: {numericUpDown2.Value}";
                     data[index].ContentList![3].Text = $"{numericUpDown2.Value:f2}%";
                 }
 

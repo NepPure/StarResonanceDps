@@ -17,7 +17,7 @@ namespace StarResonanceDpsAnalysis.Control
         private double _progressBarValue = 0.0d;
         private Color _progressBarColor = Color.FromArgb(0x56, 0x9C, 0xD6);
         private int _progressBarCornerRadius = 3;
-        private IEnumerable<RenderContent> _contentList = [];
+        private List<RenderContent> _contentList = [];
 
         /// <summary>
         /// 进度条进度
@@ -92,7 +92,7 @@ namespace StarResonanceDpsAnalysis.Control
         /// <summary>
         /// 渲染内容列表
         /// </summary>
-        public IEnumerable<RenderContent> ContentList
+        public List<RenderContent> ContentList
         {
             get => _contentList;
             set

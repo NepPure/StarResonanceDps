@@ -16,16 +16,24 @@ namespace StarResonanceDpsAnalysis.Control
     public partial class SortedProgressBarList : UserControl
     {
         public delegate void SelectionChanedEventHandler(SortedProgressBarList sender, int index, ProgressBarData? data);
-        public new event SelectionChanedEventHandler? SelectionChanged;
+        public event SelectionChanedEventHandler? SelectionChanged;
 
         private readonly Dictionary<long, ProgressBarData> _dataDict = [];
         private int _animationDuration = 300;
         private Quality _animationQuality = Quality.Medium;
         private int _progressBarHeight = 20;
         private Padding _progressBarPadding = new(3, 3, 3, 3);
+        private RenderContent.ContentAlign _orderAlign = RenderContent.ContentAlign.MiddleLeft;
+        private RenderContent.ContentOffset _orderOffset = new() { X = 0, Y = 0 };
+        private Func<int, string>? _orderCallback = null;
+        private Color _orderColor = Color.Black;
+        private Font _orderFont = SystemFonts.DefaultFont;
         private int? _selectedIndex = null;
         private Color _seletedItemColor = Color.FromArgb(0x56, 0x9C, 0xD6);
 
+        /// <summary>
+        /// 数据源
+        /// </summary>
         public List<ProgressBarData>? Data
         {
             get => [.. _dataDict.Select(e => e.Value)];
@@ -55,17 +63,44 @@ namespace StarResonanceDpsAnalysis.Control
             }
         }
 
-        public new int Height
-        {
-            get => base.Height;
-        }
-
+        /// <summary>
+        /// 排序动画的持续时间
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("排序动画的持续时间")]
+        [DefaultValue(1000)]
         public int AnimationDuration
         {
             get => _animationDuration;
             set => _animationDuration = value;
         }
 
+        /// <summary>
+        /// 动画质量
+        /// </summary>
+        /// <remarks>
+        /// Quality.VeryLow        =  10FPS; 贝塞尔精确段数 = 5
+        /// Quality.Low            =  20FPS; 贝塞尔精确段数 = 7
+        /// Quality.Medium         =  30FPS; 贝塞尔精确段数 = 13
+        /// Quality.High           =  60FPS; 贝塞尔精确段数 = 25
+        /// Quality.VeryHigh       = 120FPS; 贝塞尔精确段数 = 49
+        /// Quality.Extreme        = 160FPS; 贝塞尔精确段数 = 499
+        /// Quality.AlmostAccurate = 999FPS; 贝塞尔精确段数 = 2499
+        /// </remarks>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("""
+            动画质量
+            Quality.VeryLow        =  10FPS; 贝塞尔精确段数 = 5
+            Quality.Low            =  20FPS; 贝塞尔精确段数 = 7
+            Quality.Medium         =  30FPS; 贝塞尔精确段数 = 13
+            Quality.High           =  60FPS; 贝塞尔精确段数 = 25
+            Quality.VeryHigh       = 120FPS; 贝塞尔精确段数 = 49
+            Quality.Extreme        = 160FPS; 贝塞尔精确段数 = 499
+            Quality.AlmostAccurate = 999FPS; 贝塞尔精确段数 = 2499
+            """)]
+        [DefaultValue(Quality.Low)]
         public Quality AnimationQuality
         {
             get => _animationQuality;
@@ -84,24 +119,114 @@ namespace StarResonanceDpsAnalysis.Control
             }
         }
 
+        /// <summary>
+        /// 进度条高度
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("进度条高度")]
+        [DefaultValue(30)]
         public int ProgressBarHeight
         {
             get => _progressBarHeight;
             set => _progressBarHeight = value;
         }
+
+        /// <summary>
+        /// 进度条内边距
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("进度条内边距")]
         public Padding ProgressBarPadding
         {
             get => _progressBarPadding;
             set => _progressBarPadding = value;
         }
 
+        /// <summary>
+        /// 排序序号对齐模式
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("排序序号对齐模式")]
+        [DefaultValue(RenderContent.ContentAlign.MiddleLeft)]
+        public RenderContent.ContentAlign OrderAlign
+        {
+            get => _orderAlign;
+            set => _orderAlign = value;
+        }
+
+        /// <summary>
+        /// 排序序号偏移量
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("排序序号偏移量")]
+        public RenderContent.ContentOffset OrderOffset
+        {
+            get => _orderOffset;
+            set => _orderOffset = value;
+        }
+
+        /// <summary>
+        /// 序号文字重排回调
+        /// </summary>
+        /// <remarks>
+        /// 会传递给函数一个从 1 开始的 int 序号, 
+        /// 将其转为所需类型的 string 后返回即可;
+        /// 如果函数为 null, 则不会显示序号
+        /// </remarks>
+        public Func<int, string>? OrderCallback
+        {
+            private get => _orderCallback;
+            set => _orderCallback = value;
+        }
+
+        /// <summary>
+        /// 序号文字颜色
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("序号文字颜色")]
+        public Color OrderColor
+        {
+            get => _orderColor;
+            set => _orderColor = value;
+        }
+
+        /// <summary>
+        /// 序号文字字体
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("序号文字字体")]
+        public Font OrderFont
+        {
+            get => _orderFont;
+            set => _orderFont = value;
+        }
+
+        /// <summary>
+        /// 已选择的进度条项目索引
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("已选择的进度条项目索引")]
+        [DefaultValue(null)]
         public int? SelectedIndex
         {
             get => _selectedIndex;
             set => _selectedIndex = value;
         }
 
-        public Color SeletedItemColor 
+        /// <summary>
+        /// 已选择的进度条项目外框颜色
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("已选择的进度条项目外框颜色")]
+        public Color SeletedItemColor
         {
             get => _seletedItemColor;
             set => _seletedItemColor = value;
@@ -164,15 +289,5 @@ namespace StarResonanceDpsAnalysis.Control
             _selectedIndex = index;
             SelectionChanged?.Invoke(this, index, progressBar);
         }
-    }
-
-    public class ProgressBarData
-    {
-        public long ID { get; set; }
-        public double ProgressBarValue { get; set; }
-        public Color ProgressBarColor { get; set; } = Color.FromArgb(0x56, 0x9C, 0xD6);
-        public int ProgressBarCornerRadius { get; set; }
-        public List<RenderContent>? ContentList { get; set; }
-        public Padding ProgressBarPadding { get; set; } = new(3, 3, 3, 3);
     }
 }

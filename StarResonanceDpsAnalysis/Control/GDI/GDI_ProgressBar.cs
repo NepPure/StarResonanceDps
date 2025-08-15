@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace StarResonanceDpsAnalysis.Control.GDI
             TextFormatFlags.NoPadding
             | TextFormatFlags.SingleLine
             | TextFormatFlags.EndEllipsis;
+        private static readonly Dictionary<(Image img, int w, int h), Bitmap> _scaledImageCache = [];
 
         private readonly object _lock = new();
         private Color? _prevProgressBarColor = null;
@@ -35,8 +37,6 @@ namespace StarResonanceDpsAnalysis.Control.GDI
                     _progressBarBrush?.Dispose();
                     _progressBarBrush = new SolidBrush(info.ProgressBarColor);
                 }
-
-                g.SmoothingMode = SmoothingMode.AntiAlias;
 
                 var barWidth = (info.Width - info.Padding.Left - info.Padding.Right) * info.ProgressBarValue;
                 var barHeight = info.Height - info.Padding.Top - info.Padding.Bottom;
@@ -61,6 +61,11 @@ namespace StarResonanceDpsAnalysis.Control.GDI
                     path.AddArc(rect, 90, 90);
                     // 闭合图形
                     path.CloseFigure();
+
+                    g.InterpolationMode = InterpolationMode.Default;
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.PixelOffsetMode = PixelOffsetMode.None;
+
                     g.FillPath(_progressBarBrush, path);
 
                 }
@@ -89,6 +94,10 @@ namespace StarResonanceDpsAnalysis.Control.GDI
 
             var (left, top) = GetContentPostion(info, content, textSize);
 
+            g.InterpolationMode = InterpolationMode.NearestNeighbor;
+            g.SmoothingMode = SmoothingMode.HighSpeed;
+            g.PixelOffsetMode = PixelOffsetMode.None;
+
             TextRenderer.DrawText(g, content.Text, content.Font, new Point(left, top), content.ForeColor, _textFormatFlags);
         }
 
@@ -96,7 +105,45 @@ namespace StarResonanceDpsAnalysis.Control.GDI
         {
             var (left, top) = GetContentPostion(info, content, content.ImageRenderSize);
 
-            g.DrawImage(content.Image!,new Rectangle(left, top, content.ImageRenderSize.Width, content.ImageRenderSize.Height));
+            g.InterpolationMode = InterpolationMode.Low;
+            g.SmoothingMode = SmoothingMode.HighSpeed;
+            g.PixelOffsetMode = PixelOffsetMode.None;
+
+            if (content.Image!.Width == content.ImageRenderSize.Width && content.Image!.Height == content.ImageRenderSize.Height)
+            {
+                g.DrawImageUnscaled(content.Image, new Rectangle(left, top, content.ImageRenderSize.Width, content.ImageRenderSize.Height));
+            }
+            else
+            {
+                var scaled = GetScaledBitmap(content.Image, content.ImageRenderSize.Width, content.ImageRenderSize.Height);
+
+                g.DrawImageUnscaled(scaled, new Rectangle(left, top, content.ImageRenderSize.Width, content.ImageRenderSize.Height));
+            }
+
+        }
+
+        private static Bitmap GetScaledBitmap(Image img, int width, int height)
+        {
+            var key = (img, width, height);
+            if (_scaledImageCache.TryGetValue(key, out var cached) && cached != null)
+            {
+                return cached;
+            }
+
+            var bm = new Bitmap(width, height, PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(bm))
+            {
+                g.CompositingQuality = CompositingQuality.Default;
+                g.InterpolationMode = InterpolationMode.Low;
+                g.SmoothingMode = SmoothingMode.HighSpeed;
+                g.PixelOffsetMode = PixelOffsetMode.None;
+
+                g.DrawImage(img, new Rectangle(0, 0, width, height));
+            }
+
+            _scaledImageCache[key] = bm;
+
+            return bm;
         }
 
         private static (int left, int top) GetContentPostion(DrawInfo info, RenderContent content, Size contentSize)
@@ -152,7 +199,7 @@ namespace StarResonanceDpsAnalysis.Control.GDI
         public double ProgressBarValue { get; set; }
         public Color ProgressBarColor { get; set; }
         public int ProgressBarCornerRadius { get; set; }
-        public IEnumerable<RenderContent>? ContentList { get; set; }
+        public List<RenderContent>? ContentList { get; set; }
     }
 
     public class RenderContent
@@ -207,7 +254,18 @@ namespace StarResonanceDpsAnalysis.Control.GDI
 
         public enum ContentType
         {
+            /// <summary>
+            /// 用于标记当前项为序号项, 组件使用者请勿使用该枚举
+            /// </summary>
+            [EditorBrowsable(EditorBrowsableState.Never)]
+            Order = -1,
+            /// <summary>
+            /// 文字项
+            /// </summary>
             Text = 0,
+            /// <summary>
+            /// 图片项
+            /// </summary>
             Image = 1,
         }
         public enum Direction
@@ -222,19 +280,52 @@ namespace StarResonanceDpsAnalysis.Control.GDI
         }
         public enum ContentAlign
         {
+            /// <summary>
+            /// ↖
+            /// </summary>
             TopLeft = Direction.Left | Direction.Top,
+            /// <summary>
+            /// ↑
+            /// </summary>
             TopCenter = Direction.Center | Direction.Top,
+            /// <summary>
+            /// ↗
+            /// </summary>
             TopRight = Direction.Right | Direction.Top,
+            /// <summary>
+            /// ←
+            /// </summary>
             MiddleLeft = Direction.Left | Direction.Middle,
+            /// <summary>
+            /// ○
+            /// </summary>
             MiddleCenter = Direction.Center | Direction.Middle,
+            /// <summary>
+            /// →
+            /// </summary>
             MiddleRight = Direction.Right | Direction.Middle,
+            /// <summary>
+            /// ↙
+            /// </summary>
             BottomLeft = Direction.Left | Direction.Bottom,
+            /// <summary>
+            /// ↓
+            /// </summary>
             BottomCenter = Direction.Center | Direction.Bottom,
+            /// <summary>
+            /// ↘
+            /// </summary>
             BottomRight = Direction.Right | Direction.Bottom,
         }
         public struct ContentOffset
         {
+            /// <summary>
+            /// 左右偏移量, 无论 ContentAlign 如何定义, X 永远 - 为左, + 为右
+            /// </summary>
             public int X { get; set; }
+            /// <summary>
+            /// 上下偏移量, 无论 ContentAlign 如何定义, Y 永远 - 为上, + 为下
+            /// </summary>
             public int Y { get; set; }
         }
     }

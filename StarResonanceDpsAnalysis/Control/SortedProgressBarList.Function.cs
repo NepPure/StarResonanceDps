@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using StarResonanceDpsAnalysis.Control.GDI;
 using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Effects.Enum;
+
+using static StarResonanceDpsAnalysis.Control.GDI.RenderContent;
 
 namespace StarResonanceDpsAnalysis.Control
 {
@@ -20,7 +24,7 @@ namespace StarResonanceDpsAnalysis.Control
             { Quality.High, 60 },
             { Quality.VeryHigh, 120 },
             { Quality.Extreme, 160 },
-            { Quality.AlmostAccurate, 1000 }
+            { Quality.AlmostAccurate, 999 }
         };
         private PeriodicTimer _animationPeriodicTimer;
         private CubicBezier _moveAnimationCubicBezier;
@@ -29,6 +33,10 @@ namespace StarResonanceDpsAnalysis.Control
         private readonly object _lock = new();
         private readonly Dictionary<long, GDI_ProgressBar> _gdiProgressBarDict = [];
         private readonly DrawInfo _drawInfo = new();
+        private readonly ProgressBarPrivateData _progressBarPrivateData = new();
+        private readonly List<RenderContent> _renderContentBuffer = new();
+
+        private Pen? _selectionBorderPen = null;
 
         private Stopwatch _animationWatch = new();
         private bool _animating = false;
@@ -82,9 +90,20 @@ namespace StarResonanceDpsAnalysis.Control
                         : data.ToIndex;
                     float top = fromIndex * ProgressBarHeight;
 
+                    _progressBarPrivateData.OrderAlign = OrderAlign;
+                    _progressBarPrivateData.OrderColor = OrderColor;
+                    _progressBarPrivateData.OrderFont = OrderFont;
+                    _progressBarPrivateData.OrderOffset = OrderOffset;
+                    _progressBarPrivateData.OrderString = OrderCallback == null
+                        ? null
+                        : OrderCallback(data.ToIndex + 1);
+
                     if (data.FromIndex == data.ToIndex || staticDraw)
                     {
-                        DrawProgressBar(g, data.Data, top, 255);
+                        _progressBarPrivateData.Top = top;
+                        _progressBarPrivateData.Opacity = 255;
+
+                        DrawProgressBar(g, data.Data, _progressBarPrivateData);
                     }
                     else
                     {
@@ -105,15 +124,24 @@ namespace StarResonanceDpsAnalysis.Control
 
                         top += ProgressBarHeight * (toIndex - fromIndex) * moveBezier;
 
-                        DrawProgressBar(g, data.Data, top, opacity);
+                        _progressBarPrivateData.Top = top;
+                        _progressBarPrivateData.Opacity = opacity;
+
+                        DrawProgressBar(g, data.Data, _progressBarPrivateData);
                     }
                 }
 
                 if (_selectedIndex != null)
                 {
-                    var borderWidth = 2f;
-                    var pen = new Pen(_seletedItemColor, borderWidth);
-                    g.DrawRectangle(pen, (int)(borderWidth / 2), _selectedIndex.Value * ProgressBarHeight, (int)(Width - borderWidth), ProgressBarHeight);
+                    var borderWidth = 2;
+                    var halfWidth = borderWidth / 2;
+                    _selectionBorderPen ??= new Pen(_seletedItemColor, borderWidth);
+
+                    g.InterpolationMode = InterpolationMode.Low;
+                    g.SmoothingMode = SmoothingMode.HighSpeed;
+                    g.PixelOffsetMode = PixelOffsetMode.None;
+
+                    g.DrawRectangle(_selectionBorderPen, halfWidth, _selectedIndex.Value * ProgressBarHeight + halfWidth, Width - borderWidth, ProgressBarHeight - halfWidth);
                 }
             }
         }
@@ -203,7 +231,7 @@ namespace StarResonanceDpsAnalysis.Control
             });
         }
 
-        private void DrawProgressBar(Graphics g, ProgressBarData data, float top, byte opacity)
+        private void DrawProgressBar(Graphics g, ProgressBarData data, ProgressBarPrivateData privateData)
         {
             var flag = _gdiProgressBarDict.TryGetValue(data.ID, out var gdiProgressBar);
             if (!flag || gdiProgressBar == null)
@@ -216,14 +244,51 @@ namespace StarResonanceDpsAnalysis.Control
             _drawInfo.Width = Width;
             _drawInfo.Height = ProgressBarHeight;
             _drawInfo.BackColor = BackColor;
-            _drawInfo.ProgressBarColor = Color.FromArgb(opacity, data.ProgressBarColor);
+            _drawInfo.ProgressBarColor = Color.FromArgb(privateData.Opacity, data.ProgressBarColor);
             _drawInfo.ProgressBarValue = data.ProgressBarValue;
-            _drawInfo.ContentList = data.ContentList;
             _drawInfo.ProgressBarCornerRadius = data.ProgressBarCornerRadius;
             _drawInfo.Padding = data.ProgressBarPadding;
-            _drawInfo.Top = top;
+            _drawInfo.Top = privateData.Top;
+
+            if (privateData.OrderString == null)
+            {
+                _drawInfo.ContentList = data.ContentList;
+            }
+            else
+            {
+                _renderContentBuffer.Clear();
+
+                _renderContentBuffer.Add(new RenderContent
+                {
+                    Type = ContentType.Text,
+                    Align = privateData.OrderAlign,
+                    Offset = privateData.OrderOffset,
+                    Text = privateData.OrderString,
+                    ForeColor = privateData.OrderColor,
+                    Font = privateData.OrderFont,
+                });
+
+                if (data.ContentList != null)
+                {
+                    _renderContentBuffer.AddRange(data.ContentList);
+                }
+
+                _drawInfo.ContentList = _renderContentBuffer;
+            }
 
             gdiProgressBar.Draw(g, _drawInfo);
+        }
+
+        private class ProgressBarPrivateData
+        {
+            public float Top { get; set; }
+            public byte Opacity { get; set; }
+            public ContentAlign OrderAlign { get; set; } = ContentAlign.MiddleLeft;
+            public ContentOffset OrderOffset { get; set; } = new ContentOffset { X = 0, Y = 0 };
+            public string? OrderString { get; set; }
+            public Color OrderColor { get; set; } = Color.Black;
+            public Font OrderFont { get; set; } = SystemFonts.DefaultFont;
+
         }
 
         private struct SortAnimatingInfo
@@ -233,5 +298,15 @@ namespace StarResonanceDpsAnalysis.Control
             public int ToIndex { get; set; }
             public ProgressBarData Data { get; set; }
         }
+    }
+
+    public class ProgressBarData
+    {
+        public long ID { get; set; }
+        public double ProgressBarValue { get; set; }
+        public Color ProgressBarColor { get; set; } = Color.FromArgb(0x56, 0x9C, 0xD6);
+        public int ProgressBarCornerRadius { get; set; }
+        public List<RenderContent>? ContentList { get; set; }
+        public Padding ProgressBarPadding { get; set; } = new(3, 3, 3, 3);
     }
 }

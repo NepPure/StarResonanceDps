@@ -19,12 +19,12 @@ namespace StarResonanceDpsAnalysis.Effects
         private Dictionary<Quality, int> QualityConfig { get; } = new()
         {
             { Quality.VeryLow, 5 },
-            { Quality.Low, 10 },
-            { Quality.Medium, 20 },
-            { Quality.High, 50 },
-            { Quality.VeryHigh, 100 },
-            { Quality.Extreme, 1000 },
-            { Quality.AlmostAccurate, 10000 },
+            { Quality.Low, 7 },
+            { Quality.Medium, 13 },
+            { Quality.High, 25 },
+            { Quality.VeryHigh, 49 },
+            { Quality.Extreme, 499 },
+            { Quality.AlmostAccurate, 2499 },
         };
 
         public Quality Quality { get; init; }
