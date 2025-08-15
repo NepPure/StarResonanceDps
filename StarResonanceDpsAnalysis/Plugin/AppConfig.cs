@@ -35,6 +35,8 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// 注意：依赖本机是否安装“阿里妈妈数黑体”，缺失时系统会回退。
         /// </summary>
         public static Font SaoFontBold = new Font("阿里妈妈数黑体", 10, FontStyle.Bold);//中文字体
+
+        public static Font DpsFontBold = new Font("阿里妈妈数黑体", 8, FontStyle.Bold);//中文字体
         #endregion
 
         /// <summary>
