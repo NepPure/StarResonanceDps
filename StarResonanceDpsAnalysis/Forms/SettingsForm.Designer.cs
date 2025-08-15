@@ -471,12 +471,12 @@
             panel7.Controls.Add(button4);
             panel7.Controls.Add(SaveButton);
             panel7.Dock = DockStyle.Bottom;
-            panel7.Location = new Point(10, 1157);
+            panel7.Location = new Point(10, 1142);
             panel7.Name = "panel7";
             panel7.Radius = 3;
             panel7.Shadow = 6;
             panel7.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel7.Size = new Size(1054, 65);
+            panel7.Size = new Size(1054, 80);
             panel7.TabIndex = 31;
             panel7.Text = "panel7";
             // 
@@ -485,7 +485,7 @@
             select1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             select1.DropDownTextAlign = AntdUI.TAlign.Top;
             select1.List = true;
-            select1.Location = new Point(2577, 92);
+            select1.Location = new Point(2577, 107);
             select1.Name = "select1";
             select1.Placement = AntdUI.TAlignFrom.Top;
             select1.Radius = 3;
@@ -500,7 +500,7 @@
             button4.IconHover = Properties.Resources.cancel_hover;
             button4.IconPosition = AntdUI.TAlignMini.None;
             button4.IconRatio = 1.5F;
-            button4.Location = new Point(579, 13);
+            button4.Location = new Point(579, 20);
             button4.Name = "button4";
             button4.Size = new Size(57, 49);
             button4.TabIndex = 1;
@@ -514,7 +514,7 @@
             SaveButton.IconHover = Properties.Resources.ok_hover;
             SaveButton.IconPosition = AntdUI.TAlignMini.None;
             SaveButton.IconRatio = 1.5F;
-            SaveButton.Location = new Point(416, 13);
+            SaveButton.Location = new Point(416, 20);
             SaveButton.Name = "SaveButton";
             SaveButton.Size = new Size(57, 49);
             SaveButton.TabIndex = 0;
@@ -531,7 +531,7 @@
             stackPanel1.Location = new Point(10, 89);
             stackPanel1.Margin = new Padding(20);
             stackPanel1.Name = "stackPanel1";
-            stackPanel1.Size = new Size(1054, 1068);
+            stackPanel1.Size = new Size(1054, 1053);
             stackPanel1.TabIndex = 3;
             stackPanel1.Text = "stackPanel1";
             stackPanel1.Vertical = true;
