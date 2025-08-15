@@ -213,7 +213,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         #region HandleClearData() 响应清空数据
 
-        public static void HandleClearData()
+        public void HandleClearData()
         {
 
             // 先停止所有图表的自动刷新
@@ -256,7 +256,7 @@ namespace StarResonanceDpsAnalysis.Forms
             sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
             sortedProgressBarList1.AnimationQuality = Quality.High; // 动画品质（你项目里的枚举）
-
+       
 
 
 
@@ -383,16 +383,18 @@ namespace StarResonanceDpsAnalysis.Forms
                                 Font =AppConfig.DpsFontBold,
                             },
                        ];
-                    list.Add(
-                        new ProgressBarData
-                        {
-                            ID = uid,
-                            ContentList = data,
-                            ProgressBarCornerRadius = 3,
-                            ProgressBarValue = progress,
-                            ProgressBarColor = colorDict[p.Profession],
-                        }
-                        );
+                    ProgressBarData progressBarData = new ProgressBarData
+                    {
+                        ID = uid,
+                        ContentList = data,
+                        ProgressBarCornerRadius = 3,
+                        ProgressBarValue = progress,
+                        ProgressBarColor = colorDict[p.Profession],
+                    };
+                    //progressBarData.
+
+
+                    list.Add(progressBarData);
                    
 
                     DictList[uid] = data; 

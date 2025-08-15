@@ -15,11 +15,16 @@ namespace StarResonanceDpsAnalysis.Control
 {
     public partial class SortedProgressBarList : UserControl
     {
+        public delegate void SelectionChanedEventHandler(SortedProgressBarList sender, int index, ProgressBarData? data);
+        public new event SelectionChanedEventHandler? SelectionChanged;
+
         private readonly Dictionary<long, ProgressBarData> _dataDict = [];
         private int _animationDuration = 300;
         private Quality _animationQuality = Quality.Medium;
         private int _progressBarHeight = 20;
         private Padding _progressBarPadding = new(3, 3, 3, 3);
+        private int? _selectedIndex = null;
+        private Color _seletedItemColor = Color.FromArgb(0x56, 0x9C, 0xD6);
 
         public List<ProgressBarData>? Data
         {
@@ -90,6 +95,18 @@ namespace StarResonanceDpsAnalysis.Control
             set => _progressBarPadding = value;
         }
 
+        public int? SelectedIndex
+        {
+            get => _selectedIndex;
+            set => _selectedIndex = value;
+        }
+
+        public Color SeletedItemColor 
+        {
+            get => _seletedItemColor;
+            set => _seletedItemColor = value;
+        }
+
         public SortedProgressBarList()
         {
             InitializeComponent();
@@ -112,6 +129,40 @@ namespace StarResonanceDpsAnalysis.Control
 
             _animationCancellation?.Cancel();
             _animationPeriodicTimer?.Dispose();
+        }
+
+        private void SortedProgressBarList_MouseClick(object sender, MouseEventArgs e)
+        {
+            var progressBar = (ProgressBarData?)null;
+
+            if (e.Location.X < Padding.Left
+                || e.Location.Y < Padding.Top
+                || e.Location.X > Width - Padding.Right
+                || e.Location.Y > Height - Padding.Bottom) return;
+
+            var index = e.Location.Y / ProgressBarHeight;
+            if (index >= _animatingInfoBuffer.Count)
+            {
+                _selectedIndex = null;
+                SelectionChanged?.Invoke(this, -1, null);
+                return;
+            }
+
+            progressBar = _animatingInfoBuffer[index].Data;
+
+            var offset = e.Location.Y % ProgressBarHeight;
+            if (e.Location.X < Padding.Left + progressBar.ProgressBarPadding.Left
+                || e.Location.X > Width - Padding.Right - progressBar.ProgressBarPadding.Right
+                || offset < progressBar.ProgressBarPadding.Top
+                || offset > ProgressBarHeight - progressBar.ProgressBarPadding.Bottom)
+            {
+                _selectedIndex = null;
+                SelectionChanged?.Invoke(this, -1, null);
+                return;
+            }
+
+            _selectedIndex = index;
+            SelectionChanged?.Invoke(this, index, progressBar);
         }
     }
 

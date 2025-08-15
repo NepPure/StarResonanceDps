@@ -1,4 +1,5 @@
-﻿using System.Timers;
+﻿using StarResonanceDpsAnalysis.Forms;
+using System.Timers;
 
 namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 {
@@ -13,6 +14,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
     public class StatisticData
     {
         #region 常量
+        //锁对象
+        private readonly object _realtimeLock = new();
 
         /// <summary>
         /// 实时统计的时间窗口（秒），用于计算实时值与峰值。
@@ -121,7 +124,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         {
             var now = DateTime.Now;
 
-            // —— 数值累计 ——
+            // —— 原有累计/计数/极值逻辑保持不变 —— 
             if (isCrit && isLucky) CritLucky += value;
             else if (isCrit) Critical += value;
             else if (isLucky) Lucky += value;
@@ -130,26 +133,27 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             Total += value;
             HpLessen += hpLessenValue;
 
-            // —— 次数统计 ——
             if (isCrit) CountCritical++;
             if (isLucky) CountLucky++;
             if (!isCrit && !isLucky) CountNormal++;
             CountTotal++;
 
-            // —— 单次极值 ——
             if (value > 0)
             {
                 if (value > MaxSingleHit) MaxSingleHit = value;
                 if (value < MinSingleHit) MinSingleHit = value;
             }
 
-            // —— 实时窗口 ——
-            _realtimeWindow.Add((now, value));
+            // —— 仅这行需要加锁 —— 
+            lock (_realtimeLock)
+            {
+                _realtimeWindow.Add((now, value));
+            }
 
-            // —— 时间范围 ——
             _startTime ??= now;
             _endTime = now;
         }
+
 
         /// <summary>
         /// 刷新实时统计：剔除超过窗口期的数据，并计算实时值与峰值。
@@ -159,17 +163,29 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         {
             var now = DateTime.Now;
 
-            // 清理过期数据（>窗口秒）
-            _realtimeWindow.RemoveAll(e => (now - e.Time).TotalSeconds > 实时窗口秒数);
+            List<(DateTime Time, ulong Value)> snapshot = null;
 
-            // 计算当前实时累计
+            // 1) 锁内：剔除过期 + 复制快照
+            lock (_realtimeLock)
+            {
+                _realtimeWindow.RemoveAll(e => (now - e.Time).TotalSeconds > 实时窗口秒数);
+
+                if (_realtimeWindow.Count > 0)
+                    snapshot = new List<(DateTime, ulong)>(_realtimeWindow);
+            }
+
+            // 2) 锁外：计算实时累计
             ulong sum = 0;
-            foreach (var entry in _realtimeWindow) sum += entry.Value;
-            RealtimeValue = sum;
+            if (snapshot != null)
+            {
+                for (int i = 0; i < snapshot.Count; i++)
+                    sum += snapshot[i].Value;
+            }
 
-            // 记录峰值
+            RealtimeValue = sum;
             if (RealtimeValue > RealtimeMax) RealtimeMax = RealtimeValue;
         }
+
 
 
         /// <summary>
@@ -1239,9 +1255,12 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         public void UpdateAllRealtimeStats()
         {
             if (_players.Count == 0) return;
-            foreach (var player in _players.Values)
+
+            var players = _players.Values.ToArray(); // ← 拍快照
+            foreach (var player in players)
                 player?.UpdateRealtimeStats();
         }
+
 
         /// <summary>获取所有玩家数据对象。</summary>
         /// <returns>玩家数据的枚举。</returns>
@@ -1264,6 +1283,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 SaveCurrentBattleSnapshot();
             }
             _players.Clear();
+            FormManager.dpsStatistics.HandleClearData();
+
 
             if (!keepCombatTime)//false为清空
                 ResetCombatClock(); // 手动清空计时

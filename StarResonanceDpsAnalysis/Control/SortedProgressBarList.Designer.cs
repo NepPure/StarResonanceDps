@@ -37,6 +37,7 @@
             DoubleBuffered = true;
             Name = "SortedProgressBarList";
             Size = new Size(536, 477);
+            MouseClick += SortedProgressBarList_MouseClick;
             ResumeLayout(false);
         }
 

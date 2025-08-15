@@ -29,6 +29,7 @@ namespace StarResonanceDpsAnalysis.Forms
            
             SetStyle();
             new TestForm().Show(); // # 调试/测试窗体：启动即显示
+            
         }
 
         private void DpsStatistics_Load(object sender, EventArgs e)
@@ -37,6 +38,10 @@ namespace StarResonanceDpsAnalysis.Forms
             StartCapture();
         }
 
+        private void sortedProgressBarList_Click(object sender, EventArgs e)
+        {
+
+        }
 
         private void button_AlwaysOnTop_Click(object sender, EventArgs e)
         {

@@ -134,6 +134,17 @@ namespace StarResonanceDpsAnalysis.Forms
 
                 sortedProgressBarList1.Data = data;
             };
+
+            sortedProgressBarList1.SelectionChanged += (s, i, d) =>
+            {
+                if (i < 0 || d == null) 
+                {
+                    Console.WriteLine("Nothing Clicked.");
+                    return;
+                }
+
+                Console.WriteLine($"ProgressBar Clicked: ID={d.ID}, Index={i}");
+            };
         }
 
         private void button1_Click(object sender, EventArgs e)
