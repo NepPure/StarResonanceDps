@@ -72,7 +72,7 @@
             pageHeader1.MinimizeBox = false;
             pageHeader1.Mode = AntdUI.TAMode.Dark;
             pageHeader1.Name = "pageHeader1";
-            pageHeader1.Size = new Size(471, 33);
+            pageHeader1.Size = new Size(471, 35);
             pageHeader1.SubFont = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold);
             pageHeader1.SubGap = 0;
             pageHeader1.SubText = "";
@@ -81,13 +81,14 @@
             // 
             // PilingModeCheckbox
             // 
+            PilingModeCheckbox.AutoSizeMode = AntdUI.TAutoSize.Width;
             PilingModeCheckbox.BackColor = Color.Transparent;
             PilingModeCheckbox.Dock = DockStyle.Right;
             PilingModeCheckbox.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             PilingModeCheckbox.ForeColor = Color.White;
-            PilingModeCheckbox.Location = new Point(252, 0);
+            PilingModeCheckbox.Location = new Point(240, 0);
             PilingModeCheckbox.Name = "PilingModeCheckbox";
-            PilingModeCheckbox.Size = new Size(114, 33);
+            PilingModeCheckbox.Size = new Size(126, 35);
             PilingModeCheckbox.TabIndex = 17;
             PilingModeCheckbox.Text = "打桩模式";
             PilingModeCheckbox.Visible = false;
@@ -102,7 +103,7 @@
             button2.IconSvg = resources.GetString("button2.IconSvg");
             button2.Location = new Point(366, 0);
             button2.Name = "button2";
-            button2.Size = new Size(24, 33);
+            button2.Size = new Size(24, 35);
             button2.TabIndex = 20;
             button2.ToggleIconSvg = "";
             // 
@@ -113,9 +114,9 @@
             button3.Icon = Properties.Resources.handoff_normal;
             button3.IconHover = Properties.Resources.handoff_hover;
             button3.IconRatio = 0.8F;
-            button3.Location = new Point(154, 0);
+            button3.Location = new Point(163, 0);
             button3.Name = "button3";
-            button3.Size = new Size(29, 33);
+            button3.Size = new Size(29, 35);
             button3.TabIndex = 19;
             button3.Click += button3_Click;
             button3.MouseEnter += button3_MouseEnter;
@@ -127,9 +128,9 @@
             RightHandoffButton.Icon = Properties.Resources.right_normal;
             RightHandoffButton.IconHover = Properties.Resources.right_hover;
             RightHandoffButton.IconRatio = 0.6F;
-            RightHandoffButton.Location = new Point(125, 0);
+            RightHandoffButton.Location = new Point(134, 0);
             RightHandoffButton.Name = "RightHandoffButton";
-            RightHandoffButton.Size = new Size(29, 33);
+            RightHandoffButton.Size = new Size(29, 35);
             RightHandoffButton.TabIndex = 18;
             RightHandoffButton.Click += RightHandoffButton_Click;
             // 
@@ -142,7 +143,7 @@
             button_AlwaysOnTop.IconSvg = resources.GetString("button_AlwaysOnTop.IconSvg");
             button_AlwaysOnTop.Location = new Point(390, 0);
             button_AlwaysOnTop.Name = "button_AlwaysOnTop";
-            button_AlwaysOnTop.Size = new Size(26, 33);
+            button_AlwaysOnTop.Size = new Size(26, 35);
             button_AlwaysOnTop.TabIndex = 5;
             button_AlwaysOnTop.ToggleIconSvg = resources.GetString("button_AlwaysOnTop.ToggleIconSvg");
             button_AlwaysOnTop.Click += button_AlwaysOnTop_Click;
@@ -157,7 +158,7 @@
             button1.IconSvg = resources.GetString("button1.IconSvg");
             button1.Location = new Point(416, 0);
             button1.Name = "button1";
-            button1.Size = new Size(24, 33);
+            button1.Size = new Size(24, 35);
             button1.TabIndex = 4;
             button1.ToggleIconSvg = "";
             button1.Click += button1_Click;
@@ -176,7 +177,7 @@
             button_Settings.IconSvg = "";
             button_Settings.Location = new Point(440, 0);
             button_Settings.Name = "button_Settings";
-            button_Settings.Size = new Size(31, 33);
+            button_Settings.Size = new Size(31, 35);
             button_Settings.TabIndex = 3;
             button_Settings.ToggleIconSvg = "";
             button_Settings.Click += button_Settings_Click;
@@ -189,7 +190,7 @@
             DamageModeLabel.ForeColor = Color.White;
             DamageModeLabel.Location = new Point(45, 0);
             DamageModeLabel.Name = "DamageModeLabel";
-            DamageModeLabel.Size = new Size(80, 33);
+            DamageModeLabel.Size = new Size(89, 35);
             DamageModeLabel.TabIndex = 18;
             DamageModeLabel.Text = "单次伤害";
             // 
@@ -202,7 +203,7 @@
             LeftHandoffButton.IconRatio = 0.6F;
             LeftHandoffButton.Location = new Point(0, 0);
             LeftHandoffButton.Name = "LeftHandoffButton";
-            LeftHandoffButton.Size = new Size(45, 33);
+            LeftHandoffButton.Size = new Size(45, 35);
             LeftHandoffButton.TabIndex = 17;
             LeftHandoffButton.Click += LeftHandoffButton_Click;
             // 
@@ -211,12 +212,10 @@
             panel1.BackColor = Color.Transparent;
             panel1.Controls.Add(BattleTimeText);
             panel1.Dock = DockStyle.Bottom;
-            panel1.Location = new Point(0, 418);
+            panel1.Location = new Point(0, 419);
             panel1.Name = "panel1";
             panel1.Radius = 3;
-            panel1.Shadow = 6;
-            panel1.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel1.Size = new Size(471, 47);
+            panel1.Size = new Size(471, 46);
             panel1.TabIndex = 17;
             panel1.Text = "panel1";
             // 
@@ -224,9 +223,9 @@
             // 
             BattleTimeText.Dock = DockStyle.Right;
             BattleTimeText.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            BattleTimeText.Location = new Point(383, 9);
+            BattleTimeText.Location = new Point(383, 0);
             BattleTimeText.Name = "BattleTimeText";
-            BattleTimeText.Size = new Size(88, 38);
+            BattleTimeText.Size = new Size(88, 46);
             BattleTimeText.TabIndex = 18;
             BattleTimeText.Text = "00:00:00";
             // 
@@ -246,7 +245,7 @@
             sortedProgressBarList1.AnimationQuality = Effects.Enum.Quality.Medium;
             sortedProgressBarList1.BackColor = Color.FromArgb(224, 224, 224);
             sortedProgressBarList1.Dock = DockStyle.Fill;
-            sortedProgressBarList1.Location = new Point(0, 33);
+            sortedProgressBarList1.Location = new Point(0, 35);
             sortedProgressBarList1.Margin = new Padding(5, 4, 5, 4);
             sortedProgressBarList1.Name = "sortedProgressBarList1";
             sortedProgressBarList1.OrderColor = Color.Black;
@@ -254,7 +253,7 @@
             sortedProgressBarList1.ProgressBarHeight = 20;
             sortedProgressBarList1.ProgressBarPadding = new Padding(3);
             sortedProgressBarList1.SeletedItemColor = Color.FromArgb(86, 156, 214);
-            sortedProgressBarList1.Size = new Size(471, 385);
+            sortedProgressBarList1.Size = new Size(471, 384);
             sortedProgressBarList1.TabIndex = 18;
             // 
             // DpsStatisticsForm
@@ -276,6 +275,7 @@
             Load += DpsStatistics_Load;
             ForeColorChanged += DpsStatisticsForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);
+            pageHeader1.PerformLayout();
             panel1.ResumeLayout(false);
             ResumeLayout(false);
         }

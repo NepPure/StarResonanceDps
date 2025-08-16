@@ -376,22 +376,7 @@ namespace StarResonanceDpsAnalysis.Forms
         { "未知", new Bitmap(new MemoryStream(Resources.hp_icon)) }
     };
 
-        // === Active View Lock（当前激活的视图口径） ===
-        private volatile SourceType _activeSource = SourceType.Current;
-        private volatile MetricType _activeMetric = MetricType.Damage;
-        // 统一设置与刷新入口：只认 _activeSource/_activeMetric
-        private void ApplyActiveView()
-        {
-            _activeSource = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
-            _activeMetric = FormManager.currentIndex switch
-            {
-                1 => MetricType.Healing,
-                2 => MetricType.Taken,
-                _ => MetricType.Damage
-            };
 
-            RefreshDpsTable(_activeSource, _activeMetric);
-        }
 
         public enum SourceType { Current, FullRecord }
         public enum MetricType { Damage, Healing, Taken }
