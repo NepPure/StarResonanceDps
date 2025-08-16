@@ -111,6 +111,31 @@ namespace StarResonanceDpsAnalysis.Plugin
         private static ulong? _uid = null;//用户UID
         private static int? _combatPower =null;//战斗力
         public static int _combatTimeClearDelaySeconds =5;//战斗计时清除延迟
+        public static int _clearPicture = 1;//是否过图清空记录
+
+        /// <summary>
+        /// 是否过图清全程记录
+        /// </summary>
+        public static int ClearPicture
+        {
+            get
+            {
+                if(_clearPicture == 0)
+                {
+                    var value = GetValue("SetUp", "ClearPicture", "1").ToInt();
+                    _clearPicture = value;
+                }
+                return _clearPicture;
+
+
+            }
+            set
+            {
+                SetValue("SetUp", "ClearPicture", value.ToString());
+                _clearPicture = value;
+            }
+        }
+
 
         public static bool NpcsTakeDamage = false;//NPC承伤
         public static bool PilingMode =false;//打桩模式

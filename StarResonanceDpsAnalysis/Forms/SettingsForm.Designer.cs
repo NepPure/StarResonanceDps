@@ -233,6 +233,7 @@
             switch1.Size = new Size(83, 41);
             switch1.TabIndex = 40;
             switch1.Text = "switch1";
+            switch1.CheckedChanged += switch1_CheckedChanged;
             // 
             // divider2
             // 

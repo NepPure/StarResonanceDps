@@ -220,4 +220,28 @@
   <data name="神射手" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\神射手.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="冰魔导师10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\冰魔导师10.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="巨刃守护者10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\巨刃守护者10.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="雷影剑士10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\雷影剑士10.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="灵魂乐手10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\灵魂乐手10.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="青岚骑士10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\青岚骑士10.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="森语者10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\森语者10.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="神盾骑士10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\神盾骑士10.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="神射手10" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\神射手10.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

@@ -473,7 +473,7 @@ namespace StarResonanceDpsAnalysis.Control
 
 
 
-            object? resourceObj = Properties.Resources.ResourceManager.GetObject(profession);
+            object? resourceObj = Properties.Resources.ResourceManager.GetObject(profession+"10");
 
             if (resourceObj is byte[] bytes)
             {

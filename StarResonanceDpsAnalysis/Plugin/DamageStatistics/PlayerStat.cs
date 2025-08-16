@@ -956,7 +956,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
                 // 只清玩家数据与战斗时钟；缓存（昵称/战力/职业）保留
                 ClearAll(false);
-                FormManager.dpsStatistics.HandleClearData();
+                FormManager.dpsStatistics.HandleClearData(true);
                 _pendingClearOnNextCombat = false;
             }
 

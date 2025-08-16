@@ -44,6 +44,7 @@ namespace StarResonanceDpsAnalysis.Forms
             // #  2. 将当前窗体中的进度条列表控件实例绑定到静态引用（后续刷新列表时使用）。
             if (AppConfig.GetConfigExists())
             {
+                AppConfig.ClearPicture = AppConfig.GetValue("UserConfig", "ClearPicture", "1").ToInt();
                 AppConfig.NickName = AppConfig.GetValue("UserConfig", "NickName", "未知");
                 AppConfig.Uid = (ulong)AppConfig.GetValue("UserConfig", "Uid", "0").ToInt();
                 AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知");
@@ -240,7 +241,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         #region HandleClearData() 响应清空数据
 
-        public void HandleClearData()
+        public void HandleClearData(bool ClearPicture = false)
         {
 
             // # 清理与复位事件：用户点击“清空”时触发（不影响抓包的开启/关闭状态）
@@ -249,15 +250,18 @@ namespace StarResonanceDpsAnalysis.Forms
 
             // 在清空数据前，通知图表服务战斗结束
             ChartVisualizationService.OnCombatEnd();
-            if (FormManager.showTotal)
+            if (FormManager.showTotal& !ClearPicture)
             {
-                FullRecord.Reset();//全程统计数据清空
+                FullRecord.Reset(false);//全程统计数据清空
             }
-            DpsTableDatas.DpsTable.Clear();
+            //DpsTableDatas.DpsTable.Clear();
+          
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
-
-            ListClear();
+     
+                ListClear();
+            
+           
 
             // 完全重置所有图表（包括清空历史数据和重置视图状态）
             ChartVisualizationService.FullResetAllCharts();
@@ -371,11 +375,23 @@ namespace StarResonanceDpsAnalysis.Forms
         { "神盾骑士", new Bitmap(new MemoryStream(Resources.神盾骑士)) },
         { "未知", new Bitmap(new MemoryStream(Resources.hp_icon)) }
     };
-        // 放到 Form 字段区
-        private volatile SourceType _activeSource = SourceType.Current;    // 当前/全程
-        private volatile MetricType _activeMetric = MetricType.Damage;     // 伤害/治疗/承伤
-        private long _viewRev = 0;                                         // 视图版本号（切换时自增）
 
+        // === Active View Lock（当前激活的视图口径） ===
+        private volatile SourceType _activeSource = SourceType.Current;
+        private volatile MetricType _activeMetric = MetricType.Damage;
+        // 统一设置与刷新入口：只认 _activeSource/_activeMetric
+        private void ApplyActiveView()
+        {
+            _activeSource = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
+            _activeMetric = FormManager.currentIndex switch
+            {
+                1 => MetricType.Healing,
+                2 => MetricType.Taken,
+                _ => MetricType.Damage
+            };
+
+            RefreshDpsTable(_activeSource, _activeMetric);
+        }
 
         public enum SourceType { Current, FullRecord }
         public enum MetricType { Damage, Healing, Taken }
@@ -390,38 +406,32 @@ namespace StarResonanceDpsAnalysis.Forms
             public ulong Total;
             public double PerSecond;
         }
-
+   
 
         public void RefreshDpsTable(SourceType source, MetricType metric)
         {
             // # UI 刷新事件：根据指定数据源（单次/全程）与指标（伤害/治疗/承伤）对进度条列表进行重建与绑定
             if (Interlocked.CompareExchange(ref _isClearing, 0, 0) == 1) return;
+            // —— 闸门 #1：开始前校验当前可见视图是否匹配 ——
+            var visible = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
+            if (source != visible) return;
 
-            var uiList = BuildUiRows(source, metric).Where(r => (r?.Total ?? 0) > 0)   // ★ 仅保留 Total > 0 的行
+            var uiList = BuildUiRows(source, metric).Where(r => (r?.Total ?? 0) > 0)   // 过滤 0 值（伤害/治疗/承伤都适用）
     .ToList(); ;
             if (uiList.Count == 0)
             {
-                // # 无数据时：清空 UI 以避免残影
-                lock (_dataLock)
-                {
-                    // 清空旧行，避免显示上一个视图的数据
-                    DictList.Clear();
-                    list.Clear();
-
-                    // 确保在 UI 线程更新 Data
-                    if (sortedProgressBarList1.InvokeRequired)
-                        sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = null));
-                    else
-                        sortedProgressBarList1.Data = null;
-                }
+                // 清空旧数据，避免残影
+                if (sortedProgressBarList1.InvokeRequired)
+                    sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = null));
+                else
+                    sortedProgressBarList1.Data = null;
                 return;
             }
+
             //if (uiList.Count == 0) return;
 
-            // # 统计口径：使用 double 保证占比计算精度稳定
-            double totalSum = uiList.Sum(x => (double)x.Total);
-            if (totalSum <= 0d) totalSum = 1d;
-            var maxTotal = uiList.Max(x => (float)x.Total);
+
+
             var ordered = uiList.OrderByDescending(x => x.Total).ToList();
 
             if (ordered.Count == 0)
@@ -438,6 +448,11 @@ namespace StarResonanceDpsAnalysis.Forms
                 }
                 return;
             }
+
+            double teamSum = uiList.Sum(x => (double)x.Total);
+            if (teamSum <= 0d) teamSum = 1d;
+            double top = uiList.Max(x => (double)x.Total);
+            if (top <= 0d) top = 1d;
             lock (_dataLock)
             {
                 if (_isClearing == 1) return;
@@ -463,13 +478,16 @@ namespace StarResonanceDpsAnalysis.Forms
                     var p = ordered[i];
 
 
+                    // for 里：归一化到 0~1
+                    float ratio = (float)(p.Total / top);
+                    if (!float.IsFinite(ratio)) ratio = 0f;
+                    if (ratio < 0f) ratio = 0f;
+                    if (ratio > 1f) ratio = 1f;
+
+
+
                     string totalFmt = Common.FormatWithEnglishUnits(p.Total);
                     string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
-
-                    double shareVal = p.Total / totalSum;                       // 0~1
-
-                    string share = (shareVal * 100.0).ToString("0.0") + "%"; // 建议保留1位小数更稳定
-                    float progress = (float)shareVal;                          // 进度条也用同一口径
 
                     var profBmp = imgDict[p.Profession];
 
@@ -488,14 +506,17 @@ namespace StarResonanceDpsAnalysis.Forms
                             ID = p.Uid,
                             ContentList = data,
                             ProgressBarCornerRadius = 3,
-                            ProgressBarValue = progress,
+                            ProgressBarValue = ratio,
                             ProgressBarColor = colorDict[p.Profession],
                         });
 
                         DictList[p.Uid] = data;
                     }
 
+
                     // # 更新显示文本 & 头像/职业图标
+                    // 团队占比转为 "50%" 这类字符串（0 位小数）
+                    string share = $"{Math.Round(p.Total / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
                     var row = DictList[p.Uid];
                     row[0].Image = profBmp;
                     row[1].Text = $"{p.Nickname}({p.CombatPower})";
@@ -505,7 +526,8 @@ namespace StarResonanceDpsAnalysis.Forms
                     var pb = list.FirstOrDefault(x => x.ID == p.Uid);
                     if (pb != null)
                     {
-                        pb.ProgressBarValue = progress; // 关键：用最新占比驱动条形长度/排序
+                     
+                        pb.ProgressBarValue = ratio; // 关键：用最新占比驱动条形长度/排序
                         if (colorDict.TryGetValue(p.Profession, out var c))
                             pb.ProgressBarColor = c;
                         else
@@ -513,7 +535,9 @@ namespace StarResonanceDpsAnalysis.Forms
                     }
 
                 }
-
+                // —— 闸门 #2：写 UI 之前再校验一次，防止在计算期间切换视图导致串写 ——
+                visible = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
+                if (source != visible) return;
                 // 绑定到控件（空则设 null，避免残影）
                 void Bind()
                 {

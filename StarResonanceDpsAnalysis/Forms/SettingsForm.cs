@@ -14,7 +14,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
-
+            switch1.Checked = AppConfig.ClearPicture == 1;
             LoadDevices();
 
 
@@ -186,7 +186,7 @@ namespace StarResonanceDpsAnalysis.Forms
         {
 
 
-            FormManager.FullFormTransparency((double)e.Value/100);
+            FormManager.FullFormTransparency((double)e.Value / 100);
             //this.BackColor = Color.Transparent;
             //this.TransparencyKey = Color.Transparent;
 
@@ -195,6 +195,11 @@ namespace StarResonanceDpsAnalysis.Forms
         private void KeySettingsPanel_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void switch1_CheckedChanged(object sender, BoolEventArgs e)
+        {
+            AppConfig.ClearPicture = e.Value? 1 : 0;
         }
     }
 }

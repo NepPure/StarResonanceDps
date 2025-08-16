@@ -325,9 +325,29 @@ namespace StarResonanceDpsAnalysis.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
+        internal static byte[] 冰魔导师10 {
+            get {
+                object obj = ResourceManager.GetObject("冰魔导师10", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
         internal static byte[] 巨刃守护者 {
             get {
                 object obj = ResourceManager.GetObject("巨刃守护者", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 巨刃守护者10 {
+            get {
+                object obj = ResourceManager.GetObject("巨刃守护者10", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -345,9 +365,29 @@ namespace StarResonanceDpsAnalysis.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
+        internal static byte[] 森语者10 {
+            get {
+                object obj = ResourceManager.GetObject("森语者10", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
         internal static byte[] 灵魂乐手 {
             get {
                 object obj = ResourceManager.GetObject("灵魂乐手", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 灵魂乐手10 {
+            get {
+                object obj = ResourceManager.GetObject("灵魂乐手10", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -365,9 +405,29 @@ namespace StarResonanceDpsAnalysis.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
+        internal static byte[] 神射手10 {
+            get {
+                object obj = ResourceManager.GetObject("神射手10", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
         internal static byte[] 神盾骑士 {
             get {
                 object obj = ResourceManager.GetObject("神盾骑士", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 神盾骑士10 {
+            get {
+                object obj = ResourceManager.GetObject("神盾骑士10", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -385,9 +445,29 @@ namespace StarResonanceDpsAnalysis.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
+        internal static byte[] 雷影剑士10 {
+            get {
+                object obj = ResourceManager.GetObject("雷影剑士10", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
         internal static byte[] 青岚骑士 {
             get {
                 object obj = ResourceManager.GetObject("青岚骑士", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 青岚骑士10 {
+            get {
+                object obj = ResourceManager.GetObject("青岚骑士10", resourceCulture);
                 return ((byte[])(obj));
             }
         }

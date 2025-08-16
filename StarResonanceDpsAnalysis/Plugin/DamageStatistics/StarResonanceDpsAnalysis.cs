@@ -10,7 +10,7 @@
     /// </summary>
     public static class FullRecord
     {
-        // # 导航 / 分类索引
+        // # 导航 / 分类索引（仅注释，不影响代码）：
         // #   1) 通用工具与数值格式: R2()
         // #   2) Shim 只读外观（与 StatisticData 口径对齐）: Shim.StatsLike / Shim.PlayerLike / Shim.TakenOverviewLike
         // #   3) UI 视图投影: StatView / ToView() / MergeStats()
@@ -23,12 +23,20 @@
         // #  10) 内部实现工具: SessionSeconds/GetOrCreate/Accumulate/ToSkillSummary
         // #  11) 内部数据结构: PlayerAcc / StatAcc
 
+        // ======================================================================
+        // # 分类 1：通用工具与数值格式
+        // ======================================================================
+
         // # 通用：两位小数四舍五入（远离零）
         private static double R2(double v) => Math.Round(v, 2, MidpointRounding.AwayFromZero);
 
+        // ======================================================================
+        // # 分类 2：Shim 只读外观（对齐 StatisticData 接口口径，便于 UI 复用）
+        // ======================================================================
         public static class Shim
         {
-            // # —— 与 PlayerData.*Stats 口径一致的“只读统计对象” ——
+            // # —— 与 PlayerData.*Stats 口径一致的“只读统计对象” —— 
+            // # 用于向上层提供只读统计视图，避免直接暴露内部累加器
             public sealed class StatsLike
             {
                 public ulong Total, Normal, Critical, Lucky;
@@ -41,7 +49,8 @@
                 public double GetLuckyRate() => CountTotal > 0 ? R2((double)CountLucky * 100.0 / CountTotal) : 0.0;
             }
 
-            // # —— 与 StatisticData._manager.GetOrCreate(uid) 返回的“p”相似的外观 ——
+            // # —— 与 StatisticData._manager.GetOrCreate(uid) 返回的“p”相似的外观 —— 
+            // # 上层可像使用当前战斗统计那样读“全程统计”
             public sealed class PlayerLike
             {
                 public StatsLike DamageStats { get; init; } = new();
@@ -52,6 +61,7 @@
                 public double GetTotalHps() => HealingStats.ActiveSeconds > 0 ? R2(HealingStats.Total / HealingStats.ActiveSeconds) : 0.0;
             }
 
+            // # 承伤总览（用于 UI 顶部概览）
             public sealed class TakenOverviewLike
             {
                 public ulong Total { get; init; }
@@ -60,6 +70,7 @@
                 public ulong MinSingleHit { get; init; }
             }
 
+            // # 内部：将累加器转换为只读 StatsLike
             private static StatsLike From(StatAcc s)
             {
                 // # 将内部累加器 StatAcc 投影为只读 StatsLike，供 UI/外部展示
@@ -79,6 +90,7 @@
                 };
             }
 
+            // # 内部：聚合一组统计（常用于承伤按技能 → 玩家层合并）
             private static StatAcc MergeStats(IEnumerable<StatAcc> items)
             {
                 // # 聚合多项 StatAcc：用于把逐技能合并为玩家层（承伤等）
@@ -110,6 +122,9 @@
                 return acc;
             }
 
+            /// <summary>
+            /// # 获取“只读玩家视图”：从 FullRecord 内部数据投影为与 StatisticData 类似的结构
+            /// </summary>
             public static PlayerLike GetOrCreate(ulong uid)
             {
                 // # 以 FullRecord 的内部累加为来源，返回近似 StatisticData 的“只读外观”
@@ -143,6 +158,9 @@
                 }
             }
 
+            /// <summary>
+            /// # 承伤总览（合计、每秒均值、最大/最小单次）
+            /// </summary>
             public static TakenOverviewLike GetPlayerTakenOverview(ulong uid)
             {
                 // # 承伤总览：总量/每秒均值/单击最大最小
@@ -159,6 +177,10 @@
                 };
             }
         }
+
+        // ======================================================================
+        // # 分类 3：UI 只读统计视图（StatView 映射与合并工具）
+        // ======================================================================
 
         // # === UI 只读统计视图 ===
         public readonly record struct StatView(
@@ -178,6 +200,7 @@
             double LuckyRate       // %
         );
 
+        // # 将内部累加器 → UI 展示用视图
         private static StatView ToView(StatAcc s)
         {
             // # 将内部累加器映射为 UI 展示用视图（带每秒/均伤/暴击率/幸运率）
@@ -241,7 +264,11 @@
             return acc;
         }
 
-        // # === 对外：拿到全程 Damage/Healing/Taken 的“和 StatisticData 一样口径”的视图 ===
+        // ======================================================================
+        // # 分类 4：对外统计查询（口径对齐 StatisticData）
+        // ======================================================================
+
+        /// <summary>获取玩家全程伤害统计（UI 视图口径）。</summary>
         public static StatView GetPlayerDamageStats(ulong uid)
         {
             lock (_sync)
@@ -252,6 +279,7 @@
             }
         }
 
+        /// <summary>获取玩家全程治疗统计（UI 视图口径）。</summary>
         public static StatView GetPlayerHealingStats(ulong uid)
         {
             lock (_sync)
@@ -262,6 +290,7 @@
             }
         }
 
+        /// <summary>获取玩家全程承伤统计（UI 视图口径）。</summary>
         public static StatView GetPlayerTakenStats(ulong uid)
         {
             lock (_sync)
@@ -280,6 +309,10 @@
             }
         }
 
+        // ======================================================================
+        // # 分类 5：对外绑定的行结构（列表项定义）
+        // ======================================================================
+
         // # 用于对外绑定的行结构（可按需增删字段）
         public sealed record FullPlayerTotal(
                 ulong Uid,
@@ -292,6 +325,10 @@
                 double Dps,   // 全程秒伤（只算伤害）
                 double Hps    // 全程秒疗
             );
+
+        // ======================================================================
+        // # 分类 6：会话状态与控制（启动/停止/重置/时长）
+        // ======================================================================
 
         // # 会话状态字段 —— 记录当前是否在录制，以及开始/结束时间点
         public static bool IsRecording { get; private set; }
@@ -315,12 +352,11 @@
         // # 区域：控制（启动/停止/重置） ------------------------------------------------------
         #region 控制
 
-        // # 外部调用
         /// <summary>
         /// 启动全程记录：
         /// - 若已在记录则直接返回；
         /// - 首次启动设置 StartedAt；
-        /// - 开启空闲检测定时器，用于自动停止。
+        /// - EndedAt 清空以表示进行中。
         /// </summary>
         public static void Start()
         {
@@ -333,11 +369,11 @@
 
         private static readonly object _sync = new();
 
-        // # 外部调用
         /// <summary>
         /// 手动停止全程记录（不清空数据）：
-        /// - 固化 EndedAt；
-        /// - 生成并保存一次会话快照。
+        /// - 如在录制，生成一次会话快照；
+        /// - 然后清空“当前会话”累计数据（历史快照保留）；
+        /// - 重置时间基，准备新会话。
         /// </summary>
         public static void Stop()
         {
@@ -357,15 +393,16 @@
             }
         }
 
-        // # 外部调用
         /// <summary>
         /// 重置当前会话：
-        /// - 关闭定时器；
-        /// - 清除状态与累计数据；
-        /// - 可选择是否清空历史快照（此处清空，如需保留可删除相关行）。
+        /// - 如有进行中的或已有数据的会话，先保存一次快照；
+        /// - 清除当前会话累计与时间基；
+        /// - IsRecording 置为 true（进入新会话录制状态）。
         /// </summary>
-        public static void Reset(bool preserveHistory = false)
+        public static void Reset(bool preserveHistory = true)
         {
+
+            if (AppConfig.ClearPicture == 0 && preserveHistory) return;//如果是0，则不清除数据
             lock (_sync)
             {
                 // 1) 如有进行中的或已有数据的会话，先入一条快照（不影响历史）
@@ -385,14 +422,15 @@
                 EndedAt = null;
                 IsRecording = true;
 
-                // 4) 可选：清历史
-                if (!preserveHistory) _sessionHistory.Clear();
+                // 4) 可选：清历史（当前保留）
+
             }
         }
 
-        // #外部调用
         /// <summary>
-        /// 获取当前会话的总时长 总战斗时长（TimeSpan）
+        /// 获取当前会话总时长（TimeSpan）。
+        /// - 进行中：Now - StartedAt
+        /// - 已停止：EndedAt - StartedAt
         /// </summary>
         public static TimeSpan GetSessionTotalTimeSpan()
         {
@@ -402,9 +440,9 @@
             return duration < TimeSpan.Zero ? TimeSpan.Zero : duration;
         }
 
-        // #外部调用
         /// <summary>
-        /// 获取指定玩家的全程技能统计（当前会话最新快照）。
+        /// 获取指定玩家的全程技能统计（基于当前时刻快照）。
+        /// 返回三个只读列表（伤害技能/治疗技能/承伤技能）。
         /// </summary>
         public static (IReadOnlyList<SkillSummary> DamageSkills,
                        IReadOnlyList<SkillSummary> HealingSkills,
@@ -419,10 +457,16 @@
             return (Array.Empty<SkillSummary>(), Array.Empty<SkillSummary>(), Array.Empty<SkillSummary>());
         }
 
-        // # 外部调用
+        #endregion
+
+        // ======================================================================
+        // # 分类 7：列表数据获取 / 汇总：用于 UI 绑定与展示
+        // ======================================================================
+
         /// <summary>
         /// 获取“此刻”的全程逐玩家总量清单（默认按总伤害降序）。
         /// includeZero=false 时会过滤掉三项全为 0 的玩家。
+        /// Dps/Hps 分母为各自“有效活跃秒数”（无活跃时回退会话时长）。
         /// </summary>
         public static List<FullPlayerTotal> GetPlayersWithTotals(bool includeZero = false)
         {
@@ -460,6 +504,7 @@
 
         /// <summary>
         /// 查看全程战斗时间（HH:mm:ss，基于 Damage 有效时长最大值）
+        /// 用于 UI 文本显示。
         /// </summary>
         public static string GetEffectiveDurationString()
         {
@@ -477,16 +522,20 @@
         }
 
         /// <summary>
-        /// 方便你直接模仿：类似 StatisticData._manager.GetPlayersWithCombatData().ToArray()
+        /// 便于外层直接 ToArray 绑定（示例对齐 StatisticData 用法）。
         /// </summary>
         public static FullPlayerTotal[] GetPlayersWithTotalsArray(bool includeZero = false)
             => GetPlayersWithTotals(includeZero).ToArray();
+
+        // ======================================================================
+        // # 分类 8：内部停止与有效结束时间（快照辅助）
+        // ======================================================================
 
         // # 内部调用
         /// <summary>
         /// 内部停止封装：
         /// - auto=true 表示由空闲超时触发；
-        /// - 将 EndedAt 固定为 LastEventAt，排除空闲等待时间；
+        /// - 固化 EndedAt；
         /// - 生成快照并写入历史。
         /// </summary>
         private static void StopInternal(bool auto)
@@ -504,7 +553,7 @@
         /// <summary>
         /// 获取“有效结束时间”：
         /// - 录制中：以 Now 为结束点；
-        /// - 已停止：使用 EndedAt（StopInternal 已处理为 LastEventAt）。
+        /// - 已停止：使用 EndedAt。
         /// </summary>
         private static DateTime EffectiveEndTime()
         {
@@ -512,21 +561,17 @@
             return IsRecording ? DateTime.Now : (EndedAt ?? DateTime.Now);
         }
 
-        #endregion
+        // ======================================================================
+        // # 分类 9：写入点（由外部解码/事件管线调用）
+        // ======================================================================
 
-        // # 区域：快照（留空位以便后续扩展，如需要将快照导出/序列化等） ------------------
-        #region 快照
-        #endregion
-
-        // # 区域：内嵌写入点（由外部统计管线/钩子调用的一行接入） -------------------------
         #region 内嵌写入点会调用的 API（只加一行即可）
 
-        // # 外部调用（写入点）
         /// <summary>
         /// 记录伤害事件：
-        /// - 更新 LastEventAt（打点）；
         /// - 聚合到玩家总伤害与对应技能；
-        /// - 更新实时 DPS（基于有效秒数）。
+        /// - 更新实时 DPS（基于伤害侧有效秒数）；
+        /// - 忽略 0 值。
         /// </summary>
         public static void RecordDamage(
             ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
@@ -547,12 +592,11 @@
             UpdateRealtimeDps(p);
         }
 
-        // # 外部调用（写入点）
         /// <summary>
         /// 记录治疗事件：
-        /// - 更新 LastEventAt；
         /// - 聚合到玩家总治疗与对应技能；
-        /// - 更新实时 DPS/HPS（HPS 以 Healing 为基，影响玩家侧实时显示）。
+        /// - 更新“治疗侧”实时指标（RealtimeDpsHealing）；
+        /// - 忽略 0 值。
         /// </summary>
         public static void RecordHealing(
             ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky,
@@ -569,12 +613,11 @@
             UpdateRealtimeDps(p);
         }
 
-        // # 外部调用（写入点）
         /// <summary>
         /// 记录承伤事件：
-        /// - 更新 LastEventAt；
-        /// - 聚合承伤与逐技能承伤（承伤不分暴击/幸运，hpLessen 取总值）；
-        /// - 不计入队伍/玩家DPS（如需“受伤DPS”，可扩展）。
+        /// - 聚合承伤总量与逐技能承伤（hpLessen 写入）；
+        /// - 不计入队伍/玩家DPS（仅用于受击统计与 UI 展示）；
+        /// - 忽略 0 值。
         /// </summary>
         public static void RecordTakenDamage(
             ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
@@ -596,12 +639,11 @@
             UpdateRealtimeDps(p, includeHealing: false);
         }
 
-        // # 内部调用
         /// <summary>
         /// 更新玩家与队伍的实时 DPS：
-        /// - 秒数取 SessionSeconds()（进行中：Now 与 StartedAt；已停：EndedAt 与 StartedAt）；
-        /// - 玩家总伤害/治疗与逐技能实时值均更新；
-        /// - 队伍实时 DPS = 所有玩家总伤害 / 有效秒数。
+        /// - 玩家侧：Damage/Healing 分别按自身 ActiveSeconds 计算；
+        /// - 技能侧：逐技能 RealtimeDps 按各自 ActiveSeconds；
+        /// - 队伍侧：总伤害 / 全队最大“伤害活跃秒数”。
         /// </summary>
         private static void UpdateRealtimeDps(PlayerAcc p, bool includeHealing = true)
         {
@@ -645,15 +687,15 @@
 
         #endregion
 
-        // # 区域：快照 & 秒伤计算（对外查询接口 + 快照产出） -------------------------------
-        #region 快照 & 秒伤
+        // ======================================================================
+        // # 分类 10：快照 & 秒伤（对外接口 / 快照产出）
+        // ======================================================================
 
-        // # 外部调用
         /// <summary>
-        /// 生成一次全程快照：
-        /// - 使用 EffectiveEndTime() 保证不包含空闲等待；
-        /// - 汇总队伍总伤害/治疗；
-        /// - 逐玩家构建 SnapshotPlayer，并附带按伤害/治疗降序的技能汇总。
+        /// 生成一次全程快照（当前时刻）：
+        /// - 结束时间使用 EffectiveEndTime()；
+        /// - 汇总队伍总伤害/治疗/承伤；
+        /// - 逐玩家构建 SnapshotPlayer（含按伤害/治疗/承伤降序的技能汇总）。
         /// </summary>
         public static FullSessionSnapshot TakeSnapshot()
         {
@@ -690,7 +732,7 @@
                     Nickname = p.Nickname,
                     CombatPower = p.CombatPower,
                     Profession = p.Profession,
-                    
+
                     TotalDamage = p.Damage.Total,
                     TotalDps = p.Damage.ActiveSeconds > 0 ? R2(p.Damage.Total / p.Damage.ActiveSeconds) : 0,
                     TotalHps = p.Healing.ActiveSeconds > 0 ? R2(p.Healing.Total / p.Healing.ActiveSeconds) : 0,
@@ -718,11 +760,10 @@
             };
         }
 
-        // # 外部调用
         /// <summary>
-        /// 获取队伍当前全程 DPS（只计算伤害）：
-        /// - 进行中：以 Now 为有效结束；
-        /// - 已停止：以 EndedAt（=LastEventAt）为有效结束。
+        /// 获取队伍当前全程 DPS（只计算伤害）。
+        /// - 取全队最大 Damage.ActiveSeconds 为分母；
+        /// - 汇总总伤害为分子。
         /// </summary>
         public static double GetTeamDps()
         {
@@ -742,9 +783,10 @@
             }
         }
 
-        // # 外部调用
         /// <summary>
         /// 获取指定玩家当前全程 DPS（只计算伤害）。
+        /// - 分母：整个会话秒数（SessionSeconds）；
+        /// - 若尚未开始或分母为 0，返回 0。
         /// </summary>
         public static double GetPlayerDps(ulong uid)
         {
@@ -753,8 +795,11 @@
             return _players.TryGetValue(uid, out var p) ? R2(p.Damage.Total / secs) : 0;
         }
 
+        // ======================================================================
+        // # 分类 11：快照时间检索（历史查询）
+        // ======================================================================
+
         #region 查询（按快照时间检索）
-        // # 外部调用
         /// <summary>
         /// 按快照的开始时间获取该快照中所有玩家数据。
         /// - 如果找不到对应快照，返回 null。
@@ -765,7 +810,6 @@
             return snapshot?.Players;
         }
 
-        // # 外部调用
         /// <summary>
         /// 按快照的开始时间和玩家 UID 获取该玩家的技能数据。
         /// - 返回 (伤害技能, 治疗技能)，若找不到则返回两个空列表。
@@ -782,17 +826,17 @@
         }
         #endregion
 
-        #endregion
+        // ======================================================================
+        // # 分类 12：内部实现工具（时长/取或建/累加/投影）
+        // ======================================================================
 
-        // # 区域：内部实现（工具方法与数据结构管理） ---------------------------------------
         #region 内部实现
 
-        // # 内部调用
         /// <summary>
         /// 计算会话“有效秒数”：
-        /// - 若尚未开始返回0；
-        /// - 进行中：end=EffectiveEndTime()（通常等于 LastEventAt）；
-        /// - 已停止：End=EndedAt（已固化至 LastEventAt）。
+        /// - 若尚未开始返回 0；
+        /// - 进行中：StartedAt → Now；
+        /// - 已停止：StartedAt → EndedAt。
         /// </summary>
         private static double SessionSeconds()
         {
@@ -806,9 +850,8 @@
             return sec > 0 ? sec : 0;
         }
 
-        // # 内部调用
         /// <summary>
-        /// 获取或创建玩家累计器，并同步其基础信息（昵称/战力/职业以最近一次为准）。
+        /// 获取或创建玩家累计器，并同步基础信息（昵称/战力/职业以最近一次为准）。
         /// </summary>
         private static PlayerAcc GetOrCreate(ulong uid, string nickname, int combatPower, string profession)
         {
@@ -824,11 +867,11 @@
             return p;
         }
 
-        // # 内部调用
         /// <summary>
         /// 将一次数值累加到统计器：
-        /// - 区分普通/暴击/幸运/暴击+幸运四类数值；
-        /// - 维护总和、hpLessen（承伤或额外指标）、次数与最大/最小单次值。
+        /// - 区分普通/暴击/幸运/暴击+幸运；
+        /// - 维护总和、hpLessen、次数与最大/最小单次值；
+        /// - 通过 FirstAt/LastAt 与时间差累加 ActiveSeconds（含空档封顶）。
         /// </summary>
         private static void Accumulate(StatAcc acc, ulong value, bool isCrit, bool isLucky, ulong hpLessen)
         {
@@ -873,9 +916,9 @@
             acc.LastAt = now;
         }
 
-        // # 内部调用
         /// <summary>
         /// 将内部技能统计转为快照中的技能汇总项（含DPS、命中均值、暴击/幸运率等）。
+        /// - Realtime 字段快照中不赋值（保持 0）。
         /// </summary>
         private static SkillSummary ToSkillSummary(ulong skillId, StatAcc s, TimeSpan duration)
         {
@@ -900,6 +943,13 @@
         }
 
         // ===== 内部数据结构 =====
+
+        /// <summary>
+        /// 玩家聚合器（会话内持续累加）。
+        /// - 含基础信息（昵称/战力/职业）与三类统计（伤害/治疗/承伤）；
+        /// - DamageSkills/HealingSkills/TakenSkills 逐技能累加；
+        /// - RealtimeDps* 用于 UI 实时显示。
+        /// </summary>
         private sealed class PlayerAcc
         {
             public ulong Uid { get; }
@@ -922,6 +972,14 @@
             public PlayerAcc(ulong uid) => Uid = uid;
         }
 
+        /// <summary>
+        /// 统计累加器（通用结构）：
+        /// - 四象限数值：Normal/Critical/Lucky/CritLucky；
+        /// - 计数：Count*；
+        /// - 极值：MaxSingleHit/MinSingleHit；
+        /// - 时序：FirstAt/LastAt/ActiveSeconds；
+        /// - RealtimeDps：便于 UI 实时显示（逐技能/逐类）。
+        /// </summary>
         private sealed class StatAcc
         {
             public ulong Normal, Critical, Lucky, CritLucky, HpLessen, Total;
@@ -936,15 +994,19 @@
         #endregion
     }
 
-    /// <summary>全程快照结构（与 BattleSnapshot 类似，但跨战斗）</summary>
+    // ======================================================================
+    // # 分类 13：快照结构定义（跨战斗的全程快照）
+    // ======================================================================
+
+    /// <summary>全程快照结构（与 BattleSnapshot 类似，但跨战斗）。用于历史/统计展示。</summary>
     public sealed class FullSessionSnapshot
     {
-        public DateTime StartedAt { get; init; }
-        public DateTime EndedAt { get; init; }
-        public TimeSpan Duration { get; init; }
-        public ulong TeamTotalDamage { get; init; }
-        public ulong TeamTotalHealing { get; init; }
-        public Dictionary<ulong, SnapshotPlayer> Players { get; init; } = new();
-        public ulong TeamTotalTakenDamage { get; init; }   // ★ 新增
+        public DateTime StartedAt { get; init; }          // 快照起始时间
+        public DateTime EndedAt { get; init; }            // 快照结束时间
+        public TimeSpan Duration { get; init; }           // 持续时长
+        public ulong TeamTotalDamage { get; init; }       // 队伍总伤害
+        public ulong TeamTotalHealing { get; init; }      // 队伍总治疗
+        public Dictionary<ulong, SnapshotPlayer> Players { get; init; } = new(); // 逐玩家详情
+        public ulong TeamTotalTakenDamage { get; init; }  // ★ 队伍总承伤
     }
 }
