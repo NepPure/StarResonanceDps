@@ -10,12 +10,25 @@
     /// </summary>
     public static class FullRecord
     {
-        // 通用：两位小数四舍五入（远离零）
+        // # 导航 / 分类索引
+        // #   1) 通用工具与数值格式: R2()
+        // #   2) Shim 只读外观（与 StatisticData 口径对齐）: Shim.StatsLike / Shim.PlayerLike / Shim.TakenOverviewLike
+        // #   3) UI 视图投影: StatView / ToView() / MergeStats()
+        // #   4) 对外统计查询（与 StatisticData 一致口径）: GetPlayerDamageStats/HealingStats/TakenStats
+        // #   5) 会话状态与控制: IsRecording/StartedAt/EndedAt + Start/Stop/Reset/GetSessionTotalTimeSpan
+        // #   6) 快照入口与历史: TakeSnapshot / SessionHistory / 内部 StopInternal/EffectiveEndTime
+        // #   7) 写入点（由解码管线调用）: RecordDamage/RecordHealing/RecordTakenDamage + UpdateRealtimeDps
+        // #   8) 快照 & 秒伤对外接口: GetPlayersWithTotals/GetPlayersWithTotalsArray/GetTeamDps/GetPlayerDps 等
+        // #   9) 快照时间检索: GetAllPlayersDataBySnapshotTime/GetPlayerSkillsBySnapshotTime
+        // #  10) 内部实现工具: SessionSeconds/GetOrCreate/Accumulate/ToSkillSummary
+        // #  11) 内部数据结构: PlayerAcc / StatAcc
+
+        // # 通用：两位小数四舍五入（远离零）
         private static double R2(double v) => Math.Round(v, 2, MidpointRounding.AwayFromZero);
 
         public static class Shim
         {
-            // —— 与 PlayerData.*Stats 口径一致的“只读统计对象” ——
+            // # —— 与 PlayerData.*Stats 口径一致的“只读统计对象” ——
             public sealed class StatsLike
             {
                 public ulong Total, Normal, Critical, Lucky;
@@ -28,7 +41,7 @@
                 public double GetLuckyRate() => CountTotal > 0 ? R2((double)CountLucky * 100.0 / CountTotal) : 0.0;
             }
 
-            // —— 与 StatisticData._manager.GetOrCreate(uid) 返回的“p”相似的外观 ——
+            // # —— 与 StatisticData._manager.GetOrCreate(uid) 返回的“p”相似的外观 ——
             public sealed class PlayerLike
             {
                 public StatsLike DamageStats { get; init; } = new();
@@ -49,6 +62,7 @@
 
             private static StatsLike From(StatAcc s)
             {
+                // # 将内部累加器 StatAcc 投影为只读 StatsLike，供 UI/外部展示
                 return new StatsLike
                 {
                     Total = s.Total,
@@ -67,6 +81,7 @@
 
             private static StatAcc MergeStats(IEnumerable<StatAcc> items)
             {
+                // # 聚合多项 StatAcc：用于把逐技能合并为玩家层（承伤等）
                 var acc = new StatAcc();
                 ulong min = 0; bool hasMin = false;
                 double maxActiveSecs = 0;
@@ -97,6 +112,7 @@
 
             public static PlayerLike GetOrCreate(ulong uid)
             {
+                // # 以 FullRecord 的内部累加为来源，返回近似 StatisticData 的“只读外观”
                 lock (_sync)
                 {
                     if (!_players.TryGetValue(uid, out var p))
@@ -129,6 +145,7 @@
 
             public static TakenOverviewLike GetPlayerTakenOverview(ulong uid)
             {
+                // # 承伤总览：总量/每秒均值/单击最大最小
                 var p = GetOrCreate(uid);
                 var t = p.TakenStats;
                 double perSec = t.ActiveSeconds > 0 ? R2(t.Total / t.ActiveSeconds) : 0.0;
@@ -143,7 +160,7 @@
             }
         }
 
-        // === UI 只读统计视图 ===
+        // # === UI 只读统计视图 ===
         public readonly record struct StatView(
             ulong Total,
             ulong Normal,
@@ -163,6 +180,7 @@
 
         private static StatView ToView(StatAcc s)
         {
+            // # 将内部累加器映射为 UI 展示用视图（带每秒/均伤/暴击率/幸运率）
             int ct = s.CountTotal;
             double secs = s.ActiveSeconds > 0 ? s.ActiveSeconds : 0;
             double perSec = secs > 0 ? R2(s.Total / secs) : 0;
@@ -190,7 +208,7 @@
             );
         }
 
-        // 合并一组 StatAcc（用于 Taken：把各技能承伤合成玩家总承伤视图）
+        // # 合并一组 StatAcc（用于 Taken：把各技能承伤合成玩家总承伤视图）
         private static StatAcc MergeStats(IEnumerable<StatAcc> items)
         {
             var acc = new StatAcc();
@@ -223,7 +241,7 @@
             return acc;
         }
 
-        // === 对外：拿到全程 Damage/Healing/Taken 的“和 StatisticData 一样口径”的视图 ===
+        // # === 对外：拿到全程 Damage/Healing/Taken 的“和 StatisticData 一样口径”的视图 ===
         public static StatView GetPlayerDamageStats(ulong uid)
         {
             lock (_sync)
@@ -262,7 +280,7 @@
             }
         }
 
-        // 用于对外绑定的行结构（可按需增删字段）
+        // # 用于对外绑定的行结构（可按需增删字段）
         public sealed record FullPlayerTotal(
                 ulong Uid,
                 string Nickname,
@@ -280,18 +298,18 @@
         public static DateTime? StartedAt { get; private set; }
         public static DateTime? EndedAt { get; private set; }
 
-        // 彻底取消“事件空闲期自动停止”机制：不再跟踪 LastEventAt / 不再使用定时器
-        // 保留占位但不再使用（如需可直接删除字段与引用）
+        // # 彻底取消“事件空闲期自动停止”机制：不再跟踪 LastEventAt / 不再使用定时器
+        // # 保留占位但不再使用（如需可直接删除字段与引用）
         private static readonly bool DisableIdleAutoStop = true;
 
-        // 持久累加存储：跨战斗的全程聚合
+        // # 持久累加存储：跨战斗的全程聚合
         private static readonly Dictionary<ulong, PlayerAcc> _players = new();
 
-        // ★ 全程快照历史（Stop 或 自动停止时都会入栈）
+        // # ★ 全程快照历史（Stop 或 自动停止时都会入栈）
         private static readonly List<FullSessionSnapshot> _sessionHistory = new();
         public static IReadOnlyList<FullSessionSnapshot> SessionHistory => _sessionHistory; // 只读暴露，便于 UI 历史查看
 
-        // —— 新增：实时队伍 DPS（便于 UI 显示）
+        // # —— 新增：实时队伍 DPS（便于 UI 显示）
         public static double TeamRealtimeDps { get; private set; }     // 基于“有效会话秒数”的实时队伍DPS（只算伤害）
 
         // # 区域：控制（启动/停止/重置） ------------------------------------------------------
@@ -672,7 +690,7 @@
                     Nickname = p.Nickname,
                     CombatPower = p.CombatPower,
                     Profession = p.Profession,
-
+                    
                     TotalDamage = p.Damage.Total,
                     TotalDps = p.Damage.ActiveSeconds > 0 ? R2(p.Damage.Total / p.Damage.ActiveSeconds) : 0,
                     TotalHps = p.Healing.ActiveSeconds > 0 ? R2(p.Healing.Total / p.Healing.ActiveSeconds) : 0,

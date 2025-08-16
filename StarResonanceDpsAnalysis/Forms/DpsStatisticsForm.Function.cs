@@ -371,11 +371,11 @@ namespace StarResonanceDpsAnalysis.Forms
         { "神盾骑士", new Bitmap(new MemoryStream(Resources.神盾骑士)) },
         { "未知", new Bitmap(new MemoryStream(Resources.hp_icon)) }
     };
-        public static Dictionary<string, object> StatisticalType = new Dictionary<string, object>()
-        {
-            {"单次", StatisticData._manager.GetPlayersWithCombatData().ToArray()},
-            {"全程",  FullRecord.GetPlayersWithTotalsArray().ToArray()}
-        };
+        // 放到 Form 字段区
+        private volatile SourceType _activeSource = SourceType.Current;    // 当前/全程
+        private volatile MetricType _activeMetric = MetricType.Damage;     // 伤害/治疗/承伤
+        private long _viewRev = 0;                                         // 视图版本号（切换时自增）
+
 
         public enum SourceType { Current, FullRecord }
         public enum MetricType { Damage, Healing, Taken }
@@ -397,7 +397,8 @@ namespace StarResonanceDpsAnalysis.Forms
             // # UI 刷新事件：根据指定数据源（单次/全程）与指标（伤害/治疗/承伤）对进度条列表进行重建与绑定
             if (Interlocked.CompareExchange(ref _isClearing, 0, 0) == 1) return;
 
-            var uiList = BuildUiRows(source, metric);
+            var uiList = BuildUiRows(source, metric).Where(r => (r?.Total ?? 0) > 0)   // ★ 仅保留 Total > 0 的行
+    .ToList(); ;
             if (uiList.Count == 0)
             {
                 // # 无数据时：清空 UI 以避免残影
@@ -500,6 +501,17 @@ namespace StarResonanceDpsAnalysis.Forms
                     row[1].Text = $"{p.Nickname}({p.CombatPower})";
                     row[2].Text = $"{totalFmt}({perSec})";
                     row[3].Text = share;
+                    // 更新进度条的 Value/Color（老条目必须每次刷新都更新）
+                    var pb = list.FirstOrDefault(x => x.ID == p.Uid);
+                    if (pb != null)
+                    {
+                        pb.ProgressBarValue = progress; // 关键：用最新占比驱动条形长度/排序
+                        if (colorDict.TryGetValue(p.Profession, out var c))
+                            pb.ProgressBarColor = c;
+                        else
+                            pb.ProgressBarColor = colorDict["未知"]; // 兜底，避免 KeyNotFound
+                    }
+
                 }
 
                 // 绑定到控件（空则设 null，避免残影）
