@@ -36,7 +36,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// </summary>
         public static Font SaoFontBold = new Font("阿里妈妈数黑体", 10, FontStyle.Bold);//中文字体
 
-        public static Font DpsFontBold = new Font("HarmonyOS Sans SC", 7, FontStyle.Regular);//中文字体
+        public static Font DpsFontBold = new Font("HarmonyOS Sans SC", 8, FontStyle.Regular);//中文字体
         #endregion
 
         /// <summary>

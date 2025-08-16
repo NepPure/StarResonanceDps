@@ -22,7 +22,7 @@ namespace StarResonanceDpsAnalysis.Control
                 new AntdUI.Column("HitCount","命中次数"),
                 new AntdUI.Column("CritRate","暴击率"),
                 new AntdUI.Column("LuckyRate","幸运率"),
-                new AntdUI.Column("Share","占比"),
+               // new AntdUI.Column("Share","占比"),
                 new AntdUI.Column("Percentage","百分比"),
             };
 
@@ -158,10 +158,16 @@ namespace StarResonanceDpsAnalysis.Control
                     CritRateText.Text = $"{p.DamageStats.GetCritRate()}%";
                     LuckyRate.Text = $"{p.DamageStats.GetLuckyRate()}%";
 
+
                     NormalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Normal);
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
                     LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Lucky);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());
+
+                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountTotal);//命中次数
+                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountCritical);//暴击次数
+                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountLucky);//幸运次数
+                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);//挨打次数
                 }
                 else if (metric == MetricType.Healing)
                 {
@@ -174,6 +180,11 @@ namespace StarResonanceDpsAnalysis.Control
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
                     LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Lucky);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.GetAveragePerHit());
+
+                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);//命中次数
+                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountCritical);//暴击次数
+                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountLucky);//幸运次数
+                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);//挨打次数
                 }
                 else // Taken
                 {
@@ -184,9 +195,15 @@ namespace StarResonanceDpsAnalysis.Control
                     CritDamageText.Text = Common.FormatWithEnglishUnits(taken.MinSingleHit);
 
                     NormalDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Total);
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);
+                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);//承伤
                     LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Lucky);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.GetAveragePerHit());
+                    LuckyRate.Text = "0";
+
+                   NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);//命中次数
+                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountCritical);//暴击次数
+                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountLucky);//幸运次数
+                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);//挨打次数
                 }
             }
             else // === 全程 FullRecord ===
@@ -204,6 +221,12 @@ namespace StarResonanceDpsAnalysis.Control
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
                     LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Lucky);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());
+
+
+                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountTotal);//命中次数
+                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountCritical);//暴击次数
+                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountLucky);//幸运次数
+                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);//挨打次数
                 }
                 else if (metric == MetricType.Healing)
                 {
@@ -216,6 +239,11 @@ namespace StarResonanceDpsAnalysis.Control
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
                     LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Lucky);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.GetAveragePerHit());
+
+                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);//命中次数
+                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountCritical);//暴击次数
+                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountLucky);//幸运次数
+                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);//挨打次数
                 }
                 else // Taken
                 {
@@ -225,10 +253,16 @@ namespace StarResonanceDpsAnalysis.Control
                     CritRateText.Text = Common.FormatWithEnglishUnits(taken.MaxSingleHit); // 你原本就把这里用来显示“单次最大”
                     CritDamageText.Text = Common.FormatWithEnglishUnits(taken.MinSingleHit); // 你原本就把这里用来显示“单次最小”
 
+                    LuckyRate.Text = "0";
                     NormalDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Total);
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);
                     LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Lucky);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.GetAveragePerHit());
+
+                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);//命中次数
+                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountCritical);//暴击次数
+                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountLucky);//幸运次数
+                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);//挨打次数
                 }
             }
 
