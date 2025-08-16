@@ -103,6 +103,11 @@ namespace StarResonanceDpsAnalysis.Control
                         _progressBarPrivateData.Top = top;
                         _progressBarPrivateData.Opacity = 255;
 
+                        if (top > Height)
+                        {
+                            continue;
+                        }
+
                         DrawProgressBar(g, data.Data, _progressBarPrivateData);
                     }
                     else
@@ -126,6 +131,11 @@ namespace StarResonanceDpsAnalysis.Control
 
                         _progressBarPrivateData.Top = top;
                         _progressBarPrivateData.Opacity = opacity;
+
+                        if (top > Height)
+                        {
+                            continue;
+                        }
 
                         DrawProgressBar(g, data.Data, _progressBarPrivateData);
                     }
