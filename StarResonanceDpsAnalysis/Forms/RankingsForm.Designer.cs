@@ -80,7 +80,7 @@
             label1.BackColor = Color.Transparent;
             label1.ColorScheme = AntdUI.TAMode.Dark;
             label1.Dock = DockStyle.Fill;
-            label1.Font = new Font("SAO UI TT", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label1.Font = new Font("SAO UI TT", 12F);
             label1.Location = new Point(0, 0);
             label1.Name = "label1";
             label1.Size = new Size(1213, 52);
@@ -225,7 +225,7 @@
             // 
             divider3.BackColor = Color.Transparent;
             divider3.Dock = DockStyle.Top;
-            divider3.Font = new Font("阿里妈妈数黑体", 10F, FontStyle.Bold);
+            divider3.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold);
             divider3.Location = new Point(0, 0);
             divider3.Name = "divider3";
             divider3.OrientationMargin = 1F;
@@ -283,7 +283,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "RankingsForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "RankingsForm";
+            Text = "伤害参考";
             Load += RankingsForm_Load;
             ForeColorChanged += RankingsForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);

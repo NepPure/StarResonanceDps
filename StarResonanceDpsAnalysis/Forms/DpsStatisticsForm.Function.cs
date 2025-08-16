@@ -153,9 +153,10 @@ namespace StarResonanceDpsAnalysis.Forms
 
 
             // # 步骤 2：清空当前统计 —— 新会话前的干净状态
-            DpsTableDatas.DpsTable.Clear();
-            StatisticData._manager.ClearAll();
-            SkillTableDatas.SkillTable.Clear();
+
+            //StatisticData._manager.ClearAll();
+            //SkillTableDatas.SkillTable.Clear();
+            //ListClear();
 
             // # 步骤 3：图表历史与自动刷新 —— 开始新的战斗记录
             ChartVisualizationService.ClearAllHistory();
@@ -256,8 +257,7 @@ namespace StarResonanceDpsAnalysis.Forms
             }
             //DpsTableDatas.DpsTable.Clear();
           
-            StatisticData._manager.ClearAll();
-            SkillTableDatas.SkillTable.Clear();
+ 
      
                 ListClear();
             
@@ -280,6 +280,8 @@ namespace StarResonanceDpsAnalysis.Forms
             // # 清理与复位事件：清空 UI 进度条列表与缓存（线程安全）
             if (Interlocked.Exchange(ref _isClearing, 1) == 1) return; // 已在清空中
 
+            StatisticData._manager.ClearAll();
+            SkillTableDatas.SkillTable.Clear();
             try
             {
                 lock (_dataLock)
@@ -318,7 +320,7 @@ namespace StarResonanceDpsAnalysis.Forms
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
             sortedProgressBarList1.OrderColor = Color.Black;
-            sortedProgressBarList1.OrderFont = AppConfig.DpsFontBold;
+            sortedProgressBarList1.OrderFont = AppConfig.ContentText;
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
             sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
@@ -481,9 +483,9 @@ namespace StarResonanceDpsAnalysis.Forms
                         // # 首次出现：为该 UID 构建渲染内容与进度条条目
                         data = new List<RenderContent> {
                             new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=30,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=Color.Black, Font=AppConfig.DpsFontBold },
+                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=Color.Black, Font=AppConfig.ContentText },
+                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=Color.Black, Font=AppConfig.ContentText },
+                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=Color.Black, Font=AppConfig.ContentText },
                         };
 
                         list.Add(new ProgressBarData

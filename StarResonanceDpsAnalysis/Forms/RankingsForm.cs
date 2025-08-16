@@ -9,10 +9,20 @@ namespace StarResonanceDpsAnalysis.Forms
         public RankingsForm()
         {
             InitializeComponent();
+            SetDefaultFontFromResources();
             FormGui.SetDefaultGUI(this);
             ToggleTableView();
+           
         }
-
+        private void SetDefaultFontFromResources()
+        {
+            label1.Font = AppConfig.TitleFont;
+            button1.Font = AppConfig.HeaderText;
+            segmented1.Font = AppConfig.ContentText;
+            divider3.Font = AppConfig.HeaderText;
+            table_DpsDetailDataTable.Font = AppConfig.ContentText;
+            label2.Font = AppConfig.ContentText;
+        }
         private void RankingsForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色

@@ -1,4 +1,5 @@
 ﻿using AntdUI; // 引用 AntdUI 组件库（第三方 UI 控件/样式）
+using DocumentFormat.OpenXml.ExtendedProperties;
 using StarResonanceDpsAnalysis.Control; // 引用项目内的 UI 控制/辅助类命名空间
 using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Forms.PopUp; // 引用弹窗相关窗体/组件命名空间
@@ -246,39 +247,46 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             // # 清空：触发 HandleClearData（停止图表刷新→清空数据→重置图表）
             HandleClearData(); // 调用清空处理
         } // 方法结束
+      
 
         // # 设置按钮 → 右键菜单
         private void button_Settings_Click(object sender, EventArgs e) // 设置按钮点击：弹出右键菜单
-        { // 方法开始
+        {
+           
+            // 方法开始
             var menulist = new IContextMenuStripItem[] // 构建右键菜单项数组
              { // 数组开始
                     new ContextMenuStripItem("历史战斗") // 一级菜单：历史战斗
                     { // 配置开始
-                        IconSvg = Resources.historicalRecords, // 设置图标（资源）
-                        Sub = new IContextMenuStripItem[] // 子菜单集合
-                        { // 子菜单数组开始
-                            new ContextMenuStripItem("战斗记录") // 子项：战斗记录
-                            {
-
-
-                            }, // 子项配置结束（此处行为待实现）
-                        } // 子菜单数组结束
+                        IconSvg = Resources.historicalRecords, // 图标
                     }, // 一级菜单配置结束
                     new ContextMenuStripItem("基础设置"){ IconSvg = Resources.set_up}, // 一级菜单：基础设置
                     new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, }, // 一级菜单：主窗体
-                    new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
+                    //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
-                    new ContextMenuStripItem("统计排除"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
+                    //new ContextMenuStripItem("统计排除"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes }, // 一级菜单：打桩模式
                     new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, }, // 一级菜单：退出
              } // 数组结束
             ; // 语句结束（分号保持）
 
             AntdUI.ContextMenuStrip.open(this, it => // 打开右键菜单并处理点击回调（it 为被点击项）
-            { // 回调开始
+            {
+              
+
+
+                // 回调开始
                 // # 菜单点击回调：根据 Text 执行对应动作
                 switch (it.Text) // 分支根据菜单文本
-                { // switch 开始
+                {
+                    case "历史战斗":
+                        if(FormManager.historicalBattlesForm == null || FormManager.historicalBattlesForm.IsDisposed)
+                        {
+                            FormManager.historicalBattlesForm = new HistoricalBattlesForm();
+                        }
+                        FormManager.historicalBattlesForm.Show();
+                        break;
+                    // switch 开始
                     case "基础设置": // 点击“基础设置”
                         OpenSettingsDialog(); // 打开设置面板
                         break; // 跳出 switch
@@ -314,7 +322,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
                         break; // 跳出 switch
                     case "退出": // 点击“退出”
-                        Application.Exit(); // 结束应用程序
+                        System.Windows.Forms.Application.Exit(); // 结束应用程序
                         break; // 跳出 switch
                 } // switch 结束
             }, menulist); // 打开菜单并传入菜单项
@@ -483,10 +491,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         private void SetDefaultFontFromResources() 
         {
-            if (FontLoader.TryLoadFontFromBytes("AlimamaShuHeiTi", Resources.AlimamaShuHeiTi, 9, out var font))
-            {
-                DamageModeLabel.Font = font;
-            }
+           
+                DamageModeLabel.Font = AppConfig.HeaderText;
+                PilingModeCheckbox.Font = AppConfig.HeaderText;
         }
 
         #region 钩子 // 折叠：全局键盘钩子安装/卸载与热键路由

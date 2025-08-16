@@ -60,7 +60,7 @@ namespace StarResonanceDpsAnalysis.Control
                 if (_animating && aniMs > AnimationDuration)
                 {
                     _animating = false;
-                    Console.WriteLine($"动画结束");
+                   // Console.WriteLine($"动画结束");
                 }
 
                 if (!_animating)
@@ -73,7 +73,7 @@ namespace StarResonanceDpsAnalysis.Control
                         _animationWatch.Restart();
 
                         _animating = true;
-                        Console.WriteLine($"动画启动");
+                        //Console.WriteLine($"动画启动");
                     }
                 }
 

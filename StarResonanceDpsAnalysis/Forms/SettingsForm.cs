@@ -1,7 +1,9 @@
 ﻿using AntdUI;
 using DocumentFormat.OpenXml.Math;
+using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
+using StarResonanceDpsAnalysis.Properties;
 using System.Runtime.InteropServices;
 
 namespace StarResonanceDpsAnalysis.Forms
@@ -13,13 +15,27 @@ namespace StarResonanceDpsAnalysis.Forms
         public SettingsForm()
         {
             InitializeComponent();
+            SetDefaultFontFromResources();
             FormGui.SetDefaultGUI(this);
             switch1.Checked = AppConfig.ClearPicture == 1;
             LoadDevices();
 
 
         }
+        private void SetDefaultFontFromResources()
+        {
 
+            TitleText.Font = AppConfig.TitleFont;
+            label1.Font = AppConfig.HeaderText;
+            label2.Font = label3 .Font= label4.Font= AppConfig.ContentText;
+            if (FontLoader.TryLoadFontFromBytes("HarmonyOS Sans7", Resources.HarmonyOS_Sans, 7, out var font))
+            {
+                label6.Font = label7.Font = label8.Font = font;
+            }
+
+            InterfaceComboBox.Font = AppConfig.ContentText;
+            label9.Font = input1.Font = input2.Font = input3.Font = input4.Font = input5.Font = inputNumber2 .Font = label5 .Font= AppConfig.ContentText;
+        }
         private void SettingsForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色

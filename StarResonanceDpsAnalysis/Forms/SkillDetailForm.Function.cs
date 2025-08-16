@@ -146,6 +146,9 @@ namespace StarResonanceDpsAnalysis.Control
                 _ => MetricType.Damage
             };
 
+            // 同步折线图数据源（不清历史，避免频繁闪烁）
+            ChartVisualizationService.SetDataSource(FormManager.showTotal ? ChartDataSource.FullRecord : ChartDataSource.Current, clearHistory: false);
+
             // === 顶部总览 ===
             if (source == SourceType.Current)
             {
@@ -279,7 +282,7 @@ namespace StarResonanceDpsAnalysis.Control
         }
 
         /// <summary>
-        /// 更新暴击率与幸运率条形图数据（现在条形图显示暴击率数据）
+        /// 更新暴击率与幸运率条形图数据（根据单次/全程与指标切换）
         /// </summary>
         private void UpdateSkillDistributionChart()
         {
@@ -287,20 +290,41 @@ namespace StarResonanceDpsAnalysis.Control
 
             try
             {
-                var p = StatisticData._manager.GetOrCreate(Uid);
-
-                // 根据当前模式获取对应的统计数据
-                var stats = segmented1.SelectIndex switch
+                var source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
+                var metric = segmented1.SelectIndex switch
                 {
-                    0 => p.DamageStats,      // 伤害数据
-                    1 => p.HealingStats,     // 治疗数据  
-                    2 => p.TakenStats,       // 承伤数据
-                    _ => p.DamageStats       // 默认伤害数据
+                    1 => MetricType.Healing,
+                    2 => MetricType.Taken,
+                    _ => MetricType.Damage
                 };
 
-                var critRate = stats.GetCritRate();
-                var luckyRate = stats.GetLuckyRate();
-                var normalRate = 100 - critRate - luckyRate;
+                double critRate, luckyRate;
+                if (source == SourceType.Current)
+                {
+                    var p = StatisticData._manager.GetOrCreate(Uid);
+                    var stats = metric switch
+                    {
+                        MetricType.Healing => p.HealingStats,
+                        MetricType.Taken => p.TakenStats,
+                        _ => p.DamageStats
+                    };
+                    critRate = stats.GetCritRate();
+                    luckyRate = stats.GetLuckyRate();
+                }
+                else
+                {
+                    var p = FullRecord.Shim.GetOrCreate(Uid);
+                    var stats = metric switch
+                    {
+                        MetricType.Healing => p.HealingStats,
+                        MetricType.Taken => p.TakenStats,
+                        _ => p.DamageStats
+                    };
+                    critRate = stats.GetCritRate();
+                    luckyRate = stats.GetLuckyRate();
+                }
+
+                var normalRate = Math.Max(0, 100 - critRate - luckyRate);
 
                 var chartData = new List<(string, double)>();
 
@@ -320,7 +344,7 @@ namespace StarResonanceDpsAnalysis.Control
         }
 
         /// <summary>
-        /// 更新技能占比饼图数据（现在饼图显示技能分布数据）
+        /// 更新技能占比饼图数据（根据单次/全程与指标切换）
         /// </summary>
         private void UpdateCritLuckyChart()
         {
@@ -328,32 +352,47 @@ namespace StarResonanceDpsAnalysis.Control
 
             try
             {
-                List<SkillSummary> skills;
-
-                // 根据当前模式获取相应的技能数据
-                switch (segmented1.SelectIndex)
+                var source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
+                var metric = segmented1.SelectIndex switch
                 {
-                    case 0: // 伤害分析
-                        skills = StatisticData._manager
-                            .GetPlayerSkillSummaries(Uid, topN: 10, orderByTotalDesc: true, StarResonanceDpsAnalysis.Core.SkillType.Damage)
-                            .ToList();
-                        break;
+                    1 => MetricType.Healing,
+                    2 => MetricType.Taken,
+                    _ => MetricType.Damage
+                };
 
-                    case 1: // 治疗分析
-                        skills = StatisticData._manager
-                            .GetPlayerSkillSummaries(Uid, topN: 10, orderByTotalDesc: true, StarResonanceDpsAnalysis.Core.SkillType.Heal)
-                            .ToList();
-                        break;
-
-                    case 2: // 承伤分析
-                        skills = StatisticData._manager
-                            .GetPlayerTakenDamageSummaries(Uid, topN: 10, orderByTotalDesc: true)
-                            .ToList();
-                        break;
-
-                    default:
-                        skills = new List<SkillSummary>();
-                        break;
+                List<SkillSummary> skills;
+                if (source == SourceType.Current)
+                {
+                    // 当前战斗
+                    switch (metric)
+                    {
+                        case MetricType.Healing:
+                            skills = StatisticData._manager
+                                .GetPlayerSkillSummaries(Uid, topN: 10, orderByTotalDesc: true, StarResonanceDpsAnalysis.Core.SkillType.Heal)
+                                .ToList();
+                            break;
+                        case MetricType.Taken:
+                            skills = StatisticData._manager
+                                .GetPlayerTakenDamageSummaries(Uid, topN: 10, orderByTotalDesc: true)
+                                .ToList();
+                            break;
+                        default:
+                            skills = StatisticData._manager
+                                .GetPlayerSkillSummaries(Uid, topN: 10, orderByTotalDesc: true, StarResonanceDpsAnalysis.Core.SkillType.Damage)
+                                .ToList();
+                            break;
+                    }
+                }
+                else
+                {
+                    // 全程
+                    var (damageSkills, healingSkills, takenSkills) = FullRecord.GetPlayerSkills(Uid);
+                    skills = metric switch
+                    {
+                        MetricType.Healing => healingSkills.Take(10).ToList(),
+                        MetricType.Taken => takenSkills.Take(10).ToList(),
+                        _ => damageSkills.Take(10).ToList()
+                    };
                 }
 
                 var chartData = skills.Select(skill =>

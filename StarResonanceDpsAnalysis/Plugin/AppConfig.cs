@@ -1,4 +1,6 @@
-﻿using StarResonanceDpsAnalysis.Extends;
+﻿using StarResonanceDpsAnalysis.Effects;
+using StarResonanceDpsAnalysis.Extends;
+using StarResonanceDpsAnalysis.Properties;
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -27,16 +29,83 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// 英文/数字使用的显示字体。默认字号 10，常规样式。
         /// 注意：依赖本机是否安装字体“SAO Welcome TT”，缺失时系统会回退。
         /// </summary>
-        public static Font SaoFont = new Font("SAO Welcome TT", 9, FontStyle.Regular);//英文数字字体
+        public static Font _digitalFonts;//英文数字字体 = new Font("SAO Welcome TT", 9, FontStyle.Regular)
+
+        /// <summary>
+        /// 数字或者单英文
+        /// </summary>
+        public static Font DigitalFonts
+        {
+            get {
+
+                if (FontLoader.TryLoadFontFromBytes("SAOWelcomeTT", Resources.SAOWelcomeTT_Regular, 8, out var font))
+                {
+                    _digitalFonts = font;
+                }
+                return _digitalFonts; 
+            }
+        }
+
+        public static Font _TitleFont;
+
+        /// <summary>
+        /// 标题SAO
+        /// </summary>
+        public static Font TitleFont
+        {
+            get
+            {
+                if (FontLoader.TryLoadFontFromBytes("SAOWelcome", Resources.SAOWelcomeTT_Regular, 12, out var font))
+                {
+                    _TitleFont = font;
+                }
+                return _TitleFont;
+            }
+        }
 
         /// <summary>
         /// # 分类：字体配置
         /// 中文显示使用的加粗字体。默认字号 10，粗体。
         /// 注意：依赖本机是否安装“阿里妈妈数黑体”，缺失时系统会回退。
         /// </summary>
-        public static Font SaoFontBold = new Font("阿里妈妈数黑体", 10, FontStyle.Bold);//中文字体
+        public static Font _headerText;
 
-        public static Font DpsFontBold = new Font("HarmonyOS Sans SC", 8, FontStyle.Regular);//中文字体
+        /// <summary>
+        /// 标题文本
+        /// </summary>
+        public static Font HeaderText
+        {
+            get
+            {
+
+                if (FontLoader.TryLoadFontFromBytes("阿里妈妈数黑体", Resources.AlimamaShuHeiTi, 10, out var font))
+                {
+                    _headerText = font;
+                }
+                return _headerText;
+            }
+        
+        }
+
+        public static Font _contentText = new Font("HarmonyOS Sans SC", 8, FontStyle.Regular);//中文字体
+
+        /// <summary>
+        /// 内容文本
+        /// </summary>
+        public static Font ContentText
+        {
+            get
+            {
+
+                if (FontLoader.TryLoadFontFromBytes("HarmonyOS Sans SC", Resources.AlimamaShuHeiTi, 9, out var font))
+                {
+                    _contentText = font;
+                }
+                return _contentText;
+            }
+
+        }
+
         #endregion
 
         /// <summary>

@@ -1,8 +1,10 @@
 ﻿using AntdUI;
+using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.Charts;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.Properties;
 using System.Runtime.InteropServices;
 using static StarResonanceDpsAnalysis.Forms.DpsStatisticsForm;
 
@@ -24,11 +26,32 @@ namespace StarResonanceDpsAnalysis.Control
         private const int SPLITTER_STEP_PIXELS = 30; // 每30像素触发一次调整
         private const int PADDING_ADJUSTMENT = 15;   // 每次调整PaddingRight的数值
 
+        private void SetDefaultFontFromResources()
+        {
+
+            TitleText.Font = AppConfig.TitleFont;
+            label1.Font = AppConfig.HeaderText;
+            label2.Font = label3.Font = label4.Font = AppConfig.ContentText;
+            if (FontLoader.TryLoadFontFromBytes("HarmonyOS Sans11", Resources.HarmonyOS_Sans, 11, out var font))
+            {
+                label3.Font = label9.Font = font;
+            }
+            if (FontLoader.TryLoadFontFromBytes("HarmonyOS Sans12", Resources.HarmonyOS_Sans, 11, out var ont))
+            {
+                NickNameText.Font = font;
+            }
+
+            BeatenLabel.Font = AvgDamageText.Font = LuckyDamageText.Font = LuckyTimesLabel.Font =  CritDamageText.Font = NormalDamageText.Font = NumberCriticalHitsLabel.Font = LuckyRate.Font = CritRateText.Font = NumberHitsLabel.Font = TotalDpsText.Font =  TotalDamageText.Font = AppConfig.DigitalFonts;
+            table_DpsDetailDataTable.Font = label13.Font = label14.Font = label1.Font = label2.Font = label4.Font = label5.Font = label6.Font = label7.Font = label8.Font= label9.Font =  label17.Font= NumberCriticalHitsText.Font= UidText.Font = PowerText.Font = segmented1.Font = collapse1.Font = AppConfig.ContentText;
+        }
+
         public SkillDetailForm()
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
-         
+            SetDefaultFontFromResources();
+
+
             ToggleTableView();
         }
 

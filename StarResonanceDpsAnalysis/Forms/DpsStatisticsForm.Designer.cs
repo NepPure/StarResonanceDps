@@ -84,11 +84,11 @@
             PilingModeCheckbox.AutoSizeMode = AntdUI.TAutoSize.Width;
             PilingModeCheckbox.BackColor = Color.Transparent;
             PilingModeCheckbox.Dock = DockStyle.Right;
-            PilingModeCheckbox.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            PilingModeCheckbox.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             PilingModeCheckbox.ForeColor = Color.White;
-            PilingModeCheckbox.Location = new Point(240, 0);
+            PilingModeCheckbox.Location = new Point(246, 0);
             PilingModeCheckbox.Name = "PilingModeCheckbox";
-            PilingModeCheckbox.Size = new Size(126, 35);
+            PilingModeCheckbox.Size = new Size(120, 35);
             PilingModeCheckbox.TabIndex = 17;
             PilingModeCheckbox.Text = "打桩模式";
             PilingModeCheckbox.Visible = false;
@@ -271,7 +271,7 @@
             Opacity = 0.85D;
             Radius = 3;
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "DpsStatistics";
+            Text = "别查我DPS";
             Load += DpsStatistics_Load;
             ForeColorChanged += DpsStatisticsForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);

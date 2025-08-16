@@ -23,6 +23,12 @@
     <Compile Update="Control\SortedProgressBarList.Function.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Control\SortedProgressBarList.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Control\TextProgressBar.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Control\TextProgressBar.Function.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -59,7 +65,7 @@
     <Compile Update="Forms\DetailsPreviewForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="Forms\DpsStatisticsForm.Function.cs">
+    <Compile Update="Forms\DetailsPreviewForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\DpsStatisticsForm.Function.cs">
@@ -72,9 +78,21 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\DpsStatisticsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\DpsStatisticsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\DpsStatisticsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\HistoricalBattlesForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\HistoricalRecordsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\MainForm.Function.cs">
@@ -113,7 +131,13 @@
     <Compile Update="Forms\RankingsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\RankingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SettingsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\SettingsForm.Function.cs">
@@ -147,6 +171,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\SkillDetailForm.Function.cs">

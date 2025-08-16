@@ -28,6 +28,8 @@ namespace StarResonanceDpsAnalysis.Forms
 
         public static SkillRotationMonitorForm skillRotationMonitorForm;//技能循环监控窗体
 
+        public static HistoricalBattlesForm historicalBattlesForm;//历史战绩窗体
+
         /// <summary>
         /// 统一设置透明度
         /// </summary>
