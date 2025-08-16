@@ -252,7 +252,7 @@
     <value>..\Assets\Fonts\HarmonyOS_Sans_SC_Regular.ttf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     <comment>HarmonyOS Sans</comment>
   </data>
-  <data name="SAOWelcomeTT-Regular" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="SAOWelcomeTT" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\Fonts\SAOWelcomeTT-Regular.ttf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     <comment>SAO Welcome TT</comment>
   </data>

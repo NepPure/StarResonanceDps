@@ -443,19 +443,19 @@ namespace StarResonanceDpsAnalysis.Plugin
         #endregion
 
         #region 构造函数
-        public SkillData(ulong skillId,string name, string icon, ulong damage, int hitCount, string critRate, string luckyRate, double share, double avgPerHit, double totalDps)
+        public SkillData(ulong skillId, string name, string icon, ulong damage, int hitCount, string critRate, string luckyRate, double share, double avgPerHit, double totalDps)
         {
             SkillId = skillId;
             Name = name;
             Icon = icon;
-            Damage = new CellText(damage.ToString()) { Font = AppConfig.DigitalFonts };
-            HitCount = new CellText(hitCount.ToString()) { Font = AppConfig.DigitalFonts };
-            CritRate = new CellText(critRate) { Font = AppConfig.DigitalFonts };
-            LuckyRate = new CellText(luckyRate) { Font = AppConfig.DigitalFonts };
+            Damage = new CellText(damage.ToString()) { Font = AppConfig.DigitalFont };
+            HitCount = new CellText(hitCount.ToString()) { Font = AppConfig.DigitalFont };
+            CritRate = new CellText(critRate) { Font = AppConfig.DigitalFont };
+            LuckyRate = new CellText(luckyRate) { Font = AppConfig.DigitalFont };
             Share = new CellProgress((float)share) { Fill = AppConfig.DpsColor, Size = new Size(200, 10) };
-            this.AvgPerHit = new CellText(avgPerHit.ToString()) { Font = AppConfig.DigitalFonts };
-            this.TotalDps = new CellText(totalDps.ToString()) { Font = AppConfig.DigitalFonts };
-            this.Percentage = new CellText(share.ToString()) { Font = AppConfig.DigitalFonts };
+            AvgPerHit = new CellText(avgPerHit.ToString()) { Font = AppConfig.DigitalFont };
+            TotalDps = new CellText(totalDps.ToString()) { Font = AppConfig.DigitalFont };
+            Percentage = new CellText(share.ToString()) { Font = AppConfig.DigitalFont };
 
         }
         #endregion
@@ -513,7 +513,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             set
             {
                 ulong val = (ulong)Math.Floor(double.Parse(value.Text));
-                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFonts };
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFont };
 
                 if (damage == formatted) return;
                 damage = formatted;
@@ -583,7 +583,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             set
             {
                 ulong val = (ulong)Math.Floor(double.Parse(value.Text));
-                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFonts };
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFont };
 
                 if (avgPerHit == formatted) return;
                 avgPerHit = formatted;
@@ -597,7 +597,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             set
             {
                 ulong val = (ulong)Math.Floor(double.Parse(value.Text));
-                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFonts };
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFont };
 
 
                 if (totalDps == formatted) return;
@@ -612,7 +612,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             set
             {
                 string percentStr = Math.Round(double.Parse(value.Text) * 100).ToString();
-                CellText formatted = new CellText(@$"{percentStr}%") { Font = AppConfig.DigitalFonts };
+                CellText formatted = new CellText(@$"{percentStr}%") { Font = AppConfig.DigitalFont };
                 if (percentage == formatted) return;
                 percentage = formatted;
                 OnPropertyChanged(nameof(Percentage));
@@ -634,7 +634,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         public static readonly object LeaderboardTableLock = new();
 
     }
-    public class LeaderboardTable: NotifyProperty
+    public class LeaderboardTable : NotifyProperty
     {
         #region 字段（私有存储）
         private string nickName;       // 玩家昵称
@@ -650,10 +650,10 @@ namespace StarResonanceDpsAnalysis.Plugin
         {
             NickName = nickName;
             Professional = professional;
-            CombatPower = new CellText(combatPower.ToString()) { Font = AppConfig.DigitalFonts };
-            TotalDamage = new CellText(totalDamage.ToString()) { Font = AppConfig.DigitalFonts };
-            InstantDps = new CellText(instantDps.ToString()) { Font = AppConfig.DigitalFonts };
-            MaxInstantDps = new CellText(maxInstantDps.ToString()) { Font = AppConfig.DigitalFonts };
+            CombatPower = new CellText(combatPower.ToString()) { Font = AppConfig.DigitalFont };
+            TotalDamage = new CellText(totalDamage.ToString()) { Font = AppConfig.DigitalFont };
+            InstantDps = new CellText(instantDps.ToString()) { Font = AppConfig.DigitalFont };
+            MaxInstantDps = new CellText(maxInstantDps.ToString()) { Font = AppConfig.DigitalFont };
         }
         #endregion
 
@@ -713,7 +713,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             set
             {
                 ulong val = (ulong)Math.Floor(double.Parse(value.Text));
-                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFonts };
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFont };
                 if (totalDamage == formatted) return;
                 totalDamage = formatted;
                 OnPropertyChanged(nameof(TotalDamage));
@@ -729,7 +729,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             set
             {
                 ulong val = (ulong)Math.Floor(double.Parse(value.Text));
-                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFonts };
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFont };
                 if (instantDps == formatted) return;
                 instantDps = formatted;
                 OnPropertyChanged(nameof(InstantDps));
@@ -745,14 +745,14 @@ namespace StarResonanceDpsAnalysis.Plugin
             set
             {
                 ulong val = (ulong)Math.Floor(double.Parse(value.Text));
-                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFonts };
-                if (maxInstantDps == formatted) return; 
+                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFont };
+                if (maxInstantDps == formatted) return;
                 maxInstantDps = formatted;
                 OnPropertyChanged(nameof(MaxInstantDps));
             }
         }
         #endregion
-    
+
 
 
 

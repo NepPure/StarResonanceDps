@@ -1,6 +1,7 @@
-﻿using ScottPlot.AxisLimitManagers;
-using StarResonanceDpsAnalysis.Control;
+﻿using System;
 using System.Runtime.InteropServices;
+
+using StarResonanceDpsAnalysis.Control;
 
 namespace StarResonanceDpsAnalysis.Forms
 {

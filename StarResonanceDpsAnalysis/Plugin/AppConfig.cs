@@ -24,86 +24,37 @@ namespace StarResonanceDpsAnalysis.Plugin
     {
 
         #region 字体
-        /// <summary>
-        /// # 分类：字体配置
-        /// 英文/数字使用的显示字体。默认字号 10，常规样式。
-        /// 注意：依赖本机是否安装字体“SAO Welcome TT”，缺失时系统会回退。
-        /// </summary>
-        public static Font _digitalFonts;//英文数字字体 = new Font("SAO Welcome TT", 9, FontStyle.Regular)
-
+        
         /// <summary>
         /// 数字或者单英文
         /// </summary>
-        public static Font DigitalFonts
+        public static Font DigitalFont
         {
-            get {
-
-                if (FontLoader.TryLoadFontFromBytes("SAOWelcomeTT", Resources.SAOWelcomeTT_Regular, 8, out var font))
-                {
-                    _digitalFonts = font;
-                }
-                return _digitalFonts; 
-            }
+            get => FontLoader.LoadFontFromBytesAndCache("SAO Welcome TT", Resources.SAOWelcomeTT, 8);
         }
-
-        public static Font _TitleFont;
 
         /// <summary>
         /// 标题SAO
         /// </summary>
         public static Font TitleFont
         {
-            get
-            {
-                if (FontLoader.TryLoadFontFromBytes("SAOWelcome", Resources.SAOWelcomeTT_Regular, 12, out var font))
-                {
-                    _TitleFont = font;
-                }
-                return _TitleFont;
-            }
+            get => FontLoader.LoadFontFromBytesAndCache("SAO Welcome TT", Resources.SAOWelcomeTT, 12);
         }
-
-        /// <summary>
-        /// # 分类：字体配置
-        /// 中文显示使用的加粗字体。默认字号 10，粗体。
-        /// 注意：依赖本机是否安装“阿里妈妈数黑体”，缺失时系统会回退。
-        /// </summary>
-        public static Font _headerText;
 
         /// <summary>
         /// 标题文本
         /// </summary>
-        public static Font HeaderText
+        public static Font HeaderFont
         {
-            get
-            {
-
-                if (FontLoader.TryLoadFontFromBytes("阿里妈妈数黑体", Resources.AlimamaShuHeiTi, 10, out var font))
-                {
-                    _headerText = font;
-                }
-                return _headerText;
-            }
-        
+            get => FontLoader.LoadFontFromBytesAndCache("阿里妈妈数黑体", Resources.AlimamaShuHeiTi, 10);
         }
 
-        public static Font _contentText = new Font("HarmonyOS Sans SC", 8, FontStyle.Regular);//中文字体
-
         /// <summary>
-        /// 内容文本
+        /// 内容字体
         /// </summary>
-        public static Font ContentText
+        public static Font ContentFont
         {
-            get
-            {
-
-                if (FontLoader.TryLoadFontFromBytes("HarmonyOS Sans SC", Resources.AlimamaShuHeiTi, 9, out var font))
-                {
-                    _contentText = font;
-                }
-                return _contentText;
-            }
-
+            get => FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 9);
         }
 
         #endregion
@@ -175,11 +126,11 @@ namespace StarResonanceDpsAnalysis.Plugin
         ///   用于 UI 或统计在战斗结束后延迟清除，避免过快闪烁。
         /// </summary>
         public static Color DpsColor = Color.FromArgb(0x22, 0x97, 0xF4);//进度条颜色
-        private static string _nickName = null;
-        private static string _profession = null;
+        private static string? _nickName = null;
+        private static string? _profession = null;
         private static ulong? _uid = null;//用户UID
-        private static int? _combatPower =null;//战斗力
-        public static int _combatTimeClearDelaySeconds =5;//战斗计时清除延迟
+        private static int? _combatPower = null;//战斗力
+        public static int? _combatTimeClearDelaySeconds;//战斗计时清除延迟
         public static int _clearPicture = 1;//是否过图清空记录
 
         /// <summary>
@@ -189,7 +140,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         {
             get
             {
-                if(_clearPicture == 0)
+                if (_clearPicture == 0)
                 {
                     var value = GetValue("SetUp", "ClearPicture", "1").ToInt();
                     _clearPicture = value;
@@ -207,7 +158,7 @@ namespace StarResonanceDpsAnalysis.Plugin
 
 
         public static bool NpcsTakeDamage = false;//NPC承伤
-        public static bool PilingMode =false;//打桩模式
+        public static bool PilingMode = false;//打桩模式
 
         public static string url = "http://127.0.0.1:8562";//服务器地址
 
@@ -220,7 +171,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                     var value = GetValue("SetUp", "CombatTimeClearDelaySeconds", "5").ToInt();
                     _combatTimeClearDelaySeconds = value;
                 }
-                return _combatTimeClearDelaySeconds;
+                return _combatTimeClearDelaySeconds.Value;
             }
             set
             {
@@ -236,9 +187,9 @@ namespace StarResonanceDpsAnalysis.Plugin
         {
             get
             {
-                if(_nickName==null)
+                if (_nickName == null)
                 {
-                    var value = GetValue("SetUp", "NickName",null);
+                    var value = GetValue("SetUp", "NickName", string.Empty);
                     _nickName = value;
                 }
                 return _nickName;
@@ -247,7 +198,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 SetValue("SetUp", "NickName", value);
                 _nickName = value;
-            
+
             }
         }
         /// <summary>
@@ -259,7 +210,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 if (_profession == null)
                 {
-                    var value = GetValue("SetUp", "Profession", null);
+                    var value = GetValue("SetUp", "Profession", string.Empty);
                     _profession = value;
                 }
                 return _profession;
@@ -280,8 +231,8 @@ namespace StarResonanceDpsAnalysis.Plugin
                 if (!_uid.HasValue)
                 {
                     var raw = GetValue("SetUp", "Uid", "0");
-                    if (!ulong.TryParse(raw, out var pared) ) pared = 0UL;
-                   
+                    if (!ulong.TryParse(raw, out var pared)) pared = 0UL;
+
                     _uid = pared;
                 }
                 return _uid!.Value;

@@ -268,9 +268,9 @@ namespace StarResonanceDpsAnalysis.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] SAOWelcomeTT_Regular {
+        internal static byte[] SAOWelcomeTT {
             get {
-                object obj = ResourceManager.GetObject("SAOWelcomeTT-Regular", resourceCulture);
+                object obj = ResourceManager.GetObject("SAOWelcomeTT", resourceCulture);
                 return ((byte[])(obj));
             }
         }

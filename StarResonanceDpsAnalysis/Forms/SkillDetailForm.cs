@@ -30,19 +30,36 @@ namespace StarResonanceDpsAnalysis.Control
         {
 
             TitleText.Font = AppConfig.TitleFont;
-            label1.Font = AppConfig.HeaderText;
-            label2.Font = label3.Font = label4.Font = AppConfig.ContentText;
-            if (FontLoader.TryLoadFontFromBytes("HarmonyOS Sans11", Resources.HarmonyOS_Sans, 11, out var font))
+            label1.Font = AppConfig.HeaderFont;
+            label2.Font = label3.Font = label4.Font = AppConfig.ContentFont;
+
+            var harmonyOsSansFont_Size11 = FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 11);
+            label3.Font = label9.Font = harmonyOsSansFont_Size11;
+
+            var harmonyOsSansFont_Size12 = FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 12);
+            NickNameText.Font = harmonyOsSansFont_Size12;
+
+            var digitalFontsControls = new List<System.Windows.Forms.Control>()
             {
-                label3.Font = label9.Font = font;
-            }
-            if (FontLoader.TryLoadFontFromBytes("HarmonyOS Sans12", Resources.HarmonyOS_Sans, 11, out var ont))
+                BeatenLabel, AvgDamageText, LuckyDamageText, LuckyTimesLabel,
+                CritDamageText, NormalDamageText, NumberCriticalHitsLabel, LuckyRate,
+                CritRateText, NumberHitsLabel, TotalDpsText, TotalDamageText
+            };
+            foreach (var c in digitalFontsControls)
             {
-                NickNameText.Font = font;
+                c.Font = AppConfig.DigitalFont;
             }
 
-            BeatenLabel.Font = AvgDamageText.Font = LuckyDamageText.Font = LuckyTimesLabel.Font =  CritDamageText.Font = NormalDamageText.Font = NumberCriticalHitsLabel.Font = LuckyRate.Font = CritRateText.Font = NumberHitsLabel.Font = TotalDpsText.Font =  TotalDamageText.Font = AppConfig.DigitalFonts;
-            table_DpsDetailDataTable.Font = label13.Font = label14.Font = label1.Font = label2.Font = label4.Font = label5.Font = label6.Font = label7.Font = label8.Font= label9.Font =  label17.Font= NumberCriticalHitsText.Font= UidText.Font = PowerText.Font = segmented1.Font = collapse1.Font = AppConfig.ContentText;
+            var contentFontControls = new List<System.Windows.Forms.Control>()
+            {
+                table_DpsDetailDataTable, label13, label14, label1, label2,
+                label4, label5, label6, label7, label8, label9, label17,
+                NumberCriticalHitsText, UidText, PowerText, segmented1, collapse1
+            };
+            foreach (var c in contentFontControls)
+            {
+                c.Font = AppConfig.ContentFont;
+            }
         }
 
         public SkillDetailForm()
@@ -439,7 +456,7 @@ namespace StarResonanceDpsAnalysis.Control
 
         // 建议放在类里（如果还没有）
         // using StarResonanceDpsAnalysis.Plugin.DamageStatistics; // 记得加 using
- 
+
 
         private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
         {
@@ -496,7 +513,7 @@ namespace StarResonanceDpsAnalysis.Control
 
 
 
-            object? resourceObj = Properties.Resources.ResourceManager.GetObject(profession+"10");
+            object? resourceObj = Properties.Resources.ResourceManager.GetObject(profession + "10");
 
             if (resourceObj is byte[] bytes)
             {
@@ -679,7 +696,7 @@ namespace StarResonanceDpsAnalysis.Control
                 }
                 else
                 {
-                   // Console.WriteLine($"[SKIP] 参数未变化，跳过更新");
+                    // Console.WriteLine($"[SKIP] 参数未变化，跳过更新");
                 }
             }
             else
