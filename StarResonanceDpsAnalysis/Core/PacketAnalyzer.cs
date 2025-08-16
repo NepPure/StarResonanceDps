@@ -11,6 +11,13 @@ namespace StarResonanceDpsAnalysis.Core
     public class PacketAnalyzer()
     {
         #region ====== 常量定义 ======
+        // === 超时与缺口处理 ===
+        private readonly TimeSpan IdleTimeout = TimeSpan.FromSeconds(10);  // 当前流超过 10s 无包 => 重置
+        private readonly TimeSpan GapTimeout = TimeSpan.FromSeconds(2);   // 等待缺口分片超过 2s => 强制对齐
+
+        private DateTime LastAnyPacketAt = DateTime.MinValue;  // 当前已识别流的“上次任何方向收到包”的时间
+        private DateTime? WaitingGapSince = null;              // 正在等待缺口的起始时间戳
+
 
         /// <summary>
         /// 服务器签名
@@ -88,6 +95,26 @@ namespace StarResonanceDpsAnalysis.Core
 
         #endregion
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ForceReconnect(string reason)
+        {
+            Console.WriteLine($"[PacketAnalyzer] Reconnect due to {reason} @ {DateTime.Now:HH:mm:ss}");
+            ResetCaptureState(); // 清空状态，让后续包重新走“识别服务器”的逻辑
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ForceResyncTo(uint seq)
+        {
+            Console.WriteLine($"[PacketAnalyzer] Resync to seq={seq}");
+            TcpCache.Clear();
+            TcpStream.Position = 0;
+            TcpStream.SetLength(0); // 完全丢弃当前未对齐的数据
+            TcpNextSeq = seq;       // 从这个分片开始重新累计
+            WaitingGapSince = null;
+            TcpLastTime = DateTime.Now;
+        }
+
+
         #region ========== Stage 1: 逐包解析入口 ==========
         // 统一的 TCP 序号比较（考虑 32 位回绕）
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -119,9 +146,23 @@ namespace StarResonanceDpsAnalysis.Core
 
                 // 构造当前包的源 -> 目的 IP 和端口的字符串，作为唯一标识
                 var srcServer = $"{ipv4Packet.SourceAddress}:{tcpPacket.SourcePort} -> {ipv4Packet.DestinationAddress}:{tcpPacket.DestinationPort}";
-
+                var revServer = $"{ipv4Packet.DestinationAddress}:{tcpPacket.DestinationPort} -> {ipv4Packet.SourceAddress}:{tcpPacket.SourcePort}";
+                var now = DateTime.Now;
                 lock (TcpLock)
                 {
+                    // === 已有流的空闲超时：长时间没看到该流任一方向的包，直接重置，允许重新识别服务器 ===
+                    if (!string.IsNullOrEmpty(CurrentServer))
+                    {
+                        if (CurrentServer == srcServer || CurrentServer == revServer)
+                            LastAnyPacketAt = now;
+
+                        if (LastAnyPacketAt != DateTime.MinValue && (now - LastAnyPacketAt) > IdleTimeout)
+                        {
+                            ForceReconnect("idle timeout (no packets for current flow)");
+                            // 继续往下走，让新包有机会被识别为新的服务器
+                        }
+                    }
+
                     if (CurrentServer != srcServer)
                     {
                         try
@@ -215,6 +256,7 @@ namespace StarResonanceDpsAnalysis.Core
                         return;
                     }
                     // 这里已经是识别到的服务器的包了
+
                     if (TcpNextSeq == null)
                     {
                         Console.WriteLine("Unexpected TCP capture error! tcp_next_seq is NULL");
@@ -223,7 +265,29 @@ namespace StarResonanceDpsAnalysis.Core
                             TcpNextSeq = tcpPacket.SequenceNumber;
                         }
                     }
-
+                    // === 缺口检测：新来的分片序号 > 期望序号，说明漏包了 ===
+                    if (TcpNextSeq != null)
+                    {
+                        int cmp = SeqCmp(tcpPacket.SequenceNumber, TcpNextSeq.Value);
+                        if (cmp > 0) // 前方缺口，等一小会
+                        {
+                            WaitingGapSince ??= now;
+                            if ((now - WaitingGapSince.Value) > GapTimeout)
+                            {
+                                // 超时依旧没等到缺失分片，直接从当前分片重新对齐
+                                ForceResyncTo(tcpPacket.SequenceNumber);
+                            }
+                        }
+                        else if (cmp == 0)
+                        {
+                            // 正常顺序到达，清除缺口等待
+                            WaitingGapSince = null;
+                        }
+                        else
+                        {
+                            // cmp < 0：旧/重复分片，按需忽略即可（无需额外动作）
+                        }
+                    }
                     // 缓存策略：只收“当前/未来”的段（避免重复旧段占用内存）
                     if (TcpNextSeq == null || SeqCmp(tcpPacket.SequenceNumber, TcpNextSeq.Value) >= 0)
                     {
@@ -233,12 +297,14 @@ namespace StarResonanceDpsAnalysis.Core
 
                     // 顺序拼接到一个临时缓冲（减少多次 ToArray）
                     using var messageMs = new MemoryStream(capacity: 4096);
+                  
 
                     while (TcpNextSeq != null && TcpCache.Remove(TcpNextSeq.Value, out var cachedTcpData))
                     {
                         messageMs.Write(cachedTcpData, 0, cachedTcpData.Length);
                         unchecked { TcpNextSeq += (uint)cachedTcpData.Length; }
-                        TcpLastTime = DateTime.Now;
+                        TcpLastTime = now;            // <== 更新“最后拼接时间”
+                        LastAnyPacketAt = now;        // <== 只要拼接成功，也认为流是活跃的
                     }
 
                     // 直接把本次拼好的字节“追加”到 TcpStream 末尾，避免 CopyTo 的中间拷贝
@@ -324,11 +390,13 @@ namespace StarResonanceDpsAnalysis.Core
 
                 TcpCache.Clear();
                 TcpCacheTime.Clear();
-
+             
                 // 如果上一轮流变得很大，直接丢弃换新更省内存
                 if (TcpStream.Capacity > 1 << 20)  // >1MB 就换新，阈值自定
                 {
-                    TcpStream.Dispose();
+                    // 清空并可选收缩容量，避免再次使用已Dispose的流
+                    TcpStream.Position = 0;
+                    TcpStream.SetLength(0);
                     // 如果需要 GetBuffer，确保用可公开缓冲的构造
                     typeof(MemoryStream)
                         .GetMethod("Dispose", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)?
@@ -339,6 +407,7 @@ namespace StarResonanceDpsAnalysis.Core
                     TcpStream.Position = 0;
                     TcpStream.SetLength(0);
                 }
+
             }
         }
 

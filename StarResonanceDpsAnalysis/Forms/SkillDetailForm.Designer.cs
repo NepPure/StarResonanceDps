@@ -112,7 +112,7 @@
             table_DpsDetailDataTable.Location = new Point(0, 0);
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
-            table_DpsDetailDataTable.Size = new Size(1264, 963);
+            table_DpsDetailDataTable.Size = new Size(1266, 963);
             table_DpsDetailDataTable.TabIndex = 14;
             table_DpsDetailDataTable.Text = "table1";
             // 
@@ -396,7 +396,7 @@
             panel2.Controls.Add(divider2);
             panel2.Controls.Add(label19);
             panel2.Dock = DockStyle.Right;
-            panel2.Location = new Point(647, 10);
+            panel2.Location = new Point(649, 10);
             panel2.Name = "panel2";
             panel2.Shadow = 6;
             panel2.Size = new Size(607, 234);
@@ -706,7 +706,7 @@
             // 
             splitter1.Panel2.Controls.Add(splitter2);
             splitter1.Size = new Size(1761, 1218);
-            splitter1.SplitterDistance = 491;
+            splitter1.SplitterDistance = 489;
             splitter1.SplitterWidth = 6;
             splitter1.TabIndex = 27;
             // 
@@ -721,7 +721,7 @@
             collapse1.Items.Add(collapseItem3);
             collapse1.Location = new Point(0, 0);
             collapse1.Name = "collapse1";
-            collapse1.Size = new Size(491, 1218);
+            collapse1.Size = new Size(489, 1218);
             collapse1.TabIndex = 28;
             collapse1.Text = "collapse1";
             // 
@@ -731,7 +731,7 @@
             collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
             collapseItem1.Location = new Point(27, 90);
             collapseItem1.Name = "collapseItem1";
-            collapseItem1.Size = new Size(437, 300);
+            collapseItem1.Size = new Size(435, 300);
             collapseItem1.TabIndex = 0;
             collapseItem1.Text = "Dps/Hps/DTps实时曲线图";
             // 
@@ -740,7 +740,7 @@
             collapseItem2.Expand = true;
             collapseItem2.Location = new Point(27, 501);
             collapseItem2.Name = "collapseItem2";
-            collapseItem2.Size = new Size(437, 300);
+            collapseItem2.Size = new Size(435, 300);
             collapseItem2.TabIndex = 1;
             collapseItem2.Text = "技能占比分布图";
             // 
@@ -750,7 +750,7 @@
             collapseItem3.Expand = true;
             collapseItem3.Location = new Point(27, 912);
             collapseItem3.Name = "collapseItem3";
-            collapseItem3.Size = new Size(437, 300);
+            collapseItem3.Size = new Size(435, 300);
             collapseItem3.TabIndex = 2;
             collapseItem3.Text = "伤害分布";
             // 
@@ -772,7 +772,7 @@
             // 
             splitter2.Panel2.Controls.Add(table_DpsDetailDataTable);
             splitter2.Panel2MinSize = 0;
-            splitter2.Size = new Size(1264, 1218);
+            splitter2.Size = new Size(1266, 1218);
             splitter2.SplitterDistance = 254;
             splitter2.SplitterWidth = 1;
             splitter2.TabIndex = 23;
@@ -793,7 +793,7 @@
             Name = "SkillDetailForm";
             Opacity = 0.95D;
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "SkillDetailForm";
+            Text = "技能详情";
             Load += SkillDetailForm_Load;
             ForeColorChanged += SkillDetailForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);

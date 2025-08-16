@@ -283,7 +283,7 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "RankingsForm";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "RankingsForm";
+            Text = "伤害参考";
             Load += RankingsForm_Load;
             ForeColorChanged += RankingsForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);

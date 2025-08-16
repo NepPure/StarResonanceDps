@@ -153,9 +153,10 @@ namespace StarResonanceDpsAnalysis.Forms
 
 
             // # 步骤 2：清空当前统计 —— 新会话前的干净状态
-            DpsTableDatas.DpsTable.Clear();
-            StatisticData._manager.ClearAll();
-            SkillTableDatas.SkillTable.Clear();
+
+            //StatisticData._manager.ClearAll();
+            //SkillTableDatas.SkillTable.Clear();
+            //ListClear();
 
             // # 步骤 3：图表历史与自动刷新 —— 开始新的战斗记录
             ChartVisualizationService.ClearAllHistory();
@@ -256,8 +257,7 @@ namespace StarResonanceDpsAnalysis.Forms
             }
             //DpsTableDatas.DpsTable.Clear();
           
-            StatisticData._manager.ClearAll();
-            SkillTableDatas.SkillTable.Clear();
+ 
      
                 ListClear();
             
@@ -280,6 +280,8 @@ namespace StarResonanceDpsAnalysis.Forms
             // # 清理与复位事件：清空 UI 进度条列表与缓存（线程安全）
             if (Interlocked.Exchange(ref _isClearing, 1) == 1) return; // 已在清空中
 
+            StatisticData._manager.ClearAll();
+            SkillTableDatas.SkillTable.Clear();
             try
             {
                 lock (_dataLock)
