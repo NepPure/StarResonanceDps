@@ -37,6 +37,7 @@ namespace StarResonanceDpsAnalysis.Forms
         /// <param name="opacity"></param>
         public static void FullFormTransparency(double opacity)
         {
+
             foreach (var form in new Form[]
             {
                 skillDiary,
@@ -48,8 +49,14 @@ namespace StarResonanceDpsAnalysis.Forms
                 skillRotationMonitorForm
             })
             {
-                if (form != null)
-                    form.Opacity = opacity;
+                try
+                {
+                    if (form != null)
+                        form.Opacity = opacity;
+                }
+                catch (Exception)
+                { }
+              
             }
         }
 

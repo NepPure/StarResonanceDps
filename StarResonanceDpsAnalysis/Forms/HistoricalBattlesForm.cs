@@ -1,4 +1,6 @@
 ﻿using AntdUI;
+using DocumentFormat.OpenXml.Wordprocessing;
+using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using System;
@@ -10,6 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static StarResonanceDpsAnalysis.Control.SkillDetailForm;
+using static System.ComponentModel.Design.ObjectSelectorEditor;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -20,29 +24,59 @@ namespace StarResonanceDpsAnalysis.Forms
             InitializeComponent();
             Text = FormManager.APP_NAME;
             FormGui.SetDefaultGUI(this); // 统一设置窗体默认 GUI 风格（字体、间距、阴影等）
+            ToggleTableView();
+
         }
 
         private void HistoricalBattlesForm_Load(object sender, EventArgs e)
         {
-            RefreshSnapshotCombo();
+            if (FormManager.showTotal)
+            {
+                ReadFullSessionTime();
+            }
+            else
+            {
+                ReadSnapshotTime();
+            }
+
+
+
         }
 
-        // ===== 1) 绑定到 ComboBox：把所有快照的时间放进去 =====
-        private sealed class SnapshotComboItem
+        /// <summary>
+        /// 读取 “单场历史（BattleSnapshot）” 下拉
+        /// </summary>
+        private void ReadSnapshotTime()
         {
-            public int Index { get; init; }
-            public DateTime StartedAt { get; init; }
-            public DateTime EndedAt { get; init; }
-            public TimeSpan Duration { get; init; }
-            public BattleSnapshot Snapshot { get; init; }
-
-            // 下拉显示的文字：08-16 17:20:05 ~ 17:33:41（00:13:36）
-            public string Display => $"{StartedAt:MM-dd HH:mm:ss} ~ {EndedAt:HH:mm:ss}（{Duration:hh\\:mm\\:ss}）";
-            public override string ToString() => Display; // 以防未设置 DisplayMember
+            select1.Items.Clear();
+            var statsList = StatisticData._manager.History?.ToList();
+            if (statsList.Count == 0) return;
+            foreach (var snap in statsList)
+            {
+                select1.Items.Add(new ComboItemBattle { Snapshot = snap }); // 直接把快照塞到项里
+            }
+            select1.SelectedIndex = 0; // 默认选中第一个
         }
 
-        // 放窗体里：给下拉项一个承载“参数”的类型
-        private sealed class ComboItem
+        /// <summary>
+        /// 读取 “全程历史（FullSessionSnapshot）” 下拉
+        /// </summary>
+        private void ReadFullSessionTime()
+        {
+            select1.Items.Clear();
+            var sessions = FullRecord.SessionHistory?.ToList();
+            if (sessions == null || sessions.Count == 0) return;
+
+            foreach (var s in sessions)
+            {
+                select1.Items.Add(new ComboItemFull { Snapshot = s });
+            }
+            select1.SelectedIndex = 0; // 默认选中第一个
+        }
+
+
+        // —— 下拉项类型（单场）
+        private sealed class ComboItemBattle
         {
             public BattleSnapshot Snapshot { get; init; }
             public override string ToString()
@@ -52,38 +86,258 @@ namespace StarResonanceDpsAnalysis.Forms
             }
         }
 
-        /// <summary>
-        /// 重新加载历史快照下拉框（可在窗体加载、拍完快照后调用）
-        /// </summary>
-        private void RefreshSnapshotCombo(bool selectLast = true)
+        // —— 下拉项类型（全程）
+        private sealed class ComboItemFull
         {
-            var history = StatisticData._manager.History?.ToList() ?? new List<BattleSnapshot>();
-
-         
-            select1.Items.Clear();
-
-            if (history.Count == 0)
+            public FullSessionSnapshot Snapshot { get; init; }
+            public override string ToString()
             {
-                select1.Items.Add("暂无记录");
-                select1.Enabled = false;
-                select1.SelectedIndex = 0;
-             
+                var s = Snapshot;
+                return $"[全程] {s.StartedAt:MM-dd HH:mm:ss} ~ {s.EndedAt:HH:mm:ss}（{s.Duration:hh\\:mm\\:ss}）";
+            }
+        }
+
+        private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
+        {
+            if (segmented1.SelectIndex == 0)
+            {
+                BattleSnapshot? snap = null;
+                if (select1.SelectedValue is ComboItemBattle v && v.Snapshot != null) snap = v.Snapshot;
+                else if (select1.SelectedValue is ComboItemBattle v2 && v2.Snapshot != null) snap = v2.Snapshot;
+
+                if (snap != null) DumpSnapshot(snap);
+            }
+            else
+            {
+                FullSessionSnapshot? snap = null;
+                if (select1.SelectedValue is ComboItemFull v && v.Snapshot != null) snap = v.Snapshot;
+                else if (select1.SelectedValue is ComboItemFull v2 && v2.Snapshot != null) snap = v2.Snapshot;
+
+                if (snap != null) DumpFullSnapshot(snap);
+            }
+        }
+
+        // 单场
+        private void DumpSnapshot(BattleSnapshot snap)
+        {
+            DpsTableDatas.DpsTable.Clear(); // 清空旧数据
+            var sb = new StringBuilder();
+            sb.AppendLine($"[快照] {snap.StartedAt:MM-dd HH:mm:ss} ~ {snap.EndedAt:HH:mm:ss}  时长: {snap.Duration}");
+            TeamTotalDamageLabel.Text = snap.TeamTotalDamage.ToString();
+            TeamTotalHealingLabel.Text = snap.TeamTotalHealing.ToString();
+            TeamTotalTakenDamageLabel.Text = snap.TeamTotalTakenDamage.ToString();
+
+            foreach (var p in snap.Players.Values)
+            {
+                DpsTableDatas.DpsTable.Add(new DpsTable(
+                   /*  1 */ p.Uid,
+            /*  2 */ p.Nickname,
+
+            /*  3 承伤（你实时里第3个就是承伤） */
+            /*  3 */ p.TakenDamage,
+
+            /*  4~9 = 治疗聚合 + 细分 + 瞬时窗口 */
+            /*  4 */ p.TotalHealing,
+
+            /*  5 */ p.HealingCritical,//暴击治疗量
+            /*  6 */ p.HealingLucky,//幸运治疗量
+            /*  7 */ p.HealingCritLucky,//暴击且幸运治疗量
+            /*  8 */ p.HealingRealtime,//实时HPS
+            /*  9 */ p.HealingRealtimeMax,//最大瞬时HPS
+
+            /* 10 职业 */
+            /* 10 */ p.Profession,//职业
+
+            /* 11~14 = 伤害聚合 + 细分 */
+            /* 11 */ p.TotalDamage,//总伤害
+            /* 12 */ p.CriticalDamage,//暴击伤害
+            /* 13 */ p.LuckyDamage,//幸运伤害
+            /* 14 */ p.CritLuckyDamage,
+
+            /* 15~16 = 比率（%）*/
+            /* 15 */ Math.Round(p.CritRate, 1),
+            /* 16 */ Math.Round(p.LuckyRate, 1),
+
+            /* 17~18 = 伤害瞬时/峰值 */
+            /* 17 */ p.RealtimeDps,//实时PDS
+            /* 18 */ p.RealtimeDpsMax,//最大瞬时DPS
+
+            /* 19~20 = 平均 DPS/HPS */
+            /* 19 */ Math.Round(p.TotalDps, 1),//总DPS
+            /* 20 */ Math.Round(p.TotalHps, 1),//总HPS
+                    p.CombatPower//战力
+
+
+                /* 22 = 战力 */
+                /* 22 */
+                ));
+                sb.AppendLine(
+                    $"  UID={p.Uid}  昵称={p.Nickname}  职业={p.Profession}  战力={p.CombatPower}  " +
+                    $"总伤害={p.TotalDamage}  DPS={p.TotalDps:F1}  总治疗={p.TotalHealing}  HPS={p.TotalHps:F1}  承伤={p.TakenDamage}");
+            }
+
+            Console.WriteLine(sb.ToString()); // 直接打印（WinForms 可在“输出”窗口看到）
+        }
+
+        // 全程
+        private void DumpFullSnapshot(FullSessionSnapshot snap)
+        {
+            DpsTableDatas.DpsTable.Clear(); // 清空旧数据
+            var sb = new StringBuilder();
+            sb.AppendLine($"[全程快照] {snap.StartedAt:MM-dd HH:mm:ss} ~ {snap.EndedAt:HH:mm:ss}  时长: {snap.Duration}");
+            TeamTotalDamageLabel.Text = snap.TeamTotalDamage.ToString();
+            TeamTotalHealingLabel.Text = snap.TeamTotalHealing.ToString();
+            TeamTotalTakenDamageLabel.Text = snap.TeamTotalTakenDamage.ToString();
+
+            foreach (var p in snap.Players.Values)
+            {
+                // 注意：全程快照的 SnapshotPlayer 未提供逐类（暴击/幸运/暴击且幸运）的总量与实时峰值；
+                // 这里这些列用 0 占位；DPS/HPS 使用快照内的 TotalDps/TotalHps。
+                DpsTableDatas.DpsTable.Add(new DpsTable(
+                    /*  1 */ p.Uid,
+                    /*  2 */ p.Nickname,
+
+                    /*  3 承伤 */
+                    /*  3 */ p.TakenDamage,
+
+                    /*  4~9 治疗相关（部分字段快照未提供 → 用 0 占位） */
+                    /*  4 */ p.TotalHealing,
+                    /*  5 */ p.HealingCritical,          // HealingCritical (未知)
+                    /*  6 */ p.HealingLucky,          // HealingLucky (未知)
+                    /*  7 */ p.HealingCritLucky,          // HealingCritLucky (未知)
+                    /*  8 */ p.HealingRealtime,          // RealtimeHps (未知)
+                    /*  9 */ p.HealingRealtimeMax,          // MaxInstantHps (未知)
+
+                    /* 10 职业 */
+                    /* 10 */ p.Profession,
+
+                    /* 11~14 伤害相关（部分字段快照未提供 → 用 0 占位） */
+                    /* 11 */ p.TotalDamage,
+                    /* 12 */ p.CriticalDamage,          // CriticalDamage (未知)
+                    /* 13 */ p.LuckyDamage,          // LuckyDamage (未知)
+                    /* 14 */ p.CriticalDamage,          // CritLuckyDamage (未知)
+
+                    /* 15~16 = 比率（%）（快照未提供玩家层聚合 → 用 0 占位） */
+                    /* 15 */ p.CritRate,          // CritRate
+                    /* 16 */ p.LuckyRate,          // LuckyRate
+
+                    /* 17~18 实时/峰值（全程历史快照无“实时”概念 → 用 0 占位） */
+                    /* 17 */ p.RealtimeDps,          // RealtimeDps
+                    /* 18 */ p.RealtimeDpsMax,          // RealtimeDpsMax
+
+                    /* 19~20 = 平均 DPS/HPS */
+                    /* 19 */ Math.Round(p.TotalDps, 1),
+                    /* 20 */ Math.Round(p.TotalHps, 1),
+
+                    /* 22 = 战力 */
+                    /* 22 */ p.CombatPower
+                ));
+
+                sb.AppendLine(
+                    $"  [全程] UID={p.Uid} 昵称={p.Nickname} 职业={p.Profession} 战力={p.CombatPower}  " +
+                    $"总伤害={p.TotalDamage} 全程DPS={p.TotalDps:F1}  总治疗={p.TotalHealing} 全程HPS={p.TotalHps:F1} 承伤={p.TakenDamage}");
+            }
+
+            Console.WriteLine(sb.ToString());
+        }
+
+        private void label1_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                FormManager.ReleaseCapture();
+                FormManager.SendMessage(this.Handle, FormManager.WM_NCLBUTTONDOWN, FormManager.HTCAPTION, 0);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (segmented1.SelectIndex == 0)
+            {
+                ReadSnapshotTime();//刷新下拉项
+            }
+            else
+            {
+                ReadFullSessionTime();//刷新全程下拉项
+            }
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void segmented1_SelectIndexChanged(object sender, IntEventArgs e)
+        {
+            DpsTableDatas.DpsTable.Clear(); // 清空旧数据
+            select1.Items.Clear();
+            if (segmented1.SelectIndex == 0)
+            {
+                ReadSnapshotTime();
+            }
+            else
+            {
+                ReadFullSessionTime();
+            }
+        }
+
+        private void table_DpsDetailDataTable_CellClick(object sender, TableClickEventArgs e)
+        {
+            if (e.ColumnIndex <= 0) return;
+
+            // —— 行索引安全校验（AntdUI 表通常是 0-based，这里不再减 1）——
+            int idx = e.RowIndex-1;
+            if (idx < 0 || idx >= DpsTableDatas.DpsTable.Count) return;
+
+            var row = DpsTableDatas.DpsTable[idx];
+            ulong uid = row.Uid;
+            string nick = row.NickName;
+            int power = row.CombatPower;
+            string prof = row.Profession;
+
+            // —— 详情窗体准备 —— 
+            if (FormManager.skillDetailForm == null || FormManager.skillDetailForm.IsDisposed)
+                FormManager.skillDetailForm = new SkillDetailForm();
+
+            var f = FormManager.skillDetailForm;
+            f.Uid = uid;
+            f.Nickname = nick;
+            f.Power = power;
+            f.Profession = prof;
+
+            // —— 快照上下文 + 时间 —— 
+            f.ContextType = DetailContextType.Snapshot;
+            f.SnapshotStartTime = GetSelectedSnapshotStartTime();
+            if (f.SnapshotStartTime is null)
+            {
+                // 可留着调试
+                // MessageBox.Show("未能取得快照时间（下拉未选中？）");
                 return;
             }
 
-            select1.Enabled = true;
-            foreach (var snap in history)
-            {
-                select1.Items.Add(new ComboItem { Snapshot = snap }); // 直接把快照塞到项里
-            }
+            // 顶部玩家信息
+            f.GetPlayerInfo(nick, power, prof);
 
-            // 选中最后一条（最新）
-            select1.SelectedIndex = selectLast ? select1.Items.Count - 1 : 0;
-            
+            // （可选）调试：看快照技能数量是否为 0，快速定位“取不到技能” vs “UI 没渲染”
+            /*
+            var counts = StarResonanceDpsAnalysis.Plugin.DamageStatistics.FullRecord
+                         .GetPlayerSkillsBySnapshotTimeEx(f.SnapshotStartTime.Value, uid);
+            MessageBox.Show($"Snapshot Skills → D:{counts.DamageSkills.Count} H:{counts.HealingSkills.Count} T:{counts.TakenSkills.Count}");
+            */
+
+            // 刷新并显示
+            f.SelectDataType();   // 这里应当会走 snapshot 分支：UpdateSkillTable_Snapshot(...)
+            if (!f.Visible) f.Show(); else f.Activate();
         }
-        private void HistoricalBattles()
-        {
 
+        private DateTime? GetSelectedSnapshotStartTime()
+        {
+            if (segmented1.SelectIndex == 0 && select1.SelectedValue is ComboItemBattle b && b.Snapshot != null)
+                return b.Snapshot.StartedAt;
+            if (segmented1.SelectIndex != 0 && select1.SelectedValue is ComboItemFull f && f.Snapshot != null)
+                return f.Snapshot.StartedAt;
+            return null;
         }
     }
 }

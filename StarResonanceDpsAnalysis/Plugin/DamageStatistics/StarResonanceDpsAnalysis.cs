@@ -394,6 +394,19 @@
         }
 
         /// <summary>
+        /// 清空快照
+        /// </summary>
+        public static void ClearSessionHistory()
+        {
+            lock (_sync)
+            {
+                _sessionHistory.Clear();
+            }
+        }
+
+
+
+        /// <summary>
         /// 重置当前会话：
         /// - 如有进行中的或已有数据的会话，先保存一次快照；
         /// - 清除当前会话累计与时间基；
@@ -416,9 +429,8 @@
                 // 2) 清【当前会话】累计（不动历史，除非显式要求清）
                 _players.Clear();
                 TeamRealtimeDps = 0;
-
                 // 3) 清时间基与录制状态
-                StartedAt = null;
+                StartedAt = DateTime.Now;   // 原来是 null
                 EndedAt = null;
                 IsRecording = true;
 
@@ -541,12 +553,18 @@
         private static void StopInternal(bool auto)
         {
             IsRecording = false;
-
-            // 结束时间 = 当前时刻（手动结束语义）
             EndedAt = DateTime.Now;
 
+            // 有任何有效数据才写历史
+            bool hasAnyData = _players.Values.Any(p =>
+                p.Damage.Total > 0 || p.Healing.Total > 0 || p.TakenDamage > 0);
+
+            if (!hasAnyData) return;            // <- 关键：没有数据就不入历史
+
             var snapshot = TakeSnapshot();
-            _sessionHistory.Add(snapshot);
+            // 也可以再加一道时长阈值
+            if (snapshot.Duration.TotalSeconds >= 1 || hasAnyData)
+                _sessionHistory.Add(snapshot);
         }
 
         // # 内部调用
@@ -744,7 +762,28 @@
                     ActiveSecondsHealing = p.Healing.ActiveSeconds,
                     DamageSkills = damageSkills,
                     HealingSkills = healingSkills,
-                    TakenSkills = takenSkills          // ★ 新增
+                    TakenSkills = takenSkills,          // ★ 新增
+                    // 在 FullRecord.TakeSnapshot 的 players[p.Uid] = new SnapshotPlayer { ... } 中补充：
+                    RealtimeDps = (ulong)Math.Round(p.RealtimeDpsDamage),
+
+                    // —— 伤害侧细分与比率 —— 
+                    CriticalDamage = p.Damage.Critical,
+                    LuckyDamage = p.Damage.Lucky,
+                    CritLuckyDamage = p.Damage.CritLucky,
+                    MaxSingleHit = p.Damage.MaxSingleHit,
+                    CritRate = p.Damage.CountTotal > 0 ? R2((double)p.Damage.CountCritical * 100.0 / p.Damage.CountTotal) : 0.0,
+                    LuckyRate = p.Damage.CountTotal > 0 ? R2((double)p.Damage.CountLucky * 100.0 / p.Damage.CountTotal) : 0.0,
+
+                    // —— 治疗侧细分与实时值 —— 
+                    HealingCritical = p.Healing.Critical,
+                    HealingLucky = p.Healing.Lucky,
+                    HealingCritLucky = p.Healing.CritLucky,
+                    HealingRealtime = (ulong)Math.Round(p.RealtimeDpsHealing),
+
+                    // （可选）如果你想给“最大瞬时”也来个近似，可用逐技能的 RealtimeDps 最大值做个 UI 友好兜底：
+                     RealtimeDpsMax     = (ulong)Math.Round(p.DamageSkills.Values.Select(s => s.RealtimeDps).DefaultIfEmpty(0).Max()),
+                     HealingRealtimeMax = (ulong)Math.Round(p.HealingSkills.Values.Select(s => s.RealtimeDps).DefaultIfEmpty(0).Max()),
+
                 };
             }
 
@@ -794,6 +833,46 @@
             if (secs <= 0) return 0;
             return _players.TryGetValue(uid, out var p) ? R2(p.Damage.Total / secs) : 0;
         }
+
+        // using StarResonanceDpsAnalysis.Plugin.DamageStatistics; // 确保命名空间可见
+
+        public static (IReadOnlyList<SkillSummary> DamageSkills,
+                      IReadOnlyList<SkillSummary> HealingSkills,
+                      IReadOnlyList<SkillSummary> TakenSkills)
+        GetPlayerSkillsBySnapshotTimeEx(DateTime snapshotStartTime, ulong uid, double toleranceSeconds = 2.0)
+        {
+            // —— 先查【全程历史】——
+            var session = SessionHistory?.FirstOrDefault(s =>
+                s.StartedAt == snapshotStartTime ||
+                Math.Abs((s.StartedAt - snapshotStartTime).TotalSeconds) <= toleranceSeconds);
+
+            if (session != null && session.Players != null &&
+                session.Players.TryGetValue(uid, out var sp1))
+            {
+                return (sp1.DamageSkills ?? new List<SkillSummary>(),
+                        sp1.HealingSkills ?? new List<SkillSummary>(),
+                        sp1.TakenSkills ?? new List<SkillSummary>());
+            }
+
+            // —— 再查【单场历史】——
+            var battles = StatisticData._manager.History;
+            var battle = battles?.FirstOrDefault(s =>
+                s.StartedAt == snapshotStartTime ||
+                Math.Abs((s.StartedAt - snapshotStartTime).TotalSeconds) <= toleranceSeconds);
+
+            if (battle != null && battle.Players != null &&
+                battle.Players.TryGetValue(uid, out var sp2))
+            {
+                return (sp2.DamageSkills ?? new List<SkillSummary>(),
+                        sp2.HealingSkills ?? new List<SkillSummary>(),
+                        sp2.TakenSkills ?? new List<SkillSummary>());
+            }
+
+            // —— 都没找到：返回空 —— 
+            return (Array.Empty<SkillSummary>(), Array.Empty<SkillSummary>(), Array.Empty<SkillSummary>());
+        }
+
+
 
         // ======================================================================
         // # 分类 11：快照时间检索（历史查询）

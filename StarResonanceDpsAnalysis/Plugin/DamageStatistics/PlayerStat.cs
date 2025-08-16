@@ -110,6 +110,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         #region 公开方法
 
+     
+
         /// <summary>
         /// 添加一条新的统计记录（伤害或治疗）。此方法是唯一写入口，负责推进所有派生统计。
         /// </summary>
@@ -868,6 +870,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         #endregion
 
+  
+
     }
 
     // ------------------------------------------------------------
@@ -1197,8 +1201,19 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="healing">治疗值。</param>
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
+        // PlayerDataManager 内 —— 只在“已由伤害/承伤开启战斗”后才纳入治疗
         public void AddHealing(ulong uid, ulong skillId, ulong healing, bool isCrit, bool isLucky)
-        => GetOrCreate(uid).AddHealing(skillId, healing, isCrit, isLucky);
+        {
+            // 1) 还没由伤害/承伤开启战斗，或者上一场已结束：忽略这次治疗（不纳入统计、也不写全程）
+            if (!_combatStart.HasValue || _combatEnd.HasValue)
+                return;
+
+            // 2) 战斗已开始：治疗计入，并刷新“最后活跃时间”，避免被空闲判定清场
+            _lastCombatActivity = DateTime.Now;
+
+            GetOrCreate(uid).AddHealing(skillId, healing, isCrit, isLucky);
+        }
+
 
 
         /// <summary>
@@ -1692,7 +1707,14 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                     LuckyDamage = dmg.Lucky,
                     CritLuckyDamage = dmg.CritLucky,
                     MaxSingleHit = dmg.MaxSingleHit,
-                    TakenSkills = takenSkills      // ★ 新增
+                    TakenSkills = takenSkills,      // ★ 新增
+
+                    HealingCritical = heal.Critical,
+                    HealingLucky = heal.Lucky,
+                    HealingCritLucky = heal.CritLucky,
+                    HealingRealtime = heal.RealtimeValue,
+                    HealingRealtimeMax = heal.RealtimeMax,
+                    RealtimeDpsMax = dmg.RealtimeMax,
 
                 };
 
@@ -1714,7 +1736,13 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             _history.Add(snapshot);
         }
 
-
+        /// <summary>
+        /// 清空所有历史快照（不影响当前战斗数据）
+        /// </summary>
+        public void ClearSnapshots()
+        {
+            _history.Clear();
+        }
         #endregion
     }
 
@@ -1819,8 +1847,54 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <summary>技能明细：承伤。</summary>
         public List<SkillSummary> TakenSkills { get; init; } = new();
 
+        /// <summary>
+        /// 伤害统计的“有效作战时长”（秒）。
+        /// 只在玩家产生伤害的区间累加；用于计算 TotalDps = TotalDamage / ActiveSecondsDamage。
+        /// </summary>
         public double ActiveSecondsDamage { get; init; }
+
+        /// <summary>
+        /// 治疗统计的“有效作战时长”（秒）。
+        /// 只在玩家产生治疗的区间累加；用于计算 TotalHps = TotalHealing / ActiveSecondsHealing。
+        /// </summary>
         public double ActiveSecondsHealing { get; init; }
+
+        /// <summary>
+        /// 全程累计的“暴击治疗”总量（单位：点）。
+        /// 由治疗事件聚合得到，仅计入暴击标记的治疗。
+        /// </summary>
+        public ulong HealingCritical { get; init; }
+
+        /// <summary>
+        /// 全程累计的“幸运治疗”总量（单位：点）。
+        /// 由治疗事件聚合得到，仅计入幸运标记的治疗。
+        /// </summary>
+        public ulong HealingLucky { get; init; }
+
+        /// <summary>
+        /// 全程累计的“暴击且幸运治疗”总量（单位：点）。
+        /// 同时满足暴击与幸运标记的治疗量聚合。
+        /// </summary>
+        public ulong HealingCritLucky { get; init; }
+
+        /// <summary>
+        /// 实时治疗量（HPS，单位：点/秒）。
+        /// 通常取最近 1 秒或 N 秒滑动窗口的瞬时值；全程快照若不记录实时指标，可为 0。
+        /// </summary>
+        public ulong HealingRealtime { get; init; }
+
+        /// <summary>
+        /// 会话内观测到的治疗实时峰值（HPS，单位：点/秒）。
+        /// 取实时窗口的最大值；全程快照若不记录实时指标，可为 0。
+        /// </summary>
+        public ulong HealingRealtimeMax { get; init; }
+
+        /// <summary>
+        /// 会话内观测到的伤害实时峰值（DPS，单位：点/秒）。
+        /// 取实时窗口的最大值；全程快照若不记录实时指标，可为 0。
+        /// </summary>
+        public ulong RealtimeDpsMax { get; init; }
+
 
     }
 

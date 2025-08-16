@@ -11,6 +11,14 @@ namespace StarResonanceDpsAnalysis.Control
 {
     public partial class SkillDetailForm : BorderlessForm
     {
+
+        // 新增：上下文类型（默认保持你原来的行为 = 当前战斗）
+        public DetailContextType ContextType { get; set; } = DetailContextType.Current;
+
+        // 新增：快照模式下的起始时间（用 StartedAt 精确定位快照）
+        public DateTime? SnapshotStartTime { get; set; } = null;
+
+
         // 添加折线图成员变量
         private FlatLineChart _dpsTrendChart;
         // 添加条形图和饼图成员变量
@@ -53,7 +61,8 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 table_DpsDetailDataTable, label13, label14, label1, label2,
                 label4, label5, label6, label7, label8, label9, label17,
-                NumberCriticalHitsText, UidText, PowerText, segmented1, collapse1
+                NumberCriticalHitsText, UidText, PowerText, segmented1, collapse1,
+                label10
             };
             foreach (var c in contentFontControls)
             {

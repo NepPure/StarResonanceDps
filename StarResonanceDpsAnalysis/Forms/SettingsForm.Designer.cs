@@ -293,8 +293,9 @@
             // 
             // input5
             // 
+            input5.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             input5.Font = new Font("HarmonyOS Sans SC", 9F);
-            input5.Location = new Point(375, 198);
+            input5.Location = new Point(742, 112);
             input5.Name = "input5";
             input5.PrefixText = "清空历史键位：";
             input5.Radius = 3;
@@ -305,8 +306,9 @@
             // 
             // input4
             // 
+            input4.Anchor = AnchorStyles.Top;
             input4.Font = new Font("HarmonyOS Sans SC", 9F);
-            input4.Location = new Point(36, 198);
+            input4.Location = new Point(386, 112);
             input4.Name = "input4";
             input4.PrefixText = "清空数据键位：";
             input4.Radius = 3;
@@ -318,25 +320,27 @@
             // input3
             // 
             input3.Font = new Font("HarmonyOS Sans SC", 9F);
-            input3.Location = new Point(714, 112);
+            input3.Location = new Point(468, 198);
             input3.Name = "input3";
             input3.PrefixText = "开关键位：";
             input3.Radius = 3;
             input3.ReadOnly = true;
             input3.Size = new Size(220, 65);
             input3.TabIndex = 40;
+            input3.Visible = false;
             input3.PreviewKeyDown += input3_PreviewKeyDown;
             // 
             // input2
             // 
             input2.Font = new Font("HarmonyOS Sans SC", 9F);
-            input2.Location = new Point(375, 112);
+            input2.Location = new Point(713, 198);
             input2.Name = "input2";
             input2.PrefixText = "窗体透明键位：";
             input2.Radius = 3;
             input2.ReadOnly = true;
             input2.Size = new Size(220, 65);
             input2.TabIndex = 39;
+            input2.Visible = false;
             input2.PreviewKeyDown += input2_PreviewKeyDown;
             // 
             // input1

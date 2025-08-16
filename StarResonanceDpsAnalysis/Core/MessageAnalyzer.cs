@@ -12,14 +12,26 @@ using StarResonanceDpsAnalysis.Plugin.Database; // 数据库同步
 
 namespace StarResonanceDpsAnalysis.Core
 {
+    /// <summary>
+    /// 消息解析器
+    /// 负责处理从游戏抓包获得的TCP数据，包括解压缩、Protobuf解析、数据同步、伤害统计等。
+    /// </summary>
     public class MessageAnalyzer
     {
+        /// <summary>
+        /// 顶层消息类型处理器
+        /// Key = 消息类型ID (低15位)
+        /// Value = 对应的解析方法
+        /// </summary>
         private static readonly Dictionary<int, Action<ByteReader, bool>> MessageHandlers = new()
         {
-            { 2, ProcessNotifyMsg },   // MessageType.Notify
-            { 6, ProcessFrameDown }    // MessageType.FrameDown
+            { 2, ProcessNotifyMsg },   // 通知消息
+            { 6, ProcessFrameDown }    // 帧下行消息
         };
 
+        /// <summary>
+        /// 主入口：处理一批TCP数据包
+        /// </summary>
         public static void Process(byte[] packets)
         {
             try
@@ -27,22 +39,25 @@ namespace StarResonanceDpsAnalysis.Core
                 var packetsReader = new ByteReader(packets);
                 while (packetsReader.Remaining > 0)
                 {
+                    // 包头长度检查
                     if (!packetsReader.TryPeekUInt32BE(out uint packetSize)) break;
-                    if (packetSize < 6) break;
-                    if (packetSize > packetsReader.Remaining) break;
+                    if (packetSize < 6) break;                           // 小于最小长度，不合法
+                    if (packetSize > packetsReader.Remaining) break;     // 不完整，等待下个包
 
+                    // 按长度截取出一个完整包
                     var packetReader = new ByteReader(packetsReader.ReadBytes((int)packetSize));
                     uint sizeAgain = packetReader.ReadUInt32BE();
-                    if (sizeAgain != packetSize) continue;
+                    if (sizeAgain != packetSize) continue; // 长度不一致，丢弃
 
+                    // 读取消息类型
                     var packetType = packetReader.ReadUInt16BE();
-                    var isZstdCompressed = (packetType & 0x8000) != 0; // bit15
-                    var msgTypeId = packetType & 0x7FFF;                // 低15位
+                    var isZstdCompressed = (packetType & 0x8000) != 0; // 高位bit15表示是否压缩
+                    var msgTypeId = packetType & 0x7FFF;                // 低15位是真实类型
 
+                    // 分发到对应处理方法
                     if (!MessageHandlers.TryGetValue(msgTypeId, out var handler))
                     {
-                        // 未识别类型：跳过本包，继续后续解析
-                        continue;
+                        continue; // 未识别的类型，跳过
                     }
                     handler(packetReader, isZstdCompressed);
                 }
@@ -50,6 +65,10 @@ namespace StarResonanceDpsAnalysis.Core
             catch { }
         }
 
+        /// <summary>
+        /// 玩家属性类型定义
+        /// 用于 SyncNearEntities 消息中的属性ID解析
+        /// </summary>
         public enum AttrType
         {
             AttrName = 0x01,
@@ -67,21 +86,29 @@ namespace StarResonanceDpsAnalysis.Core
             AttrEnergyFlag = 0x543CD3C6
         }
 
+        /// <summary>
+        /// Notify 消息内部方法表
+        /// Key = methodId
+        /// Value = 对应的处理方法
+        /// </summary>
         private static readonly Dictionary<uint, Action<byte[]>> ProcessMethods = new()
         {
-            { 0x00000006U, ProcessSyncNearEntities },        // SyncNearEntities
-            { 0x00000015U, ProcessSyncContainerData },       // SyncContainerData
-            { 0x00000016U, ProcessSyncContainerDirtyData },  // SyncContainerDirtyData
-            { 0x0000002EU, ProcessSyncToMeDeltaInfo },       // SyncToMeDeltaInfo
-            { 0x0000002DU, ProcessSyncNearDeltaInfo }        // SyncNearDeltaInfo
+            { 0x00000006U, ProcessSyncNearEntities },        // 同步周边玩家实体
+            { 0x00000015U, ProcessSyncContainerData },       // 同步自身完整容器数据
+            { 0x00000016U, ProcessSyncContainerDirtyData },  // 同步自身部分更新（脏数据）
+            { 0x0000002EU, ProcessSyncToMeDeltaInfo },       // 同步自己受到的增量伤害
+            { 0x0000002DU, ProcessSyncNearDeltaInfo }        // 同步周边增量伤害
         };
 
+        /// <summary>
+        /// 处理 Notify 消息（带 serviceUuid 和 methodId 的 RPC）
+        /// </summary>
         public static void ProcessNotifyMsg(ByteReader packet, bool isZstdCompressed)
         {
-            var serviceUuid = packet.ReadUInt64BE();
-            _ = packet.ReadUInt32BE(); // stubId
-            var methodId = packet.ReadUInt32BE();
-            if (serviceUuid != 0x0000000063335342UL) return;
+            var serviceUuid = packet.ReadUInt64BE(); // 服务UUID
+            _ = packet.ReadUInt32BE(); // stubId (暂时不用)
+            var methodId = packet.ReadUInt32BE(); // 方法ID
+            if (serviceUuid != 0x0000000063335342UL) return; // 非战斗相关，忽略
 
             byte[] msgPayload = packet.ReadRemaining();
             if (isZstdCompressed) msgPayload = DecompressZstdIfNeeded(msgPayload);
@@ -90,18 +117,27 @@ namespace StarResonanceDpsAnalysis.Core
             processMethod(msgPayload);
         }
 
+        /// <summary>
+        /// 处理 FrameDown 消息（嵌套内部数据包）
+        /// </summary>
         public static void ProcessFrameDown(ByteReader reader, bool isZstdCompressed)
         {
             _ = reader.ReadUInt32BE(); // serverSequenceId
             if (reader.Remaining == 0) return;
+
             var nestedPacket = reader.ReadRemaining();
             if (isZstdCompressed) nestedPacket = DecompressZstdIfNeeded(nestedPacket);
-            Process(nestedPacket);
+            Process(nestedPacket); // 递归解析内部消息
         }
 
+        #region Zstd 解压逻辑
         private static readonly uint ZSTD_MAGIC = 0xFD2FB528;
         private static readonly uint SKIPPABLE_MAGIC_MIN = 0x184D2A50;
         private static readonly uint SKIPPABLE_MAGIC_MAX = 0x184D2A5F;
+
+        /// <summary>
+        /// 如果数据包含Zstd帧则解压缩，否则原样返回
+        /// </summary>
         private static byte[] DecompressZstdIfNeeded(byte[] buffer)
         {
             if (buffer == null || buffer.Length < 4) return Array.Empty<byte>();
@@ -112,9 +148,9 @@ namespace StarResonanceDpsAnalysis.Core
                 if (magic == ZSTD_MAGIC) break;
                 if (magic >= SKIPPABLE_MAGIC_MIN && magic <= SKIPPABLE_MAGIC_MAX)
                 {
-                    if (off + 8 > buffer.Length) throw new InvalidDataException("Incomplete skippable frame header");
+                    if (off + 8 > buffer.Length) throw new InvalidDataException("不完整的skippable帧头");
                     uint size = BitConverter.ToUInt32(buffer, off + 4);
-                    if (off + 8 + size > buffer.Length) throw new InvalidDataException("Incomplete skippable frame payload");
+                    if (off + 8 + size > buffer.Length) throw new InvalidDataException("不完整的skippable帧数据");
                     off += 8 + (int)size;
                     continue;
                 }
@@ -126,19 +162,23 @@ namespace StarResonanceDpsAnalysis.Core
             using var decoder = new DecompressionStream(input);
             using var output = new MemoryStream();
 
-            const long MAX_OUT = 32L * 1024 * 1024;
+            const long MAX_OUT = 32L * 1024 * 1024; // 最大解压32MB
             var temp = new byte[8192];
             long total = 0;
             int read;
             while ((read = decoder.Read(temp, 0, temp.Length)) > 0)
             {
                 total += read;
-                if (total > MAX_OUT) throw new InvalidDataException("Zstd frame exceeds safety limit");
+                if (total > MAX_OUT) throw new InvalidDataException("解压结果超过32MB限制");
                 output.Write(temp, 0, read);
             }
             return output.ToArray();
         }
+        #endregion
 
+        /// <summary>
+        /// 同步周边实体（主要是玩家）的数据：昵称、职业、战力等
+        /// </summary>
         public static void ProcessSyncNearEntities(byte[] payloadBuffer)
         {
             var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
@@ -147,9 +187,10 @@ namespace StarResonanceDpsAnalysis.Core
             foreach (var entity in syncNearEntities.Appear)
             {
                 if (entity.EntType != EEntityType.EntChar) continue;
-                ulong playerUid = Shr16((ulong)entity.Uuid);
+                ulong playerUid = Shr16((ulong)entity.Uuid); // 提取UID
                 if (playerUid == 0) continue;
 
+                // 如果数据库里没有缓存，尝试同步
                 PlayerDbSyncService.TryFillFromDbOnce(playerUid);
 
                 var attrCollection = entity.Attrs;
@@ -210,6 +251,9 @@ namespace StarResonanceDpsAnalysis.Core
             }
         }
 
+        /// <summary>
+        /// 同步周边增量伤害（范围内其他角色的技能/伤害）
+        /// </summary>
         public static void ProcessSyncNearDeltaInfo(byte[] payloadBuffer)
         {
             var syncNearDeltaInfo = SyncNearDeltaInfo.Parser.ParseFrom(payloadBuffer);
@@ -217,8 +261,14 @@ namespace StarResonanceDpsAnalysis.Core
             foreach (var aoiSyncDelta in syncNearDeltaInfo.DeltaInfos) ProcessAoiSyncDelta(aoiSyncDelta);
         }
 
+        /// <summary>
+        /// 判断昵称/职业等字符串是否未知
+        /// </summary>
         private static bool IsUnknownString(string? s) => string.IsNullOrWhiteSpace(s) || s == "未知" || s == "未知昵称" || s == "未知职业" || s == "Unknown";
 
+        /// <summary>
+        /// 处理一条技能伤害/治疗记录
+        /// </summary>
         public static void ProcessAoiSyncDelta(AoiSyncDelta delta)
         {
             if (delta == null) return;
@@ -240,6 +290,7 @@ namespace StarResonanceDpsAnalysis.Core
                 bool isAttackerPlayer = IsUuidPlayerRaw(attackerRaw);
                 ulong attackerUuid = Shr16(attackerRaw);
 
+                // 检查是否缺少基本信息，如果缺少则尝试补充
                 if (isAttackerPlayer && attackerUuid != 0)
                 {
                     var info = StatisticData._manager.GetPlayerBasicInfo(attackerUuid);
@@ -247,22 +298,26 @@ namespace StarResonanceDpsAnalysis.Core
                         PlayerDbSyncService.TryFillFromDbOnce(attackerUuid);
                 }
 
+                // 伤害数值
                 long damageSigned = d.HasValue ? d.Value : (d.HasLuckyValue ? d.LuckyValue : 0L);
                 if (damageSigned == 0) continue;
                 ulong damage = (ulong)(damageSigned < 0 ? -damageSigned : damageSigned);
 
+                // 标志位
                 bool isCrit = d.TypeFlag != null && ((d.TypeFlag & 1) == 1);
                 bool isHeal = d.Type == EDamageType.Heal;
                 var luckyValue = d.LuckyValue;
                 bool isLucky = luckyValue != null && luckyValue != 0;
                 ulong hpLessen = d.HasHpLessenValue ? (ulong)d.HpLessenValue : 0UL;
 
+                // 打桩模式（只统计自己对特定目标的伤害）
                 if (AppConfig.PilingMode)
                 {
                     if (attackerUuid != AppConfig.Uid) continue;
                     if (targetUuid != 75) continue;
                 }
 
+                // 区分目标是否是玩家
                 if (isTargetPlayer)
                 {
                     if (isHeal)
@@ -289,7 +344,14 @@ namespace StarResonanceDpsAnalysis.Core
             }
         }
 
+        /// <summary>
+        /// 当前用户UUID
+        /// </summary>
         public static long currentUserUuid = 0;
+
+        /// <summary>
+        /// 同步自身增量伤害
+        /// </summary>
         public static void ProcessSyncToMeDeltaInfo(byte[] payloadBuffer)
         {
             var syncToMeDeltaInfo = SyncToMeDeltaInfo.Parser.ParseFrom(payloadBuffer);
@@ -305,6 +367,9 @@ namespace StarResonanceDpsAnalysis.Core
             ProcessAoiSyncDelta(aoiSyncDelta);
         }
 
+        /// <summary>
+        /// 同步自身完整容器数据（基础属性、昵称、职业、战力）
+        /// </summary>
         public static void ProcessSyncContainerData(byte[] payloadBuffer)
         {
             var syncContainerData = SyncContainerData.Parser.ParseFrom(payloadBuffer);
@@ -354,6 +419,9 @@ namespace StarResonanceDpsAnalysis.Core
             if (updated) Task.Run(() => PlayerDbSyncService.UpsertCurrentAsync(playerUid));
         }
 
+        /// <summary>
+        /// 同步自身部分更新（脏数据）
+        /// </summary>
         public static void ProcessSyncContainerDirtyData(byte[] payloadBuffer)
         {
             try
@@ -376,80 +444,80 @@ namespace StarResonanceDpsAnalysis.Core
 
                 switch (fieldIndex)
                 {
-                    case 2:
-                    {
-                        if (!DoesStreamHaveIdentifier(br)) break;
-                        fieldIndex = br.ReadUInt32();
-                        _ = br.ReadInt32();
-                        switch (fieldIndex)
+                    case 2: // 名字和战力
                         {
-                            case 5:
-                            {
-                                string playerName = StreamReadString(br);
-                                if (!string.IsNullOrEmpty(playerName))
-                                {
-                                    StatisticData._manager.SetNickname(playerUid, playerName);
-                                    AppConfig.NickName = playerName;
-                                    updated = true;
-                                }
-                                break;
-                            }
-                            case 35:
-                            {
-                                uint fightPoint = br.ReadUInt32();
-                                _ = br.ReadInt32();
-                                if (fightPoint != 0)
-                                {
-                                    StatisticData._manager.SetCombatPower(playerUid, (int)fightPoint);
-                                    AppConfig.CombatPower = (int)fightPoint;
-                                    updated = true;
-                                }
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                    case 16:
-                    {
-                        if (!DoesStreamHaveIdentifier(br)) break;
-                        fieldIndex = br.ReadUInt32();
-                        _ = br.ReadInt32();
-                        switch (fieldIndex)
-                        {
-                            case 1:
-                            {
-                                uint curHp = br.ReadUInt32();
-                                StatisticData._manager.SetAttrKV(playerUid, "hp", (int)curHp);
-                                break;
-                            }
-                            case 2:
-                            {
-                                uint maxHp = br.ReadUInt32();
-                                StatisticData._manager.SetAttrKV(playerUid, "max_hp", (int)maxHp);
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                    case 61:
-                    {
-                        if (!DoesStreamHaveIdentifier(br)) break;
-                        fieldIndex = br.ReadUInt32();
-                        _ = br.ReadInt32();
-                        if (fieldIndex == 1)
-                        {
-                            uint curProfessionId = br.ReadUInt32();
+                            if (!DoesStreamHaveIdentifier(br)) break;
+                            fieldIndex = br.ReadUInt32();
                             _ = br.ReadInt32();
-                            if (curProfessionId != 0)
+                            switch (fieldIndex)
                             {
-                                var professionName = GetProfessionNameFromId((int)curProfessionId);
-                                AppConfig.Profession = professionName;
-                                StatisticData._manager.SetProfession(playerUid, professionName);
-                                updated = true;
+                                case 5: // 名字
+                                    {
+                                        string playerName = StreamReadString(br);
+                                        if (!string.IsNullOrEmpty(playerName))
+                                        {
+                                            StatisticData._manager.SetNickname(playerUid, playerName);
+                                            AppConfig.NickName = playerName;
+                                            updated = true;
+                                        }
+                                        break;
+                                    }
+                                case 35: // 战力
+                                    {
+                                        uint fightPoint = br.ReadUInt32();
+                                        _ = br.ReadInt32();
+                                        if (fightPoint != 0)
+                                        {
+                                            StatisticData._manager.SetCombatPower(playerUid, (int)fightPoint);
+                                            AppConfig.CombatPower = (int)fightPoint;
+                                            updated = true;
+                                        }
+                                        break;
+                                    }
                             }
+                            break;
                         }
-                        break;
-                    }
+                    case 16: // HP
+                        {
+                            if (!DoesStreamHaveIdentifier(br)) break;
+                            fieldIndex = br.ReadUInt32();
+                            _ = br.ReadInt32();
+                            switch (fieldIndex)
+                            {
+                                case 1: // 当前血量
+                                    {
+                                        uint curHp = br.ReadUInt32();
+                                        StatisticData._manager.SetAttrKV(playerUid, "hp", (int)curHp);
+                                        break;
+                                    }
+                                case 2: // 最大血量
+                                    {
+                                        uint maxHp = br.ReadUInt32();
+                                        StatisticData._manager.SetAttrKV(playerUid, "max_hp", (int)maxHp);
+                                        break;
+                                    }
+                            }
+                            break;
+                        }
+                    case 61: // 职业
+                        {
+                            if (!DoesStreamHaveIdentifier(br)) break;
+                            fieldIndex = br.ReadUInt32();
+                            _ = br.ReadInt32();
+                            if (fieldIndex == 1)
+                            {
+                                uint curProfessionId = br.ReadUInt32();
+                                _ = br.ReadInt32();
+                                if (curProfessionId != 0)
+                                {
+                                    var professionName = GetProfessionNameFromId((int)curProfessionId);
+                                    AppConfig.Profession = professionName;
+                                    StatisticData._manager.SetProfession(playerUid, professionName);
+                                    updated = true;
+                                }
+                            }
+                            break;
+                        }
                 }
 
                 if (updated) Task.Run(() => PlayerDbSyncService.UpsertCurrentAsync(playerUid));
@@ -457,6 +525,9 @@ namespace StarResonanceDpsAnalysis.Core
             catch { }
         }
 
+        /// <summary>
+        /// 判断数据流是否还有标识符
+        /// </summary>
         private static bool DoesStreamHaveIdentifier(BinaryReader br)
         {
             var s = br.BaseStream;
@@ -465,6 +536,9 @@ namespace StarResonanceDpsAnalysis.Core
             return true;
         }
 
+        /// <summary>
+        /// 从流中读取字符串（带4字节对齐）
+        /// </summary>
         private static string StreamReadString(BinaryReader br)
         {
             uint len = br.ReadUInt32();
@@ -476,21 +550,25 @@ namespace StarResonanceDpsAnalysis.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool IsUuidPlayerRaw(ulong uuidRaw) => (uuidRaw & 0xFFFFUL) == 640UL;
+        static bool IsUuidPlayerRaw(ulong uuidRaw) => (uuidRaw & 0xFFFFUL) == 640UL; // UUID低16位标识玩家
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static ulong Shr16(ulong v) => v >> 16;
+        static ulong Shr16(ulong v) => v >> 16; // 右移16位得到玩家UID
 
+        /// <summary>
+        /// 职业ID映射为职业名称
+        /// </summary>
         public static string GetProfessionNameFromId(int professionId) => professionId switch
         {
             1 => "雷影剑士",
             2 => "冰魔导师",
-            3 => "青岚骑士",
-            4 => "森语者",
-            5 => "巨刃守护者",
-            6 => "神射手",
-            7 => "神盾骑士",
+            4 => "青岚骑士",
+            5 => "森语者",
+            9 => "巨刃守护者",
+            11 => "神射手",
+            12 => "神盾骑士",
             8 => "灵魂乐手",
+            13 =>"灵魂乐手",
             _ => string.Empty,
         };
     }

@@ -453,7 +453,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
                     string totalFmt = Common.FormatWithEnglishUnits(p.Total);
                     string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
-
+                    if (p.Profession == "") continue;
                     var profBmp = imgDict[p.Profession];
 
                     if (!DictList.TryGetValue(p.Uid, out var data))

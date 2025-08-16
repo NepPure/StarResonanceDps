@@ -48,6 +48,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         private string instantHps;         // 实时 HPS
         private string maxInstantHps;      // 最大瞬时 HPS
         private string totalHps;           // 平均 HPS
+        
 
         /// <summary>
         /// 构造函数
@@ -74,7 +75,6 @@ namespace StarResonanceDpsAnalysis.Plugin
             ulong maxInstantDps,
             double totalDps,
             double totalHps,
-            CellProgress cellProgress = null,
             int combatPower = 0)
         {
             // —— 基础信息 ——

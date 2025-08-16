@@ -10,6 +10,8 @@ using System.Threading.Tasks; // 引用异步任务支持（Task/async/await）
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using static StarResonanceDpsAnalysis.Control.SkillDetailForm;
+using System.Security.Cryptography.Xml;
 
 namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代码所在位置
 { // 命名空间开始
@@ -32,6 +34,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         { 
             // 构造函数开始
             InitializeComponent(); // 初始化设计器生成的控件与布局
+            //开启默认置顶
+            TopMost = !TopMost; // 简化切换
+            button_AlwaysOnTop.Toggle = TopMost; // 同步按钮的视觉状态
 
             Text = FormManager.APP_NAME;
 
@@ -119,18 +124,33 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         // # 列表选择变更 → 打开技能详情
         private void sortedProgressBarList_SelectionChanged(ulong uid) // 列表项选择回调：传入选中玩家 UID
-        { // 方法开始
+        {  // 方法开始
             if (FormManager.skillDetailForm == null || FormManager.skillDetailForm.IsDisposed)
             {
                 FormManager.skillDetailForm = new SkillDetailForm(); // # 详情窗体：延迟创建
             }
             SkillTableDatas.SkillTable.Clear(); // # 清空旧详情数据（表格数据源重置）
 
+            // 基础信息
             FormManager.skillDetailForm.Uid = uid; // 将当前选中 UID 传递给详情窗体
             var info = StatisticData._manager.GetPlayerBasicInfo(uid); // # 查询玩家基础信息（昵称/战力/职业）
             FormManager.skillDetailForm.GetPlayerInfo(info.Nickname, info.CombatPower, info.Profession); // 将基础信息写入详情窗体
+
+            // ★ 关键：根据当前视图显式设定数据上下文，清掉快照时间，避免残留
+            if (FormManager.showTotal) // 你全程视图的全局开关；如果有自己的判定就换成你的
+            {
+                FormManager.skillDetailForm.ContextType = DetailContextType.FullRecord; // 全程
+                FormManager.skillDetailForm.SnapshotStartTime = null;
+            }
+            else
+            {
+                FormManager.skillDetailForm.ContextType = DetailContextType.Current;    // 单程（当前战斗）
+                FormManager.skillDetailForm.SnapshotStartTime = null;
+            }
+
+            // 刷新 & 显示
             FormManager.skillDetailForm.SelectDataType(); // # 按当前选择的“伤害/治疗/承伤”类型刷新详情
-            FormManager.skillDetailForm.Show(); // # 显示详情窗体（若已显示则置顶）
+            if (!FormManager.skillDetailForm.Visible) FormManager.skillDetailForm.Show(); else FormManager.skillDetailForm.Activate(); // # 显示/置顶
         } // 方法结束
 
         // # 顶部：置顶窗口按钮
@@ -232,6 +252,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
                     //new ContextMenuStripItem("统计排除"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
+                    new ContextMenuStripItem("伤害参考"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes }, // 一级菜单：打桩模式
                     new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, }, // 一级菜单：退出
              } // 数组结束
@@ -270,11 +291,18 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                             FormManager.skillRotationMonitorForm = new SkillRotationMonitorForm(); // 创建窗口
                         } // 条件结束
                         FormManager.skillRotationMonitorForm.Show(); // 显示窗口
-                        FormGui.SetColorMode(FormManager.skillRotationMonitorForm, AppConfig.IsLight); // 同步主题（明/暗）
+                        //FormGui.SetColorMode(FormManager.skillRotationMonitorForm, AppConfig.IsLight); // 同步主题（明/暗）
                         break; // 跳出 switch
                     case "数据显示设置": // 点击“数据显示设置”（当前仅保留占位）
                         //dataDisplay(); 
                         break; // 占位：后续实现
+                    case "伤害参考":
+                        if (FormManager.rankingsForm == null || FormManager.rankingsForm.IsDisposed) // 若监测窗体不存在或已释放
+                        { // 条件开始
+                            FormManager.rankingsForm = new RankingsForm(); // 创建窗口
+                        } // 条件结束
+                        FormManager.rankingsForm.Show(); // 显示窗口
+                        break;
                     case "统计排除": // 点击“统计排除”
                         break; // 占位：后续实现
                     case "打桩模式": // 点击“打桩模式”
@@ -445,19 +473,14 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         public void kbHook_OnKeyDownEvent(object? sender, KeyEventArgs e)
         {
             if (e.KeyData == AppConfig.MouseThroughKey) { HandleMouseThrough(); }
-            else if (e.KeyData == AppConfig.FormTransparencyKey) { HandleFormTransparency(); }
-            else if (e.KeyData == AppConfig.WindowToggleKey) { }
+            //else if (e.KeyData == AppConfig.FormTransparencyKey) { HandleFormTransparency(); }
+            //else if (e.KeyData == AppConfig.WindowToggleKey) { }
             else if (e.KeyData == AppConfig.ClearDataKey) { HandleClearData(); }
             else if (e.KeyData == AppConfig.ClearHistoryKey)
             {
-                ChartVisualizationService.StopAllChartsAutoRefresh();
-                try { FullRecord.Reset(false); } catch { }
-                ChartVisualizationService.FullResetAllCharts();
-                if (SelectedDevice != null)
-                {
-                    ChartVisualizationService.StartAllChartsAutoRefresh(ChartConfigManager.REFRESH_INTERVAL);
-                }
-                try { DpsStatisticsForm.RequestActiveViewRefresh(); } catch { }
+                StatisticData._manager.ClearSnapshots();//清空快照
+                StarResonanceDpsAnalysis.Plugin.DamageStatistics.FullRecord.ClearSessionHistory();//清空全程快照
+
             }
         }
 
@@ -465,15 +488,27 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         {
             if (!MousePenetrationHelper.IsPenetrating(this.Handle))
             {
-                MousePenetrationHelper.SetMousePenetrate(this, enable: true, alpha: 230);
-                Opacity = AppConfig.Transparency;
+                // 方案 O：AppConfig.Transparency 现在表示“不透明度百分比”
+                MousePenetrationHelper.SetMousePenetrate(this, enable: true, opacityPercent: AppConfig.Transparency);
             }
             else
             {
                 MousePenetrationHelper.SetMousePenetrate(this, enable: false);
-                Opacity = 1.0;
             }
         }
+
+        // 配置变化时实时刷新不透明度（不改变穿透开关）
+        private void ApplyOpacityFromConfig()
+        {
+            MousePenetrationHelper.UpdateOpacityPercent(this.Handle, AppConfig.Transparency);
+        }
+
+
+
+
+
+
+
 
         bool hyaline = false;
         private void HandleFormTransparency()

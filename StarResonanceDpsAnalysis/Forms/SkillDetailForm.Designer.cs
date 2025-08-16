@@ -83,6 +83,7 @@
             collapseItem2 = new AntdUI.CollapseItem();
             collapseItem3 = new AntdUI.CollapseItem();
             splitter2 = new AntdUI.Splitter();
+            label10 = new AntdUI.Label();
             pageHeader1.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
@@ -112,7 +113,7 @@
             table_DpsDetailDataTable.Location = new Point(0, 0);
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
-            table_DpsDetailDataTable.Size = new Size(1268, 963);
+            table_DpsDetailDataTable.Size = new Size(1270, 917);
             table_DpsDetailDataTable.TabIndex = 14;
             table_DpsDetailDataTable.Text = "table1";
             // 
@@ -396,7 +397,7 @@
             panel2.Controls.Add(divider2);
             panel2.Controls.Add(label19);
             panel2.Dock = DockStyle.Right;
-            panel2.Location = new Point(651, 10);
+            panel2.Location = new Point(653, 10);
             panel2.Name = "panel2";
             panel2.Shadow = 6;
             panel2.Size = new Size(607, 234);
@@ -706,7 +707,7 @@
             // 
             splitter1.Panel2.Controls.Add(splitter2);
             splitter1.Size = new Size(1761, 1218);
-            splitter1.SplitterDistance = 487;
+            splitter1.SplitterDistance = 485;
             splitter1.SplitterWidth = 6;
             splitter1.TabIndex = 27;
             // 
@@ -721,7 +722,7 @@
             collapse1.Items.Add(collapseItem3);
             collapse1.Location = new Point(0, 0);
             collapse1.Name = "collapse1";
-            collapse1.Size = new Size(487, 1218);
+            collapse1.Size = new Size(485, 1218);
             collapse1.TabIndex = 28;
             collapse1.Text = "collapse1";
             // 
@@ -729,18 +730,18 @@
             // 
             collapseItem1.Expand = true;
             collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
-            collapseItem1.Location = new Point(27, 90);
+            collapseItem1.Location = new Point(27, 87);
             collapseItem1.Name = "collapseItem1";
-            collapseItem1.Size = new Size(433, 300);
+            collapseItem1.Size = new Size(431, 300);
             collapseItem1.TabIndex = 0;
             collapseItem1.Text = "Dps/Hps/DTps实时曲线图";
             // 
             // collapseItem2
             // 
             collapseItem2.Expand = true;
-            collapseItem2.Location = new Point(27, 501);
+            collapseItem2.Location = new Point(27, 495);
             collapseItem2.Name = "collapseItem2";
-            collapseItem2.Size = new Size(433, 300);
+            collapseItem2.Size = new Size(431, 300);
             collapseItem2.TabIndex = 1;
             collapseItem2.Text = "技能占比分布图";
             // 
@@ -748,9 +749,9 @@
             // 
             collapseItem3.AutoScroll = true;
             collapseItem3.Expand = true;
-            collapseItem3.Location = new Point(27, 912);
+            collapseItem3.Location = new Point(27, 903);
             collapseItem3.Name = "collapseItem3";
-            collapseItem3.Size = new Size(433, 300);
+            collapseItem3.Size = new Size(431, 300);
             collapseItem3.TabIndex = 2;
             collapseItem3.Text = "伤害分布";
             // 
@@ -771,11 +772,25 @@
             // splitter2.Panel2
             // 
             splitter2.Panel2.Controls.Add(table_DpsDetailDataTable);
+            splitter2.Panel2.Controls.Add(label10);
             splitter2.Panel2MinSize = 0;
-            splitter2.Size = new Size(1268, 1218);
+            splitter2.Size = new Size(1270, 1218);
             splitter2.SplitterDistance = 254;
             splitter2.SplitterWidth = 1;
             splitter2.TabIndex = 23;
+            // 
+            // label10
+            // 
+            label10.BackColor = Color.Transparent;
+            label10.Dock = DockStyle.Bottom;
+            label10.Font = new Font("HarmonyOS Sans SC", 9F);
+            label10.Location = new Point(0, 917);
+            label10.Name = "label10";
+            label10.Prefix = "温馨提示：";
+            label10.Size = new Size(1270, 46);
+            label10.TabIndex = 25;
+            label10.Text = "快照模式下曲线图 占比图 分布图将失效";
+            label10.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // SkillDetailForm
             // 
@@ -866,5 +881,6 @@
         private AntdUI.Label BeatenLabel;
         private AntdUI.Label label13;
         private AntdUI.Splitter splitter2;
+        private AntdUI.Label label10;
     }
 }
