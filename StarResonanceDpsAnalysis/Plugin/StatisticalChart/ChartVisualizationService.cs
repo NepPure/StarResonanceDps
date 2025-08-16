@@ -4,11 +4,11 @@ using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 namespace StarResonanceDpsAnalysis.Plugin
 {
     /// <summary>
-    /// 图表配置管理器 - 统一管理所有图表配置和设置
+    /// 图表配置管理器 - 统一处理各类图表的默认设置
     /// </summary>
     public static class ChartConfigManager
     {
-        // 统一的默认设置常量
+        // 统一的默认常量
         public const string EMPTY_TEXT = "";
         public const bool HIDE_LEGEND = false;
         public const bool SHOW_GRID = true;
@@ -22,7 +22,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         public static readonly Font DefaultFont = new("微软雅黑", 10, FontStyle.Regular);
 
         /// <summary>
-        /// 统一应用图表基础设置
+        /// 统一应用图表默认配置
         /// </summary>
         public static T ApplySettings<T>(T chart) where T : UserControl
         {
@@ -90,13 +90,22 @@ namespace StarResonanceDpsAnalysis.Plugin
     }
 
     /// <summary>
-    /// 数据类型枚举
+    /// 图表数据来源
+    /// </summary>
+    public enum ChartDataSource
+    {
+        Current = 0,   // 当前战斗（单次）
+        FullRecord = 1 // 全程（会话）
+    }
+
+    /// <summary>
+    /// 图表数据类型
     /// </summary>
     public enum ChartDataType
     {
-        Damage = 0,  // 伤害
-        Healing = 1, // 治疗 
-        TakenDamage = 2 // 承伤
+        Damage = 0,      // 伤害
+        Healing = 1,     // 治疗 
+        TakenDamage = 2  // 承伤
     }
 
     /// <summary>
@@ -105,7 +114,7 @@ namespace StarResonanceDpsAnalysis.Plugin
     public static class ChartVisualizationService
     {
         #region 数据存储
-        // 三种不同数据类型的历史存储
+        // 不同数据类型的历史存储
         private static readonly Dictionary<ulong, List<(DateTime Time, double Dps)>> _dpsHistory = new();
         private static readonly Dictionary<ulong, List<(DateTime Time, double Hps)>> _hpsHistory = new();
         private static readonly Dictionary<ulong, List<(DateTime Time, double TakenDps)>> _takenDpsHistory = new();
@@ -117,9 +126,25 @@ namespace StarResonanceDpsAnalysis.Plugin
         private const double INACTIVE_TIMEOUT_SECONDS = 2.0;
 
         public static bool IsCapturing { get; private set; } = false;
+
+        // 新增：数据源模式（默认“当前战斗”）
+        public static ChartDataSource DataSource { get; private set; } = ChartDataSource.Current;
         #endregion
 
-        #region 数据管理
+        #region 数据更新
+        /// <summary>
+        /// 切换图表数据来源（会自动清空历史，避免数据混淆）。
+        /// </summary>
+        public static void SetDataSource(ChartDataSource source, bool clearHistory = true)
+        {
+            if (DataSource == source) return;
+            DataSource = source;
+            if (clearHistory)
+            {
+                ClearAllHistory();
+            }
+        }
+
         /// <summary>
         /// 添加数据点（通用方法）
         /// </summary>
@@ -134,11 +159,11 @@ namespace StarResonanceDpsAnalysis.Plugin
                 history[playerId] = playerHistory;
             }
 
-            // 确保数值不为负
+            // 确保数值非负
             var safeValue = value is double d ? (T)(object)Math.Max(0, d) : value;
             playerHistory.Add((now, safeValue));
 
-            // 限制历史长度
+            // 控制历史长度
             if (playerHistory.Count > MAX_HISTORY_POINTS)
                 playerHistory.RemoveAt(0);
         }
@@ -154,21 +179,40 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         public static void UpdateAllDataPoints()
         {
-            var players = StatisticData._manager.GetPlayersWithCombatData();
-
-            // 更新实时统计
-            foreach (var player in players)
-                player.UpdateRealtimeStats();
-
-            // 添加数据点
-            foreach (var player in players)
+            if (DataSource == ChartDataSource.Current)
             {
-                AddDpsDataPoint(player.Uid, player.DamageStats.RealtimeValue);
-                AddHpsDataPoint(player.Uid, player.HealingStats.RealtimeValue);
-                
-                // ★ 修复：承伤数据也使用实时窗口值，而不是平均值
-                // 这样承伤曲线在没有新承伤时也会正确降为0
-                AddTakenDpsDataPoint(player.Uid, player.TakenStats.RealtimeValue);
+                var players = StatisticData._manager.GetPlayersWithCombatData();
+
+                // 更新实时统计
+                foreach (var player in players)
+                    player.UpdateRealtimeStats();
+
+                // 写入数据点
+                foreach (var player in players)
+                {
+                    AddDpsDataPoint(player.Uid, player.DamageStats.RealtimeValue);
+                    AddHpsDataPoint(player.Uid, player.HealingStats.RealtimeValue);
+
+                    // 承伤也使用实时统计值
+                    AddTakenDpsDataPoint(player.Uid, player.TakenStats.RealtimeValue);
+                }
+            }
+            else // 全程数据源
+            {
+                // 使用全程统计的“当前时刻”快照计算 Dps/Hps/承伤每秒
+                var totals = FullRecord.GetPlayersWithTotals(includeZero: false);
+                foreach (var p in totals)
+                {
+                    // Dps/Hps 直接来自 FullRecord 的计算
+                    AddDpsDataPoint(p.Uid, p.Dps);
+                    AddHpsDataPoint(p.Uid, p.Hps);
+
+                    // 承伤：通过 Shim 读取该玩家的承伤“有效时长均值”
+                    var shim = FullRecord.Shim.GetOrCreate(p.Uid);
+                    var t = shim.TakenStats;
+                    double takenPerSec = t.ActiveSeconds > 0 ? Math.Round(t.Total / t.ActiveSeconds, 2, MidpointRounding.AwayFromZero) : 0.0;
+                    AddTakenDpsDataPoint(p.Uid, takenPerSec);
+                }
             }
 
             CheckAndAddZeroValues();
@@ -176,10 +220,15 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         private static void CheckAndAddZeroValues()
         {
-            var activePlayerIds = StatisticData._manager.GetPlayersWithCombatData().Select(p => p.Uid).ToHashSet();
+            HashSet<ulong> activePlayerIds;
+            if (DataSource == ChartDataSource.Current)
+                activePlayerIds = StatisticData._manager.GetPlayersWithCombatData().Select(p => p.Uid).ToHashSet();
+            else
+                activePlayerIds = FullRecord.GetPlayersWithTotals(includeZero: false).Select(p => p.Uid).ToHashSet();
+
             var now = DateTime.Now;
 
-            // 为非活跃玩家添加0值
+            // 为不活跃的玩家补 0 值
             CheckHistoryForZeroValues(_dpsHistory, activePlayerIds, now, AddDpsDataPoint);
             CheckHistoryForZeroValues(_hpsHistory, activePlayerIds, now, AddHpsDataPoint);
             CheckHistoryForZeroValues(_takenDpsHistory, activePlayerIds, now, AddTakenDpsDataPoint);
@@ -241,11 +290,11 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         #region 图表创建
         /// <summary>
-        /// 创建图表的通用方法
+        /// 通用创建方法
         /// </summary>
-        /// <typeparam name="T">图表控件类型，继承于 UserControl</typeparam>
-        /// <param name="size">图表的初始尺寸</param>
-        /// <param name="customConfig">可选的自定义配置回调，用于图表特有的额外设置</param>
+        /// <typeparam name="T">图表控件类型：继承自 UserControl</typeparam>
+        /// <param name="size">图表的初始大小</param>
+        /// <param name="customConfig">可选：自定义配置回调，可修改图表控件的各种参数</param>
         /// <returns>已创建并应用默认配置的图表实例</returns>
         private static T CreateChart<T>(Size size, Action<T> customConfig = null) where T : UserControl, new()
         {
@@ -258,73 +307,60 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <summary>
         /// 创建 DPS 趋势折线图（FlatLineChart）
         /// </summary>
-        /// <param name="width">图表宽度，默认 800</param>
-        /// <param name="height">图表高度，默认 400</param>
-        /// <param name="specificPlayerId">可选的指定玩家 ID，仅显示该玩家的数据</param>
+        /// <param name="width">图表宽，默认 800</param>
+        /// <param name="height">图表高，默认 400</param>
+        /// <param name="specificPlayerId">可选：指定玩家 ID（只显示该玩家曲线）</param>
         /// <returns>已创建并初始化的 DPS 趋势图控件</returns>
         public static FlatLineChart CreateDpsTrendChart(int width = 800, int height = 400, ulong? specificPlayerId = null)
         {
             var chart = CreateChart<FlatLineChart>(new Size(width, height));
 
-            RegisterChart(chart); // 注册图表到管理器
+            RegisterChart(chart); // 注册图表以便统一管理
 
-            if (IsCapturing) // 如果正在采集数据，启动自动刷新
+            if (IsCapturing) // 若当前在捕获数据，则开启自动刷新
                 chart.StartAutoRefresh(ChartConfigManager.REFRESH_INTERVAL);
 
-            RefreshDpsTrendChart(chart, specificPlayerId); // 加载初始数据
+            RefreshDpsTrendChart(chart, specificPlayerId); // 载入初始数据
             return chart;
         }
 
         /// <summary>
         /// 创建技能伤害占比饼图（FlatPieChart）
         /// </summary>
-        /// <param name="playerId">玩家 ID，用于计算该玩家的技能伤害数据</param>
-        /// <param name="width">图表宽度，默认 400</param>
-        /// <param name="height">图表高度，默认 400</param>
-        /// <returns>已创建并初始化的技能伤害饼图控件</returns>
         public static FlatPieChart CreateSkillDamagePieChart(ulong playerId, int width = 400, int height = 400)
         {
             var chart = CreateChart<FlatPieChart>(new Size(width, height));
-            RefreshSkillDamagePieChart(chart, playerId); // 加载数据
+            RefreshSkillDamagePieChart(chart, playerId); // 初始刷新
             return chart;
         }
 
         /// <summary>
-        /// 创建团队 DPS 条状图（FlatBarChart）
+        /// 创建队伍 DPS 条形图（FlatBarChart）
         /// </summary>
-        /// <param name="width">图表宽度，默认 600</param>
-        /// <param name="height">图表高度，默认 400</param>
-        /// <returns>已创建并初始化的团队 DPS 条状图控件</returns>
         public static FlatBarChart CreateTeamDpsBarChart(int width = 600, int height = 400)
         {
             var chart = CreateChart<FlatBarChart>(new Size(width, height));
-            RefreshTeamDpsBarChart(chart); // 加载数据
+            RefreshTeamDpsBarChart(chart); // 初始刷新
             return chart;
         }
 
         /// <summary>
         /// 创建 DPS 散点图（FlatScatterChart）
         /// </summary>
-        /// <param name="width">图表宽度，默认 400</param>
-        /// <param name="height">图表高度，默认 400</param>
-        /// <returns>已创建并初始化的 DPS 散点图控件</returns>
         public static FlatScatterChart CreateDpsRadarChart(int width = 400, int height = 400)
         {
             var chart = CreateChart<FlatScatterChart>(new Size(width, height));
-            RefreshDpsRadarChart(chart); // 加载数据
+            RefreshDpsRadarChart(chart); // 初始刷新
             return chart;
         }
 
         /// <summary>
-        /// 创建伤害类型堆叠条状图（FlatBarChart）
+        /// 创建伤害类型堆叠条形图（FlatBarChart）
         /// </summary>
-        /// <param name="width">图表宽度，默认 600</param>
-        /// <param name="height">图表高度，默认 400</param>
-        /// <returns>已创建并初始化的伤害类型堆叠条状图控件</returns>
         public static FlatBarChart CreateDamageTypeStackedChart(int width = 600, int height = 400)
         {
             var chart = CreateChart<FlatBarChart>(new Size(width, height));
-            RefreshDamageTypeStackedChart(chart); // 加载数据
+            RefreshDamageTypeStackedChart(chart); // 初始刷新
             return chart;
         }
 
@@ -332,14 +368,11 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         #region 图表刷新
         /// <summary>
-        /// 刷新DPS趋势图表数据，支持三种数据类型
+        /// 刷新 DPS 趋势图数据，支持单人/多人以及不同数据类型
         /// </summary>
-        /// <param name="chart">要刷新的图表</param>
-        /// <param name="specificPlayerId">指定玩家ID</param>
-        /// <param name="dataType">数据类型：Damage=伤害，Healing=治疗，TakenDamage=承伤</param>
         public static void RefreshDpsTrendChart(FlatLineChart chart, ulong? specificPlayerId = null, ChartDataType dataType = ChartDataType.Damage)
         {
-            // 保存视图状态
+            // 记录与恢复视图状态
             var timeScale = chart.GetTimeScale();
             var viewOffset = chart.GetViewOffset();
             var hadData = chart.HasData();
@@ -367,7 +400,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 RefreshMultiPlayerChart(chart, historyData, startTime);
             }
 
-            // 恢复视图状态
+            // 恢复视图状态（仅在用户交互过时）
             if (hadData && chart.HasUserInteracted())
             {
                 chart.SetTimeScale(timeScale);
@@ -517,7 +550,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                     if (weakRef.IsAlive && weakRef.Target is FlatLineChart chart)
                     {
                         try { action(chart); }
-                        catch (Exception ex) { Console.WriteLine($"图表操作出错: {ex.Message}"); }
+                        catch (Exception ex) { Console.WriteLine($"图表管理执行出错: {ex.Message}"); }
                     }
                 }
                 _registeredCharts.RemoveAll(wr => !wr.IsAlive);
@@ -525,7 +558,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
         #endregion
 
-        #region 辅助方法
+        #region 其它工具
         public static bool HasDataToVisualize() =>
             StatisticData._manager.GetPlayersWithCombatData().Any();
 
@@ -538,7 +571,7 @@ namespace StarResonanceDpsAnalysis.Plugin
     }
 
     /// <summary>
-    /// 扩展方法辅助类
+    /// 扩展工具方法
     /// </summary>
     public static class Extensions
     {
