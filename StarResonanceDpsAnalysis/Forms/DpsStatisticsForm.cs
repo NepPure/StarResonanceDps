@@ -1,4 +1,5 @@
 ﻿using AntdUI; // 引用 AntdUI 组件库（第三方 UI 控件/样式）
+using DocumentFormat.OpenXml.ExtendedProperties;
 using StarResonanceDpsAnalysis.Control; // 引用项目内的 UI 控制/辅助类命名空间
 using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Forms.PopUp; // 引用弹窗相关窗体/组件命名空间
@@ -246,23 +247,40 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             // # 清空：触发 HandleClearData（停止图表刷新→清空数据→重置图表）
             HandleClearData(); // 调用清空处理
         } // 方法结束
+      
 
         // # 设置按钮 → 右键菜单
         private void button_Settings_Click(object sender, EventArgs e) // 设置按钮点击：弹出右键菜单
-        { // 方法开始
+        {
+            // 1) 把时间做成菜单子项
+            var times = StatisticData._manager.History
+                .Select((s, idx) => new { idx, s.StartedAt, s.EndedAt, s.Duration })
+                .ToList();
+
+            IContextMenuStripItem[] timeItems = (times.Count == 0)
+                ? new IContextMenuStripItem[] { new ContextMenuStripItem("暂无记录") }
+                : times.Select(t =>
+                    new ContextMenuStripItem(
+                        // 例：08-16 17:20:05 ~ 17:33:41 （00:13:36）
+                        $"{t.StartedAt:MM-dd HH:mm:ss} ~ {t.EndedAt:HH:mm:ss} （{t.Duration:hh\\:mm\\:ss}）")
+                    {
+                        // 可把索引/时间存到 Tag，后续点击时可定位到具体快照
+                        Tag = new { t.idx, t.StartedAt, t.EndedAt }
+                    }
+                  ).ToArray();
+            var latest = StatisticData._manager.TakeSnapshotAndGet();
+            if (latest != null)
+            {
+                // 这里拿到就是 BattleSnapshot 对象
+            }
+
+            // 方法开始
             var menulist = new IContextMenuStripItem[] // 构建右键菜单项数组
              { // 数组开始
                     new ContextMenuStripItem("历史战斗") // 一级菜单：历史战斗
                     { // 配置开始
                         IconSvg = Resources.historicalRecords, // 设置图标（资源）
-                        Sub = new IContextMenuStripItem[] // 子菜单集合
-                        { // 子菜单数组开始
-                            new ContextMenuStripItem("战斗记录") // 子项：战斗记录
-                            {
-
-
-                            }, // 子项配置结束（此处行为待实现）
-                        } // 子菜单数组结束
+                        Sub = timeItems, // 设置子菜单项（历史战斗记录）
                     }, // 一级菜单配置结束
                     new ContextMenuStripItem("基础设置"){ IconSvg = Resources.set_up}, // 一级菜单：基础设置
                     new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, }, // 一级菜单：主窗体
@@ -314,7 +332,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
                         break; // 跳出 switch
                     case "退出": // 点击“退出”
-                        Application.Exit(); // 结束应用程序
+                        System.Windows.Forms.Application.Exit(); // 结束应用程序
                         break; // 跳出 switch
                 } // switch 结束
             }, menulist); // 打开菜单并传入菜单项

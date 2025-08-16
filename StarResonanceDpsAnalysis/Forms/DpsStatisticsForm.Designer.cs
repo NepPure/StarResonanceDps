@@ -271,7 +271,7 @@
             Opacity = 0.85D;
             Radius = 3;
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "DpsStatistics";
+            Text = "别查我DPS";
             Load += DpsStatistics_Load;
             ForeColorChanged += DpsStatisticsForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);

@@ -552,7 +552,7 @@
             Name = "SettingsForm";
             Opacity = 0.95D;
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "SettingsForm";
+            Text = "基础设置";
             Load += SettingsForm_Load;
             ForeColorChanged += SettingsForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);

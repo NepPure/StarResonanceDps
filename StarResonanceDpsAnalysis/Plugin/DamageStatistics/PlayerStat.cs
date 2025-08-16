@@ -1280,11 +1280,11 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="keepCombatTime">true=保留战斗时钟；false=同时清除战斗时钟。</param>
         public void ClearAll(bool keepCombatTime = true)
         {
-            if(!InitialStart)
-            {
-                InitialStart = true;
-                return;
-            }
+            //if(!InitialStart)
+            //{
+            //    InitialStart = true;
+            //    return;
+            //}
           
             // —— 新增：如果当前有战斗数据，先保存快照
             if (_players.Count > 0)
