@@ -37,7 +37,6 @@
             CombatSettingsPanel = new AntdUI.Panel();
             slider1 = new AntdUI.Slider();
             label9 = new AntdUI.Label();
-            transparentskControl1 = new ScottPlot.WinForms.TransparentSKControl();
             inputNumber2 = new AntdUI.InputNumber();
             label8 = new AntdUI.Label();
             label5 = new AntdUI.Label();
@@ -144,7 +143,6 @@
             CombatSettingsPanel.BackColor = Color.Transparent;
             CombatSettingsPanel.Controls.Add(slider1);
             CombatSettingsPanel.Controls.Add(label9);
-            CombatSettingsPanel.Controls.Add(transparentskControl1);
             CombatSettingsPanel.Controls.Add(inputNumber2);
             CombatSettingsPanel.Controls.Add(label8);
             CombatSettingsPanel.Controls.Add(label5);
@@ -179,14 +177,6 @@
             label9.Size = new Size(138, 58);
             label9.TabIndex = 49;
             label9.Text = "窗体透明度";
-            // 
-            // transparentskControl1
-            // 
-            transparentskControl1.Location = new Point(619, 113);
-            transparentskControl1.Name = "transparentskControl1";
-            transparentskControl1.Size = new Size(67, 55);
-            transparentskControl1.TabIndex = 44;
-            transparentskControl1.Text = "transparentskControl1";
             // 
             // inputNumber2
             // 
@@ -600,7 +590,6 @@
         private AntdUI.Label label7;
         private AntdUI.Label label8;
         private AntdUI.InputNumber inputNumber2;
-        private ScottPlot.WinForms.TransparentSKControl transparentskControl1;
         private AntdUI.Label label9;
         private AntdUI.Slider slider1;
         private AntdUI.StackPanel stackPanel1;

@@ -492,8 +492,8 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         private void SetDefaultFontFromResources() 
         {
            
-                DamageModeLabel.Font = AppConfig.HeaderText;
-                PilingModeCheckbox.Font = AppConfig.HeaderText;
+                DamageModeLabel.Font = AppConfig.HeaderFont;
+                PilingModeCheckbox.Font = AppConfig.HeaderFont;
         }
 
         #region 钩子 // 折叠：全局键盘钩子安装/卸载与热键路由

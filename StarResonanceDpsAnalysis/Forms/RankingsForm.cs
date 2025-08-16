@@ -17,11 +17,11 @@ namespace StarResonanceDpsAnalysis.Forms
         private void SetDefaultFontFromResources()
         {
             label1.Font = AppConfig.TitleFont;
-            button1.Font = AppConfig.HeaderText;
-            segmented1.Font = AppConfig.ContentText;
-            divider3.Font = AppConfig.HeaderText;
-            table_DpsDetailDataTable.Font = AppConfig.ContentText;
-            label2.Font = AppConfig.ContentText;
+            button1.Font = AppConfig.HeaderFont;
+            segmented1.Font = AppConfig.ContentFont;
+            divider3.Font = AppConfig.HeaderFont;
+            table_DpsDetailDataTable.Font = AppConfig.ContentFont;
+            label2.Font = AppConfig.ContentFont;
         }
         private void RankingsForm_Load(object sender, EventArgs e)
         {

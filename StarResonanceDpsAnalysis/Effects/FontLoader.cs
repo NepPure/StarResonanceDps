@@ -11,48 +11,62 @@ namespace StarResonanceDpsAnalysis.Effects
     public static class FontLoader
     {
         private static readonly PrivateFontCollection _pfc = new();
-        private static readonly Dictionary<string, Font> _families = [];
+        private static readonly Dictionary<string, FontFamily> _fontFamilyCache = [];
+        private static readonly Dictionary<(FontFamily, float), Font> _fontCache = [];
+        private static string[] _prevFontFamilyNames = [];
 
-        public static bool TryLoadFontFromBytes(string fontKey, byte[] bytes, float fontSize, out Font? font)
+        public static Font LoadFontFromBytesAndCache(string fontName, byte[] bytes, float fontSize)
         {
-            font = null;
-
             try
             {
-                if (_families.TryGetValue(fontKey, out font)) return true;
+                // var ffFlag = _fontFamilyCache.TryGetValue(fontName, out var fontFamily);
+                if (!_fontFamilyCache.TryGetValue(fontName, out var fontFamily))
+                {
+                    fontFamily = LoadFontFamilyFromBytes(bytes);
+                    _fontFamilyCache[fontName] = fontFamily;
+                }
 
-                font = LoadFontFromBytes(bytes, fontSize);
+                // var fFlag = _fontCache.TryGetValue((fontFamily!, fontSize), out var font);
+                if (!_fontCache.TryGetValue((fontFamily!, fontSize), out var font))
+                {
+                    font = new Font(fontFamily, fontSize);
+                    _fontCache[(fontFamily, fontSize)] = font;
+                }
 
-                _families.Add(fontKey, font);
+                // Console.WriteLine($"通过 {fontName} 取得{(ffFlag ? "缓存中的" : string.Empty)}字体族: {fontFamily!.Name}, 并取得{(fFlag ? "缓存中的" : string.Empty)}字体: Size({fontSize})");
 
-                return true;
+                return font;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"字体从内存转换时出错: {ex.Message}\r\n{ex.StackTrace}");
+                Console.WriteLine($"字体从内存转换时出错: {fontName}({fontSize}) {ex.Message}\r\n{ex.StackTrace}");
 
-                return false;
+                return SystemFonts.DefaultFont;
             }
         }
 
-        private static Font LoadFontFromBytes(byte[] bytes, float fontSize) 
+        private static FontFamily LoadFontFamilyFromBytes(byte[] bytes)
         {
             var fontPtr = Marshal.AllocCoTaskMem(bytes.Length);
             Marshal.Copy(bytes, 0, fontPtr, bytes.Length);
 
             try
             {
-                var prevLength = _pfc.Families.Length;
                 _pfc.AddMemoryFont(fontPtr, bytes.Length);
-                if (_pfc.Families.Length <= prevLength)
+
+                for (var i = 0; i < _prevFontFamilyNames.Length; ++i)
                 {
-                    throw new Exception("Bytes convert to fontfamily failed.");
+                    if (_prevFontFamilyNames[i] != _pfc.Families[i].Name)
+                    {
+                        return _pfc.Families[i];
+                    }
                 }
 
-                return new Font(_pfc.Families[^1], fontSize);
+                return _pfc.Families.Length > _prevFontFamilyNames.Length ? _pfc.Families[^1] : FontFamily.GenericSansSerif;
             }
             finally
             {
+                _prevFontFamilyNames = [.. _pfc.Families.Select(e => e.Name)];
                 Marshal.FreeCoTaskMem(fontPtr);
             }
         }

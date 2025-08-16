@@ -26,6 +26,12 @@
     <Compile Update="Control\SortedProgressBarList.Function.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Control\SortedProgressBarList.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Control\TextProgressBar.Function.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Control\TextProgressBar.Function.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -66,6 +72,12 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\DetailsPreviewForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\DetailsPreviewForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\DpsStatisticsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\DpsStatisticsForm.Function.cs">
@@ -110,10 +122,16 @@
     <Compile Update="Forms\MainForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\MainForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\PopUp\AppMessageBox.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\RankingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\RankingsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\RankingsForm.Function.cs">
@@ -155,6 +173,9 @@
     <Compile Update="Forms\SettingsForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\SettingsForm.Function.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\SkillCardStripForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -171,6 +192,9 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\SkillDetailForm.Function.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="Forms\SkillDetailForm.Function.cs">

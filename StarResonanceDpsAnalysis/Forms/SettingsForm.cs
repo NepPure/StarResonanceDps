@@ -26,15 +26,14 @@ namespace StarResonanceDpsAnalysis.Forms
         {
 
             TitleText.Font = AppConfig.TitleFont;
-            label1.Font = AppConfig.HeaderText;
-            label2.Font = label3 .Font= label4.Font= AppConfig.ContentText;
-            if (FontLoader.TryLoadFontFromBytes("HarmonyOS Sans7", Resources.HarmonyOS_Sans, 7, out var font))
-            {
-                label6.Font = label7.Font = label8.Font = font;
-            }
+            label1.Font = AppConfig.HeaderFont;
+            label2.Font = label3 .Font= label4.Font= AppConfig.ContentFont;
 
-            InterfaceComboBox.Font = AppConfig.ContentText;
-            label9.Font = input1.Font = input2.Font = input3.Font = input4.Font = input5.Font = inputNumber2 .Font = label5 .Font= AppConfig.ContentText;
+            var harmonyOsSansFont = FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 7);
+            label6.Font = label7.Font = label8.Font = harmonyOsSansFont;
+
+            InterfaceComboBox.Font = AppConfig.ContentFont;
+            label9.Font = input1.Font = input2.Font = input3.Font = input4.Font = input5.Font = inputNumber2 .Font = label5 .Font= AppConfig.ContentFont;
         }
         private void SettingsForm_Load(object sender, EventArgs e)
         {
