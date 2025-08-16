@@ -244,4 +244,16 @@
   <data name="神射手10" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\神射手10.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="AlimamaShuHeiTi" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Fonts\AlimamaShuHeiTi-Bold.ttf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <comment>阿里妈妈数黑体</comment>
+  </data>
+  <data name="HarmonyOS_Sans" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Fonts\HarmonyOS_Sans_SC_Regular.ttf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <comment>HarmonyOS Sans</comment>
+  </data>
+  <data name="SAOWelcomeTT-Regular" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Fonts\SAOWelcomeTT-Regular.ttf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <comment>SAO Welcome TT</comment>
+  </data>
 </root>

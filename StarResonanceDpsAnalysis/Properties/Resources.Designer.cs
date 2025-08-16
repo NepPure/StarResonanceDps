@@ -61,6 +61,16 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] AlimamaShuHeiTi {
+            get {
+                object obj = ResourceManager.GetObject("AlimamaShuHeiTi", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
         internal static System.Drawing.Bitmap cancel_hover {
@@ -135,6 +145,16 @@ namespace StarResonanceDpsAnalysis.Properties {
             get {
                 object obj = ResourceManager.GetObject("handoff_normal", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] HarmonyOS_Sans {
+            get {
+                object obj = ResourceManager.GetObject("HarmonyOS_Sans", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
@@ -242,6 +262,16 @@ namespace StarResonanceDpsAnalysis.Properties {
             get {
                 object obj = ResourceManager.GetObject("right_normal", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] SAOWelcomeTT_Regular {
+            get {
+                object obj = ResourceManager.GetObject("SAOWelcomeTT-Regular", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         

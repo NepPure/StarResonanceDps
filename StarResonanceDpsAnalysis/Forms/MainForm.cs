@@ -20,12 +20,8 @@ namespace StarResonanceDpsAnalysis.Forms
             InitializeComponent(); // # WinForms 初始化
             FormGui.SetDefaultGUI(this); // # UI 样式：统一默认外观
 
-            /* Application.ProductVersion 默认会被 MSBuild 附加 Git 哈希, 
-             * 如: "1.0.0+123456789acbdef", 
-             * 将 + 后面去掉就是项目属性的版本号,
-             * 这样可以让生成文件的版本号与标题版本号一致
-             * * * * * * * * * * * * * * * * * * * * * * * * * * */
-            pageHeader_MainHeader.Text += $" v{Application.ProductVersion.Split('+')[0]}"; // # 版本号展示：去除+hash部分
+            
+            pageHeader_MainHeader.Text = Text = $"{FormManager.APP_NAME} {FormManager.AppVersion}";
 
             //InitTableColumnsConfigAtFirstRun(); // # 列显隐初始化：首次运行建立列配置
             //LoadTableColumnVisibilitySettings(); // # 读取列显隐配置

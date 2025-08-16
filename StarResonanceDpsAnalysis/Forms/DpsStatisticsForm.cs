@@ -1,5 +1,6 @@
 ﻿using AntdUI; // 引用 AntdUI 组件库（第三方 UI 控件/样式）
 using StarResonanceDpsAnalysis.Control; // 引用项目内的 UI 控制/辅助类命名空间
+using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Forms.PopUp; // 引用弹窗相关窗体/组件命名空间
 using StarResonanceDpsAnalysis.Plugin; // 引用项目插件层通用命名空间
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics; // 引用伤害统计插件命名空间（含 FullRecord、StatisticData 等）
@@ -30,17 +31,29 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         // # 构造与启动流程
         public DpsStatisticsForm() // 构造函数：创建窗体实例时执行一次
-        { // 构造函数开始
+        { 
+            // 构造函数开始
             InitializeComponent(); // 初始化设计器生成的控件与布局
+
+            Text = FormManager.APP_NAME;
+
             FormGui.SetDefaultGUI(this); // 统一设置窗体默认 GUI 风格（字体、间距、阴影等）
+
             //ApplyResolutionScale(); // 可选：根据屏幕分辨率对整体界面进行缩放（当前禁用，仅保留调用）
+
+            SetDefaultFontFromResources();
+
             //加载钩子
             RegisterKeyboardHook(); // 安装键盘钩子，用于全局热键监听与处理
+
             //先加载基础配置
             InitTableColumnsConfigAtFirstRun(); // 首次运行初始化表格列配置（列宽/显示项等）
+
             //加载网卡
             LoadNetworkDevices(); // 加载/枚举网络设备（抓包设备列表）
+
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色 // 根据配置设置窗体的颜色主题（明亮/深色）
+
             //加载技能配置
             StartupInitializer.LoadFromEmbeddedSkillConfig(); // 从内置资源读取并加载技能数据（元数据/图标/映射）
             sortedProgressBarList1.SelectionChanged += (s, i, d) => // 订阅进度条列表的选择变化事件（点击条目）
@@ -57,8 +70,8 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
 
             }; // 事件处理结束并解除与下一语句的关联
+
             SetStyle(); // 设置/应用本窗体的个性化样式（定义在同类/局部类的其他部分）
-            new TestForm().Show(); // # 调试/测试窗体：程序启动时直接显示（便于联调/验证）
 
         } // 构造函数结束
 
@@ -468,6 +481,13 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             } // 分支结束
         } // 方法结束
 
+        private void SetDefaultFontFromResources() 
+        {
+            if (FontLoader.TryLoadFontFromBytes("AlimamaShuHeiTi", Resources.AlimamaShuHeiTi, 9, out var font))
+            {
+                DamageModeLabel.Font = font;
+            }
+        }
 
         #region 钩子 // 折叠：全局键盘钩子安装/卸载与热键路由
         /// <summary>

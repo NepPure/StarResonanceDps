@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>3peai-uy5kt-001.ico</ApplicationIcon>
     <Platforms>AnyCPU;x86;x64</Platforms>
-    <Version>1.0.3</Version>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
