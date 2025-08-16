@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using SharpPcap;
+﻿using SharpPcap;
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Control.GDI;
 using StarResonanceDpsAnalysis.Core;
@@ -13,8 +6,15 @@ using StarResonanceDpsAnalysis.Effects.Enum;
 using StarResonanceDpsAnalysis.Extends;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.Plugin.Database;
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 using StarResonanceDpsAnalysis.Properties;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -38,9 +38,6 @@ namespace StarResonanceDpsAnalysis.Forms
         private void InitTableColumnsConfigAtFirstRun()
         {
             // # 启动与初始化事件：首次运行初始化表头配置 & 绑定本机身份信息
-            // # 步骤：
-            // #  1. 若存在配置文件，则读取昵称/UID/职业/战力并写入统计管理器（在 UI 中显示当前用户）。
-            // #  2. 将当前窗体中的进度条列表控件实例绑定到静态引用（后续刷新列表时使用）。
             if (AppConfig.GetConfigExists())
             {
                 AppConfig.ClearPicture = AppConfig.GetValue("UserConfig", "ClearPicture", "1").ToInt();
@@ -48,16 +45,23 @@ namespace StarResonanceDpsAnalysis.Forms
                 AppConfig.Uid = (ulong)AppConfig.GetValue("UserConfig", "Uid", "0").ToInt();
                 AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知");
                 AppConfig.CombatPower = AppConfig.GetValue("UserConfig", "CombatPower", "0").ToInt();
+
+                // 写入本地统计缓存（用于 UI 初始显示）
                 StatisticData._manager.SetNickname(AppConfig.Uid, AppConfig.NickName);
-                Console.WriteLine(AppConfig.NickName);
                 StatisticData._manager.SetProfession(AppConfig.Uid, AppConfig.Profession);
                 StatisticData._manager.SetCombatPower(AppConfig.Uid, AppConfig.CombatPower);
+
+                if (AppConfig.Uid != 0)
+                {
+                    // 仅在未知时从 API 回填（单 UID 去重）
+                    PlayerDbSyncService.TryFillFromDbOnce(AppConfig.Uid);
+                    // 回填完成后按当前视图刷新（避免依赖后续抓包）
+                    RequestActiveViewRefresh();
+                }
+
                 SortedProgressBarStatic = this.sortedProgressBarList1; // # 关键：这里绑定实例
                 return;
             }
-
-
-
         }
 
         #region —— 抓包设备/统计 —— 
@@ -98,19 +102,16 @@ namespace StarResonanceDpsAnalysis.Forms
             }
         }
 
-
         /// <summary>
         /// 数据包到达事件
         /// </summary>
         private void Device_OnPacketArrival(object sender, PacketCapture e)
         {
             // # 抓包事件：回调于数据包到达时（SharpPcap线程）
-            // #  目的：将原始网络包交由 PacketAnalyzer 统一解压/解码/分发到统计模块
             try
             {
                 var dev = (ICaptureDevice)sender;
-                PacketAnalyzer.StartNewAnalyzer(dev, e.GetPacket()); // # 抓包入口：把原始包交给 PacketAnalyzer 解析/解压/解码
-
+                PacketAnalyzer.StartNewAnalyzer(dev, e.GetPacket());
             }
             catch (Exception ex)
             {
@@ -134,8 +135,6 @@ namespace StarResonanceDpsAnalysis.Forms
             if (AppConfig.NetworkCard < 0)
             {
                 MessageBox.Show("请选择一个网卡设备");
-
-
                 return;
             }
 
@@ -151,16 +150,10 @@ namespace StarResonanceDpsAnalysis.Forms
                 throw new InvalidOperationException($"无法获取网络设备，索引: {AppConfig.NetworkCard}");
 
 
-            // # 步骤 2：清空当前统计 —— 新会话前的干净状态
-
-            //StatisticData._manager.ClearAll();
-            //SkillTableDatas.SkillTable.Clear();
-            //ListClear();
-
             // # 步骤 3：图表历史与自动刷新 —— 开始新的战斗记录
             ChartVisualizationService.ClearAllHistory();
 
-            // 启动所有图表的自动刷新
+            // 启动所有图表的自动刷新 + 后台采样（满足“从DPS伤害开始就加载曲线”）
             ChartVisualizationService.StartAllChartsAutoRefresh(1000);
 
             // # 步骤 4：打开并启动设备监听 —— 绑定回调、设置过滤器
@@ -179,8 +172,6 @@ namespace StarResonanceDpsAnalysis.Forms
             IsCaptureStarted = true;
             FullRecord.Start();
             Console.WriteLine("开始抓包...");
-
-
         }
 
         /// <summary>
@@ -191,7 +182,6 @@ namespace StarResonanceDpsAnalysis.Forms
             // # 抓包事件：用户点击“停止”或程序退出前触发
             // # 步骤 1：先停止所有图表的自动刷新，防止在停止抓包后继续更新数据
             ChartVisualizationService.StopAllChartsAutoRefresh();
-
 
             // 在停止抓包时，通知图表服务战斗结束，确保显示最终的0值状态
             ChartVisualizationService.OnCombatEnd();
@@ -209,14 +199,13 @@ namespace StarResonanceDpsAnalysis.Forms
                     // # 步骤 4：等待后台捕获线程真正退出（简单轮询，最多 ~1s）
                     for (int i = 0; i < 100; i++)
                     {
-                        // 有的版本有 Started 属性；没有就直接 sleep 一下
                         if (!(SelectedDevice.Started)) break;
                         System.Threading.Thread.Sleep(10);
                     }
 
                     // # 步骤 5：关闭并释放句柄（Dispose 很关键）
                     SelectedDevice.Close();
-                    SelectedDevice.Dispose();   // ← 关键：第二次不触发通常是没 Dispose
+                    SelectedDevice.Dispose();
                     Console.WriteLine("停止抓包");
                 }
                 catch (Exception ex)
@@ -232,10 +221,10 @@ namespace StarResonanceDpsAnalysis.Forms
             // # 步骤 6：状态复位与解析状态清空
             IsCaptureStarted = false;
 
-            // 清空解析/重组状态 ——（按你的实际字段名来）
+            // 清空解析/重组状态
             PacketAnalyzer.ResetCaptureState();
 
-            // # 步骤 7：更新 UI 上的网卡设置提示（可能提示用户重新选择）
+            // # 步骤 7：更新 UI 上的网卡设置提示
             StartupInitializer.RefreshNetworkCardSettingTip();
         }
 
@@ -243,30 +232,25 @@ namespace StarResonanceDpsAnalysis.Forms
 
         public void HandleClearData(bool ClearPicture = false)
         {
-
             // # 清理与复位事件：用户点击“清空”时触发（不影响抓包的开启/关闭状态）
             // 先停止所有图表的自动刷新
             ChartVisualizationService.StopAllChartsAutoRefresh();
 
             // 在清空数据前，通知图表服务战斗结束
             ChartVisualizationService.OnCombatEnd();
-            if (FormManager.showTotal& !ClearPicture)
+            if (FormManager.showTotal && !ClearPicture)
             {
                 FullRecord.Reset(false);//全程统计数据清空
+                // 同步清理“全程曲线”历史，确保时间轴从 0 重新开始
+                ChartVisualizationService.ClearFullHistory();
             }
-            //DpsTableDatas.DpsTable.Clear();
-          
- 
-     
-                ListClear();
-            
-           
 
-            // 完全重置所有图表（包括清空历史数据和重置视图状态）
-            ChartVisualizationService.FullResetAllCharts();
+            ListClear();
 
+            // 仅清空当次曲线历史，保留全程曲线（满足“全程伤害从伤害开始记录到F9刷新”）
+            ChartVisualizationService.ClearCurrentHistory();
 
-            // 如果当前正在抓包，重新启动图表自动刷新
+            // 如果当前正在抓包，重新启动图表自动刷新（继续后台采样）
             if (IsCaptureStarted)
             {
                 ChartVisualizationService.StartAllChartsAutoRefresh(1000);
@@ -324,17 +308,12 @@ namespace StarResonanceDpsAnalysis.Forms
             sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
             sortedProgressBarList1.AnimationQuality = Quality.Low; // 动画品质（你项目里的枚举）
-
-
-
-
         }
 
         /// <summary>
         /// 实例化 SortedProgressBarList 控件
         /// </summary>
         public static SortedProgressBarList SortedProgressBarStatic { get; private set; }
-
 
         /// <summary>
         /// 用户战斗数据字典
@@ -382,6 +361,27 @@ namespace StarResonanceDpsAnalysis.Forms
         public enum SourceType { Current, FullRecord }
         public enum MetricType { Damage, Healing, Taken }
 
+        // 提供一个静态入口，供回填后请求一次按当前视图刷新
+        public static void RequestActiveViewRefresh()
+        {
+            try
+            {
+                var form = FormManager.dpsStatistics;
+                if (form == null || form.IsDisposed) return;
+                var source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
+                var metric = FormManager.currentIndex switch
+                {
+                    1 => MetricType.Healing,
+                    2 => MetricType.Taken,
+                    _ => MetricType.Damage
+                };
+                if (form.InvokeRequired)
+                    form.BeginInvoke(new Action(() => form.RefreshDpsTable(source, metric)));
+                else
+                    form.RefreshDpsTable(source, metric);
+            }
+            catch { }
+        }
 
         private class UiRow
         {
@@ -393,7 +393,6 @@ namespace StarResonanceDpsAnalysis.Forms
             public double PerSecond;
         }
    
-
         public void RefreshDpsTable(SourceType source, MetricType metric)
         {
             // # UI 刷新事件：根据指定数据源（单次/全程）与指标（伤害/治疗/承伤）对进度条列表进行重建与绑定
@@ -402,8 +401,10 @@ namespace StarResonanceDpsAnalysis.Forms
             var visible = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
             if (source != visible) return;
 
-            var uiList = BuildUiRows(source, metric).Where(r => (r?.Total ?? 0) > 0)   // 过滤 0 值（伤害/治疗/承伤都适用）
-    .ToList(); ;
+            var uiList = BuildUiRows(source, metric)
+                .Where(r => (r?.Total ?? 0) > 0)   // 过滤 0 值（伤害/治疗/承伤都适用）
+                .ToList();
+
             if (uiList.Count == 0)
             {
                 // 清空旧数据，避免残影
@@ -414,26 +415,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 return;
             }
 
-            //if (uiList.Count == 0) return;
-
-
-
             var ordered = uiList.OrderByDescending(x => x.Total).ToList();
-
-            if (ordered.Count == 0)
-            {
-                // # 兜底：排序后仍为空则清屏
-                lock (_dataLock)
-                {
-                    DictList.Clear();
-                    list.Clear();
-                    if (sortedProgressBarList1.InvokeRequired)
-                        sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = null));
-                    else
-                        sortedProgressBarList1.Data = null;
-                }
-                return;
-            }
 
             double teamSum = uiList.Sum(x => (double)x.Total);
             if (teamSum <= 0d) teamSum = 1d;
@@ -463,14 +445,11 @@ namespace StarResonanceDpsAnalysis.Forms
                 {
                     var p = ordered[i];
 
-
                     // for 里：归一化到 0~1
                     float ratio = (float)(p.Total / top);
                     if (!float.IsFinite(ratio)) ratio = 0f;
                     if (ratio < 0f) ratio = 0f;
                     if (ratio > 1f) ratio = 1f;
-
-
 
                     string totalFmt = Common.FormatWithEnglishUnits(p.Total);
                     string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
@@ -499,9 +478,7 @@ namespace StarResonanceDpsAnalysis.Forms
                         DictList[p.Uid] = data;
                     }
 
-
                     // # 更新显示文本 & 头像/职业图标
-                    // 团队占比转为 "50%" 这类字符串（0 位小数）
                     string share = $"{Math.Round(p.Total / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
                     var row = DictList[p.Uid];
                     row[0].Image = profBmp;
@@ -512,14 +489,12 @@ namespace StarResonanceDpsAnalysis.Forms
                     var pb = list.FirstOrDefault(x => x.ID == p.Uid);
                     if (pb != null)
                     {
-                     
                         pb.ProgressBarValue = ratio; // 关键：用最新占比驱动条形长度/排序
                         if (colorDict.TryGetValue(p.Profession, out var c))
                             pb.ProgressBarColor = c;
                         else
                             pb.ProgressBarColor = colorDict["未知"]; // 兜底，避免 KeyNotFound
                     }
-
                 }
                 // —— 闸门 #2：写 UI 之前再校验一次，防止在计算期间切换视图导致串写 ——
                 visible = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
@@ -527,10 +502,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 // 绑定到控件（空则设 null，避免残影）
                 void Bind()
                 {
-                    if (list.Count == 0) // 清屏
-                        sortedProgressBarList1.Data = null;
-                    else
-                        sortedProgressBarList1.Data = list;
+                    sortedProgressBarList1.Data = list.Count == 0 ? null : list;
                 }
 
                 if (sortedProgressBarList1.InvokeRequired)
@@ -540,14 +512,19 @@ namespace StarResonanceDpsAnalysis.Forms
             }
         }
 
-
         private List<UiRow> BuildUiRows(SourceType source, MetricType metric)
         {
             // # UI 刷新事件：根据数据源构建用于展示的轻量行结构（与底层统计对象解耦）
             if (source == SourceType.Current)
             {
-                var statsList = StatisticData._manager.GetPlayersWithCombatData().ToArray(); // :contentReference[oaicite:2]{index=2}
+                var statsList = StatisticData._manager.GetPlayersWithCombatData().ToArray();
                 if (statsList.Length == 0) return new();
+
+                // 新增：为当前视图内的所有玩家尝试回填昵称/职业/战力（每 UID 只请求一次）
+                foreach (var p in statsList)
+                {
+                    try { PlayerDbSyncService.TryFillFromDbOnce(p.Uid); } catch { }
+                }
 
                 return statsList.Select(p =>
                 {
@@ -560,7 +537,7 @@ namespace StarResonanceDpsAnalysis.Forms
                             ps = p.HealingStats.GetTotalPerSecond();
                             break;
                         case MetricType.Taken:
-                            total = p.TakenStats.Total;                  // 或 p.TakenDamage（两者口径不同）
+                            total = p.TakenStats.Total;
                             ps = p.TakenStats.GetTotalPerSecond();
                             break;
                         default: // Damage
@@ -582,13 +559,16 @@ namespace StarResonanceDpsAnalysis.Forms
             }
             else // FullRecord
             {
-                var fr = FullRecord.GetPlayersWithTotalsArray(); // :contentReference[oaicite:3]{index=3}
+                var fr = FullRecord.GetPlayersWithTotalsArray();
                 if (fr.Length == 0) return new();
 
-                // 全程的每人有：TotalDamage / TotalHealing / TakenDamage；秒伤只有 Dps/Hps（承伤秒伤没有固定口径）
-                // 如果你已实现“有效时长秒伤”，可以：TakenPerSecond = p.TakenDamage / FullRecord.GetEffectiveSeconds();
-                // 这里先按会话时长兜底（如你已做 ActiveSeconds，请替换为 ActiveSeconds）
-                var sessionSecs = Math.Max(1.0, FullRecord.GetSessionTotalTimeSpan().TotalSeconds); // :contentReference[oaicite:4]{index=4}
+                // 新增：为全程中出现过的所有玩家尝试回填一次基础信息
+                foreach (var p in fr)
+                {
+                    try { PlayerDbSyncService.TryFillFromDbOnce(p.Uid); } catch { }
+                }
+
+                var sessionSecs = Math.Max(1.0, FullRecord.GetSessionTotalTimeSpan().TotalSeconds);
 
                 return fr.Select(p =>
                 {
@@ -598,15 +578,15 @@ namespace StarResonanceDpsAnalysis.Forms
                     {
                         case MetricType.Healing:
                             total = p.TotalHealing;
-                            ps = p.Hps;                  // 已有全程 Hps:contentReference[oaicite:5]{index=5}
+                            ps = p.Hps;
                             break;
                         case MetricType.Taken:
                             total = p.TakenDamage;
-                            ps = total / sessionSecs;    // 先用会话时长兜底；若已做 ActiveSeconds，改成 total / ActiveSeconds
+                            ps = total / sessionSecs;
                             break;
                         default: // Damage
                             total = p.TotalDamage;
-                            ps = p.Dps;                  // 已有全程 Dps:contentReference[oaicite:6]{index=6}
+                            ps = p.Dps;
                             break;
                     }
 
@@ -622,10 +602,5 @@ namespace StarResonanceDpsAnalysis.Forms
                 }).ToList();
             }
         }
-
-
-
-
-
     }
 }

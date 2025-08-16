@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using StarResonanceDpsAnalysis.Control.GDI;
 using StarResonanceDpsAnalysis.Effects;
@@ -36,29 +33,42 @@ namespace StarResonanceDpsAnalysis.Control
         /// </summary>
         public List<ProgressBarData>? Data
         {
-            get => [.. _dataDict.Select(e => e.Value)];
+            get => _dataDict.Values.ToList();
             set
             {
-                // 清空列表
-                if (value == null || value.Count == 0)
+                lock (_lock)
                 {
-                    _dataDict.Clear();
-                    return;
-                }
-                // 现有表中多出来的数据移除
-                foreach (var item in _dataDict)
-                {
-                    if (value.Any(e => e.ID == item.Key)) continue;
-                    _dataDict.Remove(item.Key);
-                }
-                // 将新数据更新或添加到表中
-                foreach (var item in value)
-                {
-                    if (item == null || item.ID < 0) continue;
-                    if (!_dataDict.TryAdd(item.ID, item))
+                    if (value == null || value.Count == 0)
                     {
+                        _dataDict.Clear();
+                        _animatingInfoBuffer.Clear(); // 同步清空动画缓存，避免残影
+                        _selectedIndex = null;        // 清空选择状态
+                        SelectionChanged?.Invoke(this, -1, null);
+                        Invalidate();
+                        return;
+                    }
+
+                    // 预先构建目标 ID 集，避免 O(n^2)
+                    var targetIds = value
+                        .Where(item => item != null && item.ID >= 0)
+                        .Select(item => item.ID)
+                        .ToHashSet();
+
+                    // 移除不存在的项
+                    foreach (var key in _dataDict.Keys.ToList())
+                    {
+                        if (!targetIds.Contains(key))
+                            _dataDict.Remove(key);
+                    }
+
+                    // 更新或新增项（后者覆盖同 ID）
+                    foreach (var item in value)
+                    {
+                        if (item == null || item.ID < 0) continue;
                         _dataDict[item.ID] = item;
                     }
+
+                    Invalidate();
                 }
             }
         }
@@ -69,7 +79,7 @@ namespace StarResonanceDpsAnalysis.Control
         [Browsable(true)]
         [Category("外观")]
         [Description("排序动画的持续时间")]
-        [DefaultValue(1000)]
+        [DefaultValue(300)]
         public int AnimationDuration
         {
             get => _animationDuration;
@@ -90,7 +100,7 @@ namespace StarResonanceDpsAnalysis.Control
         /// </remarks>
         [Browsable(true)]
         [Category("外观")]
-        [Description("""
+        [Description(@"""
             动画质量
             Quality.VeryLow        =  10FPS; 贝塞尔精确段数 = 5
             Quality.Low            =  20FPS; 贝塞尔精确段数 = 7
@@ -125,7 +135,7 @@ namespace StarResonanceDpsAnalysis.Control
         [Browsable(true)]
         [Category("外观")]
         [Description("进度条高度")]
-        [DefaultValue(30)]
+        [DefaultValue(20)]
         public int ProgressBarHeight
         {
             get => _progressBarHeight;
@@ -138,6 +148,7 @@ namespace StarResonanceDpsAnalysis.Control
         [Browsable(true)]
         [Category("外观")]
         [Description("进度条内边距")]
+        [DefaultValue(typeof(Padding), "3,3,3,3")]
         public Padding ProgressBarPadding
         {
             get => _progressBarPadding;
@@ -258,28 +269,30 @@ namespace StarResonanceDpsAnalysis.Control
 
         private void SortedProgressBarList_MouseClick(object sender, MouseEventArgs e)
         {
-            var progressBar = (ProgressBarData?)null;
-
-            if (e.Location.X < Padding.Left
-                || e.Location.Y < Padding.Top
-                || e.Location.X > Width - Padding.Right
-                || e.Location.Y > Height - Padding.Bottom) return;
-
-            var index = e.Location.Y / ProgressBarHeight;
-            if (index >= _animatingInfoBuffer.Count)
+            // 边界判断
+            if (e.Location.X < Padding.Left || e.Location.Y < Padding.Top ||
+                e.Location.X > Width - Padding.Right || e.Location.Y > Height - Padding.Bottom)
             {
                 _selectedIndex = null;
                 SelectionChanged?.Invoke(this, -1, null);
                 return;
             }
 
-            progressBar = _animatingInfoBuffer[index].Data;
+            var index = e.Location.Y / ProgressBarHeight;
+            if (index < 0 || index >= _animatingInfoBuffer.Count)
+            {
+                _selectedIndex = null;
+                SelectionChanged?.Invoke(this, -1, null);
+                return;
+            }
 
-            var offset = e.Location.Y % ProgressBarHeight;
-            if (e.Location.X < Padding.Left + progressBar.ProgressBarPadding.Left
-                || e.Location.X > Width - Padding.Right - progressBar.ProgressBarPadding.Right
-                || offset < progressBar.ProgressBarPadding.Top
-                || offset > ProgressBarHeight - progressBar.ProgressBarPadding.Bottom)
+            var progressBar = _animatingInfoBuffer[index].Data;
+            var offsetY = e.Location.Y % ProgressBarHeight;
+
+            if (e.Location.X < Padding.Left + progressBar.ProgressBarPadding.Left ||
+                e.Location.X > Width - Padding.Right - progressBar.ProgressBarPadding.Right ||
+                offsetY < progressBar.ProgressBarPadding.Top ||
+                offsetY > ProgressBarHeight - progressBar.ProgressBarPadding.Bottom)
             {
                 _selectedIndex = null;
                 SelectionChanged?.Invoke(this, -1, null);

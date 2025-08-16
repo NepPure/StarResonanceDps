@@ -5,7 +5,6 @@ using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.Charts;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using StarResonanceDpsAnalysis.Properties;
-using System.Runtime.InteropServices;
 using static StarResonanceDpsAnalysis.Forms.DpsStatisticsForm;
 
 namespace StarResonanceDpsAnalysis.Control
@@ -118,6 +117,35 @@ namespace StarResonanceDpsAnalysis.Control
         }
 
         /// <summary>
+        /// 设置折线图刷新回调（避免重复代码）
+        /// </summary>
+        private void SetupTrendChartRefreshCallback()
+        {
+            if (_dpsTrendChart == null) return;
+
+            _dpsTrendChart.SetRefreshCallback(() =>
+            {
+                try
+                {
+                    var dataType = segmented1.SelectIndex switch
+                    {
+                        0 => ChartDataType.Damage,
+                        1 => ChartDataType.Healing,
+                        2 => ChartDataType.TakenDamage,
+                        _ => ChartDataType.Damage
+                    };
+
+                    var source = FormManager.showTotal ? ChartDataSource.FullRecord : ChartDataSource.Current;
+                    ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType, source);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"图表刷新回调出错: {ex.Message}");
+                }
+            });
+        }
+
+        /// <summary>
         /// panel7大小变化时的处理
         /// </summary>
         private void Panel7_Resize(object sender, EventArgs e)
@@ -162,39 +190,14 @@ namespace StarResonanceDpsAnalysis.Control
                 collapseItem1.MinimumSize = new Size(ChartConfigManager.MIN_WIDTH, ChartConfigManager.MIN_HEIGHT);
                 collapseItem1.Anchor = AnchorStyles.Top | AnchorStyles.Left;
 
-                // 创建DPS趋势折线图，使用统一的配置管理
+                // 创建DPS趋势折线图，使用统一的配置管理（默认跟随全局数据源）
                 _dpsTrendChart = ChartVisualizationService.CreateDpsTrendChart(specificPlayerId: Uid);
 
                 // 设置图表为自适应大小，与其他两个图表保持一致
                 _dpsTrendChart.Dock = DockStyle.Fill;
 
                 // 设置实时刷新回调，传入当前玩家ID
-                _dpsTrendChart.SetRefreshCallback(() =>
-                {
-                    try
-                    {
-                        // 只有在正在捕获数据时才更新数据点，避免停止抓包后继续显示虚假数据
-                        if (ChartVisualizationService.IsCapturing)
-                        {
-                            ChartVisualizationService.UpdateAllDataPoints();
-                        }
-
-                        // 根据当前选择的模式决定显示的数据类型
-                        var dataType = segmented1.SelectIndex switch
-                        {
-                            0 => ChartDataType.Damage,      // 伤害
-                            1 => ChartDataType.Healing,     // 治疗
-                            2 => ChartDataType.TakenDamage, // 承伤
-                            _ => ChartDataType.Damage       // 默认伤害
-                        };
-
-                        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"图表刷新回调出错: {ex.Message}");
-                    }
-                });
+                SetupTrendChartRefreshCallback();
 
                 // 添加到panel7
                 collapseItem1.Controls.Add(_dpsTrendChart);
@@ -231,13 +234,6 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 try
                 {
-                    // 只有在正在捕获数据时才更新数据点，避免停止抓包后继续显示虚假数据
-                    if (ChartVisualizationService.IsCapturing)
-                    {
-                        ChartVisualizationService.UpdateAllDataPoints();
-                    }
-
-                    // 根据当前选择的模式决定显示的数据类型
                     var dataType = segmented1.SelectIndex switch
                     {
                         0 => ChartDataType.Damage,      // 伤害
@@ -246,8 +242,8 @@ namespace StarResonanceDpsAnalysis.Control
                         _ => ChartDataType.Damage       // 默认伤害
                     };
 
-                    // 刷新图表，传入当前玩家ID和数据类型
-                    ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType);
+                    var source = FormManager.showTotal ? ChartDataSource.FullRecord : ChartDataSource.Current;
+                    ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType, source);
                 }
                 catch (Exception ex)
                 {
@@ -324,140 +320,6 @@ namespace StarResonanceDpsAnalysis.Control
 
         }
 
-
-
-
-        private void TitleText_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                FormManager.ReleaseCapture();
-                FormManager.SendMessage(this.Handle, FormManager.WM_NCLBUTTONDOWN, FormManager.HTCAPTION, 0);
-            }
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            SelectDataType();
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            // 停止图表自动刷新
-            if (_dpsTrendChart != null)
-            {
-                _dpsTrendChart.StopAutoRefresh();
-            }
-
-            this.Close();
-        }
-
-        /// <summary>
-        /// 检测窗体变动
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SkillDetailForm_ForeColorChanged(object sender, EventArgs e)
-        {
-            if (Config.IsLight)
-            {
-                //浅色
-                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
-                panel1.Back = panel2.Back = ColorTranslator.FromHtml("#67AEF6");
-            }
-            else
-            {
-                //深色
-                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#10529a");
-                panel1.Back = panel2.Back = ColorTranslator.FromHtml("#255AD0");
-
-            }
-
-            // 更新折线图主题
-            if (_dpsTrendChart != null)
-            {
-                _dpsTrendChart.IsDarkTheme = !Config.IsLight;
-                _dpsTrendChart.Invalidate(); // 强制重绘图表
-            }
-
-            // 更新条形图主题
-            if (_skillDistributionChart != null)
-            {
-                _skillDistributionChart.IsDarkTheme = !Config.IsLight;
-                _skillDistributionChart.Invalidate();
-            }
-
-            // 更新饼图主题
-            if (_critLuckyChart != null)
-            {
-                _critLuckyChart.IsDarkTheme = !Config.IsLight;
-                _critLuckyChart.Invalidate();
-            }
-        }
-
-
-
-        protected override void OnLoad(EventArgs e)
-        {
-            base.OnLoad(e);
-            //fixedWidth = this.Width;
-
-            // 延迟一点时间再调整图表，确保所有控件都已经完成布局
-            if (_dpsTrendChart != null)
-            {
-                this.BeginInvoke(new Action(() =>
-                {
-                    _dpsTrendChart.Invalidate();
-                    RefreshDpsTrendChart();
-                }));
-            }
-        }
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            //this.Width = fixedWidth;
-
-            // 当窗体大小变化时，强制刷新折线图布局
-            // 由于使用了Dock.Fill，图表会自动调整大小，只需要重绘即可
-            if (_dpsTrendChart != null && collapseItem1 != null)
-            {
-                _dpsTrendChart.Invalidate();
-            }
-        }
-
-        //protected override void WndProc(ref System.Windows.Forms.Message m)
-        //{
-        //    const int WM_NCHITTEST = 0x84;
-        //    const int HTTOP = 12;
-        //    const int HTBOTTOM = 15;
-        //    const int HTLEFT = 10;
-        //    const int HTRIGHT = 11;
-        //    const int HTTOPLEFT = 13;
-        //    const int HTTOPRIGHT = 14;
-        //    const int HTBOTTOMLEFT = 16;
-        //    const int HTBOTTOMRIGHT = 17;
-
-        //    base.WndProc(ref m);
-
-        //    if (m.Msg == WM_NCHITTEST)
-        //    {
-        //        int result = m.Result.ToInt32();
-
-        //        // 禁止左右和四角的拖动，只允许上下拖动
-        //        if (result == HTLEFT || result == HTRIGHT ||
-        //            result == HTTOPLEFT || result == HTTOPRIGHT ||
-        //            result == HTBOTTOMLEFT || result == HTBOTTOMRIGHT)
-        //        {
-        //            m.Result = IntPtr.Zero; // 禁用这些区域
-        //        }
-        //    }
-        //}
-
-        // 建议放在类里（如果还没有）
-        // using StarResonanceDpsAnalysis.Plugin.DamageStatistics; // 记得加 using
-
-
         private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
         {
             if (isSelect) return;
@@ -492,26 +354,11 @@ namespace StarResonanceDpsAnalysis.Control
             UpdateCritLuckyChart();
         }
 
-
-        private void panel4_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        /// <summary>
-        /// 更新玩家信息
-        /// </summary>
-        /// <param name="nickname"></param>
-        /// <param name="power"></param>
-        /// <param name="profession"></param>
         public void GetPlayerInfo(string nickname, int power, string profession)
         {
-            // 注释掉玩家名称的显示
             NickNameText.Text = nickname;
             PowerText.Text = power.ToString();
             UidText.Text = Uid.ToString();
-
-
 
             object? resourceObj = Properties.Resources.ResourceManager.GetObject(profession + "10");
 
@@ -529,58 +376,23 @@ namespace StarResonanceDpsAnalysis.Control
                 table_DpsDetailDataTable.BackgroundImage = null; // 默认空白
             }
 
-            // 更新玩家信息后，重新初始化图表以显示新玩家的数据
             if (_dpsTrendChart != null)
             {
-                // 重新设置刷新回调以使用新的玩家ID
-                _dpsTrendChart.SetRefreshCallback(() =>
-                {
-                    try
-                    {
-                        // 只有在正在捕获数据时才更新数据点，避免停止抓包后继续显示虚假数据
-                        if (ChartVisualizationService.IsCapturing)
-                        {
-                            ChartVisualizationService.UpdateAllDataPoints();
-                        }
-
-                        // 根据当前选择的模式决定显示的数据类型
-                        var dataType = segmented1.SelectIndex switch
-                        {
-                            0 => ChartDataType.Damage,      // 伤害
-                            1 => ChartDataType.Healing,     // 治疗
-                            2 => ChartDataType.TakenDamage, // 承伤
-                            _ => ChartDataType.Damage       // 默认伤害
-                        };
-
-                        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"图表刷新回调出错: {ex.Message}");
-                    }
-                });
-
+                SetupTrendChartRefreshCallback();
                 // 立即刷新图表数据
                 RefreshDpsTrendChart();
             }
         }
 
-        /// <summary>
-        /// 重置DPS趋势图表（用于数据清空）
-        /// </summary>
         public void ResetDpsTrendChart()
         {
             if (_dpsTrendChart != null)
             {
                 try
                 {
-                    // 完全重置图表状态
                     _dpsTrendChart.FullReset();
-
-                    // 使用统一的配置管理器重新应用设置
                     ChartConfigManager.ApplySettings(_dpsTrendChart);
 
-                    // 如果当前正在捕获数据，重新启动自动刷新
                     if (ChartVisualizationService.IsCapturing)
                     {
                         _dpsTrendChart.StartAutoRefresh(ChartConfigManager.REFRESH_INTERVAL);
@@ -593,27 +405,122 @@ namespace StarResonanceDpsAnalysis.Control
             }
         }
 
-        /// <summary>
-        /// 初始化暴击率与幸运率条形图（现在用条形图显示暴击率数据）
-        /// </summary>
+        private void splitter1_SplitterMoving(object sender, SplitterCancelEventArgs e)
+        {
+            if (e.SplitX < 350)
+            {
+                e.Cancel = true;
+                return;
+            }
+
+            var offsetFrom350 = e.SplitX - 350;
+            var steps = offsetFrom350 / SPLITTER_STEP_PIXELS; // 计算移动了多少个30px步长
+
+            var newPadding = Math.Max(10, Math.Min(300, 160 - steps * PADDING_ADJUSTMENT));
+            var newGridLines = Math.Max(3, Math.Min(10, 5 + steps));
+
+            if (_dpsTrendChart != null)
+            {
+                var currentGridLines = _dpsTrendChart.GetVerticalGridLines();
+                var currentPadding = _dpsTrendChart.GetPaddingRight();
+
+                if (currentGridLines != newGridLines || currentPadding != newPadding)
+                {
+                    _dpsTrendChart.SetPaddingRight(newPadding);
+                    _dpsTrendChart.SetVerticalGridLines(newGridLines);
+                }
+            }
+        }
+
+        private void splitter1_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+            if (_dpsTrendChart != null)
+            {
+                var offsetFrom350 = e.SplitX - 350;
+                var steps = offsetFrom350 / SPLITTER_STEP_PIXELS;
+
+                _lastSplitterPosition = 350 + steps * SPLITTER_STEP_PIXELS;
+
+                var finalPadding = Math.Max(10, Math.Min(300, 160 - steps * PADDING_ADJUSTMENT));
+                var finalGridLines = Math.Max(3, Math.Min(10, 5 + steps));
+
+                _dpsTrendChart.SetPaddingRight(finalPadding);
+                _dpsTrendChart.SetVerticalGridLines(finalGridLines);
+
+                _dpsTrendChart.Invalidate();
+            }
+        }
+
+        private void TitleText_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                FormManager.ReleaseCapture();
+                FormManager.SendMessage(this.Handle, FormManager.WM_NCLBUTTONDOWN, FormManager.HTCAPTION, 0);
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            SelectDataType();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            _dpsTrendChart?.StopAutoRefresh();
+            Close();
+        }
+
+        private void ApplyThemeToCharts()
+        {
+            var isDark = !Config.IsLight;
+            if (_dpsTrendChart != null)
+            {
+                _dpsTrendChart.IsDarkTheme = isDark;
+                _dpsTrendChart.Invalidate();
+            }
+            if (_skillDistributionChart != null)
+            {
+                _skillDistributionChart.IsDarkTheme = isDark;
+                _skillDistributionChart.Invalidate();
+            }
+            if (_critLuckyChart != null)
+            {
+                _critLuckyChart.IsDarkTheme = isDark;
+                _critLuckyChart.Invalidate();
+            }
+        }
+
+        private void SkillDetailForm_ForeColorChanged(object sender, EventArgs e)
+        {
+            if (Config.IsLight)
+            {
+                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
+                panel1.Back = panel2.Back = ColorTranslator.FromHtml("#67AEF6");
+            }
+            else
+            {
+                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#10529a");
+                panel1.Back = panel2.Back = ColorTranslator.FromHtml("#255AD0");
+            }
+
+            ApplyThemeToCharts();
+        }
+
         private void InitializeSkillDistributionChart()
         {
             try
             {
-                // 创建暴击率与幸运率条形图
                 _skillDistributionChart = new FlatBarChart
                 {
                     Dock = DockStyle.Fill,
-                    TitleText = "", // 移除标题以增大图表占比
+                    TitleText = "",
                     XAxisLabel = "",
                     YAxisLabel = "",
                     IsDarkTheme = !Config.IsLight
                 };
-
-                // 添加到collapseItem3
+                collapseItem3.Controls.Clear();
                 collapseItem3.Controls.Add(_skillDistributionChart);
-
-                // 初始化数据
                 UpdateSkillDistributionChart();
             }
             catch (Exception ex)
@@ -622,123 +529,26 @@ namespace StarResonanceDpsAnalysis.Control
             }
         }
 
-        /// <summary>
-        /// 初始化技能占比饼图（现在用饼图显示技能分布数据）
-        /// </summary>
         private void InitializeCritLuckyChart()
         {
             try
             {
-                // 创建技能占比饼图
                 _critLuckyChart = new FlatPieChart
                 {
                     Dock = DockStyle.Fill,
-                    TitleText = "", // 移除标题以增大图表占比
+                    TitleText = "",
                     ShowLabels = true,
                     ShowPercentages = true,
                     IsDarkTheme = !Config.IsLight
                 };
-
-                // 添加到collapseItem2
+                collapseItem2.Controls.Clear();
                 collapseItem2.Controls.Add(_critLuckyChart);
-
-                // 初始化数据
                 UpdateCritLuckyChart();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"技能占比图表初始化失败: {ex.Message}");
             }
-        }
-
-        /// <summary>
-        /// 限制分割器移动并动态调整图表参数
-        /// </summary>
-        private void splitter1_SplitterMoving(object sender, SplitterCancelEventArgs e)
-        {
-            // 如果尝试将分割器拖动到小于350的位置，则取消移动
-            if (e.SplitX < 350)
-            {
-                e.Cancel = true;
-                return;
-            }
-
-            // 计算相对于基准位置350的偏移
-            var offsetFrom350 = e.SplitX - 350;
-            var steps = offsetFrom350 / SPLITTER_STEP_PIXELS; // 计算移动了多少个30px步长
-
-            // 根据用户需求调整_paddingRight：每向右移动30px，_paddingRight减15
-            var newPadding = Math.Max(10, Math.Min(300, 160 - steps * PADDING_ADJUSTMENT));
-
-            // 直接通过分割器位移来控制垂直线条数量
-            // 基准：分割器350位置时，垂直线条=5
-            // 向右移动增加线条，向左移动减少线条
-            // ★ 修改：将最大垂直线条数从20改为10
-            var newGridLines = Math.Max(3, Math.Min(10, 5 + steps));
-
-            // 添加调试输出
-            //Console.WriteLine($"[DEBUG] splitter1_SplitterMoving - 位置: {e.SplitX}, 偏移: {offsetFrom350}, 步数: {steps}, 新线条数: {newGridLines}");
-
-            if (_dpsTrendChart != null)
-            {
-                var currentGridLines = _dpsTrendChart.GetVerticalGridLines();
-                var currentPadding = _dpsTrendChart.GetPaddingRight();
-
-                //Console.WriteLine($"[DEBUG] 当前参数 - 线条数: {currentGridLines}, PaddingRight: {currentPadding}");
-
-                // 只有当计算出的值与当前值不同时才更新
-                if (currentGridLines != newGridLines || currentPadding != newPadding)
-                {
-                    _dpsTrendChart.SetPaddingRight(newPadding);
-                    _dpsTrendChart.SetVerticalGridLines(newGridLines);
-
-                    //Console.WriteLine($"[SUCCESS] 更新成功 - 分割器位置: {e.SplitX}, 移动步数: {steps}, PaddingRight: {newPadding}, 垂直线条: {newGridLines}");
-                }
-                else
-                {
-                    // Console.WriteLine($"[SKIP] 参数未变化，跳过更新");
-                }
-            }
-            else
-            {
-                Console.WriteLine($"[ERROR] _dpsTrendChart 为 null，无法更新参数");
-            }
-        }
-
-        /// <summary>
-        /// 分割器移动完成后的处理
-        /// </summary>
-        private void splitter1_SplitterMoved(object sender, SplitterEventArgs e)
-        {
-            // 最终确认分割器位置，确保图表参数正确应用
-            if (_dpsTrendChart != null)
-            {
-                // 计算相对于基准位置350的偏移步数
-                var offsetFrom350 = e.SplitX - 350;
-                var steps = offsetFrom350 / SPLITTER_STEP_PIXELS;
-
-                // 同步最终位置记录
-                _lastSplitterPosition = 350 + steps * SPLITTER_STEP_PIXELS;
-
-                // 最终计算参数
-                var finalPadding = Math.Max(10, Math.Min(300, 160 - steps * PADDING_ADJUSTMENT));
-                // ★ 修改：将最大垂直线条数从20改为10
-                var finalGridLines = Math.Max(3, Math.Min(10, 5 + steps));
-
-                // 确保最终设置正确
-                _dpsTrendChart.SetPaddingRight(finalPadding);
-                _dpsTrendChart.SetVerticalGridLines(finalGridLines);
-
-                // 强制重绘图表以应用新的设置
-                _dpsTrendChart.Invalidate();
-
-                //Console.WriteLine($"分割器移动完成 - 实际位置: {e.SplitX}, 基准位置: {_lastSplitterPosition}, 最终PaddingRight: {finalPadding}, 最终垂直线条: {finalGridLines}");
-            }
-        }
-
-        private void table_DpsDetailDataTable_CellClick(object sender, TableClickEventArgs e)
-        {
-
         }
     }
 }

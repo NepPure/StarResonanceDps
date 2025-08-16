@@ -1,5 +1,6 @@
 using StarResonanceDpsAnalysis.Plugin.Charts;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using System.Timers;
 
 namespace StarResonanceDpsAnalysis.Plugin
 {
@@ -114,12 +115,18 @@ namespace StarResonanceDpsAnalysis.Plugin
     public static class ChartVisualizationService
     {
         #region 数据存储
-        // 不同数据类型的历史存储
-        private static readonly Dictionary<ulong, List<(DateTime Time, double Dps)>> _dpsHistory = new();
-        private static readonly Dictionary<ulong, List<(DateTime Time, double Hps)>> _hpsHistory = new();
-        private static readonly Dictionary<ulong, List<(DateTime Time, double TakenDps)>> _takenDpsHistory = new();
-        
-        private static DateTime? _combatStartTime;
+        // ===== 将历史按数据源分离：Current 与 FullRecord 各自一份 =====
+        private static readonly Dictionary<ulong, List<(DateTime Time, double Dps)>> _dpsHistoryCurrent = new();
+        private static readonly Dictionary<ulong, List<(DateTime Time, double Hps)>> _hpsHistoryCurrent = new();
+        private static readonly Dictionary<ulong, List<(DateTime Time, double TakenDps)>> _takenDpsHistoryCurrent = new();
+
+        private static readonly Dictionary<ulong, List<(DateTime Time, double Dps)>> _dpsHistoryFull = new();
+        private static readonly Dictionary<ulong, List<(DateTime Time, double Hps)>> _hpsHistoryFull = new();
+        private static readonly Dictionary<ulong, List<(DateTime Time, double TakenDps)>> _takenDpsHistoryFull = new();
+
+        private static DateTime? _currentCombatStartTime;
+        private static DateTime? _fullCombatStartTime;
+
         private static readonly List<WeakReference> _registeredCharts = new();
 
         private const int MAX_HISTORY_POINTS = 500;
@@ -127,8 +134,23 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         public static bool IsCapturing { get; private set; } = false;
 
-        // 新增：数据源模式（默认“当前战斗”）
+        // 保持旧的默认数据源（用于未显式指定来源的 API）
         public static ChartDataSource DataSource { get; private set; } = ChartDataSource.Current;
+
+        // 频率节流，避免多个图表同时触发重复采样
+        private static DateTime _lastUpdateAt = DateTime.MinValue;
+        private const int MIN_UPDATE_INTERVAL_MS = 200; // 两次采样至少间隔 200ms
+
+        // 后台采样定时器（即使没有打开任何图表也会采样）
+        private static System.Timers.Timer? _samplingTimer;
+
+        // 当前战斗“从0到>0”的边沿检测，自动切分单次会话（改为依赖战斗时钟）
+        private static bool _wasInCombat = false;
+
+        // ===== 全程即时速率计算：使用“差分”获得实时值（避免使用累计平均） =====
+        private static readonly Dictionary<ulong, (ulong Total, DateTime Ts)> _fullLastDamage = new();
+        private static readonly Dictionary<ulong, (ulong Total, DateTime Ts)> _fullLastHealing = new();
+        private static readonly Dictionary<ulong, (ulong Total, DateTime Ts)> _fullLastTaken = new();
         #endregion
 
         #region 数据更新
@@ -141,17 +163,17 @@ namespace StarResonanceDpsAnalysis.Plugin
             DataSource = source;
             if (clearHistory)
             {
-                ClearAllHistory();
+                if (source == ChartDataSource.Current)
+                    ClearCurrentHistory();
+                else
+                    ClearFullHistory();
             }
         }
 
-        /// <summary>
-        /// 添加数据点（通用方法）
-        /// </summary>
+        // 内部：向指定历史集合添加一个数据点（保留最大点数）
         private static void AddDataPoint<T>(Dictionary<ulong, List<(DateTime, T)>> history, ulong playerId, T value)
         {
             var now = DateTime.Now;
-            _combatStartTime ??= now;
 
             if (!history.TryGetValue(playerId, out var playerHistory))
             {
@@ -163,55 +185,139 @@ namespace StarResonanceDpsAnalysis.Plugin
             var safeValue = value is double d ? (T)(object)Math.Max(0, d) : value;
             playerHistory.Add((now, safeValue));
 
-            // 控制历史长度
             if (playerHistory.Count > MAX_HISTORY_POINTS)
                 playerHistory.RemoveAt(0);
         }
 
-        public static void AddDpsDataPoint(ulong playerId, double dps) =>
-            AddDataPoint(_dpsHistory, playerId, dps);
+        // === 当前战斗：添加数据点，并在首次出现正值时设定起始时间 ===
+        public static void AddDpsDataPointCurrent(ulong playerId, double dps)
+        {
+            if (_currentCombatStartTime is null && dps > 0)
+                _currentCombatStartTime = DateTime.Now;
+            AddDataPoint(_dpsHistoryCurrent, playerId, dps);
+        }
+        public static void AddHpsDataPointCurrent(ulong playerId, double hps)
+        {
+            if (_currentCombatStartTime is null && hps > 0)
+                _currentCombatStartTime = DateTime.Now;
+            AddDataPoint(_hpsHistoryCurrent, playerId, hps);
+        }
+        public static void AddTakenDpsDataPointCurrent(ulong playerId, double takenDps)
+        {
+            if (_currentCombatStartTime is null && takenDps > 0)
+                _currentCombatStartTime = DateTime.Now;
+            AddDataPoint(_takenDpsHistoryCurrent, playerId, takenDps);
+        }
 
-        public static void AddHpsDataPoint(ulong playerId, double hps) =>
-            AddDataPoint(_hpsHistory, playerId, hps);
+        // === 全程：添加数据点，并在首次出现正值时设定起始时间 ===
+        public static void AddDpsDataPointFull(ulong playerId, double dps)
+        {
+            if (_fullCombatStartTime is null && dps > 0)
+                _fullCombatStartTime = DateTime.Now;
+            AddDataPoint(_dpsHistoryFull, playerId, dps);
+        }
+        public static void AddHpsDataPointFull(ulong playerId, double hps)
+        {
+            if (_fullCombatStartTime is null && hps > 0)
+                _fullCombatStartTime = DateTime.Now;
+            AddDataPoint(_hpsHistoryFull, playerId, hps);
+        }
+        public static void AddTakenDpsDataPointFull(ulong playerId, double takenDps)
+        {
+            if (_fullCombatStartTime is null && takenDps > 0)
+                _fullCombatStartTime = DateTime.Now;
+            AddDataPoint(_takenDpsHistoryFull, playerId, takenDps);
+        }
 
-        public static void AddTakenDpsDataPoint(ulong playerId, double takenDps) =>
-            AddDataPoint(_takenDpsHistory, playerId, takenDps);
-
+        /// <summary>
+        /// 统一采样：同时更新 Current 与 FullRecord 两套历史。
+        /// </summary>
         public static void UpdateAllDataPoints()
         {
-            if (DataSource == ChartDataSource.Current)
+            // 若未处于采样状态（例如 F9 刚执行过停止与清空），则不进行任何更新，避免清空后马上被重填
+            if (!IsCapturing) return;
+
+            var now = DateTime.Now;
+            if ((now - _lastUpdateAt).TotalMilliseconds < MIN_UPDATE_INTERVAL_MS)
+                return;
+            _lastUpdateAt = now;
+
+            // === Current：来自 StatisticData 的实时值 ===
+            var playersCurrent = StatisticData._manager.GetPlayersWithCombatData();
+            foreach (var player in playersCurrent)
+                player.UpdateRealtimeStats();
+
+            // 用“战斗时钟状态”判断新的一场，避免因为实时窗口归零而误判
+            var nowInCombat = StatisticData._manager.IsInCombat;
+            if (!_wasInCombat && nowInCombat)
             {
-                var players = StatisticData._manager.GetPlayersWithCombatData();
-
-                // 更新实时统计
-                foreach (var player in players)
-                    player.UpdateRealtimeStats();
-
-                // 写入数据点
-                foreach (var player in players)
-                {
-                    AddDpsDataPoint(player.Uid, player.DamageStats.RealtimeValue);
-                    AddHpsDataPoint(player.Uid, player.HealingStats.RealtimeValue);
-
-                    // 承伤也使用实时统计值
-                    AddTakenDpsDataPoint(player.Uid, player.TakenStats.RealtimeValue);
-                }
+                // 新战斗开始：清理单次历史，时间基与主界面时钟对齐
+                ClearCurrentHistory();
+                _currentCombatStartTime = DateTime.Now - StatisticData._manager.GetCombatDuration();
             }
-            else // 全程数据源
-            {
-                // 使用全程统计的“当前时刻”快照计算 Dps/Hps/承伤每秒
-                var totals = FullRecord.GetPlayersWithTotals(includeZero: false);
-                foreach (var p in totals)
-                {
-                    // Dps/Hps 直接来自 FullRecord 的计算
-                    AddDpsDataPoint(p.Uid, p.Dps);
-                    AddHpsDataPoint(p.Uid, p.Hps);
 
-                    // 承伤：通过 Shim 读取该玩家的承伤“有效时长均值”
-                    var shim = FullRecord.Shim.GetOrCreate(p.Uid);
-                    var t = shim.TakenStats;
-                    double takenPerSec = t.ActiveSeconds > 0 ? Math.Round(t.Total / t.ActiveSeconds, 2, MidpointRounding.AwayFromZero) : 0.0;
-                    AddTakenDpsDataPoint(p.Uid, takenPerSec);
+            foreach (var player in playersCurrent)
+            {
+                AddDpsDataPointCurrent(player.Uid, player.DamageStats.RealtimeValue);
+                AddHpsDataPointCurrent(player.Uid, player.HealingStats.RealtimeValue);
+                AddTakenDpsDataPointCurrent(player.Uid, player.TakenStats.RealtimeValue);
+            }
+            _wasInCombat = nowInCombat;
+
+            // === FullRecord：改为记录“实时变化率”（差分），而不是累计平均或总值 ===
+            // 获取当前累计总量
+            var totals = FullRecord.GetPlayersWithTotals(includeZero: true);
+            foreach (var p in totals)
+            {
+                // Damage -> 实时DPS（差分）
+                if (_fullLastDamage.TryGetValue(p.Uid, out var lastDmg))
+                {
+                    var dt = (now - lastDmg.Ts).TotalSeconds;
+                    if (dt > 0)
+                    {
+                        var delta = (long)p.TotalDamage - (long)lastDmg.Total;
+                        var dps = delta > 0 ? delta / dt : 0.0;
+                        AddDpsDataPointFull(p.Uid, Math.Round(dps, 2, MidpointRounding.AwayFromZero));
+                    }
+                    _fullLastDamage[p.Uid] = ((ulong)Math.Max(0, (long)p.TotalDamage), now);
+                }
+                else
+                {
+                    _fullLastDamage[p.Uid] = (p.TotalDamage, now);
+                }
+
+                // Healing -> 实时HPS（差分）
+                if (_fullLastHealing.TryGetValue(p.Uid, out var lastHeal))
+                {
+                    var dt = (now - lastHeal.Ts).TotalSeconds;
+                    if (dt > 0)
+                    {
+                        var delta = (long)p.TotalHealing - (long)lastHeal.Total;
+                        var hps = delta > 0 ? delta / dt : 0.0;
+                        AddHpsDataPointFull(p.Uid, Math.Round(hps, 2, MidpointRounding.AwayFromZero));
+                    }
+                    _fullLastHealing[p.Uid] = ((ulong)Math.Max(0, (long)p.TotalHealing), now);
+                }
+                else
+                {
+                    _fullLastHealing[p.Uid] = (p.TotalHealing, now);
+                }
+
+                // Taken -> 实时承伤每秒（差分）
+                if (_fullLastTaken.TryGetValue(p.Uid, out var lastTaken))
+                {
+                    var dt = (now - lastTaken.Ts).TotalSeconds;
+                    if (dt > 0)
+                    {
+                        var delta = (long)p.TakenDamage - (long)lastTaken.Total;
+                        var tps = delta > 0 ? delta / dt : 0.0;
+                        AddTakenDpsDataPointFull(p.Uid, Math.Round(tps, 2, MidpointRounding.AwayFromZero));
+                    }
+                    _fullLastTaken[p.Uid] = ((ulong)Math.Max(0, (long)p.TakenDamage), now);
+                }
+                else
+                {
+                    _fullLastTaken[p.Uid] = (p.TakenDamage, now);
                 }
             }
 
@@ -220,18 +326,19 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         private static void CheckAndAddZeroValues()
         {
-            HashSet<ulong> activePlayerIds;
-            if (DataSource == ChartDataSource.Current)
-                activePlayerIds = StatisticData._manager.GetPlayersWithCombatData().Select(p => p.Uid).ToHashSet();
-            else
-                activePlayerIds = FullRecord.GetPlayersWithTotals(includeZero: false).Select(p => p.Uid).ToHashSet();
+            HashSet<ulong> activeCurrent = StatisticData._manager.GetPlayersWithCombatData().Select(p => p.Uid).ToHashSet();
+            HashSet<ulong> activeFull = FullRecord.GetPlayersWithTotals(includeZero: false).Select(p => p.Uid).ToHashSet();
 
             var now = DateTime.Now;
 
-            // 为不活跃的玩家补 0 值
-            CheckHistoryForZeroValues(_dpsHistory, activePlayerIds, now, AddDpsDataPoint);
-            CheckHistoryForZeroValues(_hpsHistory, activePlayerIds, now, AddHpsDataPoint);
-            CheckHistoryForZeroValues(_takenDpsHistory, activePlayerIds, now, AddTakenDpsDataPoint);
+            // 为非活跃玩家也补 0 值（防止长时间停留在上一数值）
+            CheckHistoryForZeroValues(_dpsHistoryCurrent, activeCurrent, now, (id, _) => AddDpsDataPointCurrent(id, 0));
+            CheckHistoryForZeroValues(_hpsHistoryCurrent, activeCurrent, now, (id, _) => AddHpsDataPointCurrent(id, 0));
+            CheckHistoryForZeroValues(_takenDpsHistoryCurrent, activeCurrent, now, (id, _) => AddTakenDpsDataPointCurrent(id, 0));
+
+            CheckHistoryForZeroValues(_dpsHistoryFull, activeFull, now, (id, _) => AddDpsDataPointFull(id, 0));
+            CheckHistoryForZeroValues(_hpsHistoryFull, activeFull, now, (id, _) => AddHpsDataPointFull(id, 0));
+            CheckHistoryForZeroValues(_takenDpsHistoryFull, activeFull, now, (id, _) => AddTakenDpsDataPointFull(id, 0));
         }
 
         private static void CheckHistoryForZeroValues<T>(Dictionary<ulong, List<(DateTime Time, T Value)>> history,
@@ -257,33 +364,71 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         public static void ClearAllHistory()
         {
-            _dpsHistory.Clear();
-            _hpsHistory.Clear();
-            _takenDpsHistory.Clear();
-            _combatStartTime = null;
+            ClearCurrentHistory();
+            ClearFullHistory();
+        }
+
+        public static void ClearCurrentHistory()
+        {
+            _dpsHistoryCurrent.Clear();
+            _hpsHistoryCurrent.Clear();
+            _takenDpsHistoryCurrent.Clear();
+            _currentCombatStartTime = null;
+        }
+
+        public static void ClearFullHistory()
+        {
+            _dpsHistoryFull.Clear();
+            _hpsHistoryFull.Clear();
+            _takenDpsHistoryFull.Clear();
+            _fullCombatStartTime = null;
+
+            // 同步清空差分快照，避免跨会话造成瞬时高值
+            _fullLastDamage.Clear();
+            _fullLastHealing.Clear();
+            _fullLastTaken.Clear();
         }
 
         public static void OnCombatEnd()
         {
-            foreach (var playerId in _dpsHistory.Keys.ToList())
+            // 在战斗结束时压入 0 值，以便曲线自然回落
+            foreach (var playerId in _dpsHistoryCurrent.Keys.ToList())
             {
-                var history = _dpsHistory[playerId];
+                var history = _dpsHistoryCurrent[playerId];
                 if (history.Count > 0 && history.Last().Dps > 0)
-                    AddDpsDataPoint(playerId, 0);
+                    AddDpsDataPointCurrent(playerId, 0);
             }
-
-            foreach (var playerId in _hpsHistory.Keys.ToList())
+            foreach (var playerId in _hpsHistoryCurrent.Keys.ToList())
             {
-                var history = _hpsHistory[playerId];
+                var history = _hpsHistoryCurrent[playerId];
                 if (history.Count > 0 && history.Last().Hps > 0)
-                    AddHpsDataPoint(playerId, 0);
+                    AddHpsDataPointCurrent(playerId, 0);
+            }
+            foreach (var playerId in _takenDpsHistoryCurrent.Keys.ToList())
+            {
+                var history = _takenDpsHistoryCurrent[playerId];
+                if (history.Count > 0 && history.Last().TakenDps > 0)
+                    AddTakenDpsDataPointCurrent(playerId, 0);
             }
 
-            foreach (var playerId in _takenDpsHistory.Keys.ToList())
+            // 全程也补 0 值，便于图形衔接
+            foreach (var playerId in _dpsHistoryFull.Keys.ToList())
             {
-                var history = _takenDpsHistory[playerId];
+                var history = _dpsHistoryFull[playerId];
+                if (history.Count > 0 && history.Last().Dps > 0)
+                    AddDpsDataPointFull(playerId, 0);
+            }
+            foreach (var playerId in _hpsHistoryFull.Keys.ToList())
+            {
+                var history = _hpsHistoryFull[playerId];
+                if (history.Count > 0 && history.Last().Hps > 0)
+                    AddHpsDataPointFull(playerId, 0);
+            }
+            foreach (var playerId in _takenDpsHistoryFull.Keys.ToList())
+            {
+                var history = _takenDpsHistoryFull[playerId];
                 if (history.Count > 0 && history.Last().TakenDps > 0)
-                    AddTakenDpsDataPoint(playerId, 0);
+                    AddTakenDpsDataPointFull(playerId, 0);
             }
         }
         #endregion
@@ -305,12 +450,8 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
 
         /// <summary>
-        /// 创建 DPS 趋势折线图（FlatLineChart）
+        /// 创建 DPS 趋势折线图（默认使用全局 DataSource）
         /// </summary>
-        /// <param name="width">图表宽，默认 800</param>
-        /// <param name="height">图表高，默认 400</param>
-        /// <param name="specificPlayerId">可选：指定玩家 ID（只显示该玩家曲线）</param>
-        /// <returns>已创建并初始化的 DPS 趋势图控件</returns>
         public static FlatLineChart CreateDpsTrendChart(int width = 800, int height = 400, ulong? specificPlayerId = null)
         {
             var chart = CreateChart<FlatLineChart>(new Size(width, height));
@@ -325,7 +466,19 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
 
         /// <summary>
-        /// 创建技能伤害占比饼图（FlatPieChart）
+        /// 为指定数据源创建 DPS 曲线图（Current / FullRecord）。
+        /// </summary>
+        public static FlatLineChart CreateDpsTrendChartForSource(ChartDataSource source, int width = 800, int height = 400, ulong? specificPlayerId = null)
+        {
+            var chart = CreateChart<FlatLineChart>(new Size(width, height));
+            RegisterChart(chart);
+            if (IsCapturing) chart.StartAutoRefresh(ChartConfigManager.REFRESH_INTERVAL);
+            RefreshDpsTrendChart(chart, specificPlayerId, ChartDataType.Damage, source);
+            return chart;
+        }
+
+        /// <summary>
+        /// ??????????????????FlatPieChart??
         /// </summary>
         public static FlatPieChart CreateSkillDamagePieChart(ulong playerId, int width = 400, int height = 400)
         {
@@ -345,8 +498,8 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
 
         /// <summary>
-        /// 创建 DPS 散点图（FlatScatterChart）
-        /// </summary>
+                /// 创建 DPS 散点图（FlatScatterChart）
+/// </summary>
         public static FlatScatterChart CreateDpsRadarChart(int width = 400, int height = 400)
         {
             var chart = CreateChart<FlatScatterChart>(new Size(width, height));
@@ -368,28 +521,56 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         #region 图表刷新
         /// <summary>
-        /// 刷新 DPS 趋势图数据，支持单人/多人以及不同数据类型
+        /// 刷新 DPS 趋势图数据，支持单人/多人以及不同数据类型（默认使用全局 DataSource）
         /// </summary>
         public static void RefreshDpsTrendChart(FlatLineChart chart, ulong? specificPlayerId = null, ChartDataType dataType = ChartDataType.Damage)
+            => RefreshDpsTrendChart(chart, specificPlayerId, dataType, DataSource);
+
+        /// <summary>
+        /// 按指定数据源刷新曲线（Current/FullRecord）。
+        /// </summary>
+        public static void RefreshDpsTrendChart(FlatLineChart chart, ulong? specificPlayerId, ChartDataType dataType, ChartDataSource source)
         {
-            // 记录与恢复视图状态
+            // 记录图表状态
             var timeScale = chart.GetTimeScale();
             var viewOffset = chart.GetViewOffset();
             var hadData = chart.HasData();
 
             chart.ClearSeries();
 
-            // 根据数据类型选择对应的历史数据
-            Dictionary<ulong, List<(DateTime Time, double Value)>> historyData = dataType switch
+            // 选择对应历史
+            Dictionary<ulong, List<(DateTime Time, double Value)>> historyData;
+            DateTime? startTs;
+            if (source == ChartDataSource.FullRecord)
             {
-                ChartDataType.Healing => _hpsHistory.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.Hps)).ToList()),
-                ChartDataType.TakenDamage => _takenDpsHistory.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.TakenDps)).ToList()),
-                _ => _dpsHistory.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.Dps)).ToList())
-            };
+                historyData = dataType switch
+                {
+                    ChartDataType.Healing => _hpsHistoryFull.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.Hps)).ToList()),
+                    ChartDataType.TakenDamage => _takenDpsHistoryFull.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.TakenDps)).ToList()),
+                    _ => _dpsHistoryFull.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.Dps)).ToList()),
+                };
+                startTs = _fullCombatStartTime;
+            }
+            else
+            {
+                historyData = dataType switch
+                {
+                    ChartDataType.Healing => _hpsHistoryCurrent.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.Hps)).ToList()),
+                    ChartDataType.TakenDamage => _takenDpsHistoryCurrent.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.TakenDps)).ToList()),
+                    _ => _dpsHistoryCurrent.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Select(item => (item.Time, (double)item.Dps)).ToList()),
+                };
+                // 优先用“主界面战斗时长”推导出的开始时间，保证与单次计时一致
+                startTs = (_currentCombatStartTime != null) ? _currentCombatStartTime : DateTime.Now - StatisticData._manager.GetCombatDuration();
+            }
 
-            if (historyData.Count == 0 || _combatStartTime == null) return;
+            // 若没有任何历史或起始时间未知（例如清空后），直接返回（保持“暂无数据”空态）
+            if (historyData.Count == 0 || startTs == null)
+            {
+                chart.Invalidate();
+                return;
+            }
 
-            var startTime = _combatStartTime.Value;
+            var startTime = startTs.Value;
 
             if (specificPlayerId.HasValue)
             {
@@ -400,7 +581,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 RefreshMultiPlayerChart(chart, historyData, startTime);
             }
 
-            // 恢复视图状态（仅在用户交互过时）
+            // 恢复视图
             if (hadData && chart.HasUserInteracted())
             {
                 chart.SetTimeScale(timeScale);
@@ -415,7 +596,14 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 var points = ConvertToPoints(playerHistory, startTime);
                 if (points.Count > 0)
+                {
+                    // 确保从 0 秒开始：首个点若大于 0s，则补一个 (0,0)
+                    if (points[0].X > 0f)
+                    {
+                        points.Insert(0, new PointF(0f, 0f));
+                    }
                     chart.AddSeries("", points);
+                }
             }
         }
 
@@ -527,18 +715,53 @@ namespace StarResonanceDpsAnalysis.Plugin
         {
             IsCapturing = false;
             ExecuteOnRegisteredCharts(chart => chart.StopAutoRefresh());
+
+            try { _samplingTimer?.Stop(); } catch { }
+            try { _samplingTimer?.Dispose(); } catch { }
+            _samplingTimer = null;
         }
 
         public static void StartAllChartsAutoRefresh(int intervalMs = 1000)
         {
             IsCapturing = true;
             ExecuteOnRegisteredCharts(chart => chart.StartAutoRefresh(intervalMs));
+
+            // 启动后台采样（即使暂未打开任何图表也会积累数据）
+            if (_samplingTimer == null)
+            {
+                _samplingTimer = new System.Timers.Timer(Math.Max(200, intervalMs));
+                _samplingTimer.AutoReset = true;
+                _samplingTimer.Elapsed += (_, __) =>
+                {
+                    try { UpdateAllDataPoints(); }
+                    catch (Exception ex) { Console.WriteLine($"Chart sampling error: {ex.Message}"); }
+                };
+            }
+            _samplingTimer.Interval = Math.Max(200, intervalMs);
+            _samplingTimer.Start();
+
+            // 同步一次“战斗状态”，避免刚启动时误判
+            _wasInCombat = StatisticData._manager.IsInCombat;
         }
 
         public static void FullResetAllCharts()
         {
             ClearAllHistory();
-            ExecuteOnRegisteredCharts(chart => chart.FullReset());
+            ExecuteOnRegisteredCharts(chart =>
+            {
+                try
+                {
+                    // 停止刷新并彻底清空曲线与视图
+                    chart.StopAutoRefresh();
+                    chart.ClearSeries();
+                    chart.FullReset();
+                    chart.Invalidate(); // 立即重绘空态
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"FullReset chart error: {ex.Message}");
+                }
+            });
         }
 
         private static void ExecuteOnRegisteredCharts(Action<FlatLineChart> action)
@@ -562,11 +785,11 @@ namespace StarResonanceDpsAnalysis.Plugin
         public static bool HasDataToVisualize() =>
             StatisticData._manager.GetPlayersWithCombatData().Any();
 
-        public static double GetCombatDurationSeconds() =>
-            _combatStartTime?.Let(start => (DateTime.Now - start).TotalSeconds) ?? 0;
+        public static double GetCombatDurationSeconds(ChartDataSource source = ChartDataSource.Current) =>
+            (source == ChartDataSource.Current ? _currentCombatStartTime : _fullCombatStartTime)?.Let(start => (DateTime.Now - start).TotalSeconds) ?? 0;
 
         public static int GetDpsHistoryPointCount() =>
-            _dpsHistory.Sum(kvp => kvp.Value.Count);
+            _dpsHistoryCurrent.Sum(kvp => kvp.Value.Count) + _dpsHistoryFull.Sum(kvp => kvp.Value.Count);
         #endregion
     }
 
