@@ -440,20 +440,28 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         // 主题切换
         private void DpsStatisticsForm_ForeColorChanged(object sender, EventArgs e)
         {
+        
+
             if (Config.IsLight)
             {
-                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#E0E0E0");
+                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#ffffff");
+                AppConfig.colorText = Color.Black;
+                sortedProgressBarList1.OrderColor = Color.Black;
+
             }
             else
             {
-                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#999999");
+                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#000000");
+                AppConfig.colorText = Color.White;
+                sortedProgressBarList1.OrderColor = Color.White;
             }
         }
 
         private void SetDefaultFontFromResources()
         {
             DamageModeLabel.Font = AppConfig.HeaderFont;
-            PilingModeCheckbox.Font = AppConfig.HeaderFont;
+            PilingModeCheckbox.Font = AppConfig.ContentFont;
+            label2.Font = label1.Font = AppConfig.ContentFont;
         }
 
         #region 钩子

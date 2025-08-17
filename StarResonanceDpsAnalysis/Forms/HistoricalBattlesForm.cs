@@ -27,19 +27,22 @@ namespace StarResonanceDpsAnalysis.Forms
             Text = FormManager.APP_NAME;
             FormGui.SetDefaultGUI(this); // 统一设置窗体默认 GUI 风格（字体、间距、阴影等）
             ToggleTableView();
+
             label1.Font = AppConfig.TitleFont;
             select1.Font = segmented1.Font = AppConfig.ContentFont;
             var harmonyOsSansFont_Size11 = FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 11);
             label6.Font = harmonyOsSansFont_Size11;
             label3.Font = label2.Font = label5.Font = AppConfig.ContentFont;
-            
+
             table_DpsDetailDataTable.Font = AppConfig.ContentFont;
-            TeamTotalDamageLabel.Font = TeamTotalHealingLabel.Font= TeamTotalTakenDamageLabel.Font = AppConfig.DigitalFont;
+            TeamTotalDamageLabel.Font = TeamTotalHealingLabel.Font = TeamTotalTakenDamageLabel.Font = AppConfig.DigitalFont;
 
         }
 
         private void HistoricalBattlesForm_Load(object sender, EventArgs e)
         {
+            FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色 // 根据配置设置窗体的颜色主题（明亮/深色）
+
             if (FormManager.showTotal)
             {
                 ReadFullSessionTime();
@@ -255,7 +258,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
             }
 
-            
+
         }
 
         private void label1_MouseDown(object sender, MouseEventArgs e)
@@ -304,7 +307,7 @@ namespace StarResonanceDpsAnalysis.Forms
             if (e.ColumnIndex <= 0) return;
 
             // —— 行索引安全校验（AntdUI 表通常是 0-based，这里不再减 1）——
-            int idx = e.RowIndex-1;
+            int idx = e.RowIndex - 1;
             if (idx < 0 || idx >= DpsTableDatas.DpsTable.Count) return;
 
             var row = DpsTableDatas.DpsTable[idx];
@@ -355,6 +358,26 @@ namespace StarResonanceDpsAnalysis.Forms
             if (segmented1.SelectIndex != 0 && select1.SelectedValue is ComboItemFull f && f.Snapshot != null)
                 return f.Snapshot.StartedAt;
             return null;
+        }
+
+        private void HistoricalBattlesForm_ForeColorChanged(object sender, EventArgs e)
+        {
+            if(Config.IsLight)
+            {
+                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
+                splitter1.Panel2.BackColor = splitter1.BackColor = ColorTranslator.FromHtml("#FFFFFF");
+                panel1.Back = ColorTranslator.FromHtml("#255AD0");
+                splitter1.Panel1.BackColor = ColorTranslator.FromHtml("#FFFFFF");
+                table_DpsDetailDataTable.BackColor = ColorTranslator.FromHtml("#FFFFFF");
+            }
+            else
+            {
+                splitter1.Panel2.BackColor  = splitter1.BackColor = ColorTranslator.FromHtml("#1F1F1F");
+                panel1.Back = ColorTranslator.FromHtml("#255AD0");
+                splitter1.Panel1.BackColor = ColorTranslator.FromHtml("#141414");
+                table_DpsDetailDataTable.BackColor = ColorTranslator.FromHtml("#1F1F1F");
+                table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#10529a");
+            }
         }
     }
 }

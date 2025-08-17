@@ -132,6 +132,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         private static int? _combatPower = null;//战斗力
         public static int? _combatTimeClearDelaySeconds;//战斗计时清除延迟
         public static int _clearPicture = 1;//是否过图清空记录
+        public static Color colorText = Color.Black;//文字颜色
 
         /// <summary>
         /// 是否过图清全程记录

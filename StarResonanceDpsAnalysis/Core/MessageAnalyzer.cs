@@ -34,8 +34,7 @@ namespace StarResonanceDpsAnalysis.Core
         /// </summary>
         public static void Process(byte[] packets)
         {
-            try
-            {
+           
                 var packetsReader = new ByteReader(packets);
                 while (packetsReader.Remaining > 0)
                 {
@@ -61,11 +60,7 @@ namespace StarResonanceDpsAnalysis.Core
                     }
                     handler(packetReader, isZstdCompressed);
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"MessageAnalyzer.Process 阶段出现异常: {ex.Message}\r\n{ex.StackTrace}");
-            }
+        
         }
 
         /// <summary>
@@ -404,7 +399,8 @@ namespace StarResonanceDpsAnalysis.Core
                 {
                     if (isHeal)
                     {
-                        StatisticData._manager.AddHealing(attackerUuid, (ulong)skillId, damageElement, hpLessen, isCrit, isLucky, isCauseLucky, targetUuid);
+                         StatisticData._manager.AddHealing(attackerUuid, (ulong)skillId, damageElement, hpLessen, isCrit, isLucky, isCauseLucky, targetUuid);
+                       
                     }
                     else
                     {
@@ -449,18 +445,27 @@ namespace StarResonanceDpsAnalysis.Core
             ProcessAoiSyncDelta(aoiSyncDelta);
         }
 
+
+        static string ToHex(byte[] data, int max = 64)
+        {
+            if (data == null) return "null";
+            int len = Math.Min(max, data.Length);
+            return string.Join(" ", data.Take(len).Select(b => b.ToString("X2")));
+        }
+
         /// <summary>
         /// 同步自身完整容器数据（基础属性、昵称、职业、战力）
         /// </summary>
         public static void ProcessSyncContainerData(byte[] payloadBuffer)
         {
+            //Console.WriteLine("Head (前64字节): " + ToHex(payloadBuffer));
             var syncContainerData = SyncContainerData.Parser.ParseFrom(payloadBuffer);
             if (syncContainerData?.VData == null) return;
 
             var vData = syncContainerData.VData;
             if (vData.CharId == null || vData.CharId == 0) return;
 
-            ulong playerUid = vData.CharId;
+            ulong playerUid = (ulong)vData.CharId;
             if (playerUid != 0) { try { AppConfig.Uid = playerUid; } catch { } }
             PlayerDbSyncService.TryFillFromDbOnce(playerUid);
 
