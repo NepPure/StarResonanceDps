@@ -285,7 +285,66 @@ namespace StarResonanceDpsAnalysis.Core
 
             ["1222"] = new SkillDefinition { Name = "幻影冲锋", Type = SkillType.Damage, Element = ElementType.Light, Description = "幻影冲锋" },
             ["1241"] = new SkillDefinition { Name = "射线", Type = SkillType.Damage, Element = ElementType.Ice, Description = "射线" },
-            ["199902"] = new SkillDefinition { Name = "岩盾", Type = SkillType.Damage, Element = ElementType.Earth, Description = "岩盾" }
+            ["199902"] = new SkillDefinition { Name = "岩盾", Type = SkillType.Damage, Element = ElementType.Earth, Description = "岩盾" },
+
+
+            // Ice 系
+            ["1240"] = new SkillDefinition { Name = "冻结寒风", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冻结寒风" }, // ← 新增
+            ["1242"] = new SkillDefinition { Name = "冰霜之矛", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰霜之矛" }, // ← 新增
+            ["1243"] = new SkillDefinition { Name = "冰之灌注", Type = SkillType.Damage, Element = ElementType.Ice, Description = "冰之灌注" }, // ← 新增
+            ["1245"] = new SkillDefinition { Name = "寒冰庇护", Type = SkillType.Heal, Element = ElementType.Ice, Description = "寒冰庇护" }, // ← 新增
+            ["1246"] = new SkillDefinition { Name = "浪潮汇聚-水龙卷", Type = SkillType.Damage, Element = ElementType.Ice, Description = "浪潮汇聚-水龙卷" }, // ← 新增
+            ["1247"] = new SkillDefinition { Name = "天赋触发彗星", Type = SkillType.Damage, Element = ElementType.Ice, Description = "天赋触发彗星" }, // ← 新增
+            ["1249"] = new SkillDefinition { Name = "协同冰晶", Type = SkillType.Damage, Element = ElementType.Ice, Description = "协同冰晶" }, // ← 新增
+
+            // Wind 系
+            ["1405"] = new SkillDefinition { Name = "疾风刺", Type = SkillType.Damage, Element = ElementType.Wind, Description = "疾风刺" }, // ← 新增
+            ["1406"] = new SkillDefinition { Name = "风华翔舞", Type = SkillType.Damage, Element = ElementType.Wind, Description = "风华翔舞" }, // ← 新增
+            ["1407"] = new SkillDefinition { Name = "风神", Type = SkillType.Damage, Element = ElementType.Wind, Description = "风神" }, // ← 新增
+            ["1410"] = new SkillDefinition { Name = "风神·破阵之风", Type = SkillType.Damage, Element = ElementType.Wind, Description = "风神·破阵之风" }, // ← 新增
+            ["1426"] = new SkillDefinition { Name = "风神·破阵之风", Type = SkillType.Damage, Element = ElementType.Wind, Description = "风神·破阵之风" }, // ← 新增
+            ["1430"] = new SkillDefinition { Name = "翔返", Type = SkillType.Damage, Element = ElementType.Wind, Description = "翔返(额外版本)" }, // ← 新增
+
+            // Earth 系
+            ["1517"] = new SkillDefinition { Name = "掌控藤蔓-红光反制", Type = SkillType.Damage, Element = ElementType.Earth, Description = "掌控藤蔓-红光反制" }, // ← 新增
+            ["1527"] = new SkillDefinition { Name = "花语回升", Type = SkillType.Heal, Element = ElementType.Earth, Description = "花语回升" }, // ← 新增
+            ["1556"] = new SkillDefinition { Name = "花语回升", Type = SkillType.Heal, Element = ElementType.Earth, Description = "花语回升" }, // ← 新增
+            ["1562"] = new SkillDefinition { Name = "再生脉冲-扩散治疗", Type = SkillType.Heal, Element = ElementType.Earth, Description = "再生脉冲-扩散治疗" }, // ← 新增
+
+            // Thunder 系
+            ["1711"] = new SkillDefinition { Name = "我流秘刀法", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "我流秘刀法" }, // ← 新增
+            ["1712"] = new SkillDefinition { Name = "我流秘刀法2", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "我流秘刀法2" }, // ← 新增
+            ["1716"] = new SkillDefinition { Name = "超高出力", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "超高出力" }, // ← 新增
+            ["1720"] = new SkillDefinition { Name = "心眼", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "心眼" }, // ← 新增
+            ["1721"] = new SkillDefinition { Name = "我流秘刀法·壹之型·改", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "我流秘刀法·壹之型·改" }, // ← 新增
+            ["1722"] = new SkillDefinition { Name = "我流秘刀法·贰之型·改", Type = SkillType.Damage, Element = ElementType.Thunder, Description = "我流秘刀法·贰之型·改" }, // ← 新增
+
+            // Rock / Shield 系
+            ["1905"] = new SkillDefinition { Name = "斩龙式", Type = SkillType.Damage, Element = ElementType.Earth, Description = "斩龙式" }, // ← 新增
+            ["1906"] = new SkillDefinition { Name = "后撤斩", Type = SkillType.Damage, Element = ElementType.Earth, Description = "后撤斩" }, // ← 新增
+            ["1907"] = new SkillDefinition { Name = "岩御·崩裂回环", Type = SkillType.Damage, Element = ElementType.Earth, Description = "岩御·崩裂回环" }, // ← 新增
+            ["1917"] = new SkillDefinition { Name = "巨岩撞击", Type = SkillType.Damage, Element = ElementType.Earth, Description = "巨岩撞击" }, // ← 新增
+            ["1922"] = new SkillDefinition { Name = "护盾猛击", Type = SkillType.Damage, Element = ElementType.Earth, Description = "护盾猛击" }, // ← 新增
+            ["1925"] = new SkillDefinition { Name = "怒爆", Type = SkillType.Damage, Element = ElementType.Earth, Description = "怒爆" }, // ← 新增
+            ["1926"] = new SkillDefinition { Name = "砂岩之握", Type = SkillType.Damage, Element = ElementType.Earth, Description = "砂岩之握" }, // ← 新增
+            ["1928"] = new SkillDefinition { Name = "岩之守护", Type = SkillType.Heal, Element = ElementType.Earth, Description = "岩之守护" }, // ← 新增
+            ["1929"] = new SkillDefinition { Name = "不动如山", Type = SkillType.Heal, Element = ElementType.Earth, Description = "不动如山" }, // ← 新增
+            ["1936"] = new SkillDefinition { Name = "巨岩躯体", Type = SkillType.Heal, Element = ElementType.Earth, Description = "巨岩躯体" }, // ← 新增
+            ["1938"] = new SkillDefinition { Name = "勇者壁垒", Type = SkillType.Heal, Element = ElementType.Earth, Description = "勇者壁垒" }, // ← 新增
+            ["1941"] = new SkillDefinition { Name = "碎星崩裂", Type = SkillType.Damage, Element = ElementType.Earth, Description = "碎星崩裂" }, // ← 新增
+            ["1943"] = new SkillDefinition { Name = "巨岩轰击", Type = SkillType.Damage, Element = ElementType.Earth, Description = "巨岩轰击" }, // ← 新增
+
+            // 其他 (选摘)
+            ["2220"] = new SkillDefinition { Name = "暴风箭矢", Type = SkillType.Damage, Element = ElementType.Wind, Description = "暴风箭矢" }, // ← 新增
+            ["2221"] = new SkillDefinition { Name = "暴风箭矢SP", Type = SkillType.Damage, Element = ElementType.Wind, Description = "暴风箭矢SP" }, // ← 新增
+            ["2230"] = new SkillDefinition { Name = "怒涛射击", Type = SkillType.Damage, Element = ElementType.Earth, Description = "怒涛射击" }, // ← 新增
+            ["2231"] = new SkillDefinition { Name = "精神凝聚", Type = SkillType.Damage, Element = ElementType.Light, Description = "精神凝聚" }, // ← 新增
+            ["2232"] = new SkillDefinition { Name = "箭雨", Type = SkillType.Damage, Element = ElementType.Wind, Description = "箭雨" }, // ← 新增
+            ["2234"] = new SkillDefinition { Name = "光能轰炸", Type = SkillType.Damage, Element = ElementType.Light, Description = "光能轰炸" }, // ← 新增
+            ["2237"] = new SkillDefinition { Name = "狂野呼唤", Type = SkillType.Damage, Element = ElementType.Wind, Description = "狂野呼唤" }, // ← 新增
+            ["2238"] = new SkillDefinition { Name = "爆炸射击", Type = SkillType.Damage, Element = ElementType.Fire, Description = "爆炸射击" }, // ← 新增
+
+
         };
 
         public static readonly Dictionary<int, SkillDefinition> SkillsByInt = new();

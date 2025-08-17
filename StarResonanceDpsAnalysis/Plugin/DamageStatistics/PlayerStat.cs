@@ -1186,7 +1186,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
         /// <param name="hpLessen">HP 扣减值（可选）。</param>
-        public void AddDamage(ulong uid, ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0)
+        public void AddDamage(ulong uid, ulong skillId,string damageElement, ulong damage, bool isCrit, bool isLucky,bool isCauseLucky, ulong hpLessen = 0)
         {
             // # 分类：进入战斗（自动）
             MarkCombatActivity();
@@ -1201,8 +1201,12 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="healing">治疗值。</param>
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
+        /// <param name="hpFull">HP 补满值（可选）。</param>
+        /// <param name="targetUuid">被治疗的ID（可选）。</param>
+        
+
         // PlayerDataManager 内 —— 只在“已由伤害/承伤开启战斗”后才纳入治疗
-        public void AddHealing(ulong uid, ulong skillId, ulong healing, bool isCrit, bool isLucky)
+        public void AddHealing(ulong uid, ulong skillId,string damageElement, ulong healing, bool isCrit, bool isLucky,bool isCauseLucky,ulong targetUuid)
         {
             // 1) 还没由伤害/承伤开启战斗，或者上一场已结束：忽略这次治疗（不纳入统计、也不写全程）
             if (!_combatStart.HasValue || _combatEnd.HasValue)
@@ -1225,7 +1229,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
         /// <param name="hpLessen">HP 真实减少值（0 则默认使用 <paramref name="damage"/>）。</param>
-        public void AddTakenDamage(ulong uid, ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0)
+        public void AddTakenDamage(ulong uid, ulong skillId, ulong damage,int damageSource, bool isMiss,bool isDead, bool isCrit, bool isLucky, ulong hpLessen = 0)
         {
             MarkCombatActivity();
             GetOrCreate(uid).AddTakenDamage(skillId, damage, isCrit, isLucky, hpLessen);

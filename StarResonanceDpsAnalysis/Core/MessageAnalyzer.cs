@@ -86,6 +86,69 @@ namespace StarResonanceDpsAnalysis.Core
             AttrEnergyFlag = 0x543CD3C6
         }
 
+        public enum EDamageSource
+        {
+            EDamageSourceSkill = 0,
+            EDamageSourceBullet = 1,
+            EDamageSourceBuff = 2,
+            EDamageSourceFall = 3,
+            EDamageSourceFakeBullet = 4,
+            EDamageSourceOther = 100
+        }
+
+
+        /// <summary>
+        /// 伤害类型
+        /// </summary>
+        public enum EDamageProperty
+        {
+            General=0,
+            Fire = 1,
+            Water = 2,
+            Electricity = 3,
+            Wood = 4,
+            Wind =5,
+            Rock = 6,
+            Light = 7,
+            Dark = 8,
+            Count =9,
+        }
+
+        /// <summary>
+        /// 元素枚举转简短标签（含 emoji 图标）。
+        /// </summary>
+        /// <param name="damageProperty">EDamageProperty 枚举值</param>
+        /// <returns>对应的标签字符串</returns>
+        public static string GetDamageElement(int damageProperty)
+        {
+            switch (damageProperty)
+            {
+                case (int)EDamageProperty.General:
+                    return "⚔️物";
+                case (int)EDamageProperty.Fire:
+                    return "🔥火";
+                case (int)EDamageProperty.Water:
+                    return "❄️冰";
+                case (int)EDamageProperty.Electricity:
+                    return "⚡雷";
+                case (int)EDamageProperty.Wood:
+                    return "🍀森";
+                case (int)EDamageProperty.Wind:
+                    return "💨风";
+                case (int)EDamageProperty.Rock:
+                    return "⛰️岩";
+                case (int)EDamageProperty.Light:
+                    return "🌟光";
+                case (int)EDamageProperty.Dark:
+                    return "🌑暗";
+                case (int)EDamageProperty.Count:
+                    return "❓？"; // 未知/保留
+                default:
+                    return "⚔️物";
+            }
+        }
+
+
         /// <summary>
         /// Notify 消息内部方法表
         /// Key = methodId
@@ -310,6 +373,22 @@ namespace StarResonanceDpsAnalysis.Core
                 bool isLucky = luckyValue != null && luckyValue != 0;
                 ulong hpLessen = d.HasHpLessenValue ? (ulong)d.HpLessenValue : 0UL;
 
+                // 1) 是否“造成”幸运（CauseLucky）：TypeFlag 的 bit2
+                bool isCauseLucky = d.TypeFlag != null && ((d.TypeFlag & 0b100) == 0b100);
+
+                // 2) 是否 Miss
+                bool isMiss = d.HasIsMiss && d.IsMiss;
+
+                // 3) 是否打死/目标死亡
+                bool isDead = d.HasIsDead && d.IsDead;
+
+                // 4) 元素标签（把 d.Property 转你现有的标签字符串）
+                string damageElement = GetDamageElement((int)d.Property);
+
+                // 5) 伤害来源（EDamageSource）
+                int damageSource = (int)(d.HasDamageSource ? d.DamageSource : 0);
+
+
                 // 打桩模式（只统计自己对特定目标的伤害）
                 if (AppConfig.PilingMode)
                 {
@@ -322,22 +401,22 @@ namespace StarResonanceDpsAnalysis.Core
                 {
                     if (isHeal)
                     {
-                        if (isAttackerPlayer) StatisticData._manager.AddHealing(attackerUuid, (ulong)skillId, hpLessen, isCrit, isLucky);
+                         StatisticData._manager.AddHealing(attackerUuid, (ulong)skillId, damageElement, hpLessen, isCrit, isLucky, isCauseLucky, targetUuid);
                     }
                     else
                     {
-                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage, isCrit, isLucky, hpLessen);
+                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage, damageSource, isMiss, isDead, isCrit, isLucky, hpLessen);
                     }
                 }
                 else
                 {
                     if (!isHeal && isAttackerPlayer)
                     {
-                        StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damage, isCrit, isLucky, hpLessen);
+                        StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damageElement, damage, isCrit, isLucky, isCauseLucky, hpLessen);
                     }
                     if (AppConfig.NpcsTakeDamage)
                     {
-                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage, isCrit, isLucky, hpLessen);
+                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage, damageSource, isMiss, isDead, isCrit, isLucky, hpLessen);
                         Console.WriteLine(@$"怪物ID：{targetUuid}受到伤害{damage},来自{attackerUuid}的技能{skillId}");
                     }
                 }
@@ -531,23 +610,46 @@ namespace StarResonanceDpsAnalysis.Core
         private static bool DoesStreamHaveIdentifier(BinaryReader br)
         {
             var s = br.BaseStream;
+
+            // 先保证至少能读前 8 字节（uint32 + int32）
             if (s.Position + 8 > s.Length) return false;
-            _ = br.ReadUInt64();
+
+            uint id1 = br.ReadUInt32();  // 期望 0xFFFFFFFE
+            int guard1 = br.ReadInt32(); // 跟随占位/长度（无论如何都消耗）
+
+            if (id1 != 0xFFFFFFFE)
+            {
+                // 与 JS 一样：首段不对就返回 false（此时已前进 8 字节）
+                return false;
+            }
+
+            // 通过第一段校验后，再读后续 8 字节
+            if (s.Position + 8 > s.Length) return false;
+
+            int id2 = br.ReadInt32();    // 理想情况下是 0xFFFFFFFD（即 -3）
+            int guard2 = br.ReadInt32(); // 占位/保留
+
+            // JS 代码并未强制校验 id2，所以这里直接返回 true
             return true;
         }
+
 
         /// <summary>
         /// 从流中读取字符串（带4字节对齐）
         /// </summary>
         private static string StreamReadString(BinaryReader br)
         {
-            uint len = br.ReadUInt32();
-            if (len == 0) return string.Empty;
-            var bytes = br.ReadBytes((int)len);
-            int pad = (int)((4 - (len % 4)) % 4);
-            if (pad > 0) _ = br.ReadBytes(pad);
-            return Encoding.UTF8.GetString(bytes);
+            uint length = br.ReadUInt32();  // uint32LE
+            _ = br.ReadInt32();             // guard（占位/长度，无论如何都消耗）
+
+            // 即使 length 为 0，也要读后置 guard，和 JS 行为保持一致
+            byte[] bytes = length > 0 ? br.ReadBytes((int)length) : Array.Empty<byte>();
+
+            _ = br.ReadInt32();             // guard（占位/保留）
+
+            return bytes.Length == 0 ? string.Empty : Encoding.UTF8.GetString(bytes);
         }
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool IsUuidPlayerRaw(ulong uuidRaw) => (uuidRaw & 0xFFFFUL) == 640UL; // UUID低16位标识玩家
