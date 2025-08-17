@@ -31,7 +31,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         // # 构造与启动流程
         public DpsStatisticsForm() // 构造函数：创建窗体实例时执行一次
-        { 
+        {
             // 构造函数开始
             InitializeComponent(); // 初始化设计器生成的控件与布局
             //开启默认置顶
@@ -234,12 +234,12 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             // # 清空：触发 HandleClearData（停止图表刷新→清空数据→重置图表）
             HandleClearData(); // 调用清空处理
         } // 方法结束
-      
+
 
         // # 设置按钮 → 右键菜单
         private void button_Settings_Click(object sender, EventArgs e) // 设置按钮点击：弹出右键菜单
         {
-           
+
             // 方法开始
             var menulist = new IContextMenuStripItem[] // 构建右键菜单项数组
              { // 数组开始
@@ -260,7 +260,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
             AntdUI.ContextMenuStrip.open(this, it => // 打开右键菜单并处理点击回调（it 为被点击项）
             {
-              
+
 
 
                 // 回调开始
@@ -268,7 +268,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                 switch (it.Text) // 分支根据菜单文本
                 {
                     case "历史战斗":
-                        if(FormManager.historicalBattlesForm == null || FormManager.historicalBattlesForm.IsDisposed)
+                        if (FormManager.historicalBattlesForm == null || FormManager.historicalBattlesForm.IsDisposed)
                         {
                             FormManager.historicalBattlesForm = new HistoricalBattlesForm();
                         }
@@ -527,5 +527,12 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             }
         }
         #endregion
+
+
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
     }
 }

@@ -106,6 +106,7 @@
             button2.Size = new Size(24, 35);
             button2.TabIndex = 20;
             button2.ToggleIconSvg = "";
+            button2.Click += button2_Click_1;
             // 
             // button3
             // 
@@ -241,7 +242,6 @@
             // 
             // sortedProgressBarList1
             // 
-            sortedProgressBarList1.AnimationDuration = 300;
             sortedProgressBarList1.AnimationQuality = Effects.Enum.Quality.Medium;
             sortedProgressBarList1.BackColor = Color.FromArgb(224, 224, 224);
             sortedProgressBarList1.Dock = DockStyle.Fill;
@@ -250,8 +250,6 @@
             sortedProgressBarList1.Name = "sortedProgressBarList1";
             sortedProgressBarList1.OrderColor = Color.Black;
             sortedProgressBarList1.OrderFont = new Font("宋体", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
-            sortedProgressBarList1.ProgressBarHeight = 20;
-            sortedProgressBarList1.ProgressBarPadding = new Padding(3);
             sortedProgressBarList1.SeletedItemColor = Color.FromArgb(86, 156, 214);
             sortedProgressBarList1.Size = new Size(471, 384);
             sortedProgressBarList1.TabIndex = 18;
