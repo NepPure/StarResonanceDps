@@ -153,6 +153,7 @@
             table_DpsDetailDataTable.Gaps = new Size(8, 8);
             table_DpsDetailDataTable.Location = new Point(0, 40);
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
+            table_DpsDetailDataTable.RowHeight = 40;
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
             table_DpsDetailDataTable.Size = new Size(1213, 893);
             table_DpsDetailDataTable.TabIndex = 33;
@@ -202,6 +203,7 @@
             segmented1.Location = new Point(9, 9);
             segmented1.Name = "segmented1";
             segmented1.Radius = 2;
+            segmented1.SelectIndex = 0;
             segmented1.Size = new Size(907, 47);
             segmented1.TabIndex = 16;
             segmented1.Text = "segmented1";

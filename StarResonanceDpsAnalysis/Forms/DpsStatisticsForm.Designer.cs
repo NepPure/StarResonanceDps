@@ -291,11 +291,11 @@
             Controls.Add(pageHeader1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "DpsStatisticsForm";
-            Opacity = 0.85D;
             Radius = 3;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "别查我DPS";
             Load += DpsStatistics_Load;
+            Shown += DpsStatisticsForm_Shown;
             ForeColorChanged += DpsStatisticsForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);
             pageHeader1.PerformLayout();

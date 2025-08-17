@@ -34,7 +34,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         {
             // 构造函数开始
             InitializeComponent(); // 初始化设计器生成的控件与布局
-   
+
 
             Text = FormManager.APP_NAME;
 
@@ -118,9 +118,11 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         private void DpsStatistics_Load(object sender, EventArgs e) // 窗体 Load 事件处理
         { // 方法开始
           //开启默认置顶
-            TopMost = !TopMost; // 简化切换
-            button_AlwaysOnTop.Toggle = TopMost; // 同步按钮的视觉状态
+
             StartCapture(); // 启动网络抓包/数据采集（核心运行入口之一）
+           
+            TopMost = true;
+            button_AlwaysOnTop.Toggle = TopMost; // 同步按钮的视觉状态
         } // 方法结束
 
         // # 列表选择变更 → 打开技能详情
@@ -253,6 +255,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
                     //new ContextMenuStripItem("统计排除"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
+                     new ContextMenuStripItem("技能日记"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("伤害参考"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes }, // 一级菜单：打桩模式
                     new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, }, // 一级菜单：退出
@@ -286,6 +289,13 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         } // 条件结束
                         FormManager.mainForm.Show(); // 显示主窗体
                         break; // 跳出 switch
+                    case "技能日记":
+                        if(FormManager.skillDiary == null|| FormManager.skillDiary.IsDisposed)
+                        {
+                            FormManager.skillDiary = new SkillDiary();
+                        }
+                        FormManager.skillDiary.Show();
+                        break;
                     case "技能循环监测": // 点击“技能循环监测”
                         if (FormManager.skillRotationMonitorForm == null || FormManager.skillRotationMonitorForm.IsDisposed) // 若监测窗体不存在或已释放
                         { // 条件开始
@@ -440,7 +450,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         // 主题切换
         private void DpsStatisticsForm_ForeColorChanged(object sender, EventArgs e)
         {
-        
+
 
             if (Config.IsLight)
             {
@@ -542,6 +552,11 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         private void button2_Click_1(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void DpsStatisticsForm_Shown(object sender, EventArgs e)
+        {
+          
         }
     }
 }

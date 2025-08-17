@@ -50,10 +50,27 @@ namespace StarResonanceDpsAnalysis.Plugin.Database
                 { StatisticData._manager.SetNickname(uid, dto.Nickname); if (uid == AppConfig.Uid) AppConfig.NickName = dto.Nickname; changed = true; }
                 if (needProf && !string.IsNullOrWhiteSpace(dto.Profession))
                 { StatisticData._manager.SetProfession(uid, dto.Profession); if (uid == AppConfig.Uid) AppConfig.Profession = dto.Profession; changed = true; }
-                if (needPower && dto.CombatPower > 0)
-                { StatisticData._manager.SetCombatPower(uid, dto.CombatPower); if (uid == AppConfig.Uid) AppConfig.CombatPower = dto.CombatPower; changed = true; }
+                if (needPower && (dto.CombatPower ?? 0) > 0)
+                { StatisticData._manager.SetCombatPower(uid, dto.CombatPower!.Value); if (uid == AppConfig.Uid) AppConfig.CombatPower = dto.CombatPower.Value; changed = true; }
 
-                if (changed) DpsStatisticsForm.RequestActiveViewRefresh();
+                if (changed)
+                {
+                    // 1) 刷新主榜单（职业图标依赖 Profession 文本）
+                    DpsStatisticsForm.RequestActiveViewRefresh();
+
+                    // 2) 如果技能详情窗体正在展示该玩家，立即刷新顶部头像/职业背景
+                    var f = FormManager.skillDetailForm;
+                    if (f != null && !f.IsDisposed && f.Uid == uid)
+                    {
+                        var info = StatisticData._manager.GetPlayerBasicInfo(uid);
+                        void UpdateDetail()
+                        {
+                            try { f.GetPlayerInfo(info.Nickname, info.CombatPower, info.Profession); }
+                            catch { }
+                        }
+                        if (f.InvokeRequired) f.BeginInvoke((Action)UpdateDetail); else UpdateDetail();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -71,9 +88,13 @@ namespace StarResonanceDpsAnalysis.Plugin.Database
             {
                 if (uid == 0) return;
                 var (nickname, combatPower, profession) = StatisticData._manager.GetPlayerBasicInfo(uid);
-                if (IsUnknown(nickname)) nickname = string.Empty;
-                if (IsUnknown(profession)) profession = string.Empty;
-                await Client.UpsertAsync(new PlayerDto(uid, nickname ?? string.Empty, profession ?? string.Empty, combatPower));
+
+                // 空或未知不覆盖，借助 Upsert 端的选择性字段上传
+                string? safeNickname = IsUnknown(nickname) ? null : nickname;
+                string? safeProfession = IsUnknown(profession) ? null : profession;
+                int? safePower = combatPower > 0 ? combatPower : (int?)null;
+
+                await Client.UpsertAsync(new PlayerDto(uid, safeNickname, safeProfession, safePower));
             }
             catch (Exception ex)
             {

@@ -266,6 +266,8 @@ namespace StarResonanceDpsAnalysis.Forms
 
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
+            label1.Text = $"";
+            label2.Text = $"";
             try
             {
                 lock (_dataLock)
