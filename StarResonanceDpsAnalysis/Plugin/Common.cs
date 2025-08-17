@@ -471,7 +471,7 @@ namespace StarResonanceDpsAnalysis.Plugin
 
             if (value < 10_000) // 小于一万直接原样（带千分位可改 ToString("N0")）
                 return value % 1 == 0 ? ((long)value).ToString() : value.ToString("0.##");
-
+            
             if (value >= 1_000_000_000) return (value / 1_000_000_000.0).ToString("0.##") + "B";
             if (value >= 1_000_000) return (value / 1_000_000.0).ToString("0.##") + "M";
             return (value / 1_000.0).ToString("0.##") + "K";
