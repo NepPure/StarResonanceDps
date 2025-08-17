@@ -181,6 +181,7 @@
             // 
             // table_DpsDetailDataTable
             // 
+            table_DpsDetailDataTable.BackColor = Color.White;
             table_DpsDetailDataTable.BackgroundImageLayout = ImageLayout.Zoom;
             table_DpsDetailDataTable.Dock = DockStyle.Fill;
             table_DpsDetailDataTable.EmptyImage = Properties.Resources.cancel_hover;
@@ -198,6 +199,7 @@
             // 
             // splitter1
             // 
+            splitter1.BackColor = Color.White;
             splitter1.CollapsePanel = AntdUI.Splitter.ADCollapsePanel.Panel1;
             splitter1.Dock = DockStyle.Fill;
             splitter1.FixedPanel = FixedPanel.Panel1;
@@ -207,12 +209,14 @@
             // 
             // splitter1.Panel1
             // 
+            splitter1.Panel1.BackColor = Color.White;
             splitter1.Panel1.Controls.Add(panel1);
             splitter1.Panel1.Controls.Add(select1);
             splitter1.Panel1.Controls.Add(panel3);
             // 
             // splitter1.Panel2
             // 
+            splitter1.Panel2.BackColor = Color.White;
             splitter1.Panel2.Controls.Add(table_DpsDetailDataTable);
             splitter1.Size = new Size(1130, 964);
             splitter1.SplitterDistance = 234;
@@ -326,18 +330,22 @@
             // 
             // HistoricalBattlesForm
             // 
-            AutoScaleDimensions = new SizeF(11F, 24F);
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleDimensions = new SizeF(144F, 144F);
+            AutoScaleMode = AutoScaleMode.Dpi;
             BackColor = Color.White;
             ClientSize = new Size(1130, 1122);
             Controls.Add(splitter1);
             Controls.Add(panel6);
             Controls.Add(pageHeader1);
+            Dark = true;
+            EnableHitTest = false;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            Mode = AntdUI.TAMode.Dark;
             Name = "HistoricalBattlesForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "HistoricalBattlesForm";
             Load += HistoricalBattlesForm_Load;
+            ForeColorChanged += HistoricalBattlesForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);
             panel6.ResumeLayout(false);
             panel3.ResumeLayout(false);

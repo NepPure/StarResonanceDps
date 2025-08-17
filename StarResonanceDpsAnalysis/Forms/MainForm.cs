@@ -88,6 +88,7 @@ namespace StarResonanceDpsAnalysis.Forms
             FormGui.SetColorMode(FormManager.settingsForm, AppConfig.IsLight);//设置窗体颜色
             FormGui.SetColorMode(FormManager.dpsStatistics, AppConfig.IsLight);//设置窗体颜色
             FormGui.SetColorMode(FormManager.rankingsForm, AppConfig.IsLight);//设置窗体颜色
+            FormGui.SetColorMode(FormManager.historicalBattlesForm, AppConfig.IsLight);//设置窗体颜色
 
             // # 注意：部分窗体可能为 null 或已释放，SetColorMode 内部应做空值与IsDisposed判断方可安全调用
         }

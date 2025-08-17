@@ -303,8 +303,16 @@ namespace StarResonanceDpsAnalysis.Forms
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
-            sortedProgressBarList1.OrderColor = Color.Black;
-            sortedProgressBarList1.OrderFont = AppConfig.ContentFont;
+            if(Config.IsLight)
+            {
+                sortedProgressBarList1.OrderColor = Color.Black;
+            }
+            else
+            {
+                sortedProgressBarList1.OrderColor = Color.White;
+            }
+
+                sortedProgressBarList1.OrderFont = AppConfig.ContentFont;
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
             sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
