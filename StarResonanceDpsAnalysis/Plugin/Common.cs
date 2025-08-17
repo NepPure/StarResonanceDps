@@ -502,7 +502,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             // 4) 实时秒伤 / 暴击率 / 幸运率 / 分伤 / 单次最大（快照优先，若快照未包含则用运行时兜底）
             var runtime = StatisticData._manager.GetOrCreate(AppConfig.Uid);
 
-            ulong instantDps =  runtime.DamageStats.RealtimeValue;
+            double instantDps = sp.TotalDps;
            
             int critRate = sp.CritRate > 0 ? (int)sp.CritRate : (int)runtime.DamageStats.GetCritRate();
             int luckyRate = sp.LuckyRate > 0 ? (int)sp.LuckyRate: (int)runtime.DamageStats.GetLuckyRate();
