@@ -186,7 +186,7 @@
             segmentedItem3.Text = "巨刃守护者";
             segmentedItem4.Text = "雷影剑士";
             segmentedItem5.Text = "灵魂乐手";
-            segmentedItem6.Text = "灵魂乐手";
+            segmentedItem6.Text = "青岚骑士";
             segmentedItem7.Text = "森语者";
             segmentedItem8.Text = "神盾骑士";
             segmentedItem9.Text = "神射手";
@@ -202,7 +202,6 @@
             segmented1.Location = new Point(9, 9);
             segmented1.Name = "segmented1";
             segmented1.Radius = 2;
-            segmented1.SelectIndex = 0;
             segmented1.Size = new Size(907, 47);
             segmented1.TabIndex = 16;
             segmented1.Text = "segmented1";

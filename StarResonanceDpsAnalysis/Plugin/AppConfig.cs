@@ -30,7 +30,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// </summary>
         public static Font DigitalFont
         {
-            get => FontLoader.LoadFontFromBytesAndCache("SAO Welcome TT", Resources.SAOWelcomeTT, 8);
+            get => FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans_", Resources.SAOWelcomeTT, 8);
         }
 
         /// <summary>

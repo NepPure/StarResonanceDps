@@ -447,112 +447,102 @@ namespace StarResonanceDpsAnalysis.Forms
             lock (_dataLock)
             {
                 if (_isClearing == 1) return;
-                // 这次应出现的 UID 集合
+
+                // 1) 拍当前 list 的快照，用它参与所有枚举相关计算
+                var snapshot = list.ToList(); // <<--- 关键
+
                 var present = new HashSet<long>(ordered.Select(x => x.Uid));
 
-                // 找出需要删除的旧行（上一视图的残留）
-                var toRemove = list.Where(pb => !present.Contains(pb.ID))
-                                   .Select(pb => pb.ID)
-                                   .ToList();
+                // 2) 先用快照算需要删除的旧行（避免直接枚举原 list）
+                var toRemove = snapshot.Where(pb => !present.Contains(pb.ID))
+                                       .Select(pb => pb.ID)
+                                       .ToList();
 
-                if (toRemove.Count > 0)
-                {
-                    foreach (var uid in toRemove)
-                    {
-                        DictList.Remove(uid);
-                        list.RemoveAll(pb => pb.ID == uid);
-                    }
-                }
+                // 3) 基于快照建立索引，后面查找更快也更安全
+                var byId = snapshot.ToDictionary(pb => pb.ID);
+
+                // 4) 准备一个“下一帧”的新列表，最后一次性替换
+                var next = new List<ProgressBarData>(present.Count);
 
                 for (int i = 0; i < ordered.Count; i++)
                 {
                     var p = ordered[i];
-                    int index = i + 1;
-                    
-                    // for 里：归一化到 0~1
+                    if (string.IsNullOrEmpty(p.Profession)) continue;
+
                     float ratio = (float)(p.Total / top);
                     if (!float.IsFinite(ratio)) ratio = 0f;
-                    if (ratio < 0f) ratio = 0f;
-                    if (ratio > 1f) ratio = 1f;
+                    ratio = Math.Clamp(ratio, 0f, 1f);
 
                     string totalFmt = Common.FormatWithEnglishUnits(p.Total);
                     string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
-                    if (p.Profession == "") continue;
+
                     var profBmp = imgDict[p.Profession];
-                    Color color;
-                    if (Config.IsLight)
+                    var color = Config.IsLight ? colorDict[p.Profession] : blackColorDict[p.Profession];
+
+                    // 渲染行内容：DictList 也只在锁内改
+                    if (!DictList.TryGetValue(p.Uid, out var row))
                     {
-                        color = colorDict[p.Profession];
-                    }
-                    else
-                    {
-                        color = blackColorDict[p.Profession];
-                    }
-                    if (!DictList.TryGetValue(p.Uid, out var data))
-                    {
-                        // # 首次出现：为该 UID 构建渲染内容与进度条条目
-                        data = new List<RenderContent> {
-
-                            new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=35,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
-                        };
-
-
-                            list.Add(new ProgressBarData
-                            {
-                                ID = p.Uid,
-                                ContentList = data,
-                                ProgressBarCornerRadius = 3,
-                                ProgressBarValue = ratio,
-                                ProgressBarColor = color,
-                                
-
-
-                            });
-                        
-                        DictList[p.Uid] = data;
+                        row = new List<RenderContent> {
+                new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=35,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
+                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
+                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
+                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
+            };
+                        DictList[p.Uid] = row;
                     }
 
-                    // # 更新显示文本 & 头像/职业图标
                     string share = $"{Math.Round(p.Total / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
-                    var row = DictList[p.Uid];
                     row[0].Image = profBmp;
                     row[1].Text = $"{p.Nickname}({p.CombatPower})";
                     row[2].Text = $"{totalFmt}({perSec})";
                     row[3].Text = share;
-                    if(p.Uid ==(long)AppConfig.Uid)
+
+                    if (p.Uid == (long)AppConfig.Uid)
                     {
-                        
-                        label1.Text = $" [{index}]";
-                        label2.Text =@$"{totalFmt}({perSec})";
+                        label1.Text = $" [{i + 1}]";
+                        label2.Text = $"{totalFmt}({perSec})";
                     }
-                    
-                    // 更新进度条的 Value/Color（老条目必须每次刷新都更新）
-                    var pb = list.FirstOrDefault(x => x.ID == p.Uid);
-                    if (pb != null)
+
+                    // 复用旧的 ProgressBarData，避免 UI 抖动；没有则新建
+                    if (!byId.TryGetValue(p.Uid, out var pb))
                     {
-                        pb.ProgressBarValue = ratio; // 关键：用最新占比驱动条形长度/排序
-                    
-                        
+                        pb = new ProgressBarData
+                        {
+                            ID = p.Uid,
+                            ContentList = row,
+                            ProgressBarCornerRadius = 3,
+                            ProgressBarValue = ratio,
+                            ProgressBarColor = color,
+                        };
+                    }
+                    else
+                    {
+                        pb.ContentList = row;      // 保底同步
+                        pb.ProgressBarValue = ratio;
                         pb.ProgressBarColor = color;
-                        
                     }
+
+                    next.Add(pb);
                 }
-                // —— 闸门 #2：写 UI 之前再校验一次，防止在计算期间切换视图导致串写 ——
-                visible = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
-                if (source != visible) return;
-                // 绑定到控件（空则设 null，避免残影）
+
+                // 5) 处理 DictList 的删除（可选，保持干净）
+                if (toRemove.Count > 0)
+                {
+                    foreach (var uid in toRemove)
+                        DictList.Remove(uid);
+                }
+
+                // 6) 一次性替换 list，避免“枚举中修改”
+                list = next;
+
+
+
                 void Bind()
                 {
                     sortedProgressBarList1.Data = list.Count == 0 ? null : list;
                 }
-
-                if (sortedProgressBarList1.InvokeRequired)
-                    sortedProgressBarList1.BeginInvoke((Action)Bind);
-                else
-                    Bind();
+                if (sortedProgressBarList1.InvokeRequired) sortedProgressBarList1.BeginInvoke((Action)Bind);
+                else Bind();
             }
         }
 

@@ -100,16 +100,16 @@ namespace StarResonanceDpsAnalysis.Core
         /// </summary>
         public enum EDamageProperty
         {
-            General=0,
+            General = 0,
             Fire = 1,
             Water = 2,
             Electricity = 3,
             Wood = 4,
-            Wind =5,
+            Wind = 5,
             Rock = 6,
             Light = 7,
             Dark = 8,
-            Count =9,
+            Count = 9,
         }
 
         /// <summary>
@@ -678,7 +678,7 @@ namespace StarResonanceDpsAnalysis.Core
             11 => "神射手",
             12 => "神盾骑士",
             8 => "灵魂乐手",
-            13 =>"灵魂乐手",
+            13 => "灵魂乐手",
             _ => string.Empty,
         };
     }
