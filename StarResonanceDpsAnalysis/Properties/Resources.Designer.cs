@@ -71,6 +71,16 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] ApplicationIcon_256x256 {
+            get {
+                object obj = ResourceManager.GetObject("ApplicationIcon_256x256", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
         internal static System.Drawing.Bitmap cancel_hover {

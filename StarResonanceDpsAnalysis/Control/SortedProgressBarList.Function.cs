@@ -234,6 +234,8 @@ namespace StarResonanceDpsAnalysis.Control
 
             Task.Run(async () =>
             {
+                // TODO: 最需要优化的地方
+
                 while (await _animationPeriodicTimer.WaitForNextTickAsync(_animationCancellation.Token).ConfigureAwait(false))
                 {
                     Invalidate();
