@@ -278,10 +278,10 @@
             label6.Anchor = AnchorStyles.Top;
             label6.BackColor = Color.Transparent;
             label6.ColorScheme = AntdUI.TAMode.Dark;
-            label6.Font = new Font("HarmonyOS Sans SC Medium", 10.999999F, FontStyle.Bold);
-            label6.Location = new Point(456, 22);
+            label6.Font = new Font("HarmonyOS Sans SC Medium", 10F, FontStyle.Bold);
+            label6.Location = new Point(402, 22);
             label6.Name = "label6";
-            label6.Size = new Size(182, 30);
+            label6.Size = new Size(271, 30);
             label6.TabIndex = 22;
             label6.Text = "团队信息";
             label6.TextAlign = ContentAlignment.MiddleCenter;

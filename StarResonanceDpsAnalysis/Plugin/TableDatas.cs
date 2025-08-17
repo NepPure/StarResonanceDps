@@ -37,7 +37,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         private string instantDps;         // 实时 DPS
         private string maxInstantDps;      // 最大瞬时 DPS
         private string totalDps;           // 平均 DPS
-        private CellProgress cellProgress; // 用于 UI 显示的伤害占比进度条
+        private double dmgShare; // 用于 UI 显示的伤害占比进度条
 
         // —— HPS 相关私有字段（治疗类数据） ——
         private string damageTaken;        // 承受伤害总量
@@ -75,7 +75,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             ulong maxInstantDps,
             double totalDps,
             double totalHps,
-            int combatPower = 0)
+            int combatPower = 0,double dmgShare=0)
         {
             // —— 基础信息 ——
             Uid = uid;
@@ -105,7 +105,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             TotalHps = totalHps.ToString();
 
             // —— UI 占比进度条 ——
-            CellProgress = cellProgress;
+            DmgShare = dmgShare;
         }
 
         // —— 属性封装（支持 UI 绑定通知） ——
@@ -401,14 +401,14 @@ namespace StarResonanceDpsAnalysis.Plugin
 
 
         /// <summary>伤害占比进度条</summary>
-        public CellProgress CellProgress
+        public double DmgShare
         {
-            get => cellProgress;
+            get => dmgShare;
             set
             {
-                if (cellProgress == value) return;
-                cellProgress = value;
-                OnPropertyChanged(nameof(CellProgress));
+                if (dmgShare == value) return;
+                dmgShare = value;
+                OnPropertyChanged(nameof(DmgShare));
             }
         }
     }

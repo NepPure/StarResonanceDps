@@ -37,7 +37,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 new AntdUI.Column("TotalHps", "HPS/秒"),
 
                // new AntdUI.Column("Share","占比"),
-                new AntdUI.Column("Percentage","团队伤害占比"),
+                new AntdUI.Column("DmgShare","团队伤害占比(%)"),
             };
 
             table_DpsDetailDataTable.Binding(DpsTableDatas.DpsTable);

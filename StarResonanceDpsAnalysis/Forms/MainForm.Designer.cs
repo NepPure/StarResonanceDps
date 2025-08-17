@@ -23,6 +23,7 @@
             button_AlwaysOnTop = new AntdUI.Button();
             button_ThemeSwitch = new AntdUI.Button();
             button_Settings = new AntdUI.Button();
+            label1 = new AntdUI.Label();
             pageHeader_MainHeader.SuspendLayout();
             SuspendLayout();
             // 
@@ -124,12 +125,23 @@
             button_Settings.ToggleIconSvg = "";
             button_Settings.MouseClick += button_Settings_MouseClick;
             // 
+            // label1
+            // 
+            label1.Font = new Font("Microsoft YaHei UI", 15F);
+            label1.Location = new Point(157, 206);
+            label1.Name = "label1";
+            label1.Size = new Size(890, 310);
+            label1.TabIndex = 9;
+            label1.Text = "主窗口啥也没还没做";
+            label1.TextAlign = ContentAlignment.MiddleCenter;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             ClientSize = new Size(1191, 662);
+            Controls.Add(label1);
             Controls.Add(pageHeader_MainHeader);
             Dark = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
@@ -150,5 +162,6 @@
         private AntdUI.Dropdown dropdown_History;
         private AntdUI.Button button_SkillDiary;
         private AntdUI.Button button1;
+        private AntdUI.Label label1;
     }
 }

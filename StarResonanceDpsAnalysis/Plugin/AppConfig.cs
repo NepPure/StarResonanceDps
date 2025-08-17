@@ -160,7 +160,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         public static bool NpcsTakeDamage = false;//NPC承伤
         public static bool PilingMode = false;//打桩模式
 
-        public static string url = "http://127.0.0.1:8562";//服务器地址
+        public static string url = "https://api.jx3rec.com";//服务器地址
 
         public static int CombatTimeClearDelaySeconds
         {

@@ -12,7 +12,7 @@ namespace StarResonanceDpsAnalysis.Forms
             SetDefaultFontFromResources();
             FormGui.SetDefaultGUI(this);
             ToggleTableView();
-           
+
         }
         private void SetDefaultFontFromResources()
         {
@@ -72,6 +72,11 @@ namespace StarResonanceDpsAnalysis.Forms
                 button1.DefaultBack = ColorTranslator.FromHtml("#255AD0");
 
             }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            ToggleTableView();
         }
     }
 }

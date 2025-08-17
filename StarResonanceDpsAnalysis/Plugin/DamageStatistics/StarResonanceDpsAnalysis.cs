@@ -593,21 +593,35 @@
         /// </summary>
         public static void RecordDamage(
             ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
-            string nickname, int combatPower, string profession)
+            string nickname, int combatPower, string profession,
+            string? damageElement = null, bool isCauseLucky = false // ★ 新增
+        )
         {
             if (!IsRecording || value == 0) return;
-
             var p = GetOrCreate(uid, nickname, combatPower, profession);
 
-            // 顶层聚合
-            Accumulate(p.Damage, value, isCrit, isLucky, hpLessen);
+            // ① 顶层聚合：带 isCauseLucky
+            Accumulate(p.Damage, value, isCrit, isLucky, hpLessen, isCauseLucky);
 
-            // 逐技能
+            // ② 逐技能：带 isCauseLucky
             var s = p.DamageSkills.TryGetValue(skillId, out var tmp) ? tmp : (p.DamageSkills[skillId] = new StatAcc());
-            Accumulate(s, value, isCrit, isLucky, hpLessen);
+            Accumulate(s, value, isCrit, isLucky, hpLessen, isCauseLucky);
 
-            // —— 更新实时DPS
+            // ③ 可选：按元素细分（如果你传了 element）
+            if (!string.IsNullOrEmpty(damageElement))
+            {
+                if (!p.DamageSkillsByElement.TryGetValue(skillId, out var byElem))
+                    byElem = p.DamageSkillsByElement[skillId] = new Dictionary<string, StatAcc>();
+
+                if (!byElem.TryGetValue(damageElement, out var es))
+                    es = byElem[damageElement] = new StatAcc();
+
+                Accumulate(es, value, isCrit, isLucky, hpLessen, isCauseLucky);
+            }
+
+            // —— 更新实时DPS（保持原逻辑）
             UpdateRealtimeDps(p);
+
         }
 
         /// <summary>
@@ -618,17 +632,43 @@
         /// </summary>
         public static void RecordHealing(
             ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky,
-            string nickname, int combatPower, string profession)
+            string nickname, int combatPower, string profession,
+            string? damageElement = null, bool isCauseLucky = false, ulong targetUuid = 0 // ★ 新增
+        )
+
         {
             if (!IsRecording || value == 0) return;
-
             var p = GetOrCreate(uid, nickname, combatPower, profession);
 
-            Accumulate(p.Healing, value, isCrit, isLucky, 0);
+            // 顶层
+            Accumulate(p.Healing, value, isCrit, isLucky, 0, isCauseLucky);
+
+            // 逐技能
             var s = p.HealingSkills.TryGetValue(skillId, out var tmp) ? tmp : (p.HealingSkills[skillId] = new StatAcc());
-            Accumulate(s, value, isCrit, isLucky, 0);
+            Accumulate(s, value, isCrit, isLucky, 0, isCauseLucky);
+
+            // 可选：按元素
+            if (!string.IsNullOrEmpty(damageElement))
+            {
+                if (!p.DamageSkillsByElement.TryGetValue(skillId, out var byElem)) // 也可以单独建 HealingSkillsByElement，看你是否要分开
+                    byElem = p.DamageSkillsByElement[skillId] = new Dictionary<string, StatAcc>();
+                if (!byElem.TryGetValue(damageElement, out var es))
+                    es = byElem[damageElement] = new StatAcc();
+                Accumulate(es, value, isCrit, isLucky, 0, isCauseLucky);
+            }
+
+            // 可选：按目标
+            if (targetUuid != 0)
+            {
+                if (!p.HealingSkillsByTarget.TryGetValue(skillId, out var byTarget))
+                    byTarget = p.HealingSkillsByTarget[skillId] = new Dictionary<ulong, StatAcc>();
+                if (!byTarget.TryGetValue(targetUuid, out var ts))
+                    ts = byTarget[targetUuid] = new StatAcc();
+                Accumulate(ts, value, isCrit, isLucky, 0, isCauseLucky);
+            }
 
             UpdateRealtimeDps(p);
+
         }
 
         /// <summary>
@@ -639,22 +679,43 @@
         /// </summary>
         public static void RecordTakenDamage(
             ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
-            string nickname, int combatPower, string profession)
-        {
-            if (!IsRecording || value == 0) return;
+            string nickname, int combatPower, string profession,
+            int damageSource = 0, bool isMiss = false, bool isDead = false // ★ 新增
+        )
 
+        {
+            if (!IsRecording) return; // 注意：承伤 value 可能为 0（比如被格挡/护盾），不能一刀切 return
             var p = GetOrCreate(uid, nickname, combatPower, profession);
 
-            // hpLessen 兜底：未传或为0时，用 value
+            // 逐技能桶
+            var s = p.TakenSkills.TryGetValue(skillId, out var tmp) ? tmp : (p.TakenSkills[skillId] = new StatAcc());
+
+            // ① Miss：只计数，不入数值
+            if (isMiss)
+            {
+                s.CountMiss++;
+                return;
+            }
+
+            // ② Dead：计数 + 若有数值继续入库
+            if (isDead)
+                s.CountDead++;
+
+            // hpLessen 兜底
             var lessen = hpLessen > 0 ? hpLessen : value;
+
+            // 玩家总承伤累计真实扣血
             p.TakenDamage += lessen;
 
-            var s = p.TakenSkills.TryGetValue(skillId, out var tmp) ? tmp : (p.TakenSkills[skillId] = new StatAcc());
-            // 承伤也记录暴击/幸运，并把 hpLessen 写入累加器
-            Accumulate(s, value, isCrit: isCrit, isLucky: isLucky, hpLessen: lessen);
+            // 有效承伤再记数值（value 可能为 0，按你协议实际情况决定是否过滤）
+            if (value > 0 || lessen > 0)
+            {
+                Accumulate(s, value, isCrit, isLucky, lessen, false /* 因果幸运一般不用于承伤 */);
+            }
 
-            // 承伤不参与队伍/玩家DPS（如需“受伤DPS”，可在此扩展）
+            // 承伤不进队伍DPS；仅刷新玩家实时显示（保持你原逻辑）
             UpdateRealtimeDps(p, includeHealing: false);
+
         }
 
         /// <summary>
@@ -952,9 +1013,12 @@
         /// - 维护总和、hpLessen、次数与最大/最小单次值；
         /// - 通过 FirstAt/LastAt 与时间差累加 ActiveSeconds（含空档封顶）。
         /// </summary>
-        private static void Accumulate(StatAcc acc, ulong value, bool isCrit, bool isLucky, ulong hpLessen)
+        private static void Accumulate(
+            StatAcc acc, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
+            bool isCauseLucky = false // ★ 新增：是否因果幸运
+        )
         {
-            // 数值累计
+            // 原有四象限累计
             if (isCrit && isLucky) acc.CritLucky += value;
             else if (isCrit) acc.Critical += value;
             else if (isLucky) acc.Lucky += value;
@@ -969,31 +1033,34 @@
             if (!isCrit && !isLucky) acc.CountNormal++;
             acc.CountTotal++;
 
-            // 极值
+            // ★ 新增：因果幸运
+            if (isLucky && isCauseLucky)
+            {
+                acc.CauseLucky += value;
+                acc.CountCauseLucky++;
+            }
+
+            // 极值...
             if (value > 0)
             {
                 if (value > acc.MaxSingleHit) acc.MaxSingleHit = value;
                 if (acc.MinSingleHit == 0 || value < acc.MinSingleHit) acc.MinSingleHit = value;
             }
+
+            // 时序/活跃时长（保持你原逻辑不变）
             var now = DateTime.Now;
-            if (acc.FirstAt is null)
-            {
-                acc.FirstAt = now;
-                // 第一条事件不增加时长
-            }
+            if (acc.FirstAt is null) { acc.FirstAt = now; }
             else
             {
-                // 防止长空档把分母拉大：可按需要调整 1~5 秒；不想封顶就删掉这两行
                 const double GAP_CAP_SECONDS = 3.0;
-
                 var gap = (now - (acc.LastAt ?? acc.FirstAt.Value)).TotalSeconds;
                 if (gap < 0) gap = 0;
                 if (gap > GAP_CAP_SECONDS) gap = GAP_CAP_SECONDS;
-
                 acc.ActiveSeconds += gap;
             }
             acc.LastAt = now;
         }
+
 
         /// <summary>
         /// 将内部技能统计转为快照中的技能汇总项（含DPS、命中均值、暴击/幸运率等）。
@@ -1049,6 +1116,12 @@
             public double RealtimeDpsHealing { get; set; }
 
             public PlayerAcc(ulong uid) => Uid = uid;
+
+            // ★ 新增：可选的细分维度
+            public Dictionary<ulong, Dictionary<string, StatAcc>> DamageSkillsByElement { get; } = new();
+            public Dictionary<ulong, Dictionary<ulong, StatAcc>> HealingSkillsByTarget { get; } = new();
+
+         
         }
 
         /// <summary>
@@ -1069,6 +1142,12 @@
             public double ActiveSeconds;  // 事件间隔累加（单位：秒）
             // —— 新增：实时DPS（逐技能/逐类）
             public double RealtimeDps { get; set; }
+
+            // ★★★ 新增：全程记录扩展字段
+            public ulong CauseLucky;      // 因果幸运累计数值
+            public int CountCauseLucky; // 因果幸运次数
+            public int CountMiss;       // Miss 次数（多用于承伤）
+            public int CountDead;       // 击杀次数（承伤）
         }
         #endregion
     }

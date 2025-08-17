@@ -1,8 +1,10 @@
 ﻿using AntdUI;
 using DocumentFormat.OpenXml.Wordprocessing;
 using StarResonanceDpsAnalysis.Control;
+using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,6 +27,14 @@ namespace StarResonanceDpsAnalysis.Forms
             Text = FormManager.APP_NAME;
             FormGui.SetDefaultGUI(this); // 统一设置窗体默认 GUI 风格（字体、间距、阴影等）
             ToggleTableView();
+            label1.Font = AppConfig.TitleFont;
+            select1.Font = segmented1.Font = AppConfig.ContentFont;
+            var harmonyOsSansFont_Size11 = FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 11);
+            label6.Font = harmonyOsSansFont_Size11;
+            label3.Font = label2.Font = label5.Font = AppConfig.ContentFont;
+            
+            table_DpsDetailDataTable.Font = AppConfig.ContentFont;
+            TeamTotalDamageLabel.Font = TeamTotalHealingLabel.Font= TeamTotalTakenDamageLabel.Font = AppConfig.DigitalFont;
 
         }
 
@@ -126,9 +136,15 @@ namespace StarResonanceDpsAnalysis.Forms
             TeamTotalDamageLabel.Text = snap.TeamTotalDamage.ToString();
             TeamTotalHealingLabel.Text = snap.TeamTotalHealing.ToString();
             TeamTotalTakenDamageLabel.Text = snap.TeamTotalTakenDamage.ToString();
+            var tdTotal = snap.TeamTotalDamage;
 
             foreach (var p in snap.Players.Values)
             {
+                double dmgShare = snap.TeamTotalDamage > 0
+            ? Math.Round(p.TotalDamage * 100.0 / snap.TeamTotalDamage, 1)
+            : 0.0;
+
+
                 DpsTableDatas.DpsTable.Add(new DpsTable(
                    /*  1 */ p.Uid,
             /*  2 */ p.Nickname,
@@ -165,18 +181,18 @@ namespace StarResonanceDpsAnalysis.Forms
             /* 19~20 = 平均 DPS/HPS */
             /* 19 */ Math.Round(p.TotalDps, 1),//总DPS
             /* 20 */ Math.Round(p.TotalHps, 1),//总HPS
-                    p.CombatPower//战力
+                    p.CombatPower,//战力
+                    dmgShare
 
 
                 /* 22 = 战力 */
                 /* 22 */
                 ));
-                sb.AppendLine(
-                    $"  UID={p.Uid}  昵称={p.Nickname}  职业={p.Profession}  战力={p.CombatPower}  " +
-                    $"总伤害={p.TotalDamage}  DPS={p.TotalDps:F1}  总治疗={p.TotalHealing}  HPS={p.TotalHps:F1}  承伤={p.TakenDamage}");
+                //sb.AppendLine(
+                //    $"  UID={p.Uid}  昵称={p.Nickname}  职业={p.Profession}  战力={p.CombatPower}  " +
+                //    $"总伤害={p.TotalDamage}  DPS={p.TotalDps:F1}  总治疗={p.TotalHealing}  HPS={p.TotalHps:F1}  承伤={p.TakenDamage}");
             }
 
-            Console.WriteLine(sb.ToString()); // 直接打印（WinForms 可在“输出”窗口看到）
         }
 
         // 全程
@@ -191,6 +207,9 @@ namespace StarResonanceDpsAnalysis.Forms
 
             foreach (var p in snap.Players.Values)
             {
+                double dmgShare = snap.TeamTotalDamage > 0
+           ? Math.Round(p.TotalDamage * 100.0 / snap.TeamTotalDamage, 1)
+           : 0.0;
                 // 注意：全程快照的 SnapshotPlayer 未提供逐类（暴击/幸运/暴击且幸运）的总量与实时峰值；
                 // 这里这些列用 0 占位；DPS/HPS 使用快照内的 TotalDps/TotalHps。
                 DpsTableDatas.DpsTable.Add(new DpsTable(
@@ -230,15 +249,13 @@ namespace StarResonanceDpsAnalysis.Forms
                     /* 20 */ Math.Round(p.TotalHps, 1),
 
                     /* 22 = 战力 */
-                    /* 22 */ p.CombatPower
+                    /* 22 */ p.CombatPower, dmgShare
                 ));
 
-                sb.AppendLine(
-                    $"  [全程] UID={p.Uid} 昵称={p.Nickname} 职业={p.Profession} 战力={p.CombatPower}  " +
-                    $"总伤害={p.TotalDamage} 全程DPS={p.TotalDps:F1}  总治疗={p.TotalHealing} 全程HPS={p.TotalHps:F1} 承伤={p.TakenDamage}");
+
             }
 
-            Console.WriteLine(sb.ToString());
+            
         }
 
         private void label1_MouseDown(object sender, MouseEventArgs e)

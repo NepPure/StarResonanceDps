@@ -37,6 +37,41 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         #region 数值累计（只读属性，内部递增）
 
+        /// <summary>
+        /// Miss 次数（未命中次数）
+        /// - 统计该技能在承伤统计中被判定为 Miss 的次数
+        /// - Miss 不会累加到伤害值，只是计数，用于命中率统计
+        /// </summary>
+        public int CountMiss { get; private set; }
+
+        /// <summary>
+        /// 击杀次数（目标死亡次数）
+        /// - 统计该技能在承伤统计中导致目标死亡的次数
+        /// - 用于显示“该技能打死过几次”的额外信息
+        /// - 注意：死亡是承伤结果，伤害依然正常累加
+        /// </summary>
+        public int CountDead { get; private set; }
+
+
+
+
+        /// <summary>
+        /// 因果幸运总伤害值
+        /// - 当一次命中既是幸运触发（isLucky=true）
+        ///   且由因果效果导致（isCauseLucky=true）时
+        ///   就把伤害数额累加到这里。
+        /// - 用来区分「普通幸运伤害」和「因果触发的幸运伤害」
+        /// </summary>
+        public ulong CauseLucky { get; private set; }
+
+        /// <summary>
+        /// 因果幸运命中次数
+        /// - 统计触发「因果幸运」的命中次数（计数）
+        /// - 对比 CountLucky 可以看出其中有多少次幸运是由因果触发的
+        /// </summary>
+        public int CountCauseLucky { get; private set; }
+
+
         /// <summary>普通命中数值总和。</summary>
         public ulong Normal { get; private set; }
 
@@ -109,8 +144,10 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
 
         #region 公开方法
+        public void RegisterMiss() { CountMiss++; }
+        public void RegisterKill() { CountDead++; }
 
-     
+
 
         /// <summary>
         /// 添加一条新的统计记录（伤害或治疗）。此方法是唯一写入口，负责推进所有派生统计。
@@ -122,7 +159,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// HP 减少值（仅伤害/承伤场景传入）。
         /// 当统计承伤时可用以与 <see cref="Total"/> 区分（例如溢出伤、护盾、减伤后真实掉血量）。
         /// </param>
-        public void AddRecord(ulong value, bool isCrit, bool isLucky, ulong hpLessenValue = 0)
+        public void AddRecord(ulong value, bool isCrit, bool isLucky, ulong hpLessenValue = 0, bool isCauseLucky = false) // ★ 新增参数：是否因果幸运
         {
             var now = DateTime.Now;
 
@@ -146,6 +183,13 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 if (value < MinSingleHit) MinSingleHit = value;
             }
 
+            if (isLucky && isCauseLucky)
+            {
+                CauseLucky += value;
+                CountCauseLucky++;
+            }
+
+
             // —— 仅这行需要加锁 —— 
             lock (_realtimeLock)
             {
@@ -155,6 +199,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             _startTime ??= now;
             _endTime = now;
         }
+
+        // PlayerData.AddTakenDamage(...) 里
+
 
 
         /// <summary>
@@ -440,6 +487,19 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <summary>按技能分组的伤害/治疗统计（key=技能ID）。</summary>
         public Dictionary<ulong, StatisticData> SkillUsage { get; } = new();
 
+        /// <summary>
+        /// 按技能分组的伤害/治疗统计（key=技能ID）（按元素分组）
+        /// </summary>
+
+        public Dictionary<ulong, Dictionary<string, StatisticData>> SkillUsageByElement = new();
+
+        /// <summary>
+        /// 按技能分组的治疗统计（key=技能ID）（按目标分组）
+        /// </summary>
+        public Dictionary<ulong, Dictionary<ulong, StatisticData>> HealingBySkillTarget = new();
+
+
+
         /// <summary>按技能分组的承伤统计（key=技能ID）。</summary>
         public Dictionary<ulong, StatisticData> TakenDamageBySkill { get; } = new();
 
@@ -471,7 +531,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
         /// <param name="hpLessen">扣血值（可选）。通常伤害时与 damage 一致，承伤场景更有意义。</param>
-        public void AddDamage(ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0)
+        public void AddDamage(
+            ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0,
+            string? damageElement = null, bool isCauseLucky = false)
         {
             DamageStats.AddRecord(damage, isCrit, isLucky, hpLessen);
 
@@ -480,10 +542,13 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 stat = new StatisticData();
                 SkillUsage[skillId] = stat;
             }
-
             stat.AddRecord(damage, isCrit, isLucky, hpLessen);
-            // ★ 新增：同步到全程记录，不影响原逻辑
-            FullRecord.RecordDamage(Uid, skillId, damage, isCrit, isLucky, hpLessen, Nickname, CombatPower, Profession);
+
+            // 把新增字段写入全程记录（需要你同步扩展 FullRecord.RecordDamage 的签名）
+            FullRecord.RecordDamage(
+                Uid, skillId, damage, isCrit, isLucky, hpLessen,
+                Nickname, CombatPower, Profession,
+                damageElement, isCauseLucky);
         }
 
         /// <summary>
@@ -493,7 +558,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="healing">治疗数值。</param>
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
-        public void AddHealing(ulong skillId, ulong healing, bool isCrit, bool isLucky)
+        public void AddHealing(
+            ulong skillId, ulong healing, bool isCrit, bool isLucky,
+            string? damageElement = null, bool isCauseLucky = false, ulong targetUuid = 0)
         {
             HealingStats.AddRecord(healing, isCrit, isLucky);
 
@@ -503,9 +570,14 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 HealingBySkill[skillId] = stat;
             }
             stat.AddRecord(healing, isCrit, isLucky);
-            // ★ 新增同步全程记录
-            FullRecord.RecordHealing(Uid, skillId, healing, isCrit, isLucky, Nickname, CombatPower, Profession);
+
+            FullRecord.RecordHealing(
+                Uid, skillId, healing, isCrit, isLucky,
+                Nickname, CombatPower, Profession,
+                damageElement, isCauseLucky, targetUuid);
         }
+
+  
 
         /// <summary>
         /// 添加承伤记录（支持暴击/幸运标记），同时累计到聚合与分技能統計，并寫入全程記錄。
@@ -515,26 +587,46 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="isCrit">是否暴擊（若協議可區分）。</param>
         /// <param name="isLucky">是否幸運（若協議可區分）。</param>
         /// <param name="hpLessen">HP 真实减少值；为 0 时以 <paramref name="damage"/> 作为扣血。</param>
-        public void AddTakenDamage(ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0)
+        public void AddTakenDamage(
+            ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0,
+            int damageSource = 0, bool isMiss = false, bool isDead = false)
         {
-            var lessen = hpLessen > 0 ? hpLessen : damage;
-
-            TakenDamage += lessen; // 总承伤（用于快速展示）
-
-            // —— 聚合承伤（可直接读取 Normal/Critical/Lucky/CritLucky/Total 等）
-            TakenStats.AddRecord(damage, isCrit: isCrit, isLucky: isLucky, hpLessenValue: lessen);
-
-            // —— 按技能承伤
             if (!TakenDamageBySkill.TryGetValue(skillId, out var stat))
             {
                 stat = new StatisticData();
                 TakenDamageBySkill[skillId] = stat;
             }
-            stat.AddRecord(damage, isCrit: isCrit, isLucky: isLucky, hpLessenValue: lessen);
 
-            // ★ 全程记录（如果你已改成带标记位的版本，调用带标记位的这一行）
-            FullRecord.RecordTakenDamage(Uid, skillId, damage, isCrit, isLucky, lessen, Nickname, CombatPower, Profession);
+            // 1) Miss：只记次数，不进 AddRecord（没有有效数值）
+            if (isMiss)
+            {
+                stat.RegisterMiss();   // ✅ 直接自增
+                return;
+            }
+
+            // 2) Death：记次数；若有伤害值，仍正常入库
+            if (isDead)
+            {
+                stat.RegisterKill();   // ✅ 直接自增
+            }
+
+            var lessen = hpLessen > 0 ? hpLessen : damage;
+
+            // 玩家总承伤累计
+            TakenDamage += lessen;
+
+            // 聚合器累计（总体承伤）
+            TakenStats.AddRecord(damage, isCrit, isLucky, lessen);
+
+            // 分技能累计
+            stat.AddRecord(damage, isCrit, isLucky, lessen /*, isCauseLucky 可按需传 */);
+
+            // 全程记录（若你有扩展 FullRecord.RecordTakenDamage）
+             FullRecord.RecordTakenDamage(Uid, skillId, damage, isCrit, isLucky, lessen,
+                 Nickname, CombatPower, Profession, damageSource, isMiss, isDead);
         }
+
+
 
 
         /// <summary>
@@ -1185,12 +1277,15 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="damage">伤害值。</param>
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
+        ///   /// <param name="damageSource">伤害类型</param>
         /// <param name="hpLessen">HP 扣减值（可选）。</param>
         public void AddDamage(ulong uid, ulong skillId,string damageElement, ulong damage, bool isCrit, bool isLucky,bool isCauseLucky, ulong hpLessen = 0)
         {
             // # 分类：进入战斗（自动）
             MarkCombatActivity();
-            GetOrCreate(uid).AddDamage(skillId, damage, isCrit, isLucky, hpLessen);
+            GetOrCreate(uid).AddDamage(
+     skillId, damage, isCrit, isLucky, hpLessen,
+     damageElement, isCauseLucky);
         }
 
         /// <summary>
@@ -1202,8 +1297,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
         /// <param name="hpFull">HP 补满值（可选）。</param>
+        ///   /// <param name="damageSource">治疗类型</param>
         /// <param name="targetUuid">被治疗的ID（可选）。</param>
-        
+
 
         // PlayerDataManager 内 —— 只在“已由伤害/承伤开启战斗”后才纳入治疗
         public void AddHealing(ulong uid, ulong skillId,string damageElement, ulong healing, bool isCrit, bool isLucky,bool isCauseLucky,ulong targetUuid)
@@ -1215,7 +1311,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             // 2) 战斗已开始：治疗计入，并刷新“最后活跃时间”，避免被空闲判定清场
             _lastCombatActivity = DateTime.Now;
 
-            GetOrCreate(uid).AddHealing(skillId, healing, isCrit, isLucky);
+            GetOrCreate(uid).AddHealing(
+      skillId, healing, isCrit, isLucky,
+      damageElement, isCauseLucky, targetUuid);
         }
 
 
@@ -1229,10 +1327,15 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
         /// <param name="hpLessen">HP 真实减少值（0 则默认使用 <paramref name="damage"/>）。</param>
+        /// <param name="damageSource">伤害类型</param>
+        /// <param name="isMiss">是否闪避。</param>
+        /// <param name="isDead">是否死亡。</param>
         public void AddTakenDamage(ulong uid, ulong skillId, ulong damage,int damageSource, bool isMiss,bool isDead, bool isCrit, bool isLucky, ulong hpLessen = 0)
         {
             MarkCombatActivity();
-            GetOrCreate(uid).AddTakenDamage(skillId, damage, isCrit, isLucky, hpLessen);
+            GetOrCreate(uid).AddTakenDamage(
+      skillId, damage, isCrit, isLucky, hpLessen,
+      damageSource, isMiss, isDead);
         }
 
         /// <summary>设置玩家职业（缓存 + 实例）。</summary>
