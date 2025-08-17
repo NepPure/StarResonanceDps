@@ -45,6 +45,7 @@
             timer_RefreshRunningTime = new System.Windows.Forms.Timer(components);
             timer1 = new System.Windows.Forms.Timer(components);
             sortedProgressBarList1 = new StarResonanceDpsAnalysis.Control.SortedProgressBarList();
+            label1 = new AntdUI.Label();
             pageHeader1.SuspendLayout();
             panel1.SuspendLayout();
             SuspendLayout();
@@ -211,6 +212,7 @@
             // panel1
             // 
             panel1.BackColor = Color.Transparent;
+            panel1.Controls.Add(label1);
             panel1.Controls.Add(BattleTimeText);
             panel1.Dock = DockStyle.Bottom;
             panel1.Location = new Point(0, 419);
@@ -254,6 +256,16 @@
             sortedProgressBarList1.Size = new Size(471, 384);
             sortedProgressBarList1.TabIndex = 18;
             // 
+            // label1
+            // 
+            label1.Dock = DockStyle.Left;
+            label1.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
+            label1.Location = new Point(0, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(366, 46);
+            label1.TabIndex = 19;
+            label1.Text = "1.";
+            // 
             // DpsStatisticsForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
@@ -295,5 +307,6 @@
         private System.Windows.Forms.Timer timer1;
         private AntdUI.Label DamageModeLabel;
         private Control.SortedProgressBarList sortedProgressBarList1;
+        private AntdUI.Label label1;
     }
 }

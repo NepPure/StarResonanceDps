@@ -132,7 +132,7 @@
             label1.Name = "label1";
             label1.Size = new Size(890, 310);
             label1.TabIndex = 9;
-            label1.Text = "主窗口啥也没还没做";
+            label1.Text = "主窗口啥也没还没做很丑 \r\n作者：露詩、惊奇猫猫盒、青岚宗王腾\r\n群号：678150498";
             label1.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // MainForm

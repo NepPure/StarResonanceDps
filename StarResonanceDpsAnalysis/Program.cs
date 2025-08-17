@@ -14,7 +14,7 @@ namespace StarResonanceDpsAnalysis
         [STAThread]
         static void Main()
         {
-            Console.OutputEncoding = Encoding.UTF8;
+            //Console.OutputEncoding = Encoding.UTF8;
             //Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); // 关键
 
             // 根据主屏分辨率设置 AntdUI 全局 DPI 缩放，使 1080p=1.0，2K≈1.33，4K=2.0
