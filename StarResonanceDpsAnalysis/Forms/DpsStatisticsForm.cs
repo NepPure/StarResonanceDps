@@ -442,11 +442,14 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         {
             if (Config.IsLight)
             {
-                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#E0E0E0");
+                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#ffffff");
+                AppConfig.colorText = Color.Black;
+
             }
             else
             {
-                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#999999");
+                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#000000");
+                AppConfig.colorText = Color.White;
             }
         }
 

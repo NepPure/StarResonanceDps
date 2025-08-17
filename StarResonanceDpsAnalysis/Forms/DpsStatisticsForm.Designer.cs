@@ -268,7 +268,7 @@
             // sortedProgressBarList1
             // 
             sortedProgressBarList1.AnimationQuality = Effects.Enum.Quality.Medium;
-            sortedProgressBarList1.BackColor = Color.FromArgb(224, 224, 224);
+            sortedProgressBarList1.BackColor = Color.White;
             sortedProgressBarList1.Dock = DockStyle.Fill;
             sortedProgressBarList1.Location = new Point(0, 35);
             sortedProgressBarList1.Margin = new Padding(5, 4, 5, 4);

@@ -1,4 +1,5 @@
-﻿using SharpPcap;
+﻿using AntdUI;
+using SharpPcap;
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Control.GDI;
 using StarResonanceDpsAnalysis.Core;
@@ -330,6 +331,7 @@ namespace StarResonanceDpsAnalysis.Forms
         /// </summary>
         static List<RenderContent> userRenderContent = new List<RenderContent>();
 
+        //白窗体
         Dictionary<string, Color> colorDict = new Dictionary<string, Color>()
         {
             { "神射手", ColorTranslator.FromHtml("#fffca3") }, //
@@ -343,6 +345,19 @@ namespace StarResonanceDpsAnalysis.Forms
             {"未知",  ColorTranslator.FromHtml("#67AEF6")}
         };
 
+        //黑窗体
+        Dictionary<string, Color> blackColorDict = new Dictionary<string, Color>()
+        {
+            { "神射手", ColorTranslator.FromHtml("#8e8b47") }, //
+            { "冰魔导师", ColorTranslator.FromHtml("#79779c") }, // 
+            { "巨刃守护者", ColorTranslator.FromHtml("#537758") }, // 
+            { "雷影剑士", ColorTranslator.FromHtml("#70629c") }, // 
+            { "灵魂乐手", ColorTranslator.FromHtml("#9c5353") }, // 
+            { "青岚骑士", ColorTranslator.FromHtml("#799a9c") }, // 
+            { "森语者", ColorTranslator.FromHtml("#639c70") }, // 
+            { "神盾骑士", ColorTranslator.FromHtml("#9c9b75") }, // 
+            {"未知",  ColorTranslator.FromHtml("#67AEF6")}
+        };
         public static Dictionary<string, Bitmap> imgDict = new Dictionary<string, Bitmap>()
     {
         { "冰魔导师", new Bitmap(new MemoryStream(Resources.冰魔导师)) },
@@ -404,7 +419,7 @@ namespace StarResonanceDpsAnalysis.Forms
             var uiList = BuildUiRows(source, metric)
                 .Where(r => (r?.Total ?? 0) > 0)   // 过滤 0 值（伤害/治疗/承伤都适用）
                 .ToList();
-
+        
             if (uiList.Count == 0)
             {
                 // 清空旧数据，避免残影
@@ -456,25 +471,38 @@ namespace StarResonanceDpsAnalysis.Forms
                     string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
                     if (p.Profession == "") continue;
                     var profBmp = imgDict[p.Profession];
-
+                    Color color;
+                    if (Config.IsLight)
+                    {
+                        color = colorDict[p.Profession];
+                    }
+                    else
+                    {
+                        color = blackColorDict[p.Profession];
+                    }
                     if (!DictList.TryGetValue(p.Uid, out var data))
                     {
                         // # 首次出现：为该 UID 构建渲染内容与进度条条目
                         data = new List<RenderContent> {
+
                             new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=35,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=Color.Black, Font=AppConfig.ContentFont },
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=Color.Black, Font=AppConfig.ContentFont },
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=Color.Black, Font=AppConfig.ContentFont },
+                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
+                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
+                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
                         };
 
-                        list.Add(new ProgressBarData
-                        {
-                            ID = p.Uid,
-                            ContentList = data,
-                            ProgressBarCornerRadius = 3,
-                            ProgressBarValue = ratio,
-                            ProgressBarColor = colorDict[p.Profession],
-                        });
+
+                            list.Add(new ProgressBarData
+                            {
+                                ID = p.Uid,
+                                ContentList = data,
+                                ProgressBarCornerRadius = 3,
+                                ProgressBarValue = ratio,
+                                ProgressBarColor = color,
+                                
+
+
+                            });
                         
                         DictList[p.Uid] = data;
                     }
@@ -498,10 +526,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (pb != null)
                     {
                         pb.ProgressBarValue = ratio; // 关键：用最新占比驱动条形长度/排序
-                        if (colorDict.TryGetValue(p.Profession, out var c))
-                            pb.ProgressBarColor = c;
-                        else
-                            pb.ProgressBarColor = colorDict["未知"]; // 兜底，避免 KeyNotFound
+                    
+                        
+                        pb.ProgressBarColor = color;
+                        
                     }
                 }
                 // —— 闸门 #2：写 UI 之前再校验一次，防止在计算期间切换视图导致串写 ——
