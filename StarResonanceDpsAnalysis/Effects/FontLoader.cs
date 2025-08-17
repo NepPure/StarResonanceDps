@@ -12,10 +12,10 @@ namespace StarResonanceDpsAnalysis.Effects
     {
         private static readonly PrivateFontCollection _pfc = new();
         private static readonly Dictionary<string, FontFamily> _fontFamilyCache = [];
-        private static readonly Dictionary<(FontFamily, float), Font> _fontCache = [];
+        private static readonly Dictionary<(FontFamily, float, FontStyle), Font> _fontCache = [];
         private static string[] _prevFontFamilyNames = [];
 
-        public static Font LoadFontFromBytesAndCache(string fontName, byte[] bytes, float fontSize)
+        public static Font LoadFontFromBytesAndCache(string fontName, byte[] bytes, float fontSize, FontStyle fontStyle = FontStyle.Regular)
         {
             try
             {
@@ -27,10 +27,10 @@ namespace StarResonanceDpsAnalysis.Effects
                 }
 
                 // var fFlag = _fontCache.TryGetValue((fontFamily!, fontSize), out var font);
-                if (!_fontCache.TryGetValue((fontFamily!, fontSize), out var font))
+                if (!_fontCache.TryGetValue((fontFamily!, fontSize, fontStyle), out var font))
                 {
-                    font = new Font(fontFamily, fontSize);
-                    _fontCache[(fontFamily, fontSize)] = font;
+                    font = new Font(fontFamily, fontSize, fontStyle);
+                    _fontCache[(fontFamily, fontSize, fontStyle)] = font;
                 }
 
                 // Console.WriteLine($"通过 {fontName} 取得{(ffFlag ? "缓存中的" : string.Empty)}字体族: {fontFamily!.Name}, 并取得{(fFlag ? "缓存中的" : string.Empty)}字体: Size({fontSize})");
