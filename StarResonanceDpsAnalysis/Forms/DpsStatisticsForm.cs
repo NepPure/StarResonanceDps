@@ -453,7 +453,8 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         private void SetDefaultFontFromResources()
         {
             DamageModeLabel.Font = AppConfig.HeaderFont;
-            PilingModeCheckbox.Font = AppConfig.HeaderFont;
+            PilingModeCheckbox.Font = AppConfig.ContentFont;
+            label2.Font = label1.Font = AppConfig.ContentFont;
         }
 
         #region 钩子

@@ -402,6 +402,7 @@ namespace StarResonanceDpsAnalysis.Core
                     if (isHeal)
                     {
                          StatisticData._manager.AddHealing(attackerUuid, (ulong)skillId, damageElement, hpLessen, isCrit, isLucky, isCauseLucky, targetUuid);
+                       
                     }
                     else
                     {

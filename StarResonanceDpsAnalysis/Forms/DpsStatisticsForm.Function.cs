@@ -445,6 +445,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 {
                     var p = ordered[i];
                     int index = i + 1;
+                    
                     // for 里：归一化到 0~1
                     float ratio = (float)(p.Total / top);
                     if (!float.IsFinite(ratio)) ratio = 0f;
@@ -460,7 +461,7 @@ namespace StarResonanceDpsAnalysis.Forms
                     {
                         // # 首次出现：为该 UID 构建渲染内容与进度条条目
                         data = new List<RenderContent> {
-                            new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=30,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
+                            new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=35,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
                             new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=Color.Black, Font=AppConfig.ContentFont },
                             new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=Color.Black, Font=AppConfig.ContentFont },
                             new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=Color.Black, Font=AppConfig.ContentFont },
@@ -474,7 +475,7 @@ namespace StarResonanceDpsAnalysis.Forms
                             ProgressBarValue = ratio,
                             ProgressBarColor = colorDict[p.Profession],
                         });
-
+                        
                         DictList[p.Uid] = data;
                     }
 
@@ -487,7 +488,9 @@ namespace StarResonanceDpsAnalysis.Forms
                     row[3].Text = share;
                     if(p.Uid ==(long)AppConfig.Uid)
                     {
-                        label1.Text = $"  {index}.{p.Nickname}   {totalFmt}({perSec})";
+                        
+                        label1.Text = $" [{index}]";
+                        label2.Text =@$"{totalFmt}({perSec})";
                     }
                     
                     // 更新进度条的 Value/Color（老条目必须每次刷新都更新）

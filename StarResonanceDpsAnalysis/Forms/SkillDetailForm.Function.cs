@@ -30,7 +30,7 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 new AntdUI.Column("Name","技能名"),
                 new AntdUI.Column("Damage","伤害"),
-                new AntdUI.Column("AvgPerHit","DPS/秒"),
+                new AntdUI.Column("TotalDps","DPS/秒"),
                 new AntdUI.Column("HitCount","命中次数"),
                 new AntdUI.Column("CritRate","暴击率"),
                 new AntdUI.Column("LuckyRate","幸运率"),
@@ -178,7 +178,7 @@ namespace StarResonanceDpsAnalysis.Control
                     newRow.Share = new CellProgress((float)share);
                     newRow.Share.Fill = AppConfig.DpsColor;
                     newRow.Share.Size = new Size(200, 10);
-
+                    
                     SkillTableDatas.SkillTable.Add(newRow);
                 }
                 else
