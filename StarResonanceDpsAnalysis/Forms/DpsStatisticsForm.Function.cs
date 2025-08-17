@@ -149,7 +149,7 @@ namespace StarResonanceDpsAnalysis.Forms
             if (SelectedDevice == null)
                 throw new InvalidOperationException($"无法获取网络设备，索引: {AppConfig.NetworkCard}");
 
-
+            Task.Delay(1000);
             // # 步骤 3：图表历史与自动刷新 —— 开始新的战斗记录
             ChartVisualizationService.ClearAllHistory();
 
