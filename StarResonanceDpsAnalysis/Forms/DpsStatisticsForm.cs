@@ -34,9 +34,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         {
             // 构造函数开始
             InitializeComponent(); // 初始化设计器生成的控件与布局
-            //开启默认置顶
-            TopMost = !TopMost; // 简化切换
-            button_AlwaysOnTop.Toggle = TopMost; // 同步按钮的视觉状态
+   
 
             Text = FormManager.APP_NAME;
 
@@ -74,31 +72,31 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         } // 构造函数结束
 
-        // # 分辨率缩放（可选）
-        private void ApplyResolutionScale() // 将界面按主显示器分辨率进行缩放
-        { // 方法开始
-            float scale = GetPrimaryResolutionScale(); // 计算缩放比例（1.0/1.3333/2.0）
-            if (Math.Abs(scale - 1.0f) < 0.01f) return; // 若接近 1.0（无需缩放）则直接返回
+        //// # 分辨率缩放（可选）
+        //private void ApplyResolutionScale() // 将界面按主显示器分辨率进行缩放
+        //{ // 方法开始
+        //    float scale = GetPrimaryResolutionScale(); // 计算缩放比例（1.0/1.3333/2.0）
+        //    if (Math.Abs(scale - 1.0f) < 0.01f) return; // 若接近 1.0（无需缩放）则直接返回
 
-            this.Scale(new SizeF(scale, scale)); // 对窗体整体进行缩放
+        //    this.Scale(new SizeF(scale, scale)); // 对窗体整体进行缩放
 
-            try // 保护性尝试：某些控件属性在不同主题下可能抛异常
-            { // try 开始
-                pageHeader1.Font = new Font(pageHeader1.Font.FontFamily, pageHeader1.Font.Size * scale, pageHeader1.Font.Style);
-                pageHeader1.SubFont = new Font(pageHeader1.SubFont.FontFamily, pageHeader1.SubFont.Size * scale, pageHeader1.SubFont.Style);
+        //    try // 保护性尝试：某些控件属性在不同主题下可能抛异常
+        //    { // try 开始
+        //        pageHeader1.Font = new Font(pageHeader1.Font.FontFamily, pageHeader1.Font.Size * scale, pageHeader1.Font.Style);
+        //        pageHeader1.SubFont = new Font(pageHeader1.SubFont.FontFamily, pageHeader1.SubFont.Size * scale, pageHeader1.SubFont.Style);
 
-                BattleTimeText.Font = new Font(BattleTimeText.Font.FontFamily, BattleTimeText.Font.Size * scale, BattleTimeText.Font.Style);
+        //        BattleTimeText.Font = new Font(BattleTimeText.Font.FontFamily, BattleTimeText.Font.Size * scale, BattleTimeText.Font.Style);
 
-                sortedProgressBarList1.ProgressBarHeight = (int)Math.Round(sortedProgressBarList1.ProgressBarHeight * scale);
-                sortedProgressBarList1.ProgressBarPadding = new Padding(
-                    (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Left * scale),
-                    (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Top * scale),
-                    (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Right * scale),
-                    (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Bottom * scale)
-                );
-            } // try 结束
-            catch { } // 忽略缩放过程中的非关键异常，保证 UI 不崩溃
-        } // 方法结束
+        //        sortedProgressBarList1.ProgressBarHeight = (int)Math.Round(sortedProgressBarList1.ProgressBarHeight * scale);
+        //        sortedProgressBarList1.ProgressBarPadding = new Padding(
+        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Left * scale),
+        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Top * scale),
+        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Right * scale),
+        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Bottom * scale)
+        //        );
+        //    } // try 结束
+        //    catch { } // 忽略缩放过程中的非关键异常，保证 UI 不崩溃
+        //} // 方法结束
 
         // # 屏幕分辨率缩放判定
         private static float GetPrimaryResolutionScale() // 依据主屏高度返回推荐缩放比例
@@ -119,6 +117,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         // # 窗体加载事件：启动抓包
         private void DpsStatistics_Load(object sender, EventArgs e) // 窗体 Load 事件处理
         { // 方法开始
+          //开启默认置顶
+            TopMost = !TopMost; // 简化切换
+            button_AlwaysOnTop.Toggle = TopMost; // 同步按钮的视觉状态
             StartCapture(); // 启动网络抓包/数据采集（核心运行入口之一）
         } // 方法结束
 

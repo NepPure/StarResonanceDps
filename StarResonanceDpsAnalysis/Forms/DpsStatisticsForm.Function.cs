@@ -149,7 +149,7 @@ namespace StarResonanceDpsAnalysis.Forms
             if (SelectedDevice == null)
                 throw new InvalidOperationException($"无法获取网络设备，索引: {AppConfig.NetworkCard}");
 
-
+            Task.Delay(1000);
             // # 步骤 3：图表历史与自动刷新 —— 开始新的战斗记录
             ChartVisualizationService.ClearAllHistory();
 
@@ -485,7 +485,11 @@ namespace StarResonanceDpsAnalysis.Forms
                     row[1].Text = $"{p.Nickname}({p.CombatPower})";
                     row[2].Text = $"{totalFmt}({perSec})";
                     row[3].Text = share;
-                    label1.Text = $"  {index}.{p.Nickname}   {totalFmt}({perSec})";
+                    if(p.Uid ==(long)AppConfig.Uid)
+                    {
+                        label1.Text = $"  {index}.{p.Nickname}   {totalFmt}({perSec})";
+                    }
+                    
                     // 更新进度条的 Value/Color（老条目必须每次刷新都更新）
                     var pb = list.FirstOrDefault(x => x.ID == p.Uid);
                     if (pb != null)
