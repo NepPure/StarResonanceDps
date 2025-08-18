@@ -522,8 +522,14 @@
         {
             double activeSeconds = 0;
 
-            // 取全队最大有效时长（Damage为主）
-            foreach (var p in _players.Values)
+            // 先在锁内把集合定格为数组，锁外再计算
+            PlayerAcc[] playersSnapshot;
+            lock (_sync)
+            {
+                playersSnapshot = _players.Values.ToArray();
+            }
+
+            foreach (var p in playersSnapshot)
             {
                 if (p.Damage.ActiveSeconds > activeSeconds)
                     activeSeconds = p.Damage.ActiveSeconds;
@@ -555,16 +561,25 @@
             IsRecording = false;
             EndedAt = DateTime.Now;
 
-            // 有任何有效数据才写历史
-            bool hasAnyData = _players.Values.Any(p =>
+            bool hasAnyData;
+            PlayerAcc[] playersSnapshot;
+            lock (_sync)
+            {
+                playersSnapshot = _players.Values.ToArray();
+            }
+            hasAnyData = playersSnapshot.Any(p =>
                 p.Damage.Total > 0 || p.Healing.Total > 0 || p.TakenDamage > 0);
 
-            if (!hasAnyData) return;            // <- 关键：没有数据就不入历史
+            if (!hasAnyData) return;
 
-            var snapshot = TakeSnapshot();
-            // 也可以再加一道时长阈值
+            var snapshot = TakeSnapshot(); // 见下一节我们也会把 TakeSnapshot 做成快照安全
             if (snapshot.Duration.TotalSeconds >= 1 || hasAnyData)
-                _sessionHistory.Add(snapshot);
+            {
+                lock (_sync) // 写历史列表也建议锁一下
+                {
+                    _sessionHistory.Add(snapshot);
+                }
+            }
         }
 
         // # 内部调用
@@ -778,32 +793,61 @@
         /// </summary>
         public static FullSessionSnapshot TakeSnapshot()
         {
-            var end = EffectiveEndTime();
-            var start = StartedAt ?? end;
+            // ========= 1) 锁内：只做取值与拷贝，避免在锁内做任何 LINQ/重计算 =========
+            DateTime end, start;
+            PlayerAcc[] playersSnap;
+
+            lock (_sync)
+            {
+                end = EffectiveEndTime();                  // 结束时刻（进行中=Now，停止后=EndedAt）
+                start = StartedAt ?? end;                  // 若未启动则视为 0 时长
+                playersSnap = _players.Values.ToArray();   // ★ 关键：把可变集合定格为数组
+            }
+
+            // ========= 2) 锁外：基于快照做所有 LINQ/聚合，完全不触碰 _players =========
             var duration = end - start;
             if (duration < TimeSpan.Zero) duration = TimeSpan.Zero;
 
-            ulong teamDmg = 0, teamHeal = 0, teamTaken = 0;   // ★ teamTaken 新增
-            var players = new Dictionary<ulong, SnapshotPlayer>(_players.Count);
+            ulong teamDmg = 0, teamHeal = 0, teamTaken = 0;
 
-            foreach (var p in _players.Values)
+            // 注意：这里是“快照字典”，跟 _players 无关
+            var players = new Dictionary<ulong, SnapshotPlayer>(playersSnap.Length);
+
+            foreach (var p in playersSnap)
             {
+                // 顶层合计（基于快照）
                 teamDmg += p.Damage.Total;
                 teamHeal += p.Healing.Total;
-                teamTaken += p.TakenDamage;                   // ★ 新增
+                teamTaken += p.TakenDamage;
 
-                var damageSkills = p.DamageSkills
-                    .Select(kv => ToSkillSummary(kv.Key, kv.Value, duration))
-                    .OrderByDescending(x => x.Total).ToList();
+                // —— 逐技能：对内部字典也先定格为数组，再做 Select/OrderBy —— //
+                var damageSkillsArr = p.DamageSkills.Count > 0 ? p.DamageSkills.ToArray() : Array.Empty<KeyValuePair<ulong, StatAcc>>();
+                var healingSkillsArr = p.HealingSkills.Count > 0 ? p.HealingSkills.ToArray() : Array.Empty<KeyValuePair<ulong, StatAcc>>();
+                var takenSkillsArr = p.TakenSkills.Count > 0 ? p.TakenSkills.ToArray() : Array.Empty<KeyValuePair<ulong, StatAcc>>();
 
-                var healingSkills = p.HealingSkills
+                var damageSkills = damageSkillsArr
                     .Select(kv => ToSkillSummary(kv.Key, kv.Value, duration))
-                    .OrderByDescending(x => x.Total).ToList();
+                    .OrderByDescending(x => x.Total)
+                    .ToList();
 
-                // ★ 新增：承伤按技能
-                var takenSkills = p.TakenSkills
+                var healingSkills = healingSkillsArr
                     .Select(kv => ToSkillSummary(kv.Key, kv.Value, duration))
-                    .OrderByDescending(x => x.Total).ToList();
+                    .OrderByDescending(x => x.Total)
+                    .ToList();
+
+                var takenSkills = takenSkillsArr
+                    .Select(kv => ToSkillSummary(kv.Key, kv.Value, duration))
+                    .OrderByDescending(x => x.Total)
+                    .ToList();
+
+                // —— 逐技能实时峰值（需要 p.*Skills 的 RealtimeDps；同样基于快照数组计算）——
+                double dmgRealtimeMax = damageSkillsArr.Length > 0
+                    ? damageSkillsArr.Select(s => s.Value.RealtimeDps).DefaultIfEmpty(0).Max()
+                    : 0;
+
+                double healRealtimeMax = healingSkillsArr.Length > 0
+                    ? healingSkillsArr.Select(s => s.Value.RealtimeDps).DefaultIfEmpty(0).Max()
+                    : 0;
 
                 players[p.Uid] = new SnapshotPlayer
                 {
@@ -812,20 +856,29 @@
                     CombatPower = p.CombatPower,
                     Profession = p.Profession,
 
+                    // 顶层聚合
                     TotalDamage = p.Damage.Total,
+                    TotalHealing = p.Healing.Total,
+                    TakenDamage = p.TakenDamage,
+
+                    // 按各自“有效活跃秒数”计算的全程每秒（保持你原口径）
                     TotalDps = p.Damage.ActiveSeconds > 0 ? R2(p.Damage.Total / p.Damage.ActiveSeconds) : 0,
                     TotalHps = p.Healing.ActiveSeconds > 0 ? R2(p.Healing.Total / p.Healing.ActiveSeconds) : 0,
 
-                    TotalHealing = p.Healing.Total,
-                    TakenDamage = p.TakenDamage,
-                    LastRecordTime = null,
+                    LastRecordTime = null, // 如需，可在写入路径维护最后时间
                     ActiveSecondsDamage = p.Damage.ActiveSeconds,
                     ActiveSecondsHealing = p.Healing.ActiveSeconds,
+
+                    // 逐技能列表
                     DamageSkills = damageSkills,
                     HealingSkills = healingSkills,
-                    TakenSkills = takenSkills,          // ★ 新增
-                    // 在 FullRecord.TakeSnapshot 的 players[p.Uid] = new SnapshotPlayer { ... } 中补充：
+                    TakenSkills = takenSkills,
+
+                    // 实时指标（来自 FullRecord 的累计实时指标/逐技能窗口）
                     RealtimeDps = (ulong)Math.Round(p.RealtimeDpsDamage),
+                    HealingRealtime = (ulong)Math.Round(p.RealtimeDpsHealing),
+                    RealtimeDpsMax = (ulong)Math.Round(dmgRealtimeMax),
+                    HealingRealtimeMax = (ulong)Math.Round(healRealtimeMax),
 
                     // —— 伤害侧细分与比率 —— 
                     CriticalDamage = p.Damage.Critical,
@@ -834,20 +887,10 @@
                     MaxSingleHit = p.Damage.MaxSingleHit,
                     CritRate = p.Damage.CountTotal > 0 ? R2((double)p.Damage.CountCritical * 100.0 / p.Damage.CountTotal) : 0.0,
                     LuckyRate = p.Damage.CountTotal > 0 ? R2((double)p.Damage.CountLucky * 100.0 / p.Damage.CountTotal) : 0.0,
-
-                    // —— 治疗侧细分与实时值 —— 
-                    HealingCritical = p.Healing.Critical,
-                    HealingLucky = p.Healing.Lucky,
-                    HealingCritLucky = p.Healing.CritLucky,
-                    HealingRealtime = (ulong)Math.Round(p.RealtimeDpsHealing),
-
-                    // （可选）如果你想给“最大瞬时”也来个近似，可用逐技能的 RealtimeDps 最大值做个 UI 友好兜底：
-                     RealtimeDpsMax     = (ulong)Math.Round(p.DamageSkills.Values.Select(s => s.RealtimeDps).DefaultIfEmpty(0).Max()),
-                     HealingRealtimeMax = (ulong)Math.Round(p.HealingSkills.Values.Select(s => s.RealtimeDps).DefaultIfEmpty(0).Max()),
-
                 };
             }
 
+            // ========= 3) 组装快照对象（仅使用本地快照数据） =========
             return new FullSessionSnapshot
             {
                 StartedAt = start,
@@ -855,10 +898,11 @@
                 Duration = duration,
                 TeamTotalDamage = teamDmg,
                 TeamTotalHealing = teamHeal,
-                TeamTotalTakenDamage = teamTaken,   // ★ 新增
+                TeamTotalTakenDamage = teamTaken,
                 Players = players
             };
         }
+
 
         /// <summary>
         /// 获取队伍当前全程 DPS（只计算伤害）。
