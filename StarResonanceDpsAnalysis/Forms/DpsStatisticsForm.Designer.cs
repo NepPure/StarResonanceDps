@@ -74,7 +74,7 @@
             pageHeader1.MinimizeBox = false;
             pageHeader1.Mode = AntdUI.TAMode.Dark;
             pageHeader1.Name = "pageHeader1";
-            pageHeader1.Size = new Size(471, 35);
+            pageHeader1.Size = new Size(512, 35);
             pageHeader1.SubFont = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold);
             pageHeader1.SubGap = 0;
             pageHeader1.SubText = "";
@@ -88,7 +88,7 @@
             PilingModeCheckbox.Dock = DockStyle.Right;
             PilingModeCheckbox.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             PilingModeCheckbox.ForeColor = Color.White;
-            PilingModeCheckbox.Location = new Point(246, 0);
+            PilingModeCheckbox.Location = new Point(287, 0);
             PilingModeCheckbox.Name = "PilingModeCheckbox";
             PilingModeCheckbox.Size = new Size(120, 35);
             PilingModeCheckbox.TabIndex = 17;
@@ -103,7 +103,7 @@
             button2.Ghost = true;
             button2.IconRatio = 0.8F;
             button2.IconSvg = resources.GetString("button2.IconSvg");
-            button2.Location = new Point(366, 0);
+            button2.Location = new Point(407, 0);
             button2.Name = "button2";
             button2.Size = new Size(24, 35);
             button2.TabIndex = 20;
@@ -144,7 +144,7 @@
             button_AlwaysOnTop.Ghost = true;
             button_AlwaysOnTop.IconRatio = 0.8F;
             button_AlwaysOnTop.IconSvg = resources.GetString("button_AlwaysOnTop.IconSvg");
-            button_AlwaysOnTop.Location = new Point(390, 0);
+            button_AlwaysOnTop.Location = new Point(431, 0);
             button_AlwaysOnTop.Name = "button_AlwaysOnTop";
             button_AlwaysOnTop.Size = new Size(26, 35);
             button_AlwaysOnTop.TabIndex = 5;
@@ -159,7 +159,7 @@
             button1.Ghost = true;
             button1.IconRatio = 0.8F;
             button1.IconSvg = resources.GetString("button1.IconSvg");
-            button1.Location = new Point(416, 0);
+            button1.Location = new Point(457, 0);
             button1.Name = "button1";
             button1.Size = new Size(24, 35);
             button1.TabIndex = 4;
@@ -178,7 +178,7 @@
             button_Settings.Icon = Properties.Resources.setting_hover;
             button_Settings.IconRatio = 1F;
             button_Settings.IconSvg = "";
-            button_Settings.Location = new Point(440, 0);
+            button_Settings.Location = new Point(481, 0);
             button_Settings.Name = "button_Settings";
             button_Settings.Size = new Size(31, 35);
             button_Settings.TabIndex = 3;
@@ -220,7 +220,7 @@
             panel1.Location = new Point(0, 419);
             panel1.Name = "panel1";
             panel1.Radius = 3;
-            panel1.Size = new Size(471, 46);
+            panel1.Size = new Size(512, 46);
             panel1.TabIndex = 17;
             panel1.Text = "panel1";
             // 
@@ -228,7 +228,7 @@
             // 
             label2.Dock = DockStyle.Right;
             label2.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            label2.Location = new Point(311, 0);
+            label2.Location = new Point(352, 0);
             label2.Name = "label2";
             label2.Size = new Size(160, 46);
             label2.TabIndex = 20;
@@ -276,7 +276,7 @@
             sortedProgressBarList1.OrderColor = Color.Black;
             sortedProgressBarList1.OrderFont = new Font("宋体", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             sortedProgressBarList1.SeletedItemColor = Color.FromArgb(86, 156, 214);
-            sortedProgressBarList1.Size = new Size(471, 384);
+            sortedProgressBarList1.Size = new Size(512, 384);
             sortedProgressBarList1.TabIndex = 18;
             // 
             // DpsStatisticsForm
@@ -285,7 +285,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             BorderWidth = 0;
-            ClientSize = new Size(471, 465);
+            ClientSize = new Size(512, 465);
             Controls.Add(sortedProgressBarList1);
             Controls.Add(panel1);
             Controls.Add(pageHeader1);

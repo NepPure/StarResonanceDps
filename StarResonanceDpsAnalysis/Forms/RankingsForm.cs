@@ -19,7 +19,7 @@ namespace StarResonanceDpsAnalysis.Forms
             label1.Font = AppConfig.TitleFont;
             button1.Font = AppConfig.HeaderFont;
             segmented1.Font = AppConfig.ContentFont;
-            divider3.Font = AppConfig.HeaderFont;
+            divider3.Font = AppConfig.ContentFont;
             table_DpsDetailDataTable.Font = AppConfig.ContentFont;
             label2.Font = AppConfig.ContentFont;
         }

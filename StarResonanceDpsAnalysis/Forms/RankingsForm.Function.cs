@@ -21,8 +21,11 @@ namespace StarResonanceDpsAnalysis.Forms
                 new AntdUI.Column("Professional","职业"){ Fixed = true},
                 new AntdUI.Column("SubProfessional","分支"){ Fixed = true},
                 new AntdUI.Column("CombatPower","战力"){ Fixed = true},
-                new AntdUI.Column("InstantDps","秒伤"){ Fixed = true},
                 new AntdUI.Column("TotalDamage","总伤"){ Fixed = true},
+                new AntdUI.Column("InstantDps","秒伤"){ Fixed = true},
+                new AntdUI.Column("CritRate","暴击率"){ Fixed = true},
+                new AntdUI.Column("LuckyRate","幸运率"){ Fixed = true},
+              
                 new AntdUI.Column("MaxInstantDps","最大瞬时"){ Fixed = true},
                 //new AntdUI.Column("battleTime","战斗时长"),
             };
@@ -61,10 +64,12 @@ namespace StarResonanceDpsAnalysis.Forms
                     double instantDps = double.Parse(item["instantDps"].ToString());
                     double totalDamage = double.Parse(item["totalDamage"].ToString());
                     double maxInstantDps = double.Parse(item["maxInstantDps"].ToString());
+                    double critRate = double.Parse(item["critRate"].ToString());
+                    double luckyRate = double.Parse(item["luckyRate"].ToString());
                     string subProfessional = item["subProfession"].ToString();
 
                     //int battleTime = int.Parse(item["battleTime"].ToString());
-                    LeaderboardTableDatas.LeaderboardTable.Add(new LeaderboardTable(nickName, professional, combatPower, totalDamage,instantDps, maxInstantDps, subProfessional));
+                    LeaderboardTableDatas.LeaderboardTable.Add(new LeaderboardTable(nickName, professional, combatPower, totalDamage,instantDps, critRate, luckyRate, maxInstantDps, subProfessional));
                 }
             }
             else
