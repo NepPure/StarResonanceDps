@@ -384,7 +384,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     return;
                 }
                 TimeSpan duration = StatisticData._manager.GetCombatDuration();
-                if (duration >= TimeSpan.FromMinutes(3))
+                if (duration >= TimeSpan.FromMinutes(1))
                 {
                     PilingModeCheckbox.Checked = false;
                     timer1.Enabled = false;

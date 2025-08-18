@@ -305,7 +305,8 @@ namespace StarResonanceDpsAnalysis.Forms
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
-            if(Config.IsLight)
+         
+            if (Config.IsLight)
             {
                 sortedProgressBarList1.OrderColor = Color.Black;
             }
@@ -314,7 +315,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 sortedProgressBarList1.OrderColor = Color.White;
             }
 
-                sortedProgressBarList1.OrderFont = AppConfig.ContentFont;
+                sortedProgressBarList1.OrderFont = AppConfig.DigitalFont;
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
             sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
@@ -486,9 +487,9 @@ namespace StarResonanceDpsAnalysis.Forms
                     {
                         row = new List<RenderContent> {
                 new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=35,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
-                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
-                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
-                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
+                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.DigitalFont },
+                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.DigitalFont },
+                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=AppConfig.colorText, Font=AppConfig.DigitalFont },
             };
                         DictList[p.Uid] = row;
                     }
