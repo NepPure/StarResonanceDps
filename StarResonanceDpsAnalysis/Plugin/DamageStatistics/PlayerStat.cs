@@ -1392,7 +1392,12 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <returns>只返回有战斗数据的玩家列表。</returns>
         public IEnumerable<PlayerData> GetPlayersWithCombatData()
         {
-            return _players.Values.Where(p => p != null && p.HasCombatData());
+            lock (_players) // 或者用你自己定义的 _playersLock
+            {
+                return _players.Values
+                    .Where(p => p != null && p.HasCombatData())
+                    .ToArray(); // 在锁内完成枚举和复制
+            }
         }
 
         /// <summary>刷新所有玩家的实时统计（滚动窗口）。</summary>

@@ -229,7 +229,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
                     //new ContextMenuStripItem("统计排除"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
-                     new ContextMenuStripItem("技能日记"){ IconSvg = Resources.reference, },
+                     //new ContextMenuStripItem("技能日记"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("伤害参考"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes }, // 一级菜单：打桩模式
                     new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, }, // 一级菜单：退出
