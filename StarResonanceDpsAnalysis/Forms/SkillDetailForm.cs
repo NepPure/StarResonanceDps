@@ -40,10 +40,10 @@ namespace StarResonanceDpsAnalysis.Control
             label1.Font = AppConfig.HeaderFont;
             label2.Font = label3.Font = label4.Font = AppConfig.ContentFont;
 
-            var harmonyOsSansFont_Size11 = FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 11);
+            var harmonyOsSansFont_Size11 = HandledResources.GetHarmonyOS_SansFont(11);
             label3.Font = label9.Font = harmonyOsSansFont_Size11;
 
-            var harmonyOsSansFont_Size12 = FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 12);
+            var harmonyOsSansFont_Size12 = HandledResources.GetHarmonyOS_SansFont(12);
             NickNameText.Font = harmonyOsSansFont_Size12;
 
             var digitalFontsControls = new List<System.Windows.Forms.Control>()

@@ -3,6 +3,7 @@ using SharpPcap;
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Control.GDI;
 using StarResonanceDpsAnalysis.Core;
+using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Effects.Enum;
 using StarResonanceDpsAnalysis.Extends;
 using StarResonanceDpsAnalysis.Plugin;
@@ -307,7 +308,7 @@ namespace StarResonanceDpsAnalysis.Forms
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
-         
+
             if (Config.IsLight)
             {
                 sortedProgressBarList1.OrderColor = Color.Black;
@@ -317,7 +318,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 sortedProgressBarList1.OrderColor = Color.White;
             }
 
-                sortedProgressBarList1.OrderFont = AppConfig.DigitalFont;
+            sortedProgressBarList1.OrderFont = AppConfig.DigitalFont;
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
             sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
@@ -347,6 +348,8 @@ namespace StarResonanceDpsAnalysis.Forms
         //白窗体
         Dictionary<string, Color> colorDict = new Dictionary<string, Color>()
         {
+            { "未知", ColorTranslator.FromHtml("#67AEF6") },
+
             { "神射手", ColorTranslator.FromHtml("#fffca3") }, //
             { "冰魔导师", ColorTranslator.FromHtml("#aaa6ff") }, // 
             { "巨刃守护者", ColorTranslator.FromHtml("#51a55d") }, // 
@@ -355,25 +358,22 @@ namespace StarResonanceDpsAnalysis.Forms
             { "青岚骑士", ColorTranslator.FromHtml("#abfaff") }, // 
             { "森语者", ColorTranslator.FromHtml("#78ff95") }, // 
             { "神盾骑士", ColorTranslator.FromHtml("#2E86AB") }, // 
-            {"未知",  ColorTranslator.FromHtml("#67AEF6")},
-            {"射线", ColorTranslator.FromHtml("#fffca3") },
-            {"协奏",ColorTranslator.FromHtml("#ff5353")  },
-            {"愈合" ,ColorTranslator.FromHtml("#78ff95")},
-            {"惩戒", ColorTranslator.FromHtml("#78ff95")},
-            {"狂音", ColorTranslator.FromHtml("#ff5353")},
-            {"冰矛",  ColorTranslator.FromHtml("#aaa6ff")},
-            {"居合", ColorTranslator.FromHtml("#9676ff")},
-            {"月刃", ColorTranslator.FromHtml("#9676ff")},
-            {"鹰弓", ColorTranslator.FromHtml("#fffca3")},
-            {"狼弓", ColorTranslator.FromHtml("#fffca3")},
-            {"空枪", ColorTranslator.FromHtml("#abfaff")},
-            {"重装", ColorTranslator.FromHtml("#abfaff")},
-            {"防盾", ColorTranslator.FromHtml("#2E86AB")},
-            {"光盾", ColorTranslator.FromHtml("#2E86AB")},
-            {"岩盾", ColorTranslator.FromHtml("#51a55d")},
-            {"格挡", ColorTranslator.FromHtml("#51a55d")},
-
-
+            { "射线", ColorTranslator.FromHtml("#fffca3") },
+            { "协奏", ColorTranslator.FromHtml("#ff5353") },
+            { "愈合", ColorTranslator.FromHtml("#78ff95") },
+            { "惩戒", ColorTranslator.FromHtml("#78ff95") },
+            { "狂音", ColorTranslator.FromHtml("#ff5353") },
+            { "冰矛", ColorTranslator.FromHtml("#aaa6ff") },
+            { "居合", ColorTranslator.FromHtml("#9676ff") },
+            { "月刃", ColorTranslator.FromHtml("#9676ff") },
+            { "鹰弓", ColorTranslator.FromHtml("#fffca3") },
+            { "狼弓", ColorTranslator.FromHtml("#fffca3") },
+            { "空枪", ColorTranslator.FromHtml("#abfaff") },
+            { "重装", ColorTranslator.FromHtml("#abfaff") },
+            { "防盾", ColorTranslator.FromHtml("#2E86AB") },
+            { "光盾", ColorTranslator.FromHtml("#2E86AB") },
+            { "岩盾", ColorTranslator.FromHtml("#51a55d") },
+            { "格挡", ColorTranslator.FromHtml("#51a55d") },
 
         };
 
@@ -409,17 +409,17 @@ namespace StarResonanceDpsAnalysis.Forms
         };
 
         public static Dictionary<string, Bitmap> imgDict = new Dictionary<string, Bitmap>()
-    {
-        { "冰魔导师", new Bitmap(new MemoryStream(Resources.冰魔导师)) },
-        { "巨刃守护者", new Bitmap(new MemoryStream(Resources.巨刃守护者)) },
-        { "森语者", new Bitmap(new MemoryStream(Resources.森语者)) },
-        { "灵魂乐手", new Bitmap(new MemoryStream(Resources.灵魂乐手)) },
-        { "神射手", new Bitmap(new MemoryStream(Resources.神射手)) },
-        { "雷影剑士", new Bitmap(new MemoryStream(Resources.雷影剑士)) },
-        { "青岚骑士", new Bitmap(new MemoryStream(Resources.青岚骑士)) },
-        { "神盾骑士", new Bitmap(new MemoryStream(Resources.神盾骑士)) },
-        { "未知", new Bitmap(new MemoryStream(Resources.hp_icon)) }
-    };
+        {
+            { "冰魔导师", new Bitmap(new MemoryStream(Resources.冰魔导师)) },
+            { "巨刃守护者", new Bitmap(new MemoryStream(Resources.巨刃守护者)) },
+            { "森语者", new Bitmap(new MemoryStream(Resources.森语者)) },
+            { "灵魂乐手", new Bitmap(new MemoryStream(Resources.灵魂乐手)) },
+            { "神射手", new Bitmap(new MemoryStream(Resources.神射手)) },
+            { "雷影剑士", new Bitmap(new MemoryStream(Resources.雷影剑士)) },
+            { "青岚骑士", new Bitmap(new MemoryStream(Resources.青岚骑士)) },
+            { "神盾骑士", new Bitmap(new MemoryStream(Resources.神盾骑士)) },
+            { "未知", new Bitmap(new MemoryStream(Resources.hp_icon)) }
+        };
 
 
 
@@ -458,7 +458,7 @@ namespace StarResonanceDpsAnalysis.Forms
             public double PerSecond;
             public string SubProfession;
         }
-   
+
         public void RefreshDpsTable(SourceType source, MetricType metric)
         {
             // # UI 刷新事件：根据指定数据源（单次/全程）与指标（伤害/治疗/承伤）对进度条列表进行重建与绑定
@@ -529,12 +529,12 @@ namespace StarResonanceDpsAnalysis.Forms
                     // 渲染行内容：DictList 也只在锁内改
                     if (!DictList.TryGetValue(p.Uid, out var row))
                     {
-                        row = new List<RenderContent> {
-                new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=35,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
-                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.DigitalFont },
-                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.DigitalFont },
-                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=AppConfig.colorText, Font=AppConfig.DigitalFont },
-            };
+                        row = [
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 35, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(25, 25) },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 65, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
+                        ];
                         DictList[p.Uid] = row;
                     }
 
@@ -642,7 +642,7 @@ namespace StarResonanceDpsAnalysis.Forms
                         Nickname = p.Nickname,
                         CombatPower = p.CombatPower,
                         Profession = p.Profession,
-                        SubProfession = p.SubProfession??"",
+                        SubProfession = p.SubProfession ?? "",
                         Total = total,
                         PerSecond = ps
                     };

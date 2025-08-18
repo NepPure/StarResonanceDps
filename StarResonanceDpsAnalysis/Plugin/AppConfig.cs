@@ -30,7 +30,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// </summary>
         public static Font DigitalFont
         {
-            get => FontLoader.LoadFontFromBytesAndCache("HarmonyOSTSans", Resources.HarmonyOS_Sans, 9);
+            get => HandledResources.GetHarmonyOS_SansFont(9);
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// </summary>
         public static Font TitleFont
         {
-            get => FontLoader.LoadFontFromBytesAndCache("SAO Welcome TT", Resources.SAOWelcomeTT, 12);
+            get => HandledResources.GetSAOWelcomeTTFont(12);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// </summary>
         public static Font HeaderFont
         {
-            get => FontLoader.LoadFontFromBytesAndCache("阿里妈妈数黑体", Resources.AlimamaShuHeiTi, 10);
+            get => HandledResources.GetAliMaMaShuHeiTiFont(10);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// </summary>
         public static Font ContentFont
         {
-            get => FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 9);
+            get => HandledResources.GetHarmonyOS_SansFont(9);
         }
 
         #endregion

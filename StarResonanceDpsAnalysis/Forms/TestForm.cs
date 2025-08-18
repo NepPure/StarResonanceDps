@@ -79,7 +79,7 @@ namespace StarResonanceDpsAnalysis.Forms
                                 Offset = new RenderContent.ContentOffset { X = 90, Y = 0 },
                                 Text = $"{RandomName()}({id:d5})",
                                 ForeColor = Color.Black,
-                                Font = new Font("宋体", 24f, FontStyle.Regular, GraphicsUnit.Pixel),
+                                Font = new Font("Microsoft YaHei UI", 24f, FontStyle.Regular, GraphicsUnit.Pixel),
                             },
                             new RenderContent
                             {
@@ -88,7 +88,7 @@ namespace StarResonanceDpsAnalysis.Forms
                                 Offset = new RenderContent.ContentOffset { X = -90, Y = 4 },
                                 Text = $"3.0万(1.4w)",
                                 ForeColor = Color.Black,
-                                Font = new Font("宋体", 16f, FontStyle.Regular, GraphicsUnit.Pixel),
+                                Font = new Font("Microsoft YaHei UI", 16f, FontStyle.Regular, GraphicsUnit.Pixel),
                             },
                             new RenderContent
                             {

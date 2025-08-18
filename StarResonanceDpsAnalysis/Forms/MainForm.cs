@@ -32,8 +32,8 @@ namespace StarResonanceDpsAnalysis.Forms
 
             FormGui.SetColorMode(this, AppConfig.IsLight); // # 主题：主窗体明暗模式
 
-            var alimamaFont_Size12Bold = FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 12, FontStyle.Bold);
-            var alimamaFont_Size9 = FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 9);
+            var alimamaFont_Size12Bold = HandledResources.GetHarmonyOS_SansFont(12, FontStyle.Bold);
+            var alimamaFont_Size9 = HandledResources.GetHarmonyOS_SansFont(9);
 
             var size12BoldControlList = new List<System.Windows.Forms.Control>()
             {

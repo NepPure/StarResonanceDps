@@ -274,7 +274,7 @@
             sortedProgressBarList1.Margin = new Padding(5, 4, 5, 4);
             sortedProgressBarList1.Name = "sortedProgressBarList1";
             sortedProgressBarList1.OrderColor = Color.Black;
-            sortedProgressBarList1.OrderFont = new Font("宋体", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            sortedProgressBarList1.OrderFont = new Font("Microsoft YaHei UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             sortedProgressBarList1.SeletedItemColor = Color.FromArgb(86, 156, 214);
             sortedProgressBarList1.Size = new Size(471, 384);
             sortedProgressBarList1.TabIndex = 18;

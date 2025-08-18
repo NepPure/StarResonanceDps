@@ -7,20 +7,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using StarResonanceDpsAnalysis.Plugin;
+
 namespace StarResonanceDpsAnalysis.Control.GDI
 {
     public class GDI_ProgressBar : IDisposable
     {
         private static readonly StringFormat _strictStringFormat = StringFormat.GenericTypographic;
-        private static readonly TextFormatFlags _textFormatFlags =
-            TextFormatFlags.NoPadding
-            | TextFormatFlags.SingleLine
-            | TextFormatFlags.EndEllipsis;
         private static readonly Dictionary<(Image img, int w, int h), Bitmap> _scaledImageCache = [];
 
         private readonly object _lock = new();
         private Color? _prevProgressBarColor = null;
         private Brush? _progressBarBrush = null;
+
+        private ExpiringCache<(string, Font), SizeF> _measureStringCache = new(new TimeSpan(TimeSpan.TicksPerSecond * 5));
 
         public void Draw(Graphics g, DrawInfo info)
         {
@@ -88,9 +88,13 @@ namespace StarResonanceDpsAnalysis.Control.GDI
             }
         }
 
-        private static void RenderText(Graphics g, DrawInfo info, RenderContent content)
+        private void RenderText(Graphics g, DrawInfo info, RenderContent content)
         {
-            var textSize = TextRenderer.MeasureText(content.Text, content.Font);
+            if (string.IsNullOrEmpty(content.Text)) return;
+
+            var textSize = _measureStringCache.GetOrAdd(
+                (content.Text, content.Font),
+                () => g.MeasureString(content.Text, content.Font));
 
             var (left, top) = GetContentPostion(info, content, textSize);
 
@@ -98,7 +102,9 @@ namespace StarResonanceDpsAnalysis.Control.GDI
             g.SmoothingMode = SmoothingMode.HighSpeed;
             g.PixelOffsetMode = PixelOffsetMode.None;
 
-            TextRenderer.DrawText(g, content.Text, content.Font, new Point(left, top), content.ForeColor, _textFormatFlags);
+            // 25.08.18: 不能用 TextRenderer.DrawText, 会导致渲染不出内存字体
+            using var sb = new SolidBrush(content.ForeColor);
+            g.DrawString(content.Text, content.Font, sb, left, top);
         }
 
         private void RenderImage(Graphics g, DrawInfo info, RenderContent content)
@@ -111,13 +117,13 @@ namespace StarResonanceDpsAnalysis.Control.GDI
 
             if (content.Image!.Width == content.ImageRenderSize.Width && content.Image!.Height == content.ImageRenderSize.Height)
             {
-                g.DrawImageUnscaled(content.Image, new Rectangle(left, top, content.ImageRenderSize.Width, content.ImageRenderSize.Height));
+                g.DrawImageUnscaled(content.Image, new Rectangle((int)left, (int)top, content.ImageRenderSize.Width, content.ImageRenderSize.Height));
             }
             else
             {
                 var scaled = GetScaledBitmap(content.Image, content.ImageRenderSize.Width, content.ImageRenderSize.Height);
 
-                g.DrawImageUnscaled(scaled, new Rectangle(left, top, content.ImageRenderSize.Width, content.ImageRenderSize.Height));
+                g.DrawImageUnscaled(scaled, new Rectangle((int)left, (int)top, content.ImageRenderSize.Width, content.ImageRenderSize.Height));
             }
 
         }
@@ -146,10 +152,10 @@ namespace StarResonanceDpsAnalysis.Control.GDI
             return bm;
         }
 
-        private static (int left, int top) GetContentPostion(DrawInfo info, RenderContent content, Size contentSize)
+        private static (float left, float top) GetContentPostion(DrawInfo info, RenderContent content, SizeF contentSize)
         {
-            var left = 0;
-            var top = 0;
+            var left = 0f;
+            var top = 0f;
 
             if (((int)content.Align & (int)RenderContent.Direction.Left) > 0)
             {
@@ -166,15 +172,15 @@ namespace StarResonanceDpsAnalysis.Control.GDI
 
             if (((int)content.Align & (int)RenderContent.Direction.Top) > 0)
             {
-                top = (int)(info.Top + info.Padding.Top + content.Offset.Y);
+                top = info.Top + info.Padding.Top + content.Offset.Y;
             }
             else if (((int)content.Align & (int)RenderContent.Direction.Middle) > 0)
             {
-                top = (int)(info.Top + info.Padding.Top + (info.Height - info.Padding.Top - info.Padding.Bottom - contentSize.Height) / 2 + content.Offset.Y);
+                top = info.Top + info.Padding.Top + (info.Height - info.Padding.Top - info.Padding.Bottom - contentSize.Height) / 2 + content.Offset.Y;
             }
             else if (((int)content.Align & (int)RenderContent.Direction.Bottom) > 0)
             {
-                top = (int)(info.Top + info.Height - info.Padding.Bottom - contentSize.Height + content.Offset.Y);
+                top = info.Top + info.Height - info.Padding.Bottom - contentSize.Height + content.Offset.Y;
             }
 
             return (left, top);

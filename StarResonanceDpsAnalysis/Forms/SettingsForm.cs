@@ -29,7 +29,7 @@ namespace StarResonanceDpsAnalysis.Forms
             label1.Font = AppConfig.HeaderFont;
             label2.Font = label3 .Font= label4.Font= AppConfig.ContentFont;
 
-            var harmonyOsSansFont = FontLoader.LoadFontFromBytesAndCache("HarmonyOS Sans", Resources.HarmonyOS_Sans, 7);
+            var harmonyOsSansFont = HandledResources.GetHarmonyOS_SansFont(7);
             label6.Font = label7.Font = label8.Font = harmonyOsSansFont;
 
             InterfaceComboBox.Font = AppConfig.ContentFont;
