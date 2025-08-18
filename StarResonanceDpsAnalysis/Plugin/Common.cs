@@ -37,7 +37,7 @@ namespace StarResonanceDpsAnalysis.Plugin
 
                 44701 or 179906 => "月刃",
 
-                220112 or 2203622 or 220109 or 220110 => "鹰弓",
+                220112 or 2203622 or 220106  => "鹰弓",
 
                 2292 or 1700820 or 1700825 or 1700827 => "狼弓",
 
