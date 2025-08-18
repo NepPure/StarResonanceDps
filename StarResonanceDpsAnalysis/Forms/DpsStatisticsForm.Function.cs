@@ -130,7 +130,7 @@ namespace StarResonanceDpsAnalysis.Forms
         /// <summary>
         /// 开始抓包
         /// </summary>
-        public void StartCapture()
+        public async void StartCapture()
         {
             // # 抓包事件：用户点击“开始”或自动启动时触发
             // # 步骤 1：前置校验 —— 网络设备索引/可用性检查
@@ -151,7 +151,7 @@ namespace StarResonanceDpsAnalysis.Forms
             if (SelectedDevice == null)
                 throw new InvalidOperationException($"无法获取网络设备，索引: {AppConfig.NetworkCard}");
 
-            Task.Delay(1000);
+            await Task.Delay(1000);
             // # 步骤 3：图表历史与自动刷新 —— 开始新的战斗记录
             ChartVisualizationService.ClearAllHistory();
 
@@ -410,6 +410,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         public static Dictionary<string, Bitmap> imgDict = new Dictionary<string, Bitmap>()
         {
+            { "未知", new Bitmap(new MemoryStream(Resources.hp_icon)) },
             { "冰魔导师", new Bitmap(new MemoryStream(Resources.冰魔导师)) },
             { "巨刃守护者", new Bitmap(new MemoryStream(Resources.巨刃守护者)) },
             { "森语者", new Bitmap(new MemoryStream(Resources.森语者)) },
@@ -418,7 +419,31 @@ namespace StarResonanceDpsAnalysis.Forms
             { "雷影剑士", new Bitmap(new MemoryStream(Resources.雷影剑士)) },
             { "青岚骑士", new Bitmap(new MemoryStream(Resources.青岚骑士)) },
             { "神盾骑士", new Bitmap(new MemoryStream(Resources.神盾骑士)) },
-            { "未知", new Bitmap(new MemoryStream(Resources.hp_icon)) }
+            { "射线",  new Bitmap(new MemoryStream(Resources.冰魔导师)) },
+            { "冰矛",  new Bitmap(new MemoryStream(Resources.冰魔导师)) },
+
+            { "协奏",  new Bitmap(new MemoryStream(Resources.灵魂乐手)) },
+            { "狂音",  new Bitmap(new MemoryStream(Resources.灵魂乐手)) },
+
+            { "居合",  new Bitmap(new MemoryStream(Resources.雷影剑士)) },
+            { "月刃",  new Bitmap(new MemoryStream(Resources.雷影剑士)) },
+
+            { "鹰弓",  new Bitmap(new MemoryStream(Resources.神射手)) },
+            { "狼弓",  new Bitmap(new MemoryStream(Resources.神射手)) },
+
+            { "空枪",  new Bitmap(new MemoryStream(Resources.青岚骑士)) },
+            { "重装",  new Bitmap(new MemoryStream(Resources.青岚骑士)) },
+
+            { "防盾",  new Bitmap(new MemoryStream(Resources.神盾骑士)) },
+            { "光盾",  new Bitmap(new MemoryStream(Resources.神盾骑士)) },
+
+            { "岩盾",  new Bitmap(new MemoryStream(Resources.巨刃守护者)) },
+            { "格挡",  new Bitmap(new MemoryStream(Resources.巨刃守护者)) },
+
+            { "愈合",  new Bitmap(new MemoryStream(Resources.森语者)) },
+            { "惩戒",  new Bitmap(new MemoryStream(Resources.森语者)) },
+
+
         };
 
 
@@ -491,7 +516,10 @@ namespace StarResonanceDpsAnalysis.Forms
                 if (_isClearing == 1) return;
 
                 // 1) 拍当前 list 的快照，用它参与所有枚举相关计算
-                var snapshot = list.ToList(); // <<--- 关键
+                var snapshot = list
+    .GroupBy(pb => pb.ID)
+    .Select(g => g.Last())
+    .ToList();
 
                 var present = new HashSet<long>(ordered.Select(x => x.Uid));
 
@@ -501,7 +529,8 @@ namespace StarResonanceDpsAnalysis.Forms
                                        .ToList();
 
                 // 3) 基于快照建立索引，后面查找更快也更安全
-                var byId = snapshot.ToDictionary(pb => pb.ID);
+                var byId = new Dictionary<long, ProgressBarData>(snapshot.Count);
+                foreach (var pb in snapshot) byId[pb.ID] = pb;
 
                 // 4) 准备一个“下一帧”的新列表，最后一次性替换
                 var next = new List<ProgressBarData>(present.Count);
@@ -509,7 +538,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 for (int i = 0; i < ordered.Count; i++)
                 {
                     var p = ordered[i];
-                    if (string.IsNullOrEmpty(p.Profession)) continue;
+
 
                     float ratio = (float)(p.Total / top);
                     if (!float.IsFinite(ratio)) ratio = 0f;
@@ -518,13 +547,19 @@ namespace StarResonanceDpsAnalysis.Forms
                     string totalFmt = Common.FormatWithEnglishUnits(p.Total);
                     string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
 
-                    var profBmp = imgDict[p.Profession];
-                    var dict = Config.IsLight ? colorDict : blackColorDict;
-                    var key = (p?.Profession is string pr && pr != "未知" && dict.ContainsKey(pr)) ? pr
-                             : (p?.SubProfession is string sr && sr != "未知" && dict.ContainsKey(sr)) ? sr
-                             : "未知";
-                    var color = dict.TryGetValue(key, out var c) ? c : ColorTranslator.FromHtml("#67AEF6");
+                    var iconKey = (p?.Profession is string pr && pr != "未知" && imgDict.ContainsKey(pr)) ? pr
+                                : (p?.SubProfession is string sr && sr != "未知" && imgDict.ContainsKey(sr)) ? sr
+                                : "未知";
 
+                    var profBmp = imgDict.TryGetValue(iconKey, out var bmp) ? bmp : imgDict["未知"];
+
+                    var colorMap = Config.IsLight ? colorDict : blackColorDict;
+
+                    var colorKey = (p?.Profession is string pr2 && pr2 != "未知" && colorMap.ContainsKey(pr2)) ? pr2
+                                 : (p?.SubProfession is string sr2 && sr2 != "未知" && colorMap.ContainsKey(sr2)) ? sr2
+                                 : "未知";
+
+                    var color = colorMap.TryGetValue(colorKey, out var c) ? c : ColorTranslator.FromHtml("#67AEF6");
 
                     // 渲染行内容：DictList 也只在锁内改
                     if (!DictList.TryGetValue(p.Uid, out var row))
@@ -541,9 +576,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     string share = $"{Math.Round(p.Total / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
                     row[0].Image = profBmp;
                     // 只要子流派；没有子流派就用战力；否则只显示昵称
-                    string tag = !string.IsNullOrWhiteSpace(p.SubProfession)
-                        ? p.SubProfession
-                        : (p.CombatPower > 0 ? Common.FormatWithEnglishUnits(p.CombatPower) : "");
+                    string tag = (!string.IsNullOrWhiteSpace(p.SubProfession) && p.SubProfession != "未知")
+         ? p.SubProfession
+         : (p.CombatPower > 0 ? p.CombatPower.ToString() : "");
+
 
                     row[1].Text = string.IsNullOrEmpty(tag)
                         ? p.Nickname

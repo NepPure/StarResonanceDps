@@ -69,28 +69,75 @@ namespace StarResonanceDpsAnalysis.Core
         /// </summary>
         public enum AttrType
         {
-            AttrName = 0x01,
-            AttrProfessionId = 0xDC,
-            AttrFightPoint = 0x272E,
-            AttrLevel = 0x2710,
-            AttrRankLevel = 0x274C,
-            AttrCri = 0x2B66,
-            AttrLucky = 0x2B7A,
-            AttrHp = 0x2C2E,
-            AttrMaxHp = 0x2C38,
-            AttrElementFlag = 0x646D6C,
-            AttrReductionLevel = 0x64696D,
-            AttrReduntionId = 0x6F6C65,
-            AttrEnergyFlag = 0x543CD3C6
+            /// <summary>名称（玩家/单位名，字符串）</summary>
+            AttrName = 0x01,                    // name
+
+            /// <summary>职业 ID（职业枚举/配置映射用）</summary>
+            AttrProfessionId = 0xDC,            // profession id
+
+            /// <summary>战力（Fight Point/Combat Power，整数）</summary>
+            AttrFightPoint = 0x272E,            // fight power
+
+            /// <summary>等级（Level）</summary>
+            AttrLevel = 0x2710,                 // level
+
+            /// <summary>阶位/段位（Rank Level，具体含义按游戏定义）</summary>
+            AttrRankLevel = 0x274C,             // rank level
+
+            /// <summary>暴击率（单位由上游决定，常见万分比或千分比）</summary>
+            AttrCri = 0x2B66,                   // crit rate
+
+            /// <summary>幸运率（单位由上游决定，常见万分比或千分比）</summary>
+            AttrLucky = 0x2B7A,                 // lucky rate
+
+            /// <summary>当前生命值（HP）</summary>
+            AttrHp = 0x2C2E,                    // hp
+
+            /// <summary>最大生命值（Max HP）</summary>
+            AttrMaxHp = 0x2C38,                 // max hp
+
+            /// <summary>
+            /// 元素标识位（元素相关的位标志/掩码，如冰/雷/火等；具体 bit 含义按配置表解析）
+            /// </summary>
+            AttrElementFlag = 0x646D6C,         // element flags (bitmask)
+
+            /// <summary>
+            /// 减抗/易伤等级（Reduction Level，表示受到某类减抗效果的等级）
+            /// </summary>
+            AttrReductionLevel = 0x64696D,      // reduction/vulnerability level
+
+            /// <summary>
+            /// 减抗/易伤效果 ID（用于区分来源或具体效果条目）
+            /// </summary>
+            AttrReduntionId = 0x6F6C65,         // reduction effect id
+
+            /// <summary>
+            /// 能量标识位（Energy Flag/Charge 状态，通常为位标志；具体定义以协议/配置为准）
+            /// </summary>
+            AttrEnergyFlag = 0x543CD3C6         // energy flags (bitmask)
         }
 
+        /// <summary>
+        /// 伤害来源类型（区分来自技能本体、投射物、Buff 点伤、跌落伤害等）
+        /// </summary>
         public enum EDamageSource
         {
+            /// <summary>技能本体造成的伤害（如近战/法术技能命中）</summary>
             EDamageSourceSkill = 0,
+
+            /// <summary>子弹/投射物造成的伤害（如箭矢、飞弹）</summary>
             EDamageSourceBullet = 1,
+
+            /// <summary>Buff/DoT/场效等周期性或效果触发的伤害</summary>
             EDamageSourceBuff = 2,
+
+            /// <summary>跌落伤害</summary>
             EDamageSourceFall = 3,
+
+            /// <summary>伪子弹/内部触发用的投射体（服务端逻辑用，非真实子弹）</summary>
             EDamageSourceFakeBullet = 4,
+
+            /// <summary>其他未归类来源（保底枚举，便于兼容）</summary>
             EDamageSourceOther = 100
         }
 
@@ -445,13 +492,6 @@ namespace StarResonanceDpsAnalysis.Core
             ProcessAoiSyncDelta(aoiSyncDelta);
         }
 
-
-        static string ToHex(byte[] data, int max = 64)
-        {
-            if (data == null) return "null";
-            int len = Math.Min(max, data.Length);
-            return string.Join(" ", data.Take(len).Select(b => b.ToString("X2")));
-        }
 
         /// <summary>
         /// 同步自身完整容器数据（基础属性、昵称、职业、战力）

@@ -642,12 +642,14 @@ namespace StarResonanceDpsAnalysis.Plugin
         private CellText combatPower; // 战力
         private CellText totalDamage;     // 总伤害
         private CellText instantDps;     // 秒伤
+        private CellText critRate;// 暴击率
+        private CellText luckyRate; // 幸运率
         private CellText maxInstantDps;     // 最大瞬时DPS
         private CellText subProfessional; //分支职业
         #endregion
 
         #region 构造函数
-        public LeaderboardTable(string nickName, string professional, double combatPower, double totalDamage, double instantDps, double maxInstantDps,string subProfessional)
+        public LeaderboardTable(string nickName, string professional, double combatPower, double totalDamage, double instantDps, double critRate, double luckyRate,double maxInstantDps,string subProfessional)
         {
             NickName = nickName;
             Professional = professional;
@@ -656,6 +658,8 @@ namespace StarResonanceDpsAnalysis.Plugin
             InstantDps = new CellText(instantDps.ToString()) { Font = AppConfig.DigitalFont };
             MaxInstantDps = new CellText(maxInstantDps.ToString()) { Font = AppConfig.DigitalFont };
             SubProfessional = new CellText(subProfessional) ;
+            CritRate = new CellText(critRate.ToString()+"%") { Font = AppConfig.DigitalFont };
+            LuckyRate = new CellText(luckyRate.ToString()+"%") { Font = AppConfig.DigitalFont };
         }
         #endregion
 
@@ -746,6 +750,28 @@ namespace StarResonanceDpsAnalysis.Plugin
                 if (instantDps == formatted) return;
                 instantDps = formatted;
                 OnPropertyChanged(nameof(InstantDps));
+            }
+        }
+
+        public CellText CritRate
+        {
+            get => critRate;
+            set
+            {
+                if (critRate == value) return;
+                critRate = value;
+                OnPropertyChanged(nameof(CritRate));
+            }
+        }
+
+        public CellText LuckyRate
+        {
+            get => luckyRate;
+            set
+            {
+                if (luckyRate == value) return;
+                luckyRate = value;
+                OnPropertyChanged(nameof(LuckyRate));
             }
         }
 

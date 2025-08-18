@@ -269,7 +269,7 @@
             label2.Name = "label2";
             label2.Size = new Size(1213, 36);
             label2.TabIndex = 37;
-            label2.Text = "以上数据仅供自身职业DPS参考，切勿用于战力歧视等破坏游戏社区环境行为，一经发现，关闭此功能";
+            label2.Text = "以上数据仅供自身职业DPS参考[无需焦虑可能有人吃药了]，切勿用于战力歧视等破坏游戏社区环境行为，一经发现，关闭此功能";
             label2.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // RankingsForm
