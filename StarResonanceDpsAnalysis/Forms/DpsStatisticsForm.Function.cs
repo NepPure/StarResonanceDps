@@ -278,13 +278,15 @@ namespace StarResonanceDpsAnalysis.Forms
                     userRenderContent.Clear();
                     // UI 组件缓存清空（注意切回 UI 线程）
                     var ctrl = SortedProgressBarStatic;
+                    // ListClear() — 清空 UI
                     if (ctrl != null && !ctrl.IsDisposed)
                     {
                         if (ctrl.InvokeRequired)
-                            ctrl.BeginInvoke(new Action(() => ctrl.Data = null));
+                            ctrl.BeginInvoke(new Action(() => ctrl.Data = new List<ProgressBarData>()));
                         else
-                            ctrl.Data = null;
+                            ctrl.Data = new List<ProgressBarData>();
                     }
+
                 }
             }
             finally
@@ -417,6 +419,7 @@ namespace StarResonanceDpsAnalysis.Forms
             public string Profession;
             public ulong Total;
             public double PerSecond;
+            public string SubProfession;
         }
    
         public void RefreshDpsTable(SourceType source, MetricType metric)
@@ -430,14 +433,13 @@ namespace StarResonanceDpsAnalysis.Forms
             var uiList = BuildUiRows(source, metric)
                 .Where(r => (r?.Total ?? 0) > 0)   // 过滤 0 值（伤害/治疗/承伤都适用）
                 .ToList();
-        
+
             if (uiList.Count == 0)
             {
-                // 清空旧数据，避免残影
                 if (sortedProgressBarList1.InvokeRequired)
-                    sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = null));
+                    sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = new List<ProgressBarData>()));
                 else
-                    sortedProgressBarList1.Data = null;
+                    sortedProgressBarList1.Data = new List<ProgressBarData>();
                 return;
             }
 
@@ -496,7 +498,15 @@ namespace StarResonanceDpsAnalysis.Forms
 
                     string share = $"{Math.Round(p.Total / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
                     row[0].Image = profBmp;
-                    row[1].Text = $"{p.Nickname}({p.CombatPower})";
+                    // 只要子流派；没有子流派就用战力；否则只显示昵称
+                    string tag = !string.IsNullOrWhiteSpace(p.SubProfession)
+                        ? p.SubProfession
+                        : (p.CombatPower > 0 ? Common.FormatWithEnglishUnits(p.CombatPower) : "");
+
+                    row[1].Text = string.IsNullOrEmpty(tag)
+                        ? p.Nickname
+                        : $"{p.Nickname}({tag})";
+
                     row[2].Text = $"{totalFmt}({perSec})";
                     row[3].Text = share;
 
@@ -538,16 +548,17 @@ namespace StarResonanceDpsAnalysis.Forms
                 // 6) 一次性替换 list，避免“枚举中修改”
                 list = next;
 
-
-
+                // RefreshDpsTable(...) — 锁内最终绑定
                 void Bind()
                 {
-                    sortedProgressBarList1.Data = list.Count == 0 ? null : list;
+                    sortedProgressBarList1.Data = list; // list 永不为 null
                 }
+
                 if (sortedProgressBarList1.InvokeRequired) sortedProgressBarList1.BeginInvoke((Action)Bind);
                 else Bind();
             }
         }
+
 
         private List<UiRow> BuildUiRows(SourceType source, MetricType metric)
         {
@@ -589,6 +600,7 @@ namespace StarResonanceDpsAnalysis.Forms
                         Nickname = p.Nickname,
                         CombatPower = p.CombatPower,
                         Profession = p.Profession,
+                        SubProfession = p.SubProfession??"",
                         Total = total,
                         PerSecond = ps
                     };

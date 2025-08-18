@@ -72,31 +72,6 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         } // 构造函数结束
 
-        //// # 分辨率缩放（可选）
-        //private void ApplyResolutionScale() // 将界面按主显示器分辨率进行缩放
-        //{ // 方法开始
-        //    float scale = GetPrimaryResolutionScale(); // 计算缩放比例（1.0/1.3333/2.0）
-        //    if (Math.Abs(scale - 1.0f) < 0.01f) return; // 若接近 1.0（无需缩放）则直接返回
-
-        //    this.Scale(new SizeF(scale, scale)); // 对窗体整体进行缩放
-
-        //    try // 保护性尝试：某些控件属性在不同主题下可能抛异常
-        //    { // try 开始
-        //        pageHeader1.Font = new Font(pageHeader1.Font.FontFamily, pageHeader1.Font.Size * scale, pageHeader1.Font.Style);
-        //        pageHeader1.SubFont = new Font(pageHeader1.SubFont.FontFamily, pageHeader1.SubFont.Size * scale, pageHeader1.SubFont.Style);
-
-        //        BattleTimeText.Font = new Font(BattleTimeText.Font.FontFamily, BattleTimeText.Font.Size * scale, BattleTimeText.Font.Style);
-
-        //        sortedProgressBarList1.ProgressBarHeight = (int)Math.Round(sortedProgressBarList1.ProgressBarHeight * scale);
-        //        sortedProgressBarList1.ProgressBarPadding = new Padding(
-        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Left * scale),
-        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Top * scale),
-        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Right * scale),
-        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Bottom * scale)
-        //        );
-        //    } // try 结束
-        //    catch { } // 忽略缩放过程中的非关键异常，保证 UI 不崩溃
-        //} // 方法结束
 
         // # 屏幕分辨率缩放判定
         private static float GetPrimaryResolutionScale() // 依据主屏高度返回推荐缩放比例
@@ -120,9 +95,8 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
           //开启默认置顶
 
             StartCapture(); // 启动网络抓包/数据采集（核心运行入口之一）
-           
-            TopMost = true;
-            button_AlwaysOnTop.Toggle = TopMost; // 同步按钮的视觉状态
+
+            EnsureTopMost();
         } // 方法结束
 
         // # 列表选择变更 → 打开技能详情
@@ -384,7 +358,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     return;
                 }
                 TimeSpan duration = StatisticData._manager.GetCombatDuration();
-                if (duration >= TimeSpan.FromMinutes(1))
+                if (duration >= TimeSpan.FromMinutes(3))
                 {
                     PilingModeCheckbox.Checked = false;
                     timer1.Enabled = false;
@@ -523,12 +497,6 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         }
 
 
-
-
-
-
-
-
         bool hyaline = false;
         private void HandleFormTransparency()
         {
@@ -557,6 +525,15 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         private void DpsStatisticsForm_Shown(object sender, EventArgs e)
         {
           
+        }
+
+        private void EnsureTopMost()
+        {
+            TopMost = false;   // 先关再开，强制触发样式刷新
+            TopMost = true;
+            Activate();
+            BringToFront();
+            button_AlwaysOnTop.Toggle = TopMost; // 同步你的按钮状态
         }
     }
 }
