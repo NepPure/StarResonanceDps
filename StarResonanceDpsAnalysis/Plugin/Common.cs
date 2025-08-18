@@ -18,6 +18,41 @@ namespace StarResonanceDpsAnalysis.Plugin
             return $"{(int)ts.TotalMinutes:D2}:{ts.Seconds:D2}";
         }
 
+        public static string GetSubProfessionBySkillId(ulong skillId) =>
+            skillId switch
+            {
+                1241 => "射线",
+
+                2307 or 2361 or 55302 => "协奏",
+
+                20301 => "愈合",
+
+                1518 or 1541 or 21402 => "惩戒",
+
+                2306 => "狂音",
+
+                120901 or 120902 => "冰矛",
+
+                1714 or 1734 => "居合",
+
+                44701 or 179906 => "月刃",
+
+                220112 or 2203622 => "鹰弓",
+
+                2292 or 1700820 or 1700825 or 1700827 => "狼弓",
+
+                1419 => "空枪",
+
+                1405 or 1418 => "重装",
+
+                2405 => "防盾",
+                2406 => "光盾",
+                199902 => "岩盾",
+
+                1930 or 1931 or 1934 or 1935 => "格挡",
+
+                _ => string.Empty
+            };
 
         private static readonly Dictionary<string, List<ulong>> professionSkills = new()
         {
@@ -495,7 +530,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             string nickName = sp.Nickname;
             string professional = sp.Profession;
             int combatPower = sp.CombatPower;
-
+            string subProfession = sp.SubProfession;
             // 3) 伤害/治疗汇总（快照）
             ulong totalDamage = sp.TotalDamage;
 
@@ -524,7 +559,7 @@ namespace StarResonanceDpsAnalysis.Plugin
 
             // 7) 技能列表（快照里的伤害技能汇总）
             List<SkillSummary> kill = sp.DamageSkills ?? new List<SkillSummary>();
-
+           
             // 8) 组装并上报
             string url = @$"{AppConfig.url}/add_user_dps";
             var body = new
@@ -543,7 +578,8 @@ namespace StarResonanceDpsAnalysis.Plugin
                 maxInstantDps,
                 battleTime = duration,
                 battleId,
-                kill
+                kill,
+                subProfession= subProfession
             };
 
             var resp = await Common.RequestPost(url, body);

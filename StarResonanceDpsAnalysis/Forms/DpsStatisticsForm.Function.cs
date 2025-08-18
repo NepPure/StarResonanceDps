@@ -266,6 +266,8 @@ namespace StarResonanceDpsAnalysis.Forms
 
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
+            label1.Text = $"";
+            label2.Text = $"";
             try
             {
                 lock (_dataLock)
@@ -276,13 +278,15 @@ namespace StarResonanceDpsAnalysis.Forms
                     userRenderContent.Clear();
                     // UI 组件缓存清空（注意切回 UI 线程）
                     var ctrl = SortedProgressBarStatic;
+                    // ListClear() — 清空 UI
                     if (ctrl != null && !ctrl.IsDisposed)
                     {
                         if (ctrl.InvokeRequired)
-                            ctrl.BeginInvoke(new Action(() => ctrl.Data = null));
+                            ctrl.BeginInvoke(new Action(() => ctrl.Data = new List<ProgressBarData>()));
                         else
-                            ctrl.Data = null;
+                            ctrl.Data = new List<ProgressBarData>();
                     }
+
                 }
             }
             finally
@@ -303,7 +307,8 @@ namespace StarResonanceDpsAnalysis.Forms
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
-            if(Config.IsLight)
+         
+            if (Config.IsLight)
             {
                 sortedProgressBarList1.OrderColor = Color.Black;
             }
@@ -312,7 +317,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 sortedProgressBarList1.OrderColor = Color.White;
             }
 
-                sortedProgressBarList1.OrderFont = AppConfig.ContentFont;
+                sortedProgressBarList1.OrderFont = AppConfig.DigitalFont;
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
             sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
@@ -350,10 +355,30 @@ namespace StarResonanceDpsAnalysis.Forms
             { "青岚骑士", ColorTranslator.FromHtml("#abfaff") }, // 
             { "森语者", ColorTranslator.FromHtml("#78ff95") }, // 
             { "神盾骑士", ColorTranslator.FromHtml("#2E86AB") }, // 
-            {"未知",  ColorTranslator.FromHtml("#67AEF6")}
+            {"未知",  ColorTranslator.FromHtml("#67AEF6")},
+            {"射线", ColorTranslator.FromHtml("#fffca3") },
+            {"协奏",ColorTranslator.FromHtml("#ff5353")  },
+            {"愈合" ,ColorTranslator.FromHtml("#78ff95")},
+            {"惩戒", ColorTranslator.FromHtml("#78ff95")},
+            {"狂音", ColorTranslator.FromHtml("#ff5353")},
+            {"冰矛",  ColorTranslator.FromHtml("#aaa6ff")},
+            {"居合", ColorTranslator.FromHtml("#9676ff")},
+            {"月刃", ColorTranslator.FromHtml("#9676ff")},
+            {"鹰弓", ColorTranslator.FromHtml("#fffca3")},
+            {"狼弓", ColorTranslator.FromHtml("#fffca3")},
+            {"空枪", ColorTranslator.FromHtml("#abfaff")},
+            {"重装", ColorTranslator.FromHtml("#abfaff")},
+            {"防盾", ColorTranslator.FromHtml("#2E86AB")},
+            {"光盾", ColorTranslator.FromHtml("#2E86AB")},
+            {"岩盾", ColorTranslator.FromHtml("#51a55d")},
+            {"格挡", ColorTranslator.FromHtml("#51a55d")},
+
+
+
         };
 
         //黑窗体
+        // 黑窗体
         Dictionary<string, Color> blackColorDict = new Dictionary<string, Color>()
         {
             { "神射手", ColorTranslator.FromHtml("#8e8b47") }, //
@@ -364,8 +389,25 @@ namespace StarResonanceDpsAnalysis.Forms
             { "青岚骑士", ColorTranslator.FromHtml("#799a9c") }, // 
             { "森语者", ColorTranslator.FromHtml("#639c70") }, // 
             { "神盾骑士", ColorTranslator.FromHtml("#9c9b75") }, // 
-            {"未知",  ColorTranslator.FromHtml("#67AEF6")}
+            { "射线", ColorTranslator.FromHtml("#8e8b47") },
+            { "协奏", ColorTranslator.FromHtml("#9c5353") },
+            { "愈合", ColorTranslator.FromHtml("#639c70") },
+            { "惩戒", ColorTranslator.FromHtml("#639c70") },
+            { "狂音", ColorTranslator.FromHtml("#9c5353") },
+            { "冰矛", ColorTranslator.FromHtml("#79779c") },
+            { "居合", ColorTranslator.FromHtml("#70629c") },
+            { "月刃", ColorTranslator.FromHtml("#70629c") },
+            { "鹰弓", ColorTranslator.FromHtml("#8e8b47") },
+            { "狼弓", ColorTranslator.FromHtml("#8e8b47") },
+            { "空枪", ColorTranslator.FromHtml("#799a9c") },
+            { "重装", ColorTranslator.FromHtml("#799a9c") },
+            { "防盾", ColorTranslator.FromHtml("#9c9b75") },
+            { "光盾", ColorTranslator.FromHtml("#9c9b75") },
+            { "岩盾", ColorTranslator.FromHtml("#537758") },
+            { "格挡", ColorTranslator.FromHtml("#537758") },
+            { "未知", ColorTranslator.FromHtml("#67AEF6") }
         };
+
         public static Dictionary<string, Bitmap> imgDict = new Dictionary<string, Bitmap>()
     {
         { "冰魔导师", new Bitmap(new MemoryStream(Resources.冰魔导师)) },
@@ -414,6 +456,7 @@ namespace StarResonanceDpsAnalysis.Forms
             public string Profession;
             public ulong Total;
             public double PerSecond;
+            public string SubProfession;
         }
    
         public void RefreshDpsTable(SourceType source, MetricType metric)
@@ -427,14 +470,13 @@ namespace StarResonanceDpsAnalysis.Forms
             var uiList = BuildUiRows(source, metric)
                 .Where(r => (r?.Total ?? 0) > 0)   // 过滤 0 值（伤害/治疗/承伤都适用）
                 .ToList();
-        
+
             if (uiList.Count == 0)
             {
-                // 清空旧数据，避免残影
                 if (sortedProgressBarList1.InvokeRequired)
-                    sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = null));
+                    sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = new List<ProgressBarData>()));
                 else
-                    sortedProgressBarList1.Data = null;
+                    sortedProgressBarList1.Data = new List<ProgressBarData>();
                 return;
             }
 
@@ -447,114 +489,118 @@ namespace StarResonanceDpsAnalysis.Forms
             lock (_dataLock)
             {
                 if (_isClearing == 1) return;
-                // 这次应出现的 UID 集合
+
+                // 1) 拍当前 list 的快照，用它参与所有枚举相关计算
+                var snapshot = list.ToList(); // <<--- 关键
+
                 var present = new HashSet<long>(ordered.Select(x => x.Uid));
 
-                // 找出需要删除的旧行（上一视图的残留）
-                var toRemove = list.Where(pb => !present.Contains(pb.ID))
-                                   .Select(pb => pb.ID)
-                                   .ToList();
+                // 2) 先用快照算需要删除的旧行（避免直接枚举原 list）
+                var toRemove = snapshot.Where(pb => !present.Contains(pb.ID))
+                                       .Select(pb => pb.ID)
+                                       .ToList();
 
-                if (toRemove.Count > 0)
-                {
-                    foreach (var uid in toRemove)
-                    {
-                        DictList.Remove(uid);
-                        list.RemoveAll(pb => pb.ID == uid);
-                    }
-                }
+                // 3) 基于快照建立索引，后面查找更快也更安全
+                var byId = snapshot.ToDictionary(pb => pb.ID);
+
+                // 4) 准备一个“下一帧”的新列表，最后一次性替换
+                var next = new List<ProgressBarData>(present.Count);
 
                 for (int i = 0; i < ordered.Count; i++)
                 {
                     var p = ordered[i];
-                    int index = i + 1;
-                    
-                    // for 里：归一化到 0~1
+                    if (string.IsNullOrEmpty(p.Profession)) continue;
+
                     float ratio = (float)(p.Total / top);
                     if (!float.IsFinite(ratio)) ratio = 0f;
-                    if (ratio < 0f) ratio = 0f;
-                    if (ratio > 1f) ratio = 1f;
+                    ratio = Math.Clamp(ratio, 0f, 1f);
 
                     string totalFmt = Common.FormatWithEnglishUnits(p.Total);
                     string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
-                    if (p.Profession == "") continue;
+
                     var profBmp = imgDict[p.Profession];
-                    Color color;
-                    if (Config.IsLight)
+                    var dict = Config.IsLight ? colorDict : blackColorDict;
+                    var key = (p?.Profession is string pr && pr != "未知" && dict.ContainsKey(pr)) ? pr
+                             : (p?.SubProfession is string sr && sr != "未知" && dict.ContainsKey(sr)) ? sr
+                             : "未知";
+                    var color = dict.TryGetValue(key, out var c) ? c : ColorTranslator.FromHtml("#67AEF6");
+
+
+                    // 渲染行内容：DictList 也只在锁内改
+                    if (!DictList.TryGetValue(p.Uid, out var row))
                     {
-                        color = colorDict[p.Profession];
+                        row = new List<RenderContent> {
+                new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=35,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
+                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.DigitalFont },
+                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.DigitalFont },
+                new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=AppConfig.colorText, Font=AppConfig.DigitalFont },
+            };
+                        DictList[p.Uid] = row;
+                    }
+
+                    string share = $"{Math.Round(p.Total / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
+                    row[0].Image = profBmp;
+                    // 只要子流派；没有子流派就用战力；否则只显示昵称
+                    string tag = !string.IsNullOrWhiteSpace(p.SubProfession)
+                        ? p.SubProfession
+                        : (p.CombatPower > 0 ? Common.FormatWithEnglishUnits(p.CombatPower) : "");
+
+                    row[1].Text = string.IsNullOrEmpty(tag)
+                        ? p.Nickname
+                        : $"{p.Nickname}({tag})";
+
+                    row[2].Text = $"{totalFmt}({perSec})";
+                    row[3].Text = share;
+
+                    if (p.Uid == (long)AppConfig.Uid)
+                    {
+                        label1.Text = $" [{i + 1}]";
+                        label2.Text = $"{totalFmt}({perSec})";
+                    }
+
+                    // 复用旧的 ProgressBarData，避免 UI 抖动；没有则新建
+                    if (!byId.TryGetValue(p.Uid, out var pb))
+                    {
+                        pb = new ProgressBarData
+                        {
+                            ID = p.Uid,
+                            ContentList = row,
+                            ProgressBarCornerRadius = 3,
+                            ProgressBarValue = ratio,
+                            ProgressBarColor = color,
+                        };
                     }
                     else
                     {
-                        color = blackColorDict[p.Profession];
-                    }
-                    if (!DictList.TryGetValue(p.Uid, out var data))
-                    {
-                        // # 首次出现：为该 UID 构建渲染内容与进度条条目
-                        data = new List<RenderContent> {
-
-                            new RenderContent { Type=RenderContent.ContentType.Image, Align=RenderContent.ContentAlign.MiddleLeft, Offset=new RenderContent.ContentOffset{X=35,Y=0}, Image=profBmp, ImageRenderSize=new Size(25,25)},
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleLeft,  Offset=new RenderContent.ContentOffset{X=65,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=-55,Y=0}, ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
-                            new RenderContent { Type=RenderContent.ContentType.Text,  Align=RenderContent.ContentAlign.MiddleRight, Offset=new RenderContent.ContentOffset{X=0,Y=0},  ForeColor=AppConfig.colorText, Font=AppConfig.ContentFont },
-                        };
-
-
-                            list.Add(new ProgressBarData
-                            {
-                                ID = p.Uid,
-                                ContentList = data,
-                                ProgressBarCornerRadius = 3,
-                                ProgressBarValue = ratio,
-                                ProgressBarColor = color,
-                                
-
-
-                            });
-                        
-                        DictList[p.Uid] = data;
-                    }
-
-                    // # 更新显示文本 & 头像/职业图标
-                    string share = $"{Math.Round(p.Total / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
-                    var row = DictList[p.Uid];
-                    row[0].Image = profBmp;
-                    row[1].Text = $"{p.Nickname}({p.CombatPower})";
-                    row[2].Text = $"{totalFmt}({perSec})";
-                    row[3].Text = share;
-                    if(p.Uid ==(long)AppConfig.Uid)
-                    {
-                        
-                        label1.Text = $" [{index}]";
-                        label2.Text =@$"{totalFmt}({perSec})";
-                    }
-                    
-                    // 更新进度条的 Value/Color（老条目必须每次刷新都更新）
-                    var pb = list.FirstOrDefault(x => x.ID == p.Uid);
-                    if (pb != null)
-                    {
-                        pb.ProgressBarValue = ratio; // 关键：用最新占比驱动条形长度/排序
-                    
-                        
+                        pb.ContentList = row;      // 保底同步
+                        pb.ProgressBarValue = ratio;
                         pb.ProgressBarColor = color;
-                        
                     }
+
+                    next.Add(pb);
                 }
-                // —— 闸门 #2：写 UI 之前再校验一次，防止在计算期间切换视图导致串写 ——
-                visible = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
-                if (source != visible) return;
-                // 绑定到控件（空则设 null，避免残影）
+
+                // 5) 处理 DictList 的删除（可选，保持干净）
+                if (toRemove.Count > 0)
+                {
+                    foreach (var uid in toRemove)
+                        DictList.Remove(uid);
+                }
+
+                // 6) 一次性替换 list，避免“枚举中修改”
+                list = next;
+
+                // RefreshDpsTable(...) — 锁内最终绑定
                 void Bind()
                 {
-                    sortedProgressBarList1.Data = list.Count == 0 ? null : list;
+                    sortedProgressBarList1.Data = list; // list 永不为 null
                 }
 
-                if (sortedProgressBarList1.InvokeRequired)
-                    sortedProgressBarList1.BeginInvoke((Action)Bind);
-                else
-                    Bind();
+                if (sortedProgressBarList1.InvokeRequired) sortedProgressBarList1.BeginInvoke((Action)Bind);
+                else Bind();
             }
         }
+
 
         private List<UiRow> BuildUiRows(SourceType source, MetricType metric)
         {
@@ -596,6 +642,7 @@ namespace StarResonanceDpsAnalysis.Forms
                         Nickname = p.Nickname,
                         CombatPower = p.CombatPower,
                         Profession = p.Profession,
+                        SubProfession = p.SubProfession??"",
                         Total = total,
                         PerSecond = ps
                     };

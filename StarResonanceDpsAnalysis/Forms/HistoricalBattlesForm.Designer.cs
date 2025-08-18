@@ -191,6 +191,7 @@
             table_DpsDetailDataTable.Gaps = new Size(8, 8);
             table_DpsDetailDataTable.Location = new Point(0, 0);
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
+            table_DpsDetailDataTable.RowHeight = 40;
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
             table_DpsDetailDataTable.Size = new Size(1130, 724);
             table_DpsDetailDataTable.TabIndex = 35;

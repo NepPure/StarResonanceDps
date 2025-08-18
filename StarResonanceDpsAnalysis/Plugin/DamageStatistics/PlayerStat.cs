@@ -468,6 +468,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <summary>职业。</summary>
         public string Profession { get; set; } = "未知";
 
+        public string SubProfession { get; set; }=null;
+
         #endregion
 
         #region 统计对象与索引
@@ -543,6 +545,11 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 SkillUsage[skillId] = stat;
             }
             stat.AddRecord(damage, isCrit, isLucky, hpLessen);
+            if (string.IsNullOrEmpty(SubProfession))
+            {
+                var sp = Common.GetSubProfessionBySkillId(skillId);
+                if (!string.IsNullOrEmpty(sp)) SubProfession = sp;
+            }
 
             // 把新增字段写入全程记录（需要你同步扩展 FullRecord.RecordDamage 的签名）
             FullRecord.RecordDamage(
@@ -570,11 +577,18 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 HealingBySkill[skillId] = stat;
             }
             stat.AddRecord(healing, isCrit, isLucky);
+            string subProfession = Common.GetSubProfessionBySkillId(skillId);
+            if (string.IsNullOrEmpty(SubProfession))
+            {
+                var sp = Common.GetSubProfessionBySkillId(skillId);
+                if (!string.IsNullOrEmpty(sp)) SubProfession = sp;
+            }
 
             FullRecord.RecordHealing(
                 Uid, skillId, healing, isCrit, isLucky,
                 Nickname, CombatPower, Profession,
                 damageElement, isCauseLucky, targetUuid);
+
         }
 
   
@@ -1762,6 +1776,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
             foreach (var p in _players.Values)
             {
+                if (!p.HasCombatData()) continue;
+
+
                 var dmg = p.DamageStats;
                 var heal = p.HealingStats;
 
@@ -1795,7 +1812,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                     Nickname = p.Nickname,
                     CombatPower = p.CombatPower,
                     Profession = p.Profession,
-
+                    SubProfession = p.SubProfession,
                     TotalDamage = dmg.Total,
                     TotalDps = p.GetTotalDps(),
                     TotalHealing = heal.Total,
@@ -1827,6 +1844,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
                 snapPlayers[p.Uid] = sp;
             }
+            if (snapPlayers.Count == 0) return;
 
             var snapshot = new BattleSnapshot
             {
@@ -1903,6 +1921,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         /// <summary>职业。</summary>
         public string Profession { get; init; } = "未知";
+
+        public string? SubProfession { get; init; }
+
 
         /// <summary>实时 DPS（窗口内累计）。</summary>
         public ulong RealtimeDps { get; init; }

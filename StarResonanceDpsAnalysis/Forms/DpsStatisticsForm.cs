@@ -34,7 +34,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         {
             // 构造函数开始
             InitializeComponent(); // 初始化设计器生成的控件与布局
-   
+
 
             Text = FormManager.APP_NAME;
 
@@ -72,31 +72,6 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         } // 构造函数结束
 
-        //// # 分辨率缩放（可选）
-        //private void ApplyResolutionScale() // 将界面按主显示器分辨率进行缩放
-        //{ // 方法开始
-        //    float scale = GetPrimaryResolutionScale(); // 计算缩放比例（1.0/1.3333/2.0）
-        //    if (Math.Abs(scale - 1.0f) < 0.01f) return; // 若接近 1.0（无需缩放）则直接返回
-
-        //    this.Scale(new SizeF(scale, scale)); // 对窗体整体进行缩放
-
-        //    try // 保护性尝试：某些控件属性在不同主题下可能抛异常
-        //    { // try 开始
-        //        pageHeader1.Font = new Font(pageHeader1.Font.FontFamily, pageHeader1.Font.Size * scale, pageHeader1.Font.Style);
-        //        pageHeader1.SubFont = new Font(pageHeader1.SubFont.FontFamily, pageHeader1.SubFont.Size * scale, pageHeader1.SubFont.Style);
-
-        //        BattleTimeText.Font = new Font(BattleTimeText.Font.FontFamily, BattleTimeText.Font.Size * scale, BattleTimeText.Font.Style);
-
-        //        sortedProgressBarList1.ProgressBarHeight = (int)Math.Round(sortedProgressBarList1.ProgressBarHeight * scale);
-        //        sortedProgressBarList1.ProgressBarPadding = new Padding(
-        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Left * scale),
-        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Top * scale),
-        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Right * scale),
-        //            (int)Math.Round(sortedProgressBarList1.ProgressBarPadding.Bottom * scale)
-        //        );
-        //    } // try 结束
-        //    catch { } // 忽略缩放过程中的非关键异常，保证 UI 不崩溃
-        //} // 方法结束
 
         // # 屏幕分辨率缩放判定
         private static float GetPrimaryResolutionScale() // 依据主屏高度返回推荐缩放比例
@@ -118,9 +93,10 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         private void DpsStatistics_Load(object sender, EventArgs e) // 窗体 Load 事件处理
         { // 方法开始
           //开启默认置顶
-            TopMost = !TopMost; // 简化切换
-            button_AlwaysOnTop.Toggle = TopMost; // 同步按钮的视觉状态
+
             StartCapture(); // 启动网络抓包/数据采集（核心运行入口之一）
+
+            EnsureTopMost();
         } // 方法结束
 
         // # 列表选择变更 → 打开技能详情
@@ -253,6 +229,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
                     //new ContextMenuStripItem("统计排除"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
+                     new ContextMenuStripItem("技能日记"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("伤害参考"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes }, // 一级菜单：打桩模式
                     new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, }, // 一级菜单：退出
@@ -286,6 +263,13 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         } // 条件结束
                         FormManager.mainForm.Show(); // 显示主窗体
                         break; // 跳出 switch
+                    case "技能日记":
+                        if(FormManager.skillDiary == null|| FormManager.skillDiary.IsDisposed)
+                        {
+                            FormManager.skillDiary = new SkillDiary();
+                        }
+                        FormManager.skillDiary.Show();
+                        break;
                     case "技能循环监测": // 点击“技能循环监测”
                         if (FormManager.skillRotationMonitorForm == null || FormManager.skillRotationMonitorForm.IsDisposed) // 若监测窗体不存在或已释放
                         { // 条件开始
@@ -440,7 +424,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         // 主题切换
         private void DpsStatisticsForm_ForeColorChanged(object sender, EventArgs e)
         {
-        
+
 
             if (Config.IsLight)
             {
@@ -513,12 +497,6 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         }
 
 
-
-
-
-
-
-
         bool hyaline = false;
         private void HandleFormTransparency()
         {
@@ -542,6 +520,20 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         private void button2_Click_1(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void DpsStatisticsForm_Shown(object sender, EventArgs e)
+        {
+          
+        }
+
+        private void EnsureTopMost()
+        {
+            TopMost = false;   // 先关再开，强制触发样式刷新
+            TopMost = true;
+            Activate();
+            BringToFront();
+            button_AlwaysOnTop.Toggle = TopMost; // 同步你的按钮状态
         }
     }
 }

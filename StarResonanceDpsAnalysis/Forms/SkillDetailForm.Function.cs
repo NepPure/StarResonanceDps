@@ -28,7 +28,7 @@ namespace StarResonanceDpsAnalysis.Control
 
             table_DpsDetailDataTable.Columns = new AntdUI.ColumnCollection
             {
-                new AntdUI.Column("Name","技能名"),
+                new AntdUI.Column("Name","技能名"){},
                 new AntdUI.Column("Damage","伤害"),
                 new AntdUI.Column("TotalDps","DPS/秒"),
                 new AntdUI.Column("HitCount","命中次数"),

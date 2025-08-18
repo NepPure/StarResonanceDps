@@ -366,7 +366,7 @@ namespace StarResonanceDpsAnalysis.Forms
             {
                 table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
                 splitter1.Panel2.BackColor = splitter1.BackColor = ColorTranslator.FromHtml("#FFFFFF");
-                panel1.Back = ColorTranslator.FromHtml("#255AD0");
+                panel1.Back = ColorTranslator.FromHtml("#67AEF6");
                 splitter1.Panel1.BackColor = ColorTranslator.FromHtml("#FFFFFF");
                 table_DpsDetailDataTable.BackColor = ColorTranslator.FromHtml("#FFFFFF");
             }

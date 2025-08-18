@@ -343,6 +343,7 @@ namespace StarResonanceDpsAnalysis.Core
             ["2234"] = new SkillDefinition { Name = "光能轰炸", Type = SkillType.Damage, Element = ElementType.Light, Description = "光能轰炸" }, // ← 新增
             ["2237"] = new SkillDefinition { Name = "狂野呼唤", Type = SkillType.Damage, Element = ElementType.Wind, Description = "狂野呼唤" }, // ← 新增
             ["2238"] = new SkillDefinition { Name = "爆炸射击", Type = SkillType.Damage, Element = ElementType.Fire, Description = "爆炸射击" }, // ← 新增
+            ["1256"] = new SkillDefinition { Name = "浪潮", Type = SkillType.Damage, Element = ElementType.Wind, Description = "浪潮" }, // ← 新增
 
 
         };

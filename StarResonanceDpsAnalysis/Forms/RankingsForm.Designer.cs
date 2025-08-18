@@ -153,6 +153,7 @@
             table_DpsDetailDataTable.Gaps = new Size(8, 8);
             table_DpsDetailDataTable.Location = new Point(0, 40);
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
+            table_DpsDetailDataTable.RowHeight = 40;
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
             table_DpsDetailDataTable.Size = new Size(1213, 893);
             table_DpsDetailDataTable.TabIndex = 33;
@@ -186,7 +187,7 @@
             segmentedItem3.Text = "巨刃守护者";
             segmentedItem4.Text = "雷影剑士";
             segmentedItem5.Text = "灵魂乐手";
-            segmentedItem6.Text = "灵魂乐手";
+            segmentedItem6.Text = "青岚骑士";
             segmentedItem7.Text = "森语者";
             segmentedItem8.Text = "神盾骑士";
             segmentedItem9.Text = "神射手";

@@ -643,10 +643,11 @@ namespace StarResonanceDpsAnalysis.Plugin
         private CellText totalDamage;     // 总伤害
         private CellText instantDps;     // 秒伤
         private CellText maxInstantDps;     // 最大瞬时DPS
+        private CellText subProfessional; //分支职业
         #endregion
 
         #region 构造函数
-        public LeaderboardTable(string nickName, string professional, double combatPower, double totalDamage, double instantDps, double maxInstantDps)
+        public LeaderboardTable(string nickName, string professional, double combatPower, double totalDamage, double instantDps, double maxInstantDps,string subProfessional)
         {
             NickName = nickName;
             Professional = professional;
@@ -654,6 +655,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             TotalDamage = new CellText(totalDamage.ToString()) { Font = AppConfig.DigitalFont };
             InstantDps = new CellText(instantDps.ToString()) { Font = AppConfig.DigitalFont };
             MaxInstantDps = new CellText(maxInstantDps.ToString()) { Font = AppConfig.DigitalFont };
+            SubProfessional = new CellText(subProfessional) ;
         }
         #endregion
 
@@ -685,6 +687,17 @@ namespace StarResonanceDpsAnalysis.Plugin
                 if (professional == value) return;
                 professional = value;
                 OnPropertyChanged(nameof(Professional));
+            }
+        }
+
+        public CellText SubProfessional
+        {
+            get => subProfessional;
+            set
+            {
+                if (subProfessional == value) return;
+                subProfessional = value;
+                OnPropertyChanged(nameof(SubProfessional));
             }
         }
 

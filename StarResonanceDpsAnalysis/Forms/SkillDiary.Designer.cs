@@ -49,6 +49,7 @@
             // input1
             // 
             input1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            input1.AutoScroll = true;
             input1.Location = new Point(12, 63);
             input1.Multiline = true;
             input1.Name = "input1";
