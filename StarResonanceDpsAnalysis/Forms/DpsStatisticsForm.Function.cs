@@ -355,10 +355,30 @@ namespace StarResonanceDpsAnalysis.Forms
             { "青岚骑士", ColorTranslator.FromHtml("#abfaff") }, // 
             { "森语者", ColorTranslator.FromHtml("#78ff95") }, // 
             { "神盾骑士", ColorTranslator.FromHtml("#2E86AB") }, // 
-            {"未知",  ColorTranslator.FromHtml("#67AEF6")}
+            {"未知",  ColorTranslator.FromHtml("#67AEF6")},
+            {"射线", ColorTranslator.FromHtml("#fffca3") },
+            {"协奏",ColorTranslator.FromHtml("#ff5353")  },
+            {"愈合" ,ColorTranslator.FromHtml("#78ff95")},
+            {"惩戒", ColorTranslator.FromHtml("#78ff95")},
+            {"狂音", ColorTranslator.FromHtml("#ff5353")},
+            {"冰矛",  ColorTranslator.FromHtml("#aaa6ff")},
+            {"居合", ColorTranslator.FromHtml("#9676ff")},
+            {"月刃", ColorTranslator.FromHtml("#9676ff")},
+            {"鹰弓", ColorTranslator.FromHtml("#fffca3")},
+            {"狼弓", ColorTranslator.FromHtml("#fffca3")},
+            {"空枪", ColorTranslator.FromHtml("#abfaff")},
+            {"重装", ColorTranslator.FromHtml("#abfaff")},
+            {"防盾", ColorTranslator.FromHtml("#2E86AB")},
+            {"光盾", ColorTranslator.FromHtml("#2E86AB")},
+            {"岩盾", ColorTranslator.FromHtml("#51a55d")},
+            {"格挡", ColorTranslator.FromHtml("#51a55d")},
+
+
+
         };
 
         //黑窗体
+        // 黑窗体
         Dictionary<string, Color> blackColorDict = new Dictionary<string, Color>()
         {
             { "神射手", ColorTranslator.FromHtml("#8e8b47") }, //
@@ -369,8 +389,25 @@ namespace StarResonanceDpsAnalysis.Forms
             { "青岚骑士", ColorTranslator.FromHtml("#799a9c") }, // 
             { "森语者", ColorTranslator.FromHtml("#639c70") }, // 
             { "神盾骑士", ColorTranslator.FromHtml("#9c9b75") }, // 
-            {"未知",  ColorTranslator.FromHtml("#67AEF6")}
+            { "射线", ColorTranslator.FromHtml("#8e8b47") },
+            { "协奏", ColorTranslator.FromHtml("#9c5353") },
+            { "愈合", ColorTranslator.FromHtml("#639c70") },
+            { "惩戒", ColorTranslator.FromHtml("#639c70") },
+            { "狂音", ColorTranslator.FromHtml("#9c5353") },
+            { "冰矛", ColorTranslator.FromHtml("#79779c") },
+            { "居合", ColorTranslator.FromHtml("#70629c") },
+            { "月刃", ColorTranslator.FromHtml("#70629c") },
+            { "鹰弓", ColorTranslator.FromHtml("#8e8b47") },
+            { "狼弓", ColorTranslator.FromHtml("#8e8b47") },
+            { "空枪", ColorTranslator.FromHtml("#799a9c") },
+            { "重装", ColorTranslator.FromHtml("#799a9c") },
+            { "防盾", ColorTranslator.FromHtml("#9c9b75") },
+            { "光盾", ColorTranslator.FromHtml("#9c9b75") },
+            { "岩盾", ColorTranslator.FromHtml("#537758") },
+            { "格挡", ColorTranslator.FromHtml("#537758") },
+            { "未知", ColorTranslator.FromHtml("#67AEF6") }
         };
+
         public static Dictionary<string, Bitmap> imgDict = new Dictionary<string, Bitmap>()
     {
         { "冰魔导师", new Bitmap(new MemoryStream(Resources.冰魔导师)) },
@@ -482,7 +519,12 @@ namespace StarResonanceDpsAnalysis.Forms
                     string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
 
                     var profBmp = imgDict[p.Profession];
-                    var color = Config.IsLight ? colorDict[p.Profession] : blackColorDict[p.Profession];
+                    var dict = Config.IsLight ? colorDict : blackColorDict;
+                    var key = (p?.Profession is string pr && pr != "未知" && dict.ContainsKey(pr)) ? pr
+                             : (p?.SubProfession is string sr && sr != "未知" && dict.ContainsKey(sr)) ? sr
+                             : "未知";
+                    var color = dict.TryGetValue(key, out var c) ? c : ColorTranslator.FromHtml("#67AEF6");
+
 
                     // 渲染行内容：DictList 也只在锁内改
                     if (!DictList.TryGetValue(p.Uid, out var row))

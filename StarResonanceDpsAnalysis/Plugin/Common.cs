@@ -530,7 +530,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             string nickName = sp.Nickname;
             string professional = sp.Profession;
             int combatPower = sp.CombatPower;
-
+            string subProfession = sp.SubProfession;
             // 3) 伤害/治疗汇总（快照）
             ulong totalDamage = sp.TotalDamage;
 
@@ -559,7 +559,7 @@ namespace StarResonanceDpsAnalysis.Plugin
 
             // 7) 技能列表（快照里的伤害技能汇总）
             List<SkillSummary> kill = sp.DamageSkills ?? new List<SkillSummary>();
-
+           
             // 8) 组装并上报
             string url = @$"{AppConfig.url}/add_user_dps";
             var body = new
@@ -578,7 +578,8 @@ namespace StarResonanceDpsAnalysis.Plugin
                 maxInstantDps,
                 battleTime = duration,
                 battleId,
-                kill
+                kill,
+                subProfession= subProfession
             };
 
             var resp = await Common.RequestPost(url, body);

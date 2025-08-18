@@ -1776,6 +1776,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
             foreach (var p in _players.Values)
             {
+                if (!p.HasCombatData()) continue;
+
+
                 var dmg = p.DamageStats;
                 var heal = p.HealingStats;
 
@@ -1809,7 +1812,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                     Nickname = p.Nickname,
                     CombatPower = p.CombatPower,
                     Profession = p.Profession,
-
+                    SubProfession = p.SubProfession,
                     TotalDamage = dmg.Total,
                     TotalDps = p.GetTotalDps(),
                     TotalHealing = heal.Total,
@@ -1841,6 +1844,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
                 snapPlayers[p.Uid] = sp;
             }
+            if (snapPlayers.Count == 0) return;
 
             var snapshot = new BattleSnapshot
             {
@@ -1917,6 +1921,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         /// <summary>职业。</summary>
         public string Profession { get; init; } = "未知";
+
+        public string? SubProfession { get; init; }
+
 
         /// <summary>实时 DPS（窗口内累计）。</summary>
         public ulong RealtimeDps { get; init; }
