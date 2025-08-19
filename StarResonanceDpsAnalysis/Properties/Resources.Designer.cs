@@ -444,6 +444,26 @@ namespace StarResonanceDpsAnalysis.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
+        internal static byte[] 皇冠 {
+            get {
+                object obj = ResourceManager.GetObject("皇冠", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 皇冠白 {
+            get {
+                object obj = ResourceManager.GetObject("皇冠白", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
         internal static byte[] 神射手 {
             get {
                 object obj = ResourceManager.GetObject("神射手", resourceCulture);
