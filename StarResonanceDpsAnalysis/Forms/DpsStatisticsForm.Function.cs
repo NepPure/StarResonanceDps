@@ -371,28 +371,28 @@ namespace StarResonanceDpsAnalysis.Forms
 
             { "神射手", ColorTranslator.FromHtml("#fffca3") }, //
             { "冰魔导师", ColorTranslator.FromHtml("#aaa6ff") }, // 
-            { "巨刃守护者", ColorTranslator.FromHtml("#51a55d") }, // 
-            { "雷影剑士", ColorTranslator.FromHtml("#9676ff") }, // 
+            { "巨刃守护者", ColorTranslator.FromHtml("#8ee392") }, // 
+            { "雷影剑士", ColorTranslator.FromHtml("#b8a3ff") }, // 
             { "灵魂乐手", ColorTranslator.FromHtml("#ff5353") }, // 
             { "青岚骑士", ColorTranslator.FromHtml("#abfaff") }, // 
             { "森语者", ColorTranslator.FromHtml("#78ff95") }, // 
-            { "神盾骑士", ColorTranslator.FromHtml("#2E86AB") }, // 
+            { "神盾骑士", ColorTranslator.FromHtml("#bfe6ff") }, // 
             { "射线", ColorTranslator.FromHtml("#fffca3") },
             { "协奏", ColorTranslator.FromHtml("#ff5353") },
             { "愈合", ColorTranslator.FromHtml("#78ff95") },
             { "惩戒", ColorTranslator.FromHtml("#78ff95") },
             { "狂音", ColorTranslator.FromHtml("#ff5353") },
             { "冰矛", ColorTranslator.FromHtml("#aaa6ff") },
-            { "居合", ColorTranslator.FromHtml("#9676ff") },
-            { "月刃", ColorTranslator.FromHtml("#9676ff") },
+            { "居合", ColorTranslator.FromHtml("#b8a3ff") },
+            { "月刃", ColorTranslator.FromHtml("#b8a3ff") },
             { "鹰弓", ColorTranslator.FromHtml("#fffca3") },
             { "狼弓", ColorTranslator.FromHtml("#fffca3") },
             { "空枪", ColorTranslator.FromHtml("#abfaff") },
             { "重装", ColorTranslator.FromHtml("#abfaff") },
-            { "防盾", ColorTranslator.FromHtml("#2E86AB") },
-            { "光盾", ColorTranslator.FromHtml("#2E86AB") },
-            { "岩盾", ColorTranslator.FromHtml("#51a55d") },
-            { "格挡", ColorTranslator.FromHtml("#51a55d") },
+            { "防盾", ColorTranslator.FromHtml("#bfe6ff") },
+            { "光盾", ColorTranslator.FromHtml("#bfe6ff") },
+            { "岩盾", ColorTranslator.FromHtml("#8ee392") },
+            { "格挡", ColorTranslator.FromHtml("#8ee392") },
 
         };
 

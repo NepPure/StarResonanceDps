@@ -185,13 +185,13 @@ namespace StarResonanceDpsAnalysis.Control
                 {
                     existing.SkillId = item.SkillId;
                     existing.Name = item.SkillName;
-                    existing.Damage = new CellText(item.Total.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.HitCount = new CellText(item.HitCount.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.CritRate = new CellText(critRateStr) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.LuckyRate = new CellText(luckyRateStr) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.AvgPerHit = new CellText(item.AvgPerHit.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.TotalDps = new CellText(item.TotalDps.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
-                    existing.Percentage = new CellText(share.ToString()) { Font = new Font("SAO Welcome TT", 8, FontStyle.Regular) };
+                    existing.Damage = new CellText(item.Total.ToString()) { Font = AppConfig.ContentFont };
+                    existing.HitCount = new CellText(item.HitCount.ToString()) { Font = AppConfig.ContentFont };
+                    existing.CritRate = new CellText(critRateStr) { Font = AppConfig.ContentFont };
+                    existing.LuckyRate = new CellText(luckyRateStr) { Font = AppConfig.ContentFont };
+                    existing.AvgPerHit = new CellText(item.AvgPerHit.ToString()) { Font = AppConfig.ContentFont };
+                    existing.TotalDps = new CellText(item.TotalDps.ToString()) { Font = AppConfig.ContentFont };
+                    existing.Percentage = new CellText(share.ToString()) { Font = AppConfig.ContentFont };
 
                     var cp = new CellProgress((float)share);
                     cp.Fill = AppConfig.DpsColor;
