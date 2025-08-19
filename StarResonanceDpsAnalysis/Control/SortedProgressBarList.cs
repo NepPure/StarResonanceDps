@@ -22,6 +22,10 @@ namespace StarResonanceDpsAnalysis.Control
         private Padding _progressBarPadding = new(3, 3, 3, 3);
         private RenderContent.ContentAlign _orderAlign = RenderContent.ContentAlign.MiddleLeft;
         private RenderContent.ContentOffset _orderOffset = new() { X = 0, Y = 0 };
+        private List<Image>? _orderImages = null;
+        private RenderContent.ContentAlign _orderImageAlign = RenderContent.ContentAlign.MiddleLeft;
+        private RenderContent.ContentOffset _orderImageOffset = new() { X = 0, Y = 0 };
+        private Size _orderImageRenderSize = new(0, 0);
         private Func<int, string>? _orderCallback = null;
         private Color _orderColor = Color.Black;
         private Font _orderFont = SystemFonts.DefaultFont;
@@ -178,6 +182,42 @@ namespace StarResonanceDpsAnalysis.Control
         {
             get => _orderOffset;
             set => _orderOffset = value;
+        }
+
+        /// <summary>
+        /// 排序中根据序号显示的图片列表
+        /// </summary>
+        public List<Image>? OrderImages
+        {
+            get => _orderImages;
+            set => _orderImages = value;
+        }
+
+        /// <summary>
+        /// 排序序号图片对齐模式
+        /// </summary>
+        public RenderContent.ContentAlign OrderImageAlign
+        {
+            get => _orderImageAlign;
+            set => _orderImageAlign = value;
+        }
+
+        /// <summary>
+        /// 排序序号图片偏移量
+        /// </summary>
+        public RenderContent.ContentOffset OrderImageOffset
+        {
+            get => _orderImageOffset;
+            set => _orderImageOffset = value;
+        }
+
+        /// <summary>
+        /// 排序序号图片渲染大小
+        /// </summary>
+        public Size OrderImageRenderSize
+        {
+            get => _orderImageRenderSize;
+            set => _orderImageRenderSize = value;
         }
 
         /// <summary>
