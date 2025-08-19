@@ -98,7 +98,7 @@ namespace StarResonanceDpsAnalysis.Control.GDI
 
             var (left, top) = GetContentPostion(info, content, textSize);
 
-            g.InterpolationMode = InterpolationMode.NearestNeighbor;
+            g.InterpolationMode = InterpolationMode.Low;
             g.SmoothingMode = SmoothingMode.HighSpeed;
             g.PixelOffsetMode = PixelOffsetMode.None;
 

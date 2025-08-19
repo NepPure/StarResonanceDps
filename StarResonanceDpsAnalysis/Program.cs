@@ -27,11 +27,10 @@ namespace StarResonanceDpsAnalysis
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
-        
+
             ApplicationConfiguration.Initialize();
             FormManager.dpsStatistics = new DpsStatisticsForm();
             Application.Run(FormManager.dpsStatistics);
-            //Application.Run(new TestForm());
 
             //Application.Run(new TestForm());
         }
