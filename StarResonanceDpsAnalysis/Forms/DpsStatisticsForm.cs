@@ -228,7 +228,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, }, // 一级菜单：主窗体
                     //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
-                    //new ContextMenuStripItem("统计排除"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
+                    new ContextMenuStripItem("统计筛选"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
                      //new ContextMenuStripItem("技能日记"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("伤害参考"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes }, // 一级菜单：打桩模式
@@ -258,11 +258,13 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break; // 跳出 switch
                     case "主窗体": // 点击“主窗体”
                         if (FormManager.mainForm == null || FormManager.mainForm.IsDisposed) // 若主窗体不存在或已释放
-                        { // 条件开始
+                        { 
                             FormManager.mainForm = new MainForm(); // 创建主窗体
-                        } // 条件结束
+                        } 
                         FormManager.mainForm.Show(); // 显示主窗体
                         break; // 跳出 switch
+                    case "统计筛选":
+                        break;
                     case "技能日记":
                         if(FormManager.skillDiary == null|| FormManager.skillDiary.IsDisposed)
                         {
@@ -272,9 +274,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break;
                     case "技能循环监测": // 点击“技能循环监测”
                         if (FormManager.skillRotationMonitorForm == null || FormManager.skillRotationMonitorForm.IsDisposed) // 若监测窗体不存在或已释放
-                        { // 条件开始
+                        { 
                             FormManager.skillRotationMonitorForm = new SkillRotationMonitorForm(); // 创建窗口
-                        } // 条件结束
+                        } 
                         FormManager.skillRotationMonitorForm.Show(); // 显示窗口
                         //FormGui.SetColorMode(FormManager.skillRotationMonitorForm, AppConfig.IsLight); // 同步主题（明/暗）
                         break; // 跳出 switch
@@ -283,9 +285,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break; // 占位：后续实现
                     case "伤害参考":
                         if (FormManager.rankingsForm == null || FormManager.rankingsForm.IsDisposed) // 若监测窗体不存在或已释放
-                        { // 条件开始
+                        { 
                             FormManager.rankingsForm = new RankingsForm(); // 创建窗口
-                        } // 条件结束
+                        } 
                         FormManager.rankingsForm.Show(); // 显示窗口
                         break;
                     case "统计排除": // 点击“统计排除”
@@ -306,9 +308,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         private void OpenSettingsDialog() // 打开基础设置窗体
         { // 方法开始
             if (FormManager.settingsForm == null || FormManager.settingsForm.IsDisposed) // 若设置窗体不存在或已释放
-            { // 条件开始
+            { 
                 FormManager.settingsForm = new SettingsForm(); // 创建设置窗体
-            } // 条件结束
+            } 
             FormManager.settingsForm.Show(); // 显示设置窗体（或置顶）
 
         } // 方法结束

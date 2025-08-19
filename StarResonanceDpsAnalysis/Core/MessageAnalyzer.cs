@@ -314,6 +314,7 @@ namespace StarResonanceDpsAnalysis.Core
                     {
                         case (int)AttrType.AttrName:
                             StatisticData._manager.SetNickname(playerUid, reader.ReadString());
+                        
                             updated = true;
                             break;
                         case (int)AttrType.AttrProfessionId:
@@ -461,11 +462,14 @@ namespace StarResonanceDpsAnalysis.Core
                       
                         StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damageElement, damage, isCrit, isLucky, isCauseLucky, hpLessen);
                     }
-                    if (AppConfig.NpcsTakeDamage)
-                    {
+                    //if (AppConfig.NpcsTakeDamage)
+                    //{
                         StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage, damageSource, isMiss, isDead, isCrit, isLucky, hpLessen);
+                        
                         Console.WriteLine(@$"怪物ID：{targetUuid}受到伤害{damage},来自{attackerUuid}的技能{skillId}");
-                    }
+                        
+                        
+                    //}
                 }
             }
         }
@@ -520,7 +524,7 @@ namespace StarResonanceDpsAnalysis.Core
 
             if (vData.Attr?.MaxHp != 0)
                 StatisticData._manager.SetAttrKV(playerUid, "max_hp", (int)vData.Attr.MaxHp);
-
+         
             if (vData.CharBase != null)
             {
                 if (!string.IsNullOrEmpty(vData.CharBase.Name))
