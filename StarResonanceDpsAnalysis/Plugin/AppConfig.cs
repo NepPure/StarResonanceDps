@@ -396,7 +396,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                     }
                     else if (psb != null)
                     {
-                        _startUpState = new Rectangle((int)(psb.Value.Left + psb.Value.Width * 0.85 - 165), psb.Value.Height / 2 - 165, 330, 330);
+                        _startUpState = new Rectangle((int)(psb.Value.Left + psb.Value.Width * 0.85 - 165), psb.Value.Height / 2 - 165, (int)(330 * AntdUI.Config.Dpi), (int)(330 * AntdUI.Config.Dpi));
                     }
                 }
 
