@@ -1,4 +1,10 @@
-﻿using AntdUI; // 引用 AntdUI 组件库（第三方 UI 控件/样式）
+﻿using System;
+using System.Drawing;
+using System.Security.Cryptography.Xml;
+using System.Threading.Tasks; // 引用异步任务支持（Task/async/await）
+using System.Windows.Forms;
+
+using AntdUI; // 引用 AntdUI 组件库（第三方 UI 控件/样式）
 using StarResonanceDpsAnalysis.Control; // 引用项目内的 UI 控制/辅助类命名空间
 using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Forms.PopUp; // 引用弹窗相关窗体/组件命名空间
@@ -6,12 +12,8 @@ using StarResonanceDpsAnalysis.Plugin; // 引用项目插件层通用命名空�
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics; // 引用伤害统计插件命名空间（含 FullRecord、StatisticData 等）
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction; // 引用启动相关功能（加载技能配置等）
 using StarResonanceDpsAnalysis.Properties; // 引用资源（图标/本地化字符串等）
-using System.Threading.Tasks; // 引用异步任务支持（Task/async/await）
-using System;
-using System.Drawing;
-using System.Windows.Forms;
+
 using static StarResonanceDpsAnalysis.Control.SkillDetailForm;
-using System.Security.Cryptography.Xml;
 
 namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代码所在位置
 { // 命名空间开始
@@ -42,20 +44,21 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
             //ApplyResolutionScale(); // 可选：根据屏幕分辨率对整体界面进行缩放（当前禁用，仅保留调用）
 
+            // 从资源文件设置字体
             SetDefaultFontFromResources();
 
-            //加载钩子
+            // 加载钩子
             RegisterKeyboardHook(); // 安装键盘钩子，用于全局热键监听与处理
 
-            //先加载基础配置
+            // 首次启动时初始化基础配置
             InitTableColumnsConfigAtFirstRun(); // 首次运行初始化表格列配置（列宽/显示项等）
 
-            //加载网卡
+            // 加载网卡
             LoadNetworkDevices(); // 加载/枚举网络设备（抓包设备列表）
 
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色 // 根据配置设置窗体的颜色主题（明亮/深色）
 
-            //加载技能配置
+            // 加载技能配置
             StartupInitializer.LoadFromEmbeddedSkillConfig(); // 从内置资源读取并加载技能数据（元数据/图标/映射）
             sortedProgressBarList1.SelectionChanged += (s, i, d) => // 订阅进度条列表的选择变化事件（点击条目）
             { // 事件处理开始
@@ -95,6 +98,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
           //开启默认置顶
 
             StartCapture(); // 启动网络抓包/数据采集（核心运行入口之一）
+
+            // 重置为上次关闭前的位置与大小
+            SetStartupPositionAndSize();
 
             EnsureTopMost();
         } // 方法结束
@@ -258,15 +264,15 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break; // 跳出 switch
                     case "主窗体": // 点击“主窗体”
                         if (FormManager.mainForm == null || FormManager.mainForm.IsDisposed) // 若主窗体不存在或已释放
-                        { 
+                        {
                             FormManager.mainForm = new MainForm(); // 创建主窗体
-                        } 
+                        }
                         FormManager.mainForm.Show(); // 显示主窗体
                         break; // 跳出 switch
                     case "统计筛选":
                         break;
                     case "技能日记":
-                        if(FormManager.skillDiary == null|| FormManager.skillDiary.IsDisposed)
+                        if (FormManager.skillDiary == null || FormManager.skillDiary.IsDisposed)
                         {
                             FormManager.skillDiary = new SkillDiary();
                         }
@@ -274,9 +280,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break;
                     case "技能循环监测": // 点击“技能循环监测”
                         if (FormManager.skillRotationMonitorForm == null || FormManager.skillRotationMonitorForm.IsDisposed) // 若监测窗体不存在或已释放
-                        { 
+                        {
                             FormManager.skillRotationMonitorForm = new SkillRotationMonitorForm(); // 创建窗口
-                        } 
+                        }
                         FormManager.skillRotationMonitorForm.Show(); // 显示窗口
                         //FormGui.SetColorMode(FormManager.skillRotationMonitorForm, AppConfig.IsLight); // 同步主题（明/暗）
                         break; // 跳出 switch
@@ -285,9 +291,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break; // 占位：后续实现
                     case "伤害参考":
                         if (FormManager.rankingsForm == null || FormManager.rankingsForm.IsDisposed) // 若监测窗体不存在或已释放
-                        { 
+                        {
                             FormManager.rankingsForm = new RankingsForm(); // 创建窗口
-                        } 
+                        }
                         FormManager.rankingsForm.Show(); // 显示窗口
                         break;
                     case "统计排除": // 点击“统计排除”
@@ -308,9 +314,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         private void OpenSettingsDialog() // 打开基础设置窗体
         { // 方法开始
             if (FormManager.settingsForm == null || FormManager.settingsForm.IsDisposed) // 若设置窗体不存在或已释放
-            { 
+            {
                 FormManager.settingsForm = new SettingsForm(); // 创建设置窗体
-            } 
+            }
             FormManager.settingsForm.Show(); // 显示设置窗体（或置顶）
 
         } // 方法结束
@@ -450,6 +456,18 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             label2.Font = label1.Font = AppConfig.ContentFont;
         }
 
+        private void SetStartupPositionAndSize()
+        {
+            var startupRect = AppConfig.StartUpState;
+            if (startupRect != null && startupRect != Rectangle.Empty)
+            {
+                Left = startupRect.Value.Left;
+                Top = startupRect.Value.Top;
+                Width = startupRect.Value.Width;
+                Height = startupRect.Value.Height;
+            }
+        }
+
         #region 钩子
         private KeyboardHook KbHook { get; } = new();
         public void RegisterKeyboardHook()
@@ -526,7 +544,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         private void DpsStatisticsForm_Shown(object sender, EventArgs e)
         {
-          
+
         }
 
         private void EnsureTopMost()
@@ -536,6 +554,11 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             Activate();
             BringToFront();
             button_AlwaysOnTop.Toggle = TopMost; // 同步你的按钮状态
+        }
+
+        private void DpsStatisticsForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            AppConfig.StartUpState = new Rectangle(Left, Top, Width, Height);
         }
     }
 }

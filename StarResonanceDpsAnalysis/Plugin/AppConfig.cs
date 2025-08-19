@@ -2,6 +2,7 @@
 using StarResonanceDpsAnalysis.Extends;
 using StarResonanceDpsAnalysis.Properties;
 using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -24,7 +25,7 @@ namespace StarResonanceDpsAnalysis.Plugin
     {
 
         #region 字体
-        
+
         /// <summary>
         /// 数字或者单英文
         /// </summary>
@@ -101,6 +102,9 @@ namespace StarResonanceDpsAnalysis.Plugin
         // 是否使用浅色模式（true 浅色 / false 深色），null 表示未设置
         private static bool? _isLight = null;
 
+        // 启动时的窗口状态（位置和大小），null 表示未设置
+        private static Rectangle? _startUpState = null;
+
         // 鼠标穿透的快捷键（例如 Ctrl+Shift+...），null 表示未设置
         private static Keys? _mouseThroughKey = null;
 
@@ -126,6 +130,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         ///   用于 UI 或统计在战斗结束后延迟清除，避免过快闪烁。
         /// </summary>
         public static Color DpsColor = Color.FromArgb(0x22, 0x97, 0xF4);//进度条颜色
+
         private static string? _nickName = null;
         private static string? _profession = null;
         private static ulong? _uid = null;//用户UID
@@ -336,6 +341,44 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 SetValue("SetUp", "IsLight", value ? "1" : "0");
                 _isLight = value;
+            }
+        }
+
+        /// <summary>
+        /// 启动位置
+        /// </summary>
+        public static Rectangle? StartUpState
+        {
+            get
+            {
+                if (_startUpState == null)
+                {
+                    var psb = Screen.PrimaryScreen?.Bounds;
+                    var valueStr = GetValue("SetUp", "StartUpState", string.Empty);
+                    var valueList = valueStr.Split(',').Select(e => e.ToInt()).ToList();
+                    if (valueList.Count == 4)
+                    {
+                        _startUpState = new Rectangle(valueList[0], valueList[1], valueList[2], valueList[3]);
+                    }
+                    else if (psb != null)
+                    {
+                        _startUpState = new Rectangle((int)(psb.Value.Left + psb.Value.Width * 0.85 - 165), psb.Value.Height / 2 - 165, 330, 330);
+                    }
+                }
+
+                return _startUpState;
+            }
+            set
+            {
+                if (value != null)
+                {
+                    SetValue("SetUp", "StartUpState", $"{value.Value.X},{value.Value.Y},{value.Value.Width},{value.Value.Height}");
+                }
+                else
+                {
+                    SetValue("SetUp", "StartUpState", string.Empty);
+                }
+                _startUpState = value;
             }
         }
 
