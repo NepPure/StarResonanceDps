@@ -104,7 +104,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             StartCapture(); // 启动网络抓包/数据采集（核心运行入口之一）
 
             // 重置为上次关闭前的位置与大小
-            SetStartupPositionAndSize();
+           // SetStartupPositionAndSize();
 
             EnsureTopMost();
         } 
@@ -254,7 +254,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     }, // 一级菜单配置结束
                     new ContextMenuStripItem("基础设置"){ IconSvg = Resources.set_up}, // 一级菜单：基础设置
                     new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, }, // 一级菜单：主窗体
-                    //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
+                    new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
                     //new ContextMenuStripItem("统计筛选"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
                      //new ContextMenuStripItem("技能日记"){ IconSvg = Resources.reference, },
