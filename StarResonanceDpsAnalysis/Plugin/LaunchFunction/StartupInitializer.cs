@@ -55,9 +55,9 @@ namespace StarResonanceDpsAnalysis.Plugin.LaunchFunction
                 {
                     Id = id,                         // 技能 ID（唯一标识一个技能）
                     Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
-                    School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
-                    Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
-                    Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
+                    //School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
+                    //Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
+                   // Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
                 });
 
 
@@ -76,9 +76,9 @@ namespace StarResonanceDpsAnalysis.Plugin.LaunchFunction
                     {
                         Id = id,                         // 技能 ID（唯一标识一个技能）
                         Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
-                        School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
-                        Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
-                        Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
+                        //School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
+                        //Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
+                        //Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
                     });
 
                 }
