@@ -96,7 +96,6 @@ namespace StarResonanceDpsAnalysis.Control
                     _progressBarPrivateData.OrderOffset = OrderOffset;
                     _progressBarPrivateData.OrderImageAlign = OrderImageAlign;
                     _progressBarPrivateData.OrderImageOffset = OrderImageOffset;
-                    _progressBarPrivateData.OrderImageRenderSize = OrderImageRenderSize;
 
                     _progressBarPrivateData.OrderString = OrderCallback == null
                         ? null
@@ -105,6 +104,10 @@ namespace StarResonanceDpsAnalysis.Control
                     _progressBarPrivateData.OrderImage = OrderImages == null || data.ToIndex >= OrderImages.Count
                         ? null
                         : OrderImages[data.ToIndex];
+                    _progressBarPrivateData.OrderImageRenderSize =
+                        _progressBarPrivateData.OrderImage != null && (OrderImageRenderSize.Width == 0 || OrderImageRenderSize.Height == 0)
+                        ? _progressBarPrivateData.OrderImage.Size
+                        : OrderImageRenderSize;
 
                     if (data.FromIndex == data.ToIndex || staticDraw)
                     {
