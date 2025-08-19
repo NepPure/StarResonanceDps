@@ -50,7 +50,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 new Bitmap(new MemoryStream(Resources.皇冠白))
             ];
             sortedProgressBarList1.OrderImageOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
-            sortedProgressBarList1.OrderImageRenderSize = new Size(32, 32);
+            //sortedProgressBarList1.OrderImageRenderSize = new Size(32, 32);
 
             numericUpDown1.Minimum = -1;
             numericUpDown2.Minimum = -1;
