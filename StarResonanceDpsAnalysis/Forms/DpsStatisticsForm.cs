@@ -12,6 +12,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using static StarResonanceDpsAnalysis.Control.SkillDetailForm;
 using System.Security.Cryptography.Xml;
+using Button = AntdUI.Button;
 
 namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代码所在位置
 { // 命名空间开始
@@ -75,7 +76,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         // # 屏幕分辨率缩放判定
         private static float GetPrimaryResolutionScale() // 依据主屏高度返回推荐缩放比例
-        { // 方法开始
+        { 
             try // 防御：获取屏幕信息可能在某些环境异常
             { // try 开始
                 var bounds = Screen.PrimaryScreen?.Bounds ?? new Rectangle(0, 0, 1920, 1080); // 获取主屏尺寸，失败则默认 1080p
@@ -87,21 +88,21 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             { // catch 开始
                 return 1.0f; // 异常时安全返回 1.0（不缩放）
             } // catch 结束
-        } // 方法结束
+        } 
 
         // # 窗体加载事件：启动抓包
         private void DpsStatistics_Load(object sender, EventArgs e) // 窗体 Load 事件处理
-        { // 方法开始
+        { 
           //开启默认置顶
 
             StartCapture(); // 启动网络抓包/数据采集（核心运行入口之一）
 
             EnsureTopMost();
-        } // 方法结束
+        } 
 
         // # 列表选择变更 → 打开技能详情
         private void sortedProgressBarList_SelectionChanged(ulong uid) // 列表项选择回调：传入选中玩家 UID
-        {  // 方法开始
+        {  
             if (FormManager.skillDetailForm == null || FormManager.skillDetailForm.IsDisposed)
             {
                 FormManager.skillDetailForm = new SkillDetailForm(); // # 详情窗体：延迟创建
@@ -128,14 +129,14 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             // 刷新 & 显示
             FormManager.skillDetailForm.SelectDataType(); // # 按当前选择的“伤害/治疗/承伤”类型刷新详情
             if (!FormManager.skillDetailForm.Visible) FormManager.skillDetailForm.Show(); else FormManager.skillDetailForm.Activate(); // # 显示/置顶
-        } // 方法结束
+        } 
 
         // # 顶部：置顶窗口按钮
         private void button_AlwaysOnTop_Click(object sender, EventArgs e) // 置顶按钮点击事件
-        { // 方法开始
+        { 
             TopMost = !TopMost; // 简化切换
             button_AlwaysOnTop.Toggle = TopMost; // 同步按钮的视觉状态
-        } // 方法结束
+        } 
 
         #region 切换显示类型（支持单次/全程伤害） // 折叠：视图标签与切换逻辑
         // # 统计视图标签：与 currentIndex 对应
@@ -145,38 +146,24 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         // # 头部标题文本刷新：依据 showTotal & currentIndex
         private void UpdateHeaderText() // 根据当前模式与索引更新顶部标签文本
-        { // 方法开始
-            DamageModeLabel.Text = FormManager.showTotal ? totalLabels[FormManager.currentIndex]
+        {
+            pageHeader1.SubText = FormManager.showTotal ? totalLabels[FormManager.currentIndex]
                                             : singleLabels[FormManager.currentIndex]; // 三元：选用全程/单次对应标题
-        } // 方法结束
+        }
 
-        // 左切换
-        private void LeftHandoffButton_Click(object sender, EventArgs e) // 左切换按钮事件：currentIndex--
-        { // 方法开始
-            FormManager.currentIndex--; // 索引左移
-            if (FormManager.currentIndex < 0) FormManager.currentIndex = singleLabels.Count - 1; // 下溢回绕至末尾
-            UpdateHeaderText(); // 刷新顶部文本
-        } // 方法结束
 
-        // 右切换
-        private void RightHandoffButton_Click(object sender, EventArgs e) // 右切换按钮事件：currentIndex++
-        { // 方法开始
-            FormManager.currentIndex++; // 索引右移
-            if (FormManager.currentIndex >= singleLabels.Count) FormManager.currentIndex = 0; // 越界回绕至开头
-            UpdateHeaderText(); // 刷新顶部文本
-        } // 方法结束
 
         // 单次/全程切换
         private void button3_Click(object sender, EventArgs e) // 单次/全程切换按钮事件
-        { // 方法开始
+        { 
             FormManager.showTotal = !FormManager.showTotal; // 取反：在单次与全程之间切换
             UpdateHeaderText(); // 切换后刷新顶部文本
-        } // 方法结束
+        } 
         #endregion
 
         // # 定时刷新：战斗时长显示 + 榜单刷新
         private void timer_RefreshRunningTime_Tick(object sender, EventArgs e) // 定时器：周期刷新（UI 绑定）
-        { // 方法开始
+        { 
             //var snap = FullRecord.GetEffectiveDurationString(); // 之前的调用示例（未使用）
             // ✅ 只调一次，按当前视图来
             var source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current; // 根据 showTotal 选择数据源
@@ -199,7 +186,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
             BattleTimeText.Text = duration; // 将时长显示到 UI 文本
             //RefreshDpsTable(true); // 旧实现保留注释
-        } // 方法结束
+        } 
 
         /// <summary>
         /// 清空当前数据数据
@@ -207,17 +194,17 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e) // 清空按钮点击：触发清空逻辑
-        { // 方法开始
+        { 
             // # 清空：触发 HandleClearData（停止图表刷新→清空数据→重置图表）
             HandleClearData(); // 调用清空处理
-        } // 方法结束
+        } 
 
 
         // # 设置按钮 → 右键菜单
         private void button_Settings_Click(object sender, EventArgs e) // 设置按钮点击：弹出右键菜单
         {
 
-            // 方法开始
+            
             var menulist = new IContextMenuStripItem[] // 构建右键菜单项数组
              { // 数组开始
                     new ContextMenuStripItem("历史战斗") // 一级菜单：历史战斗
@@ -258,15 +245,15 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break; // 跳出 switch
                     case "主窗体": // 点击“主窗体”
                         if (FormManager.mainForm == null || FormManager.mainForm.IsDisposed) // 若主窗体不存在或已释放
-                        { 
+                        {
                             FormManager.mainForm = new MainForm(); // 创建主窗体
-                        } 
+                        }
                         FormManager.mainForm.Show(); // 显示主窗体
                         break; // 跳出 switch
                     case "统计筛选":
                         break;
                     case "技能日记":
-                        if(FormManager.skillDiary == null|| FormManager.skillDiary.IsDisposed)
+                        if (FormManager.skillDiary == null || FormManager.skillDiary.IsDisposed)
                         {
                             FormManager.skillDiary = new SkillDiary();
                         }
@@ -274,9 +261,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break;
                     case "技能循环监测": // 点击“技能循环监测”
                         if (FormManager.skillRotationMonitorForm == null || FormManager.skillRotationMonitorForm.IsDisposed) // 若监测窗体不存在或已释放
-                        { 
+                        {
                             FormManager.skillRotationMonitorForm = new SkillRotationMonitorForm(); // 创建窗口
-                        } 
+                        }
                         FormManager.skillRotationMonitorForm.Show(); // 显示窗口
                         //FormGui.SetColorMode(FormManager.skillRotationMonitorForm, AppConfig.IsLight); // 同步主题（明/暗）
                         break; // 跳出 switch
@@ -285,9 +272,9 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break; // 占位：后续实现
                     case "伤害参考":
                         if (FormManager.rankingsForm == null || FormManager.rankingsForm.IsDisposed) // 若监测窗体不存在或已释放
-                        { 
+                        {
                             FormManager.rankingsForm = new RankingsForm(); // 创建窗口
-                        } 
+                        }
                         FormManager.rankingsForm.Show(); // 显示窗口
                         break;
                     case "统计排除": // 点击“统计排除”
@@ -300,32 +287,32 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break; // 跳出 switch
                 } // switch 结束
             }, menulist); // 打开菜单并传入菜单项
-        } // 方法结束
+        } 
 
         /// <summary>
         /// 打开基础设置面板
         /// </summary>
         private void OpenSettingsDialog() // 打开基础设置窗体
-        { // 方法开始
+        { 
             if (FormManager.settingsForm == null || FormManager.settingsForm.IsDisposed) // 若设置窗体不存在或已释放
-            { 
+            {
                 FormManager.settingsForm = new SettingsForm(); // 创建设置窗体
-            } 
+            }
             FormManager.settingsForm.Show(); // 显示设置窗体（或置顶）
 
-        } // 方法结束
+        } 
 
         // # 按钮提示气泡（置顶）
         private void button_AlwaysOnTop_MouseEnter(object sender, EventArgs e) // 鼠标进入置顶按钮时显示提示
-        { // 方法开始
+        { 
             ToolTip(button_AlwaysOnTop, "置顶窗口"); // 显示“置顶窗口”的气泡提示
 
 
-        } // 方法结束
+        } 
 
         // # 通用提示气泡工具
         private void ToolTip(System.Windows.Forms.Control control, string text) // 通用封装：在指定控件上显示提示文本
-        { // 方法开始
+        { 
 
             AntdUI.TooltipComponent tooltip = new AntdUI.TooltipComponent() // 创建 Tooltip 组件实例
             { // 对象初始化器开始
@@ -333,19 +320,19 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             }; // 对象初始化器结束
             tooltip.ArrowAlign = AntdUI.TAlign.TL; // 设置箭头朝向/对齐方式
             tooltip.SetTip(control, text); // 在目标控件上显示指定文本提示
-        } // 方法结束
+        } 
 
         // # 按钮提示气泡（清空）
         private void button1_MouseEnter(object sender, EventArgs e) // 鼠标进入“清空”按钮时显示提示
-        { // 方法开始
+        { 
             ToolTip(button1, "清空当前数据"); // 显示“清空当前数据”的气泡提示
-        } // 方法结束
+        } 
 
         // # 按钮提示气泡（单次/全程切换）
         private void button3_MouseEnter(object sender, EventArgs e) // 鼠标进入“单次/全程切换”按钮时显示提示
-        { // 方法开始
+        { 
             ToolTip(button3, "点击切换：单次统计/全程统"); // 显示切换提示（原文如此，保留）
-        } // 方法结束
+        } 
 
         // 打桩模式定时逻辑
         private async void timer1_Tick(object sender, EventArgs e)
@@ -426,7 +413,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         // 主题切换
         private void DpsStatisticsForm_ForeColorChanged(object sender, EventArgs e)
         {
-
+            List<Button> buttonList = new List<Button>() { TotalDamageButton, TotalTreatmentButton, AlwaysInjuredButton, NpcTakeDamageButton };
 
             if (Config.IsLight)
             {
@@ -434,18 +421,72 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                 AppConfig.colorText = Color.Black;
                 sortedProgressBarList1.OrderColor = Color.Black;
 
+                TotalDamageButton.Icon =Common.BytesToImage(Properties.Resources.伤害);
+                TotalTreatmentButton.Icon  = Common.BytesToImage(Properties.Resources.治疗);
+                AlwaysInjuredButton.Icon = Common.BytesToImage(Properties.Resources.承伤);
+                NpcTakeDamageButton.Icon = Common.BytesToImage(Properties.Resources.Npc);
+                Color colorWhite = Color.FromArgb(223, 223, 223);
+                foreach (var item in buttonList)
+                {
+                    item.DefaultBack = Color.FromArgb(247, 247, 247);
+                    if (item.Name == "TotalDamageButton"&&FormManager.currentIndex == 0)
+                    {
+                        item.DefaultBack = colorWhite;
+                    }
+                    if(item.Name == "TotalTreatmentButton"&&FormManager.currentIndex == 1)
+                    {
+                        item.DefaultBack = colorWhite;
+                    }
+                    if(item.Name == "AlwaysInjuredButton"&&FormManager.currentIndex == 2)
+                    {
+                        item.DefaultBack = colorWhite;
+                    }
+                    if(item.Name == "NpcTakeDamageButton"&&FormManager.currentIndex == 3)
+                    {
+                        item.DefaultBack = colorWhite;
+                    }
+                   
+                }
+
             }
             else
             {
                 sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#000000");
                 AppConfig.colorText = Color.White;
                 sortedProgressBarList1.OrderColor = Color.White;
+                TotalDamageButton.Icon = Common.BytesToImage(Properties.Resources.伤害白色);
+                TotalTreatmentButton.Icon = Common.BytesToImage(Properties.Resources.治疗白色);
+                AlwaysInjuredButton.Icon = Common.BytesToImage(Properties.Resources.承伤白色);
+                NpcTakeDamageButton.Icon = Common.BytesToImage(Properties.Resources.NpcWhite);
+                Color colorBack = Color.FromArgb(60, 60, 60);
+                foreach (var item in buttonList)
+                {
+                    item.DefaultBack = Color.FromArgb(27, 27, 27);
+                    if (item.Name == "TotalDamageButton" && FormManager.currentIndex == 0)
+                    {
+                        item.DefaultBack = colorBack;
+                    }
+                    if (item.Name == "TotalTreatmentButton" && FormManager.currentIndex == 1)
+                    {
+                        item.DefaultBack = colorBack;
+                    }
+                    if (item.Name == "AlwaysInjuredButton" && FormManager.currentIndex == 2)
+                    {
+                        item.DefaultBack = colorBack;
+                    }
+                    if (item.Name == "NpcTakeDamageButton" && FormManager.currentIndex == 3)
+                    {
+                        item.DefaultBack = colorBack;
+                    }
+                   
+                }
             }
         }
 
         private void SetDefaultFontFromResources()
         {
-            DamageModeLabel.Font = AppConfig.HeaderFont;
+            pageHeader1.Font = AppConfig.SaoFont;
+            pageHeader1.SubFont = AppConfig.ContentFont;
             PilingModeCheckbox.Font = AppConfig.ContentFont;
             label2.Font = label1.Font = AppConfig.ContentFont;
         }
@@ -500,21 +541,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
 
         bool hyaline = false;
-        private void HandleFormTransparency()
-        {
-            if (hyaline)
-            {
-                Opacity = AppConfig.Transparency / 100;
-                hyaline = false;
-                Console.WriteLine($"切换到配置透明度: {AppConfig.Transparency}%)");
-            }
-            else
-            {
-                Opacity = 1.0;
-                hyaline = true;
-                Console.WriteLine($"切换到完全不透明: 100% (Opacity: 1.0)");
-            }
-        }
+
         #endregion
 
 
@@ -526,7 +553,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         private void DpsStatisticsForm_Shown(object sender, EventArgs e)
         {
-          
+
         }
 
         private void EnsureTopMost()
@@ -536,6 +563,65 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             Activate();
             BringToFront();
             button_AlwaysOnTop.Toggle = TopMost; // 同步你的按钮状态
+        }
+
+        private void DamageType_Click(object sender, EventArgs e)
+        {
+            Button button = (Button)sender;
+            List<Button> buttonList = new List<Button>() { TotalDamageButton, TotalTreatmentButton, AlwaysInjuredButton, NpcTakeDamageButton };
+            Color colorBack = Color.FromArgb(60, 60, 60);
+            Color colorWhite = Color.FromArgb(223, 223, 223);
+            foreach (Button btn in buttonList)
+            {
+                if (btn.Name == button.Name)
+                {
+                    if(Config.IsLight)
+                    {
+                        btn.DefaultBack = colorWhite;
+                    }
+                    else
+                    {
+                        btn.DefaultBack = colorBack;
+                    }
+                        
+                }
+                else
+                {
+                    if (Config.IsLight)
+                    {
+                        btn.DefaultBack = Color.FromArgb(247, 247, 247);
+                    }
+                    else
+                    {
+                        btn.DefaultBack = Color.FromArgb(27, 27, 27);
+                    }
+                    
+                }
+                   
+            }
+            
+            switch (button.Name)
+            {
+                //总伤害
+                case "TotalDamageButton":
+                    FormManager.currentIndex = 0;
+                    break;
+                    //总治疗
+                case "TotalTreatmentButton":
+                    FormManager.currentIndex = 1;
+                    break;
+                    //总承伤
+                case "AlwaysInjuredButton":
+                    FormManager.currentIndex = 2;
+                    break;
+                    //NPC承伤
+                case "NpcTakeDamageButton":
+                    FormManager.currentIndex = 3;
+                    break;
+            }
+
+            UpdateHeaderText(); // 刷新顶部文本
+
         }
     }
 }

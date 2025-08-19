@@ -555,7 +555,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             FullRecord.RecordDamage(
                 Uid, skillId, damage, isCrit, isLucky, hpLessen,
                 Nickname, CombatPower, Profession,
-                damageElement, isCauseLucky);
+                damageElement, isCauseLucky, SubProfession);
         }
 
         /// <summary>
@@ -587,7 +587,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             FullRecord.RecordHealing(
                 Uid, skillId, healing, isCrit, isLucky,
                 Nickname, CombatPower, Profession,
-                damageElement, isCauseLucky, targetUuid);
+                damageElement, isCauseLucky, targetUuid, SubProfession);
 
         }
 

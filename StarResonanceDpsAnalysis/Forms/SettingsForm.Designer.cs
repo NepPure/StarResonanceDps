@@ -35,6 +35,8 @@
             panel2 = new AntdUI.Panel();
             label1 = new AntdUI.Label();
             CombatSettingsPanel = new AntdUI.Panel();
+            select2 = new AntdUI.Select();
+            label10 = new AntdUI.Label();
             slider1 = new AntdUI.Slider();
             label9 = new AntdUI.Label();
             inputNumber2 = new AntdUI.InputNumber();
@@ -141,6 +143,8 @@
             CombatSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             CombatSettingsPanel.Back = Color.White;
             CombatSettingsPanel.BackColor = Color.Transparent;
+            CombatSettingsPanel.Controls.Add(select2);
+            CombatSettingsPanel.Controls.Add(label10);
             CombatSettingsPanel.Controls.Add(slider1);
             CombatSettingsPanel.Controls.Add(label9);
             CombatSettingsPanel.Controls.Add(inputNumber2);
@@ -150,20 +154,43 @@
             CombatSettingsPanel.Controls.Add(divider2);
             CombatSettingsPanel.Controls.Add(button3);
             CombatSettingsPanel.Controls.Add(label4);
-            CombatSettingsPanel.Location = new Point(30, 664);
-            CombatSettingsPanel.Margin = new Padding(30);
+            CombatSettingsPanel.Location = new Point(20, 614);
+            CombatSettingsPanel.Margin = new Padding(20);
             CombatSettingsPanel.Name = "CombatSettingsPanel";
-            CombatSettingsPanel.Size = new Size(904, 370);
+            CombatSettingsPanel.Size = new Size(924, 445);
             CombatSettingsPanel.TabIndex = 2;
             CombatSettingsPanel.Text = "panel6";
             // 
+            // select2
+            // 
+            select2.Items.AddRange(new object[] { "KMB显示", "万显示" });
+            select2.List = true;
+            select2.Location = new Point(685, 275);
+            select2.Name = "select2";
+            select2.Radius = 3;
+            select2.SelectedIndex = 0;
+            select2.SelectedValue = "KBM显示";
+            select2.SelectionStart = 5;
+            select2.Size = new Size(207, 68);
+            select2.TabIndex = 51;
+            select2.Text = "KBM显示";
+            // 
+            // label10
+            // 
+            label10.Font = new Font("HarmonyOS Sans SC", 9F);
+            label10.Location = new Point(46, 280);
+            label10.Name = "label10";
+            label10.Size = new Size(234, 58);
+            label10.TabIndex = 50;
+            label10.Text = "DPS统计伤害显示类型";
+            // 
             // slider1
             // 
-            slider1.Location = new Point(173, 288);
+            slider1.Location = new Point(173, 364);
             slider1.MinValue = 10;
             slider1.Name = "slider1";
             slider1.ShowValue = true;
-            slider1.Size = new Size(762, 48);
+            slider1.Size = new Size(719, 48);
             slider1.TabIndex = 48;
             slider1.Text = "slider1";
             slider1.Value = 90;
@@ -172,7 +199,7 @@
             // label9
             // 
             label9.Font = new Font("HarmonyOS Sans SC", 9F);
-            label9.Location = new Point(46, 283);
+            label9.Location = new Point(46, 359);
             label9.Name = "label9";
             label9.Size = new Size(138, 58);
             label9.TabIndex = 49;
@@ -198,7 +225,7 @@
             label8.BackColor = Color.Transparent;
             label8.Font = new Font("HarmonyOS Sans SC", 7F);
             label8.ForeColor = Color.FromArgb(34, 151, 244);
-            label8.Location = new Point(623, 26);
+            label8.Location = new Point(643, 26);
             label8.Name = "label8";
             label8.Size = new Size(249, 31);
             label8.TabIndex = 45;
@@ -218,7 +245,7 @@
             // 
             switch1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             switch1.Checked = true;
-            switch1.Location = new Point(789, 210);
+            switch1.Location = new Point(809, 210);
             switch1.Name = "switch1";
             switch1.Size = new Size(83, 41);
             switch1.TabIndex = 40;
@@ -232,7 +259,7 @@
             divider2.Location = new Point(36, 78);
             divider2.Name = "divider2";
             divider2.OrientationMargin = 0F;
-            divider2.Size = new Size(836, 14);
+            divider2.Size = new Size(856, 14);
             divider2.TabIndex = 37;
             divider2.Text = "";
             // 
@@ -270,10 +297,10 @@
             KeySettingsPanel.Controls.Add(divider1);
             KeySettingsPanel.Controls.Add(button2);
             KeySettingsPanel.Controls.Add(label3);
-            KeySettingsPanel.Location = new Point(30, 301);
-            KeySettingsPanel.Margin = new Padding(30);
+            KeySettingsPanel.Location = new Point(20, 271);
+            KeySettingsPanel.Margin = new Padding(20);
             KeySettingsPanel.Name = "KeySettingsPanel";
-            KeySettingsPanel.Size = new Size(904, 303);
+            KeySettingsPanel.Size = new Size(924, 303);
             KeySettingsPanel.TabIndex = 1;
             KeySettingsPanel.Text = "panel5";
             KeySettingsPanel.Click += KeySettingsPanel_Click;
@@ -284,7 +311,7 @@
             label6.BackColor = Color.Transparent;
             label6.Font = new Font("HarmonyOS Sans SC", 7F);
             label6.ForeColor = Color.FromArgb(34, 151, 244);
-            label6.Location = new Point(674, 26);
+            label6.Location = new Point(694, 26);
             label6.Name = "label6";
             label6.Size = new Size(198, 31);
             label6.TabIndex = 43;
@@ -295,7 +322,7 @@
             // 
             input5.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             input5.Font = new Font("HarmonyOS Sans SC", 9F);
-            input5.Location = new Point(652, 112);
+            input5.Location = new Point(672, 112);
             input5.Name = "input5";
             input5.PrefixText = "清空历史键位：";
             input5.Radius = 3;
@@ -308,7 +335,7 @@
             // 
             input4.Anchor = AnchorStyles.Top;
             input4.Font = new Font("HarmonyOS Sans SC", 9F);
-            input4.Location = new Point(341, 112);
+            input4.Location = new Point(351, 112);
             input4.Name = "input4";
             input4.PrefixText = "清空数据键位：";
             input4.Radius = 3;
@@ -362,7 +389,7 @@
             divider1.Location = new Point(36, 78);
             divider1.Name = "divider1";
             divider1.OrientationMargin = 0F;
-            divider1.Size = new Size(836, 14);
+            divider1.Size = new Size(856, 14);
             divider1.TabIndex = 37;
             divider1.Text = "";
             // 
@@ -396,10 +423,10 @@
             BasicSetupPanel.Controls.Add(divider3);
             BasicSetupPanel.Controls.Add(button1);
             BasicSetupPanel.Controls.Add(label2);
-            BasicSetupPanel.Location = new Point(30, 30);
-            BasicSetupPanel.Margin = new Padding(30);
+            BasicSetupPanel.Location = new Point(20, 20);
+            BasicSetupPanel.Margin = new Padding(20);
             BasicSetupPanel.Name = "BasicSetupPanel";
-            BasicSetupPanel.Size = new Size(904, 211);
+            BasicSetupPanel.Size = new Size(924, 211);
             BasicSetupPanel.TabIndex = 0;
             BasicSetupPanel.Text = "panel4";
             // 
@@ -409,7 +436,7 @@
             label7.BackColor = Color.Transparent;
             label7.Font = new Font("HarmonyOS Sans SC", 7F);
             label7.ForeColor = Color.FromArgb(34, 151, 244);
-            label7.Location = new Point(674, 26);
+            label7.Location = new Point(694, 26);
             label7.Name = "label7";
             label7.Size = new Size(198, 31);
             label7.TabIndex = 44;
@@ -425,7 +452,7 @@
             InterfaceComboBox.Name = "InterfaceComboBox";
             InterfaceComboBox.PrefixText = "请选择网卡：";
             InterfaceComboBox.Radius = 3;
-            InterfaceComboBox.Size = new Size(836, 56);
+            InterfaceComboBox.Size = new Size(856, 56);
             InterfaceComboBox.TabIndex = 38;
             InterfaceComboBox.SelectedIndexChanged += InterfaceComboBox_SelectedIndexChanged;
             // 
@@ -436,7 +463,7 @@
             divider3.Location = new Point(36, 78);
             divider3.Name = "divider3";
             divider3.OrientationMargin = 0F;
-            divider3.Size = new Size(836, 14);
+            divider3.Size = new Size(856, 14);
             divider3.TabIndex = 37;
             divider3.Text = "";
             // 
@@ -524,7 +551,7 @@
             stackPanel1.Controls.Add(BasicSetupPanel);
             stackPanel1.Dock = DockStyle.Fill;
             stackPanel1.Location = new Point(10, 89);
-            stackPanel1.Margin = new Padding(20);
+            stackPanel1.Margin = new Padding(10);
             stackPanel1.Name = "stackPanel1";
             stackPanel1.Size = new Size(964, 1108);
             stackPanel1.TabIndex = 3;
@@ -597,5 +624,7 @@
         private AntdUI.Label label9;
         private AntdUI.Slider slider1;
         private AntdUI.StackPanel stackPanel1;
+        private AntdUI.Label label10;
+        private AntdUI.Select select2;
     }
 }

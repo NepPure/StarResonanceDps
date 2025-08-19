@@ -33,6 +33,12 @@ namespace StarResonanceDpsAnalysis.Plugin
             get => HandledResources.GetHarmonyOS_SansFont(9);
         }
 
+        public static Font SaoFont
+        {
+            get => HandledResources.GetSAOWelcomeTTFont(10);
+        }
+
+
         /// <summary>
         /// 标题SAO
         /// </summary>
@@ -47,6 +53,11 @@ namespace StarResonanceDpsAnalysis.Plugin
         public static Font HeaderFont
         {
             get => HandledResources.GetAliMaMaShuHeiTiFont(10);
+        }
+
+        public static Font BoldHarmonyFont
+        {
+            get => HandledResources.GetHarmonyOS_SansBoldFont(9);
         }
 
         /// <summary>
@@ -120,13 +131,13 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <summary>
         /// DPS伤害类型显示
         /// </summary>
-        public static string DamageDisplayType1
+        public static string DamageDisplayType
         {
             get
             {
                 if(_damageDisplayType == null)
                 {
-                    var value = GetValue("SetUp", "DamageDisplayType1", "专业");
+                    var value = GetValue("SetUp", "DamageDisplayType1", "KMB显示");
                     _damageDisplayType = value;
                 }
                 return _damageDisplayType;

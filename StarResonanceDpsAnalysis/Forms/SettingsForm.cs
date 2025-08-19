@@ -5,6 +5,7 @@ using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 using StarResonanceDpsAnalysis.Properties;
 using System.Runtime.InteropServices;
+using static System.ComponentModel.Design.ObjectSelectorEditor;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -18,6 +19,7 @@ namespace StarResonanceDpsAnalysis.Forms
             SetDefaultFontFromResources();
             FormGui.SetDefaultGUI(this);
             switch1.Checked = AppConfig.ClearPicture == 1;
+            select2.SelectedValue = AppConfig.DamageDisplayType;
             LoadDevices();
 
 
@@ -33,7 +35,7 @@ namespace StarResonanceDpsAnalysis.Forms
             label6.Font = label7.Font = label8.Font = harmonyOsSansFont;
 
             InterfaceComboBox.Font = AppConfig.ContentFont;
-            label9.Font = input1.Font = input2.Font = input3.Font = input4.Font = input5.Font = inputNumber2 .Font = label5 .Font= AppConfig.ContentFont;
+            select2.Font = label10.Font = label9.Font = input1.Font = input2.Font = input3.Font = input4.Font = input5.Font = inputNumber2 .Font = label5 .Font= AppConfig.ContentFont;
         }
         private void SettingsForm_Load(object sender, EventArgs e)
         {
@@ -149,11 +151,12 @@ namespace StarResonanceDpsAnalysis.Forms
             // 保存到配置
             AppConfig.Transparency = slider1.Value;
             AppConfig.CombatTimeClearDelaySeconds = (int)inputNumber2.Value;
-
-
-            FormManager.dpsStatistics.StopCapture();//关闭
-            Task.Delay(1000); //等待1秒
-            FormManager.dpsStatistics.StartCapture(); //开启
+            AppConfig.DamageDisplayType = select2.SelectedValue.ToString();
+           
+            //if()
+            //FormManager.dpsStatistics.StopCapture();//关闭
+            //Task.Delay(1000); //等待1秒
+            //FormManager.dpsStatistics.StartCapture(); //开启
 
             this.Close();
         }

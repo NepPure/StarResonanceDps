@@ -263,4 +263,31 @@
     <value>..\Assets\ApplicationIcon.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     <comment>应用程序图标PNG原图</comment>
   </data>
+  <data name="HarmonyOS_Sans_SC_Bold" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\HarmonyOS_Sans_SC_Bold.ttf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Npc" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\NPC.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="NpcWhite" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\NpcWhite.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="承伤" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\承伤.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="承伤白色" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\承伤白色.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="伤害" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\伤害.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="伤害白色" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\伤害白色.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="治疗" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\治疗.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="治疗白色" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\治疗白色.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

@@ -169,6 +169,16 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] HarmonyOS_Sans_SC_Bold {
+            get {
+                object obj = ResourceManager.GetObject("HarmonyOS_Sans_SC_Bold", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 &lt;svg t=&quot;1755131064483&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;11454&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M512.5 98.29c-227.84 0-412.54 184.7-412.54 412.54s184.7 412.54 412.54 412.54 412.54-184.7 412.54-412.54S740.34 98.29 512.5 98.29z m249.28 661.82c-32.4 32.4-70.1 57.82-112.08 75.58-43.42 18.37-89.59 27.68-137.21 27.68-47.62 0-93.78-9.31-137.2-27.68-41.97-17.75-79.68-43.18-112.08-75.58-32.4-32.4-57.82-70.1-75.58-112.08-18.37-43.42-27.68-89.59-27.68-137.21  [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string historicalRecords {
@@ -223,6 +233,26 @@ namespace StarResonanceDpsAnalysis.Properties {
             get {
                 object obj = ResourceManager.GetObject("minimize_normal", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] Npc {
+            get {
+                object obj = ResourceManager.GetObject("Npc", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] NpcWhite {
+            get {
+                object obj = ResourceManager.GetObject("NpcWhite", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
@@ -364,6 +394,26 @@ namespace StarResonanceDpsAnalysis.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
+        internal static byte[] 伤害 {
+            get {
+                object obj = ResourceManager.GetObject("伤害", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 伤害白色 {
+            get {
+                object obj = ResourceManager.GetObject("伤害白色", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
         internal static byte[] 冰魔导师 {
             get {
                 object obj = ResourceManager.GetObject("冰魔导师", resourceCulture);
@@ -404,6 +454,26 @@ namespace StarResonanceDpsAnalysis.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
+        internal static byte[] 承伤 {
+            get {
+                object obj = ResourceManager.GetObject("承伤", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 承伤白色 {
+            get {
+                object obj = ResourceManager.GetObject("承伤白色", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
         internal static byte[] 森语者 {
             get {
                 object obj = ResourceManager.GetObject("森语者", resourceCulture);
@@ -417,6 +487,26 @@ namespace StarResonanceDpsAnalysis.Properties {
         internal static byte[] 森语者10 {
             get {
                 object obj = ResourceManager.GetObject("森语者10", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 治疗 {
+            get {
+                object obj = ResourceManager.GetObject("治疗", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
+        internal static byte[] 治疗白色 {
+            get {
+                object obj = ResourceManager.GetObject("治疗白色", resourceCulture);
                 return ((byte[])(obj));
             }
         }

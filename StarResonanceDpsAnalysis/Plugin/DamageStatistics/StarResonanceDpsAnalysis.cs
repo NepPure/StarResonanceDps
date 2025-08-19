@@ -319,6 +319,7 @@
                 string Nickname,
                 int CombatPower,
                 string Profession,
+                string SubProfession,
                 ulong TotalDamage,
                 ulong TotalHealing,
                 ulong TakenDamage,
@@ -502,6 +503,7 @@
                     Uid: p.Uid,
                     Nickname: p.Nickname,
                     CombatPower: p.CombatPower,
+                    SubProfession: p.SubProfession,
                     Profession: p.Profession,
                     TotalDamage: p.TotalDamage,
                     TotalHealing: p.TotalHealing,
@@ -609,11 +611,11 @@
         public static void RecordDamage(
             ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
             string nickname, int combatPower, string profession,
-            string? damageElement = null, bool isCauseLucky = false // ★ 新增
+            string? damageElement = null, bool isCauseLucky = false,string subProfession=null // ★ 新增
         )
         {
             if (!IsRecording || value == 0) return;
-            var p = GetOrCreate(uid, nickname, combatPower, profession);
+            var p = GetOrCreate(uid, nickname, combatPower, profession, subProfession);
 
             // ① 顶层聚合：带 isCauseLucky
             Accumulate(p.Damage, value, isCrit, isLucky, hpLessen, isCauseLucky);
@@ -648,12 +650,12 @@
         public static void RecordHealing(
             ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky,
             string nickname, int combatPower, string profession,
-            string? damageElement = null, bool isCauseLucky = false, ulong targetUuid = 0 // ★ 新增
+            string? damageElement = null, bool isCauseLucky = false, ulong targetUuid = 0,string subProfession=null // ★ 新增
         )
 
         {
             if (!IsRecording || value == 0) return;
-            var p = GetOrCreate(uid, nickname, combatPower, profession);
+            var p = GetOrCreate(uid, nickname, combatPower, profession, subProfession);
 
             // 顶层
             Accumulate(p.Healing, value, isCrit, isLucky, 0, isCauseLucky);
@@ -855,6 +857,7 @@
                     Nickname = p.Nickname,
                     CombatPower = p.CombatPower,
                     Profession = p.Profession,
+                    SubProfession = p.SubProfession,
 
                     // 顶层聚合
                     TotalDamage = p.Damage.Total,
@@ -1037,7 +1040,7 @@
         /// <summary>
         /// 获取或创建玩家累计器，并同步基础信息（昵称/战力/职业以最近一次为准）。
         /// </summary>
-        private static PlayerAcc GetOrCreate(ulong uid, string nickname, int combatPower, string profession)
+        private static PlayerAcc GetOrCreate(ulong uid, string nickname, int combatPower, string profession,string subProfession = null)
         {
             if (!_players.TryGetValue(uid, out var p))
             {
@@ -1048,6 +1051,12 @@
             p.Nickname = nickname;
             p.CombatPower = combatPower;
             p.Profession = profession;
+            if(subProfession!=null)
+            {
+                p.SubProfession = subProfession;
+
+            }
+          
             return p;
         }
 
@@ -1146,7 +1155,7 @@
             public string Nickname { get; set; } = "未知";
             public int CombatPower { get; set; }
             public string Profession { get; set; } = "未知";
-
+            public string? SubProfession { get; set; }//子职业
             public StatAcc Damage { get; } = new();
             public StatAcc Healing { get; } = new();
             public ulong TakenDamage { get; set; }

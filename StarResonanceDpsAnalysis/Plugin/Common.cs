@@ -502,14 +502,38 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// <returns></returns>
         public static string FormatWithEnglishUnits<T>(T number)
         {
-            double value = Convert.ToDouble(number);
+            if(AppConfig.DamageDisplayType== "KMB显示")
+            {
+                double value = Convert.ToDouble(number);
 
-            if (value < 10_000) // 小于一万直接原样（带千分位可改 ToString("N0")）
-                return value % 1 == 0 ? ((long)value).ToString() : value.ToString("0.##");
-            
-            if (value >= 1_000_000_000) return (value / 1_000_000_000.0).ToString("0.##") + "B";
-            if (value >= 1_000_000) return (value / 1_000_000.0).ToString("0.##") + "M";
-            return (value / 1_000.0).ToString("0.##") + "K";
+                if (value < 10_000) // 小于一万直接原样（带千分位可改 ToString("N0")）
+                    return value % 1 == 0 ? ((long)value).ToString() : value.ToString("0.##");
+
+                if (value >= 1_000_000_000) return (value / 1_000_000_000.0).ToString("0.##") + "B";
+                if (value >= 1_000_000) return (value / 1_000_000.0).ToString("0.##") + "M";
+                return (value / 1_000.0).ToString("0.##") + "K";
+            }
+            else
+            {
+              return  FormatWithWanOnly(number);
+            }
+         
+        }
+
+        public static string FormatWithWanOnly<T>(T number, int maxDecimals = 2)
+        {
+            decimal v = Convert.ToDecimal(number);
+            bool neg = v < 0;
+            decimal abs = Math.Abs(v);
+
+            string fmt(decimal x)
+            {
+                if (x == decimal.Truncate(x)) return decimal.Truncate(x).ToString();
+                return x.ToString("0." + new string('#', Math.Max(0, maxDecimals)));
+            }
+
+            string core = abs < 10_000m ? fmt(abs) : fmt(abs / 10_000m) + "万";
+            return neg ? "-" + core : core;
         }
 
         /// <summary>
@@ -554,8 +578,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 ? snapshot.Duration.ToString(@"hh\:mm\:ss")
                 : snapshot.Duration.ToString(@"mm\:ss");
 
-            // 6) 战斗 ID（你原先是现生成）
-            string battleId = GenerateToken();
+    
 
             // 7) 技能列表（快照里的伤害技能汇总）
             List<SkillSummary> kill = sp.DamageSkills ?? new List<SkillSummary>();
@@ -577,7 +600,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                 critLuckyDamage,
                 maxInstantDps,
                 battleTime = duration,
-                battleId,
+                battleId= AppConfig.Uid,
                 kill,
                 subProfession= subProfession
             };
@@ -593,7 +616,12 @@ namespace StarResonanceDpsAnalysis.Plugin
         }
 
 
-
+        public static Image BytesToImage(byte[] bytes)
+        {
+            using var ms = new MemoryStream(bytes);
+            using var img = Image.FromStream(ms); // 读到 GDI+ 对象
+            return new Bitmap(img);               // 克隆一份，避免依赖流生命周期
+        }
 
     }
 

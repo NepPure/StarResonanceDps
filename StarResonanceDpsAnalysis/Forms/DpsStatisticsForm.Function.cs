@@ -307,8 +307,8 @@ namespace StarResonanceDpsAnalysis.Forms
             // # 启动与初始化事件：界面样式与渲染设置（仅 UI 外观，不涉及数据）
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
-            sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
-
+            sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}.";
+            
             if (Config.IsLight)
             {
                 sortedProgressBarList1.OrderColor = Color.Black;
@@ -318,7 +318,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 sortedProgressBarList1.OrderColor = Color.White;
             }
 
-            sortedProgressBarList1.OrderFont = AppConfig.DigitalFont;
+            sortedProgressBarList1.OrderFont = AppConfig.SaoFont;
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
             sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
@@ -566,9 +566,9 @@ namespace StarResonanceDpsAnalysis.Forms
                     {
                         row = [
                             new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 35, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(25, 25) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 65, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 65, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
                         ];
                         DictList[p.Uid] = row;
                     }
@@ -576,14 +576,9 @@ namespace StarResonanceDpsAnalysis.Forms
                     string share = $"{Math.Round(p.Total / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
                     row[0].Image = profBmp;
                     // 只要子流派；没有子流派就用战力；否则只显示昵称
-                    string tag = (!string.IsNullOrWhiteSpace(p.SubProfession) && p.SubProfession != "未知")
-         ? p.SubProfession
-         : (p.CombatPower > 0 ? p.CombatPower.ToString() : "");
 
 
-                    row[1].Text = string.IsNullOrEmpty(tag)
-                        ? p.Nickname
-                        : $"{p.Nickname}({tag})";
+                    row[1].Text = $"{p.Nickname}-{p.SubProfession}({p.CombatPower})";
 
                     row[2].Text = $"{totalFmt}({perSec})";
                     row[3].Text = share;
@@ -723,6 +718,7 @@ namespace StarResonanceDpsAnalysis.Forms
                         Nickname = p.Nickname,
                         CombatPower = p.CombatPower,
                         Profession = p.Profession,
+                        SubProfession = p.SubProfession ?? "",
                         Total = total,
                         PerSecond = ps
                     };

@@ -16,6 +16,11 @@ namespace StarResonanceDpsAnalysis.Properties
         {
             return FontLoader.LoadFontFromBytesAndCache(HARMONY_OS_SANS_FONT_KEY, Resources.HarmonyOS_Sans, fontSize, fontStyle);
         }
+        public static Font GetHarmonyOS_SansBoldFont(float fontSize = 9, FontStyle fontStyle = FontStyle.Bold)
+        {
+            return FontLoader.LoadFontFromBytesAndCache(HARMONY_OS_SANS_FONT_KEY, Resources.HarmonyOS_Sans_SC_Bold, fontSize, fontStyle);
+        }
+
         public static Font GetAliMaMaShuHeiTiFont(float fontSize = 9, FontStyle fontStyle = FontStyle.Regular)
         {
             return FontLoader.LoadFontFromBytesAndCache(ALIMAMASHUHEITI_FONT_KEY, Resources.AlimamaShuHeiTi, fontSize, fontStyle);
