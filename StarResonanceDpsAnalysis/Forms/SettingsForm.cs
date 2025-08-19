@@ -1,6 +1,7 @@
 ﻿using AntdUI;
 using DocumentFormat.OpenXml.Math;
 using StarResonanceDpsAnalysis.Effects;
+using StarResonanceDpsAnalysis.Forms.PopUp;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 using StarResonanceDpsAnalysis.Properties;
@@ -140,6 +141,23 @@ namespace StarResonanceDpsAnalysis.Forms
                 catch (Exception ex)
                 {
                     Console.WriteLine($"更新MainForm网卡设置提示时出错: {ex.Message}");
+                }
+
+                var result = AppMessageBox.ShowMessage("""
+                    您已更改网卡设置。
+
+                    请注意，修改网卡后需要重新启动应用程序以使更改生效。
+                    是否立刻重新启动应用程序？
+                    """, this);
+                if (result == DialogResult.OK)
+                {
+                    // 重新启动应用程序
+                    Application.Restart();
+                    Environment.Exit(0); // 确保退出当前进程
+                }
+                else
+                {
+                    AppMessageBox.ShowMessage("您的网卡设置将在下次启动应用时生效。", this);
                 }
             }
         }
