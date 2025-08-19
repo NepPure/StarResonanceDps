@@ -86,7 +86,7 @@
             pageHeader1.MaximizeBox = false;
             pageHeader1.Mode = AntdUI.TAMode.Dark;
             pageHeader1.Name = "pageHeader1";
-            pageHeader1.Size = new Size(1064, 38);
+            pageHeader1.Size = new Size(974, 38);
             pageHeader1.TabIndex = 29;
             pageHeader1.Text = "";
             // 
@@ -98,7 +98,7 @@
             TitleText.Font = new Font("SAO Welcome TT", 12F, FontStyle.Bold);
             TitleText.Location = new Point(0, 0);
             TitleText.Name = "TitleText";
-            TitleText.Size = new Size(1064, 38);
+            TitleText.Size = new Size(974, 38);
             TitleText.TabIndex = 27;
             TitleText.Text = "BasicSetup";
             TitleText.TextAlign = ContentAlignment.MiddleCenter;
@@ -109,7 +109,7 @@
             panel1.Dock = DockStyle.Left;
             panel1.Location = new Point(0, 38);
             panel1.Name = "panel1";
-            panel1.Size = new Size(10, 1184);
+            panel1.Size = new Size(10, 1239);
             panel1.TabIndex = 30;
             panel1.Text = "panel1";
             // 
@@ -121,7 +121,7 @@
             panel2.Location = new Point(10, 38);
             panel2.Name = "panel2";
             panel2.Radius = 0;
-            panel2.Size = new Size(1054, 51);
+            panel2.Size = new Size(964, 51);
             panel2.TabIndex = 31;
             panel2.Text = "panel2";
             // 
@@ -153,7 +153,7 @@
             CombatSettingsPanel.Location = new Point(30, 664);
             CombatSettingsPanel.Margin = new Padding(30);
             CombatSettingsPanel.Name = "CombatSettingsPanel";
-            CombatSettingsPanel.Size = new Size(994, 370);
+            CombatSettingsPanel.Size = new Size(904, 370);
             CombatSettingsPanel.TabIndex = 2;
             CombatSettingsPanel.Text = "panel6";
             // 
@@ -198,7 +198,7 @@
             label8.BackColor = Color.Transparent;
             label8.Font = new Font("HarmonyOS Sans SC", 7F);
             label8.ForeColor = Color.FromArgb(34, 151, 244);
-            label8.Location = new Point(713, 26);
+            label8.Location = new Point(623, 26);
             label8.Name = "label8";
             label8.Size = new Size(249, 31);
             label8.TabIndex = 45;
@@ -218,7 +218,7 @@
             // 
             switch1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             switch1.Checked = true;
-            switch1.Location = new Point(879, 210);
+            switch1.Location = new Point(789, 210);
             switch1.Name = "switch1";
             switch1.Size = new Size(83, 41);
             switch1.TabIndex = 40;
@@ -232,7 +232,7 @@
             divider2.Location = new Point(36, 78);
             divider2.Name = "divider2";
             divider2.OrientationMargin = 0F;
-            divider2.Size = new Size(926, 14);
+            divider2.Size = new Size(836, 14);
             divider2.TabIndex = 37;
             divider2.Text = "";
             // 
@@ -273,7 +273,7 @@
             KeySettingsPanel.Location = new Point(30, 301);
             KeySettingsPanel.Margin = new Padding(30);
             KeySettingsPanel.Name = "KeySettingsPanel";
-            KeySettingsPanel.Size = new Size(994, 303);
+            KeySettingsPanel.Size = new Size(904, 303);
             KeySettingsPanel.TabIndex = 1;
             KeySettingsPanel.Text = "panel5";
             KeySettingsPanel.Click += KeySettingsPanel_Click;
@@ -284,7 +284,7 @@
             label6.BackColor = Color.Transparent;
             label6.Font = new Font("HarmonyOS Sans SC", 7F);
             label6.ForeColor = Color.FromArgb(34, 151, 244);
-            label6.Location = new Point(764, 26);
+            label6.Location = new Point(674, 26);
             label6.Name = "label6";
             label6.Size = new Size(198, 31);
             label6.TabIndex = 43;
@@ -295,7 +295,7 @@
             // 
             input5.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             input5.Font = new Font("HarmonyOS Sans SC", 9F);
-            input5.Location = new Point(742, 112);
+            input5.Location = new Point(652, 112);
             input5.Name = "input5";
             input5.PrefixText = "清空历史键位：";
             input5.Radius = 3;
@@ -308,7 +308,7 @@
             // 
             input4.Anchor = AnchorStyles.Top;
             input4.Font = new Font("HarmonyOS Sans SC", 9F);
-            input4.Location = new Point(386, 112);
+            input4.Location = new Point(341, 112);
             input4.Name = "input4";
             input4.PrefixText = "清空数据键位：";
             input4.Radius = 3;
@@ -320,7 +320,7 @@
             // input3
             // 
             input3.Font = new Font("HarmonyOS Sans SC", 9F);
-            input3.Location = new Point(468, 198);
+            input3.Location = new Point(36, 200);
             input3.Name = "input3";
             input3.PrefixText = "开关键位：";
             input3.Radius = 3;
@@ -333,7 +333,7 @@
             // input2
             // 
             input2.Font = new Font("HarmonyOS Sans SC", 9F);
-            input2.Location = new Point(713, 198);
+            input2.Location = new Point(281, 200);
             input2.Name = "input2";
             input2.PrefixText = "窗体透明键位：";
             input2.Radius = 3;
@@ -362,7 +362,7 @@
             divider1.Location = new Point(36, 78);
             divider1.Name = "divider1";
             divider1.OrientationMargin = 0F;
-            divider1.Size = new Size(926, 14);
+            divider1.Size = new Size(836, 14);
             divider1.TabIndex = 37;
             divider1.Text = "";
             // 
@@ -399,7 +399,7 @@
             BasicSetupPanel.Location = new Point(30, 30);
             BasicSetupPanel.Margin = new Padding(30);
             BasicSetupPanel.Name = "BasicSetupPanel";
-            BasicSetupPanel.Size = new Size(994, 211);
+            BasicSetupPanel.Size = new Size(904, 211);
             BasicSetupPanel.TabIndex = 0;
             BasicSetupPanel.Text = "panel4";
             // 
@@ -409,7 +409,7 @@
             label7.BackColor = Color.Transparent;
             label7.Font = new Font("HarmonyOS Sans SC", 7F);
             label7.ForeColor = Color.FromArgb(34, 151, 244);
-            label7.Location = new Point(764, 26);
+            label7.Location = new Point(674, 26);
             label7.Name = "label7";
             label7.Size = new Size(198, 31);
             label7.TabIndex = 44;
@@ -425,7 +425,7 @@
             InterfaceComboBox.Name = "InterfaceComboBox";
             InterfaceComboBox.PrefixText = "请选择网卡：";
             InterfaceComboBox.Radius = 3;
-            InterfaceComboBox.Size = new Size(926, 56);
+            InterfaceComboBox.Size = new Size(836, 56);
             InterfaceComboBox.TabIndex = 38;
             InterfaceComboBox.SelectedIndexChanged += InterfaceComboBox_SelectedIndexChanged;
             // 
@@ -436,7 +436,7 @@
             divider3.Location = new Point(36, 78);
             divider3.Name = "divider3";
             divider3.OrientationMargin = 0F;
-            divider3.Size = new Size(926, 14);
+            divider3.Size = new Size(836, 14);
             divider3.TabIndex = 37;
             divider3.Text = "";
             // 
@@ -466,12 +466,12 @@
             panel7.Controls.Add(button4);
             panel7.Controls.Add(SaveButton);
             panel7.Dock = DockStyle.Bottom;
-            panel7.Location = new Point(10, 1142);
+            panel7.Location = new Point(10, 1197);
             panel7.Name = "panel7";
             panel7.Radius = 3;
             panel7.Shadow = 6;
             panel7.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel7.Size = new Size(1054, 80);
+            panel7.Size = new Size(964, 80);
             panel7.TabIndex = 31;
             panel7.Text = "panel7";
             // 
@@ -480,7 +480,7 @@
             select1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             select1.DropDownTextAlign = AntdUI.TAlign.Top;
             select1.List = true;
-            select1.Location = new Point(2577, 107);
+            select1.Location = new Point(2487, 107);
             select1.Name = "select1";
             select1.Placement = AntdUI.TAlignFrom.Top;
             select1.Radius = 3;
@@ -495,7 +495,7 @@
             button4.IconHover = Properties.Resources.cancel_hover;
             button4.IconPosition = AntdUI.TAlignMini.None;
             button4.IconRatio = 1.3F;
-            button4.Location = new Point(579, 20);
+            button4.Location = new Point(534, 20);
             button4.Name = "button4";
             button4.Size = new Size(57, 49);
             button4.TabIndex = 1;
@@ -509,7 +509,7 @@
             SaveButton.IconHover = Properties.Resources.ok_hover;
             SaveButton.IconPosition = AntdUI.TAlignMini.None;
             SaveButton.IconRatio = 1.3F;
-            SaveButton.Location = new Point(416, 20);
+            SaveButton.Location = new Point(371, 20);
             SaveButton.Name = "SaveButton";
             SaveButton.Size = new Size(57, 49);
             SaveButton.TabIndex = 0;
@@ -526,7 +526,7 @@
             stackPanel1.Location = new Point(10, 89);
             stackPanel1.Margin = new Padding(20);
             stackPanel1.Name = "stackPanel1";
-            stackPanel1.Size = new Size(1054, 1053);
+            stackPanel1.Size = new Size(964, 1108);
             stackPanel1.TabIndex = 3;
             stackPanel1.Text = "stackPanel1";
             stackPanel1.Vertical = true;
@@ -536,7 +536,7 @@
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1064, 1222);
+            ClientSize = new Size(974, 1277);
             Controls.Add(stackPanel1);
             Controls.Add(panel7);
             Controls.Add(panel2);
