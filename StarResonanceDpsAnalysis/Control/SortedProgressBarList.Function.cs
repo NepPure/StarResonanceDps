@@ -101,7 +101,7 @@ namespace StarResonanceDpsAnalysis.Control
                         ? null
                         : OrderCallback(data.ToIndex + 1);
 
-                    _progressBarPrivateData.OrderImage = OrderImages == null || data.ToIndex >= OrderImages.Count
+                    _progressBarPrivateData.OrderImage = OrderImages == null || data.ToIndex < 0 || data.ToIndex >= OrderImages.Count
                         ? null
                         : OrderImages[data.ToIndex];
                     _progressBarPrivateData.OrderImageRenderSize =
