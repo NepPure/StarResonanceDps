@@ -1,4 +1,10 @@
-﻿using AntdUI; // 引用 AntdUI 组件库（第三方 UI 控件/样式）
+﻿using System;
+using System.Drawing;
+using System.Security.Cryptography.Xml;
+using System.Threading.Tasks; // 引用异步任务支持（Task/async/await）
+using System.Windows.Forms;
+
+using AntdUI; // 引用 AntdUI 组件库（第三方 UI 控件/样式）
 using StarResonanceDpsAnalysis.Control; // 引用项目内的 UI 控制/辅助类命名空间
 using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Forms.PopUp; // 引用弹窗相关窗体/组件命名空间
@@ -6,13 +12,12 @@ using StarResonanceDpsAnalysis.Plugin; // 引用项目插件层通用命名空�
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics; // 引用伤害统计插件命名空间（含 FullRecord、StatisticData 等）
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction; // 引用启动相关功能（加载技能配置等）
 using StarResonanceDpsAnalysis.Properties; // 引用资源（图标/本地化字符串等）
-using System.Threading.Tasks; // 引用异步任务支持（Task/async/await）
-using System;
-using System.Drawing;
-using System.Windows.Forms;
+
 using static StarResonanceDpsAnalysis.Control.SkillDetailForm;
 using System.Security.Cryptography.Xml;
 using Button = AntdUI.Button;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using Color = System.Drawing.Color;
 
 namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代码所在位置
 { // 命名空间开始
@@ -43,20 +48,21 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
             //ApplyResolutionScale(); // 可选：根据屏幕分辨率对整体界面进行缩放（当前禁用，仅保留调用）
 
+            // 从资源文件设置字体
             SetDefaultFontFromResources();
 
-            //加载钩子
+            // 加载钩子
             RegisterKeyboardHook(); // 安装键盘钩子，用于全局热键监听与处理
 
-            //先加载基础配置
+            // 首次启动时初始化基础配置
             InitTableColumnsConfigAtFirstRun(); // 首次运行初始化表格列配置（列宽/显示项等）
 
-            //加载网卡
+            // 加载网卡
             LoadNetworkDevices(); // 加载/枚举网络设备（抓包设备列表）
 
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色 // 根据配置设置窗体的颜色主题（明亮/深色）
 
-            //加载技能配置
+            // 加载技能配置
             StartupInitializer.LoadFromEmbeddedSkillConfig(); // 从内置资源读取并加载技能数据（元数据/图标/映射）
             sortedProgressBarList1.SelectionChanged += (s, i, d) => // 订阅进度条列表的选择变化事件（点击条目）
             { // 事件处理开始
@@ -97,38 +103,44 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
             StartCapture(); // 启动网络抓包/数据采集（核心运行入口之一）
 
+            // 重置为上次关闭前的位置与大小
+            SetStartupPositionAndSize();
+
             EnsureTopMost();
         } 
 
         // # 列表选择变更 → 打开技能详情
         private void sortedProgressBarList_SelectionChanged(ulong uid) // 列表项选择回调：传入选中玩家 UID
-        {  
+        {
+            // 如果当前是“NPC承伤”视图：点击 NPC 行切换到“打这个NPC的玩家排名”
+            if (FormManager.currentIndex == 3)
+            {
+                // 全程显示：直接刷新为该NPC的攻击者榜
+                _npcDetailMode = true;
+                _npcFocusId = uid;
+
+                // 立刻刷新该 NPC 的攻击者榜（当前/全程均已在方法内部自动分流）
+                RefreshNpcAttackers(_npcFocusId);
+                // 可选：更新标题
+                pageHeader1.SubText = FormManager.showTotal ? $"全程 · NPC攻击者榜 (NPC:{uid})" : $"当前 · NPC攻击者榜 (NPC:{uid})";
+                return;
+            }
+
+            // ……下面是你原来的玩家技能详情逻辑……
             if (FormManager.skillDetailForm == null || FormManager.skillDetailForm.IsDisposed)
-            {
-                FormManager.skillDetailForm = new SkillDetailForm(); // # 详情窗体：延迟创建
-            }
-            SkillTableDatas.SkillTable.Clear(); // # 清空旧详情数据（表格数据源重置）
+                FormManager.skillDetailForm = new SkillDetailForm();
 
-            // 基础信息
-            FormManager.skillDetailForm.Uid = uid; // 将当前选中 UID 传递给详情窗体
-            var info = StatisticData._manager.GetPlayerBasicInfo(uid); // # 查询玩家基础信息（昵称/战力/职业）
-            FormManager.skillDetailForm.GetPlayerInfo(info.Nickname, info.CombatPower, info.Profession); // 将基础信息写入详情窗体
+            SkillTableDatas.SkillTable.Clear();
 
-            // ★ 关键：根据当前视图显式设定数据上下文，清掉快照时间，避免残留
-            if (FormManager.showTotal) // 你全程视图的全局开关；如果有自己的判定就换成你的
-            {
-                FormManager.skillDetailForm.ContextType = DetailContextType.FullRecord; // 全程
-                FormManager.skillDetailForm.SnapshotStartTime = null;
-            }
-            else
-            {
-                FormManager.skillDetailForm.ContextType = DetailContextType.Current;    // 单程（当前战斗）
-                FormManager.skillDetailForm.SnapshotStartTime = null;
-            }
+            FormManager.skillDetailForm.Uid = uid;
+            var info = StatisticData._manager.GetPlayerBasicInfo(uid);
+            FormManager.skillDetailForm.GetPlayerInfo(info.Nickname, info.CombatPower, info.Profession);
 
-            // 刷新 & 显示
-            FormManager.skillDetailForm.SelectDataType(); // # 按当前选择的“伤害/治疗/承伤”类型刷新详情
-            if (!FormManager.skillDetailForm.Visible) FormManager.skillDetailForm.Show(); else FormManager.skillDetailForm.Activate(); // # 显示/置顶
+            if (FormManager.showTotal) { FormManager.skillDetailForm.ContextType = DetailContextType.FullRecord; FormManager.skillDetailForm.SnapshotStartTime = null; }
+            else { FormManager.skillDetailForm.ContextType = DetailContextType.Current; FormManager.skillDetailForm.SnapshotStartTime = null; }
+
+            FormManager.skillDetailForm.SelectDataType();
+            if (!FormManager.skillDetailForm.Visible) FormManager.skillDetailForm.Show(); else FormManager.skillDetailForm.Activate();
         } 
 
         // # 顶部：置顶窗口按钮
@@ -139,16 +151,32 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         } 
 
         #region 切换显示类型（支持单次/全程伤害） // 折叠：视图标签与切换逻辑
-        // # 统计视图标签：与 currentIndex 对应
-        List<string> singleLabels = new() { "单次伤害", "单次治疗", "单次承伤" }; // 单次模式下三种标签
-        List<string> totalLabels = new() { "全程伤害", "全程治疗", "全程承伤" }; // 全程模式下三种标签
 
 
         // # 头部标题文本刷新：依据 showTotal & currentIndex
         private void UpdateHeaderText() // 根据当前模式与索引更新顶部标签文本
         {
-            pageHeader1.SubText = FormManager.showTotal ? totalLabels[FormManager.currentIndex]
-                                            : singleLabels[FormManager.currentIndex]; // 三元：选用全程/单次对应标题
+
+            if (FormManager.showTotal)
+            {
+                pageHeader1.SubText = FormManager.currentIndex switch
+                {
+                    1 => "全程治疗",
+                    2 => "全程承伤",
+                    3 => "全程 · NPC承伤",
+                    _ => "全程伤害"
+                };
+            }
+            else
+            {
+                pageHeader1.SubText = FormManager.currentIndex switch
+                {
+                    1 => "当前治疗",
+                    2 => "当前承伤",
+                    3 => "当前 · NPC承伤",
+                    _ => "当前伤害"
+                };
+            }
         }
 
 
@@ -158,35 +186,48 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         { 
             FormManager.showTotal = !FormManager.showTotal; // 取反：在单次与全程之间切换
             UpdateHeaderText(); // 切换后刷新顶部文本
-        } 
+        }
         #endregion
 
         // # 定时刷新：战斗时长显示 + 榜单刷新
+        // # 定时刷新：战斗时长显示 + 榜单刷新
         private void timer_RefreshRunningTime_Tick(object sender, EventArgs e) // 定时器：周期刷新（UI 绑定）
-        { 
-            //var snap = FullRecord.GetEffectiveDurationString(); // 之前的调用示例（未使用）
-            // ✅ 只调一次，按当前视图来
-            var source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current; // 根据 showTotal 选择数据源
-            var metric = FormManager.currentIndex switch // 根据 currentIndex 选择指标（伤害/治疗/承伤）
-            { // switch 表达式开始
-                1 => MetricType.Healing, // 索引 1 → 治疗
-                2 => MetricType.Taken, // 索引 2 → 承伤
-                _ => MetricType.Damage // 其他（默认 0）→ 伤害
-            }; // switch 结束
-            RefreshDpsTable(source, metric); // 刷新榜单数据（注意：内部有“视图闸门”校验）
+        {
+            if (FormManager.currentIndex == 3)
+            {
+                // NPC 承伤页
+                if (_npcDetailMode && _npcFocusId != 0)
+                {
+                    // 正在查看某个 NPC 的攻击者榜 —— 保持停留在详情页并刷新该榜单
+                    RefreshNpcAttackers((ulong)_npcFocusId);
 
-            var duration = StatisticData._manager.GetFormattedCombatDuration(); // 获取当前战斗计时（格式化字符串）
+                    // （可选健壮性）该 NPC 若已消失/无数据，可自动退出详情回到总览
+                    // 你可以在 RefreshNpcAttackers 内部判空时自动调用 ExitNpcDetailMode() + RefreshNpcOverview()
+                }
+                else
+                {
+                    // 非详情模式：刷新 NPC 承伤总览（当前/全程在方法内部已自行处理）
+                    RefreshNpcOverview();
+                }
+            }
+            else
+            {
+                var source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
+                var metric = FormManager.currentIndex switch
+                {
+                    1 => MetricType.Healing,
+                    2 => MetricType.Taken,
+                    3 => MetricType.NpcTaken,   // ★ 保留：其他地方如果有用到
+                    _ => MetricType.Damage
+                };
+                RefreshDpsTable(source, metric);
+            }
 
-            if (FormManager.showTotal) // 若当前是全程视图
-            { // 分支开始
-                // # 全程视图：
-                duration = FullRecord.GetEffectiveDurationString(); // 使用全程计时字符串（去掉无效等待等）
+            var duration = StatisticData._manager.GetFormattedCombatDuration();
+            if (FormManager.showTotal) duration = FullRecord.GetEffectiveDurationString();
+            BattleTimeText.Text = duration;
+        }
 
-            } // 分支结束
-
-            BattleTimeText.Text = duration; // 将时长显示到 UI 文本
-            //RefreshDpsTable(true); // 旧实现保留注释
-        } 
 
         /// <summary>
         /// 清空当前数据数据
@@ -215,7 +256,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, }, // 一级菜单：主窗体
                     //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
-                    new ContextMenuStripItem("统计筛选"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
+                    //new ContextMenuStripItem("统计筛选"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
                      //new ContextMenuStripItem("技能日记"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("伤害参考"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes }, // 一级菜单：打桩模式
@@ -417,7 +458,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
             if (Config.IsLight)
             {
-                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#ffffff");
+                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#F5F5F5");
                 AppConfig.colorText = Color.Black;
                 sortedProgressBarList1.OrderColor = Color.Black;
 
@@ -451,7 +492,8 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             }
             else
             {
-                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#000000");
+                sortedProgressBarList1.BackColor = ColorTranslator.FromHtml("#141414");
+           
                 AppConfig.colorText = Color.White;
                 sortedProgressBarList1.OrderColor = Color.White;
                 TotalDamageButton.Icon = Common.BytesToImage(Properties.Resources.伤害白色);
@@ -489,6 +531,23 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             pageHeader1.SubFont = AppConfig.ContentFont;
             PilingModeCheckbox.Font = AppConfig.ContentFont;
             label2.Font = label1.Font = AppConfig.ContentFont;
+
+            TotalDamageButton.Font = AppConfig.BoldHarmonyFont;
+            TotalTreatmentButton.Font = AppConfig.BoldHarmonyFont;
+            AlwaysInjuredButton.Font = AppConfig.BoldHarmonyFont;
+            NpcTakeDamageButton.Font = AppConfig.BoldHarmonyFont;
+        }
+
+        private void SetStartupPositionAndSize()
+        {
+            var startupRect = AppConfig.StartUpState;
+            if (startupRect != null && startupRect != Rectangle.Empty)
+            {
+                Left = startupRect.Value.Left;
+                Top = startupRect.Value.Top;
+                Width = startupRect.Value.Width;
+                Height = startupRect.Value.Height;
+            }
         }
 
         #region 钩子
@@ -567,6 +626,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
         private void DamageType_Click(object sender, EventArgs e)
         {
+            ExitNpcDetailMode(); // 退出详情模式
             Button button = (Button)sender;
             List<Button> buttonList = new List<Button>() { TotalDamageButton, TotalTreatmentButton, AlwaysInjuredButton, NpcTakeDamageButton };
             Color colorBack = Color.FromArgb(60, 60, 60);
@@ -623,5 +683,20 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             UpdateHeaderText(); // 刷新顶部文本
 
         }
+
+        private void DpsStatisticsForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            AppConfig.StartUpState = new Rectangle(Left, Top, Width, Height);
+        }
+
+        /// <summary>
+        /// 退出详情模式
+        /// </summary>
+        private void ExitNpcDetailMode()
+        {
+            _npcDetailMode = false;
+            _npcFocusId = 0;
+        }
+
     }
 }

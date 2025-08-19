@@ -40,10 +40,17 @@ namespace StarResonanceDpsAnalysis.Forms
             sortedProgressBarList1.AnimationDuration = 1000;
             sortedProgressBarList1.AnimationQuality = Quality.High;
             sortedProgressBarList1.ProgressBarHeight = 50;
-            sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
+            sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 45, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
             sortedProgressBarList1.OrderColor = Color.Fuchsia;
             sortedProgressBarList1.OrderFont = new Font("平方韶华体", 24f, FontStyle.Bold, GraphicsUnit.Pixel);
+            sortedProgressBarList1.OrderImages =
+            [
+                new Bitmap(new MemoryStream(Resources.皇冠)),
+                new Bitmap(new MemoryStream(Resources.皇冠白))
+            ];
+            sortedProgressBarList1.OrderImageOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
+            sortedProgressBarList1.OrderImageRenderSize = new Size(32, 32);
 
             numericUpDown1.Minimum = -1;
             numericUpDown2.Minimum = -1;
@@ -73,7 +80,7 @@ namespace StarResonanceDpsAnalysis.Forms
                                 ImageRenderSize = new Size(32, 32)
                             },
                             new RenderContent
-                            { 
+                            {
                                 Type = RenderContent.ContentType.Text,
                                 Align = RenderContent.ContentAlign.MiddleLeft,
                                 Offset = new RenderContent.ContentOffset { X = 90, Y = 0 },
@@ -133,7 +140,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
             sortedProgressBarList1.SelectionChanged += (s, i, d) =>
             {
-                if (i < 0 || d == null) 
+                if (i < 0 || d == null)
                 {
                     Console.WriteLine("Nothing Clicked.");
                     return;
@@ -167,6 +174,32 @@ namespace StarResonanceDpsAnalysis.Forms
             }
 
             return sb.ToString();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
+            AAA();
+        }
+        public static double GetScaling()
+        {
+            Screen screen = Screen.PrimaryScreen;
+            Rectangle workingArea = screen.WorkingArea;
+            Rectangle bounds = screen.Bounds;
+            double scale = (double)workingArea.Width / bounds.Width;
+
+            return scale;
+        }
+
+        public static void AAA()
+        {
+            double scale = GetScaling();
+            Console.WriteLine(scale.ToString());
         }
     }
 }

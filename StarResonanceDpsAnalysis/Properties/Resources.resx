@@ -290,4 +290,10 @@
   <data name="治疗白色" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\治疗白色.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="皇冠" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\皇冠.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="皇冠白" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\皇冠白.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>

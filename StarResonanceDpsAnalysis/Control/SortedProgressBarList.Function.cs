@@ -60,7 +60,7 @@ namespace StarResonanceDpsAnalysis.Control
                 if (_animating && aniMs > AnimationDuration)
                 {
                     _animating = false;
-                   // Console.WriteLine($"动画结束");
+                    // Console.WriteLine($"动画结束");
                 }
 
                 if (!_animating)
@@ -94,9 +94,17 @@ namespace StarResonanceDpsAnalysis.Control
                     _progressBarPrivateData.OrderColor = OrderColor;
                     _progressBarPrivateData.OrderFont = OrderFont;
                     _progressBarPrivateData.OrderOffset = OrderOffset;
+                    _progressBarPrivateData.OrderImageAlign = OrderImageAlign;
+                    _progressBarPrivateData.OrderImageOffset = OrderImageOffset;
+                    _progressBarPrivateData.OrderImageRenderSize = OrderImageRenderSize;
+
                     _progressBarPrivateData.OrderString = OrderCallback == null
                         ? null
                         : OrderCallback(data.ToIndex + 1);
+
+                    _progressBarPrivateData.OrderImage = OrderImages == null || data.ToIndex >= OrderImages.Count
+                        ? null
+                        : OrderImages[data.ToIndex];
 
                     if (data.FromIndex == data.ToIndex || staticDraw)
                     {
@@ -262,7 +270,7 @@ namespace StarResonanceDpsAnalysis.Control
             _drawInfo.Padding = data.ProgressBarPadding;
             _drawInfo.Top = privateData.Top;
 
-            if (privateData.OrderString == null)
+            if (privateData.OrderImage == null && privateData.OrderString == null)
             {
                 _drawInfo.ContentList = data.ContentList;
             }
@@ -270,15 +278,30 @@ namespace StarResonanceDpsAnalysis.Control
             {
                 _renderContentBuffer.Clear();
 
-                _renderContentBuffer.Add(new RenderContent
+                if (privateData.OrderImage != null)
                 {
-                    Type = ContentType.Text,
-                    Align = privateData.OrderAlign,
-                    Offset = privateData.OrderOffset,
-                    Text = privateData.OrderString,
-                    ForeColor = privateData.OrderColor,
-                    Font = privateData.OrderFont,
-                });
+                    _renderContentBuffer.Add(new RenderContent
+                    {
+                        Type = ContentType.Image,
+                        Align = privateData.OrderImageAlign,
+                        Offset = privateData.OrderImageOffset,
+                        Image = privateData.OrderImage,
+                        ImageRenderSize = privateData.OrderImageRenderSize
+                    });
+                }
+
+                if (!string.IsNullOrEmpty(privateData.OrderString))
+                {
+                    _renderContentBuffer.Add(new RenderContent
+                    {
+                        Type = ContentType.Text,
+                        Align = privateData.OrderAlign,
+                        Offset = privateData.OrderOffset,
+                        Text = privateData.OrderString,
+                        ForeColor = privateData.OrderColor,
+                        Font = privateData.OrderFont,
+                    });
+                }
 
                 if (data.ContentList != null)
                 {
@@ -287,6 +310,8 @@ namespace StarResonanceDpsAnalysis.Control
 
                 _drawInfo.ContentList = _renderContentBuffer;
             }
+
+
 
             gdiProgressBar.Draw(g, _drawInfo);
         }
@@ -300,7 +325,10 @@ namespace StarResonanceDpsAnalysis.Control
             public string? OrderString { get; set; }
             public Color OrderColor { get; set; } = Color.Black;
             public Font OrderFont { get; set; } = SystemFonts.DefaultFont;
-
+            public Image? OrderImage { get; set; } = null;
+            public ContentAlign OrderImageAlign { get; set; } = ContentAlign.MiddleLeft;
+            public ContentOffset OrderImageOffset { get; set; } = new ContentOffset { X = 0, Y = 0 };
+            public Size OrderImageRenderSize { get; set; } = new Size(0, 0);
         }
 
         private struct SortAnimatingInfo

@@ -213,7 +213,10 @@ namespace StarResonanceDpsAnalysis.Control
             // 1) 根据 segmented1 决定当前查看指标（伤害/治疗/承伤）
             MetricType metric;
             if (segmented1.SelectIndex == 1) metric = MetricType.Healing;
-            else if (segmented1.SelectIndex == 2) metric = MetricType.Taken;
+            else if (segmented1.SelectIndex == 2)
+            {
+                metric = MetricType.Taken;
+            }
             else metric = MetricType.Damage;
 
             // 2) 快照模式：不刷新实时曲线，只渲染顶部与表格、静态图

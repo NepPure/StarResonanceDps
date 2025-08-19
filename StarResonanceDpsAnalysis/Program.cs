@@ -31,6 +31,9 @@ namespace StarResonanceDpsAnalysis
             ApplicationConfiguration.Initialize();
             FormManager.dpsStatistics = new DpsStatisticsForm();
             Application.Run(FormManager.dpsStatistics);
+            //Application.Run(new TestForm());
+
+            //Application.Run(new TestForm());
         }
 
         private static float GetPrimaryResolutionScale()

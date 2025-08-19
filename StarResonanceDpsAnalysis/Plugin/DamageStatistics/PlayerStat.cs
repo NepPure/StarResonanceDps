@@ -1,5 +1,7 @@
 ﻿using StarResonanceDpsAnalysis.Forms;
 using System.Timers;
+using System.Xml.Linq;
+using static StarResonanceDpsAnalysis.Plugin.DamageStatistics.PlayerDataManager;
 
 namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 {
@@ -33,6 +35,10 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// </summary>
         public static readonly PlayerDataManager _manager = new PlayerDataManager();
 
+        /// <summary>
+        /// 全局 NPC 数据管理器：用于统计 NPC 承伤与对NPC的玩家排名
+        /// </summary>
+        public static readonly NpcManager _npcManager = new NpcManager(_manager);
         #endregion
 
         #region 数值累计（只读属性，内部递增）
@@ -141,6 +147,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         public DateTime? LastRecordTime => _endTime;
 
         #endregion
+
 
 
         #region 公开方法
@@ -285,6 +292,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         #endregion
     }
 
+    #region 玩家数据管理器
     // ------------------------------------------------------------
     // # 分类：技能元数据（静态信息，如名称/图标/是否DOT等）
     // ------------------------------------------------------------
@@ -1017,6 +1025,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <summary>UID → 职业（外部同步缓存）。</summary>
         private static readonly Dictionary<ulong, string> _professionByUid = new();
 
+
         /// <summary>整场战斗开始时间（第一次出现战斗事件时赋值）。</summary>
         private DateTime? _combatStart;
 
@@ -1031,6 +1040,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         /// <summary>上一次全队有数据的时间。</summary>
         private DateTime _lastCombatActivity = DateTime.MinValue;
+
 
         #endregion
 
@@ -1430,12 +1440,6 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="keepCombatTime">true=保留战斗时钟；false=同时清除战斗时钟。</param>
         public void ClearAll(bool keepCombatTime = true)
         {
-            //if(!InitialStart)
-            //{
-            //    InitialStart = true;
-            //    return;
-            //}
-
             bool hadPlayers;
             lock (_playersLock) { hadPlayers = _players.Count > 0; }
 
@@ -1443,17 +1447,21 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             {
                 if (_combatStart.HasValue && !_combatEnd.HasValue)
                     _combatEnd = _lastCombatActivity != DateTime.MinValue ? _lastCombatActivity : DateTime.Now;
-                SaveCurrentBattleSnapshot(); // 里面会自己拍玩家快照
+
+                // 先保存“当前战斗”的快照（如需把NPC也纳入快照，可在 SaveCurrentBattleSnapshot 内扩展）
+                SaveCurrentBattleSnapshot();
             }
 
-            lock (_playersLock)
-            {
-                _players.Clear();
-            }
+            // 清玩家
+            lock (_playersLock) { _players.Clear(); }
 
+            // ✅ 清“当前战斗”的 NPC 统计（与玩家同一生命周期）
+            // 假设你把 NpcManager 实例挂在同级位置（例如 PlayerDataManager 外的静态单例）
+            StatisticData._npcManager?.ResetAll();
+
+            // UI 清理与战斗时钟复位（保持你原有逻辑）
             FormManager.dpsStatistics.ListClear();
             ResetCombatClock();
-
         }
 
         /// <summary>获取所有玩家 UID。</summary>
@@ -1867,8 +1875,329 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             _history.Clear();
         }
         #endregion
-    }
 
+        #region NPC
+
+
+        /// <summary>
+        /// 单个 NPC 的承伤数据（不区分技能，只按“攻击者玩家”聚合）。
+        /// </summary>
+        public sealed class NpcData
+        {
+            /// <summary>NPC 唯一ID（可用怪物实体ID或模板ID，按你的采集口径）。</summary>
+            public ulong NpcId { get; }
+
+            /// <summary>NPC 名称（可选）。</summary>
+            public string Name { get; private set; } = "未知NPC";
+
+            /// <summary>NPC 承伤聚合（总承伤/实时/峰值/极值等）。</summary>
+            public StatisticData TakenStats { get; } = new();
+
+            /// <summary>
+            /// 攻击者UID -> 该玩家对该NPC造成的聚合统计（不分技能）。
+            /// 仅用于“对NPC伤害排名”。
+            /// </summary>
+            public Dictionary<ulong, StatisticData> DamageByPlayer { get; } = new();
+
+            public NpcData(ulong npcId, string? name = null)
+            {
+                NpcId = npcId;
+                if (!string.IsNullOrWhiteSpace(name)) Name = name!;
+            }
+
+            public void SetName(string name)
+            {
+                if (!string.IsNullOrWhiteSpace(name)) Name = name;
+            }
+
+            /// <summary>
+            /// 记录一次“玩家 → NPC”的伤害。
+            /// 不区分技能，只累计到攻击者与 NPC 承伤聚合。
+            /// </summary>
+            public void AddTakenFrom(
+                ulong attackerUid,
+                ulong damage,
+                bool isCrit,
+                bool isLucky,
+                ulong hpLessen = 0,
+                bool isMiss = false,
+                bool isDead = false)
+            {
+                // 仅排名和承伤需要：Miss不计数值，但可计次数（可选）
+                if (isMiss)
+                {
+                    var s = GetOrCreate(attackerUid);
+                    s.RegisterMiss();
+                    return;
+                }
+
+                var lessen = hpLessen > 0 ? hpLessen : damage;
+
+                // NPC 承伤聚合
+                TakenStats.AddRecord(damage, isCrit, isLucky, lessen);
+
+                // 攻击者聚合（对NPC造成的伤害）
+                GetOrCreate(attackerUid).AddRecord(damage, isCrit, isLucky, lessen);
+
+                // 击杀次数（可选），仅计数，不影响总量
+                if (isDead) TakenStats.RegisterKill();
+  
+            }
+
+            private StatisticData GetOrCreate(ulong uid)
+            {
+                if (!DamageByPlayer.TryGetValue(uid, out var stat))
+                {
+                    stat = new StatisticData();
+                    DamageByPlayer[uid] = stat;
+                }
+                return stat;
+            }
+
+            /// <summary>刷新该NPC的实时统计（含各攻击者的统计）。</summary>
+            public void UpdateRealtime()
+            {
+                TakenStats.UpdateRealtimeStats();
+                if (DamageByPlayer.Count == 0) return;
+                foreach (var s in DamageByPlayer.Values)
+                    s.UpdateRealtimeStats();
+            }
+
+            /// <summary>清空该NPC所有数据。</summary>
+            public void Reset()
+            {
+                TakenStats.Reset();
+                DamageByPlayer.Clear();
+            }
+        }
+
+        /// <summary>
+        /// NPC 统计管理器：创建/缓存 NPC，写入承伤事件，查询对NPC的伤害排名。
+        /// 说明：
+        /// - 只用于 NPC 维度的“承伤与排名”；玩家的总DPS沿用你现有 PlayerDataManager。
+        /// - 你可以在解析到“命中目标是NPC”时，同时调用 Players.AddDamage(...)（玩家侧）和本管理器的 AddNpcTakenDamage(...)（NPC侧）。
+        /// </summary>
+        public sealed class NpcManager
+        {
+            private readonly object _lock = new();
+            private readonly Dictionary<ulong, NpcData> _npcs = new();
+
+            /// <summary>玩家数据管理器（用于拿昵称/战力/职业/秒伤）。</summary>
+            public PlayerDataManager Players { get; }
+
+            public NpcManager(PlayerDataManager players)
+            {
+                Players = players;
+            }
+
+            /// <summary>获取或创建 NPC。</summary>
+            public NpcData GetOrCreate(ulong npcId, string? name = null)
+            {
+                lock (_lock)
+                {
+                    if (!_npcs.TryGetValue(npcId, out var npc))
+                    {
+                        npc = new NpcData(npcId, name);
+                        _npcs[npcId] = npc;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        npc.SetName(name!);
+                    }
+                    return npc;
+                }
+            }
+
+            /// <summary>设置 NPC 名称（可选）。</summary>
+            public void SetNpcName(ulong npcId, string name)
+            {
+                GetOrCreate(npcId).SetName(name);
+                FullRecord.SetNpcName(npcId,name);
+            }
+            // 1) 列出所有出现过的 NPCId（当前战斗）
+            public IReadOnlyList<ulong> GetAllNpcIds()
+            {
+                lock (_lock)
+                {
+                    if (_npcs.Count == 0) return Array.Empty<ulong>();
+                    return _npcs.Keys.ToList();
+                }
+            }
+
+            // 2) 取 NPC 名称（当前战斗）
+            public string GetNpcName(ulong npcId)
+            {
+                lock (_lock)
+                {
+                    return _npcs.TryGetValue(npcId, out var n) ? (n.Name ?? $"NPC[{npcId}]") : $"NPC[{npcId}]";
+                }
+            }
+
+            // 3) 当前战斗里该 NPC 的“承伤PS”= Total / ActiveSeconds（由 StatisticData 维护）
+            public double GetNpcTakenPerSecond(ulong npcId)
+            {
+                var n = GetOrCreate(npcId);
+                return n.TakenStats.GetTotalPerSecond();
+            }
+
+            // 4) 当前战斗里“某玩家对该 NPC 的专属DPS”= Total / ActiveSeconds（只看该 NPC 维度）
+            public double GetPlayerNpcOnlyDps(ulong npcId, ulong uid)
+            {
+                var n = GetOrCreate(npcId);
+                if (!n.DamageByPlayer.TryGetValue(uid, out var s)) return 0;
+                return s.GetTotalPerSecond();
+            }
+            /// <summary>
+            /// 记录一次“玩家 → NPC”的伤害（不区分技能）。
+            /// 建议：同时仍调用 Players.AddDamage(...) 以维持玩家侧总DPS与技能数据。
+            /// </summary>
+            public void AddNpcTakenDamage(
+                ulong npcId,
+                ulong attackerUid,
+                ulong damage,
+                bool isCrit,
+                bool isLucky,
+                ulong hpLessen = 0,
+                bool isMiss = false,
+                bool isDead = false,
+                string? npcName = null)
+            {
+                var npc = GetOrCreate(npcId, npcName);
+                npc.AddTakenFrom(attackerUid, damage, isCrit, isLucky, hpLessen, isMiss, isDead);
+                FullRecord.RecordNpcTakenDamage(npcId, attackerUid, damage, isCrit, isLucky, hpLessen, isMiss, isDead);
+
+            }
+
+            /// <summary>
+            /// 刷新所有 NPC 的实时统计窗口（1s）。
+            /// </summary>
+            public void UpdateAllRealtime()
+            {
+                NpcData[] snapshot;
+                lock (_lock)
+                {
+                    if (_npcs.Count == 0) return;
+                    snapshot = _npcs.Values.ToArray();
+                }
+                foreach (var npc in snapshot) npc.UpdateRealtime();
+            }
+
+            /// <summary>
+            /// 清空指定 NPC 的统计。
+            /// </summary>
+            public void ResetNpc(ulong npcId)
+            {
+                lock (_lock)
+                {
+                    if (_npcs.TryGetValue(npcId, out var npc))
+                        npc.Reset();
+                }
+            }
+
+            /// <summary>
+            /// 清空所有 NPC 的统计。
+            /// </summary>
+            public void ResetAll()
+            {
+                lock (_lock)
+                {
+                    foreach (var npc in _npcs.Values) npc.Reset();
+                    _npcs.Clear();
+                }
+            }
+
+            // =========================
+            // 查询接口
+            // =========================
+
+            /// <summary>
+            /// 获取某个 NPC 的承伤总览：总承伤/实时承伤/峰值/单次最大最小/最后一次时间。
+            /// </summary>
+            public (
+                ulong TotalTaken,
+                ulong RealtimeTaken,
+                ulong RealtimeTakenMax,
+                ulong MaxSingleHit,
+                ulong MinSingleHit,
+                DateTime? LastTime
+            ) GetNpcOverview(ulong npcId)
+            {
+                var npc = GetOrCreate(npcId);
+                var s = npc.TakenStats;
+                return (
+                    s.Total,
+                    s.RealtimeValue,
+                    s.RealtimeMax,
+                    s.MaxSingleHit,
+                    s.MinSingleHit == ulong.MaxValue ? 0UL : s.MinSingleHit,
+                    s.LastRecordTime
+                );
+            }
+
+            /// <summary>
+            /// 对指定 NPC 的伤害排名（按总伤害降序）。
+            /// 同时返回该玩家当前总秒伤（沿用 Players 的口径：整场平均）。
+            /// </summary>
+            /// <param name="npcId">NPC ID。</param>
+            /// <param name="topN">前 N 名（默认 20）。</param>
+            /// <returns>列表：(Uid, Nickname, CombatPower, Profession, DamageToNpc, TotalDps)</returns>
+            public List<(ulong Uid, string Nickname, int CombatPower, string Profession, ulong DamageToNpc, double TotalDps)>
+                GetNpcTopAttackers(ulong npcId, int topN = 20)
+            {
+                var npc = GetOrCreate(npcId);
+
+                // 快照一次，避免锁外并发修改
+                var items = npc.DamageByPlayer.ToArray();
+
+                var ordered = items
+                    .OrderByDescending(kv => kv.Value.Total)
+                    .Take(topN)
+                    .Select(kv =>
+                    {
+                        var uid = kv.Key;
+                        var totalToNpc = kv.Value.Total;
+
+                        // 从玩家管理器拿基础信息与DPS
+                        var (nickname, power, profession) = Players.GetPlayerBasicInfo(uid);
+                        var full = Players.GetPlayerFullStats(uid);
+                        var totalDps = full.TotalDps;
+
+                        return (Uid: uid,
+                                Nickname: nickname,
+                                CombatPower: power,
+                                Profession: profession,
+                                DamageToNpc: totalToNpc,
+                                TotalDps: totalDps);
+                    })
+                    .ToList();
+
+                return ordered;
+            }
+
+            /// <summary>
+            /// 读取指定 NPC 下，某个玩家对其造成伤害的实时与总量（便于小窗展示）。
+            /// </summary>
+            /// <returns>(Total, Realtime, RealtimeMax, AvgPerHit, MaxHit, MinHit)</returns>
+            public (ulong Total, ulong Realtime, ulong RealtimeMax, double AvgPerHit, ulong MaxHit, ulong MinHit)
+                GetPlayerVsNpcStats(ulong npcId, ulong uid)
+            {
+                var npc = GetOrCreate(npcId);
+                if (!npc.DamageByPlayer.TryGetValue(uid, out var s))
+                    return (0, 0, 0, 0, 0, 0);
+
+                return (
+                    s.Total,
+                    s.RealtimeValue,
+                    s.RealtimeMax,
+                    s.GetAveragePerHit(),
+                    s.MaxSingleHit,
+                    s.MinSingleHit == ulong.MaxValue ? 0UL : s.MinSingleHit
+                );
+            }
+        }
+        #endregion
+    }
+    #endregion
 
     #region 快照类
 
@@ -2027,4 +2356,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
 
     #endregion
+
+
+
 }

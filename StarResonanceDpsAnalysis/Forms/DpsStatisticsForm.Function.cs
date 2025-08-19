@@ -306,9 +306,17 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             // # 启动与初始化事件：界面样式与渲染设置（仅 UI 外观，不涉及数据）
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
-            sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
+            sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 50, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}.";
-            
+            sortedProgressBarList1.OrderImages =
+            [
+                new Bitmap(new MemoryStream(Resources.皇冠)),
+                            new Bitmap(new MemoryStream(Resources.皇冠白))
+            ];
+            sortedProgressBarList1.OrderImageOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
+            sortedProgressBarList1.OrderImageRenderSize = new Size(32, 32);
+
+
             if (Config.IsLight)
             {
                 sortedProgressBarList1.OrderColor = Color.Black;
@@ -319,11 +327,22 @@ namespace StarResonanceDpsAnalysis.Forms
             }
 
             sortedProgressBarList1.OrderFont = AppConfig.SaoFont;
+
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
             sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
             sortedProgressBarList1.AnimationQuality = Quality.Low; // 动画品质（你项目里的枚举）
+            //sortedProgressBarList1.OrderImages =
+            //[
+            //    new Bitmap(new MemoryStream(Resources.皇冠)),
+            //                new Bitmap(new MemoryStream(Resources.皇冠白))
+            //];
         }
+
+        // 当前是否停留在“NPC 攻击者榜”详情
+        private volatile bool _npcDetailMode = false;
+        // 详情里正在查看的 NPC Id
+        private ulong _npcFocusId = 0;
 
         /// <summary>
         /// 实例化 SortedProgressBarList 控件
@@ -449,7 +468,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
 
         public enum SourceType { Current, FullRecord }
-        public enum MetricType { Damage, Healing, Taken }
+        public enum MetricType { Damage, Healing, Taken, NpcTaken }
 
         // 提供一个静态入口，供回填后请求一次按当前视图刷新
         public static void RequestActiveViewRefresh()
@@ -463,6 +482,8 @@ namespace StarResonanceDpsAnalysis.Forms
                 {
                     1 => MetricType.Healing,
                     2 => MetricType.Taken,
+                    3 => MetricType.NpcTaken,   // ★
+
                     _ => MetricType.Damage
                 };
                 if (form.InvokeRequired)
@@ -471,6 +492,26 @@ namespace StarResonanceDpsAnalysis.Forms
                     form.RefreshDpsTable(source, metric);
             }
             catch { }
+        }
+        // NPC总览行：一个NPC一行
+        private class NpcRow
+        {
+            public long NpcId;
+            public string Name;
+            public ulong TotalTaken;
+            public double TakenPerSec;
+        }
+        // 对某个NPC的攻击者行（仍然是玩家行，样式复用）
+        private class NpcAttackerRow
+        {
+            public long Uid;
+            public string Nickname;
+            public int CombatPower;
+            public string Profession;
+            public string SubProfession;
+            public ulong DamageToNpc;
+            public double PlayerDps;   // 玩家全程DPS（信息项）
+            public double NpcOnlyDps;  // 该玩家对这个NPC的专属DPS（进度条主要依据）
         }
 
         private class UiRow
@@ -565,8 +606,8 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.Uid, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 35, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(25, 25) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 65, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 80, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 115, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
                             new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
                             new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
                         ];
@@ -631,7 +672,280 @@ namespace StarResonanceDpsAnalysis.Forms
                 else Bind();
             }
         }
+        #region NPC承伤以及玩家对指定NPC造成的伤害排名
+        #region 全程
+        /// <summary>刷新：NPC承伤总览（全程 FullRecord）</summary>
+        public void RefreshNpcOverview()
+        {
+            if (Interlocked.CompareExchange(ref _isClearing, 0, 0) == 1) return;
 
+            // 1) 依据当前视图构建 NPC 行
+            var uiList = FormManager.showTotal
+                ? BuildNpcOverviewRows_FullRecord()
+                : BuildNpcOverviewRows_Current();
+
+            // 2) 空列表则清空 UI
+            if (uiList.Count == 0)
+            {
+                if (sortedProgressBarList1.InvokeRequired)
+                    sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = new List<ProgressBarData>()));
+                else
+                    sortedProgressBarList1.Data = new List<ProgressBarData>();
+                return;
+            }
+
+            // 3) 渲染（与原全程逻辑一致）
+            var ordered = uiList.OrderByDescending(x => x.TotalTaken).ToList();
+            double teamSum = uiList.Sum(x => (double)x.TotalTaken);
+            if (teamSum <= 0d) teamSum = 1d;
+            double top = uiList.Max(x => (double)x.TotalTaken);
+            if (top <= 0d) top = 1d;
+
+            lock (_dataLock)
+            {
+                if (_isClearing == 1) return;
+
+                var snapshot = list.GroupBy(pb => pb.ID).Select(g => g.Last()).ToList();
+                var present = new HashSet<long>(ordered.Select(x => x.NpcId));
+                var toRemove = snapshot.Where(pb => !present.Contains(pb.ID)).Select(pb => pb.ID).ToList();
+                var byId = snapshot.ToDictionary(pb => pb.ID, pb => pb);
+
+                var next = new List<ProgressBarData>(present.Count);
+
+                for (int i = 0; i < ordered.Count; i++)
+                {
+                    var p = ordered[i];
+
+                    float ratio = (float)(p.TotalTaken / top);
+                    if (!float.IsFinite(ratio)) ratio = 0f;
+                    ratio = Math.Clamp(ratio, 0f, 1f);
+
+                    string totalFmt = Common.FormatWithEnglishUnits(p.TotalTaken);
+                    string perSec = Common.FormatWithEnglishUnits(Math.Round(p.TakenPerSec, 1));
+                    string share = $"{Math.Round(p.TotalTaken / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
+
+                    // 头像&颜色（沿用“未知”）
+                    var profBmp = imgDict.TryGetValue("未知", out var bmp) ? bmp : imgDict["未知"];
+                    var colorMap = Config.IsLight ? colorDict : blackColorDict;
+                    var color = colorMap.TryGetValue("未知", out var c) ? c : ColorTranslator.FromHtml("#67AEF6");
+
+                    if (!DictList.TryGetValue(p.NpcId, out var row))
+                    {
+                        row = [
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft,  Offset = new RenderContent.ContentOffset{ X = 35, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(25, 25) },
+                    new() { Type = RenderContent.ContentType.Text,  Align = RenderContent.ContentAlign.MiddleLeft,  Offset = new RenderContent.ContentOffset{ X = 65, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                    new() { Type = RenderContent.ContentType.Text,  Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                    new() { Type = RenderContent.ContentType.Text,  Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0,  Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                ];
+                        DictList[p.NpcId] = row;
+                    }
+
+                    row[0].Image = profBmp;
+                    row[1].Text = p.Name;
+                    row[2].Text = $"{totalFmt}({perSec})";
+                    row[3].Text = share;
+
+                    if (!byId.TryGetValue(p.NpcId, out var pb))
+                    {
+                        pb = new ProgressBarData
+                        {
+                            ID = p.NpcId,
+                            ContentList = row,
+                            ProgressBarCornerRadius = 3,
+                            ProgressBarValue = ratio,
+                            ProgressBarColor = color,
+                        };
+                    }
+                    else
+                    {
+                        pb.ContentList = row;
+                        pb.ProgressBarValue = ratio;
+                        pb.ProgressBarColor = color;
+                    }
+
+                    next.Add(pb);
+                }
+
+                if (toRemove.Count > 0)
+                    foreach (var id in toRemove) DictList.Remove(id);
+
+                list = next;
+
+                void Bind() => sortedProgressBarList1.Data = list;
+                if (sortedProgressBarList1.InvokeRequired) sortedProgressBarList1.BeginInvoke((Action)Bind);
+                else Bind();
+            }
+        }
+
+
+        /// <summary>刷新：某个NPC的攻击者排名（全程 FullRecord）</summary>
+        public void RefreshNpcAttackers(ulong npcId)
+        {
+            if (Interlocked.CompareExchange(ref _isClearing, 0, 0) == 1) return;
+
+            var uiList = FormManager.showTotal
+                ? BuildNpcAttackerRows_FullRecord(npcId)
+                : BuildNpcAttackerRows_Current(npcId);
+
+            if (uiList.Count == 0)
+            {
+                if (sortedProgressBarList1.InvokeRequired)
+                    sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = new List<ProgressBarData>()));
+                else
+                    sortedProgressBarList1.Data = new List<ProgressBarData>();
+                return;
+            }
+
+            var ordered = uiList.OrderByDescending(x => x.DamageToNpc).ToList();
+            double npcSum = uiList.Sum(x => (double)x.DamageToNpc);
+            if (npcSum <= 0d) npcSum = 1d;
+            double top = uiList.Max(x => (double)x.DamageToNpc);
+            if (top <= 0d) top = 1d;
+
+            lock (_dataLock)
+            {
+                if (_isClearing == 1) return;
+
+                var snapshot = list.GroupBy(pb => pb.ID).Select(g => g.Last()).ToList();
+                var present = new HashSet<long>(ordered.Select(x => x.Uid));
+                var toRemove = snapshot.Where(pb => !present.Contains(pb.ID)).Select(pb => pb.ID).ToList();
+                var byId = snapshot.ToDictionary(pb => pb.ID, pb => pb);
+
+                var next = new List<ProgressBarData>(present.Count);
+
+                for (int i = 0; i < ordered.Count; i++)
+                {
+                    var p = ordered[i];
+
+                    float ratio = (float)(p.DamageToNpc / top);
+                    if (!float.IsFinite(ratio)) ratio = 0f;
+                    ratio = Math.Clamp(ratio, 0f, 1f);
+
+                    string totalFmt = Common.FormatWithEnglishUnits(p.DamageToNpc);
+                    string perSec = Common.FormatWithEnglishUnits(Math.Round(p.NpcOnlyDps, 1));
+                    string share = $"{Math.Round(p.DamageToNpc / npcSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
+
+                    var profBmp = imgDict.TryGetValue(p.Profession ?? "未知", out var bmp) ? bmp : imgDict["未知"];
+                    var colorMap = Config.IsLight ? colorDict : blackColorDict;
+                    var color = colorMap.TryGetValue(p.Profession ?? "未知", out var c) ? c : ColorTranslator.FromHtml("#67AEF6");
+
+                    if (!DictList.TryGetValue(p.Uid, out var row))
+                    {
+                        row = [
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft,  Offset = new RenderContent.ContentOffset{ X = 35, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(25, 25) },
+                    new() { Type = RenderContent.ContentType.Text,  Align = RenderContent.ContentAlign.MiddleLeft,  Offset = new RenderContent.ContentOffset{ X = 65, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                    new() { Type = RenderContent.ContentType.Text,  Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                    new() { Type = RenderContent.ContentType.Text,  Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0,  Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                ];
+                        DictList[p.Uid] = row;
+                    }
+
+                    row[0].Image = profBmp;
+                    row[1].Text = $"{p.Nickname}-{p.SubProfession}({p.CombatPower})";
+                    row[2].Text = $"{totalFmt}({perSec})";
+                    row[3].Text = share;
+
+                    if (!byId.TryGetValue(p.Uid, out var pb))
+                    {
+                        pb = new ProgressBarData
+                        {
+                            ID = p.Uid,
+                            ContentList = row,
+                            ProgressBarCornerRadius = 3,
+                            ProgressBarValue = ratio,
+                            ProgressBarColor = color,
+                        };
+                    }
+                    else
+                    {
+                        pb.ContentList = row;
+                        pb.ProgressBarValue = ratio;
+                        pb.ProgressBarColor = color;
+                    }
+
+                    next.Add(pb);
+                }
+
+                if (toRemove.Count > 0)
+                    foreach (var id in toRemove) DictList.Remove(id);
+
+                list = next;
+
+                void Bind() => sortedProgressBarList1.Data = list;
+                if (sortedProgressBarList1.InvokeRequired) sortedProgressBarList1.BeginInvoke((Action)Bind);
+                else Bind();
+            }
+        }
+
+        #endregion
+        #region 单场
+        /// <summary>构建：NPC承伤总览（当前 Current）</summary>
+        private List<NpcRow> BuildNpcOverviewRows_Current()
+        {
+            // 先驱动一次实时窗口更新（有就更顺滑；没有也无妨）
+            StatisticData._npcManager.UpdateAllRealtime();
+
+            var ids = StatisticData._npcManager.GetAllNpcIds();
+            if (ids == null || ids.Count == 0) return new();
+
+            var list = new List<NpcRow>(ids.Count);
+            foreach (var id in ids)
+            {
+                var name = StatisticData._npcManager.GetNpcName(id);
+                var ov = StatisticData._npcManager.GetNpcOverview(id);
+                if (ov.TotalTaken == 0) continue;
+
+                // 承伤PS：采用 Total / ActiveSeconds，更稳定；如果你更喜欢实时窗口，可替换为 ov.RealtimeTaken
+                var perSec = StatisticData._npcManager.GetNpcTakenPerSecond(id);
+
+                list.Add(new NpcRow
+                {
+                    NpcId = (long)id,
+                    Name = name,
+                    TotalTaken = ov.TotalTaken,
+                    TakenPerSec = perSec
+                });
+            }
+
+            return list.OrderByDescending(r => r.TotalTaken).ToList();
+        }
+        /// <summary>构建：对指定NPC的攻击者排名（当前 Current）</summary>
+        private List<NpcAttackerRow> BuildNpcAttackerRows_Current(ulong npcId, int topN = 20)
+        {
+            // 先刷新一下实时窗口，保证 Realtime 值与 ActiveSeconds 更贴近当前
+            StatisticData._npcManager.UpdateAllRealtime();
+
+            // 先用现成的 Top 列表拿“对NPC的总伤害/基础信息/玩家全程DPS”
+            var top = StatisticData._npcManager.GetNpcTopAttackers(npcId, topN);
+            if (top == null || top.Count == 0) return new();
+
+            var rows = new List<NpcAttackerRow>(top.Count);
+            foreach (var t in top)
+            {
+                // 专属DPS：用玩家对该NPC的 StatisticData（Total / ActiveSeconds）
+                var npcOnlyDps = StatisticData._npcManager.GetPlayerNpcOnlyDps(npcId, t.Uid);
+
+                rows.Add(new NpcAttackerRow
+                {
+                    Uid = (long)t.Uid,
+                    Nickname = t.Nickname,
+                    CombatPower = t.CombatPower,
+                    Profession = t.Profession,
+                    SubProfession = StatisticData._manager.GetOrCreate(t.Uid).SubProfession ?? "",
+                    DamageToNpc = t.DamageToNpc,
+                    PlayerDps = t.TotalDps,
+                    NpcOnlyDps = npcOnlyDps
+                });
+            }
+
+            return rows
+                .Where(r => r.DamageToNpc > 0)
+                .OrderByDescending(r => r.DamageToNpc)
+                .ToList();
+        }
+
+        #endregion
+        #endregion
 
         private List<UiRow> BuildUiRows(SourceType source, MetricType metric)
         {
@@ -725,5 +1039,59 @@ namespace StarResonanceDpsAnalysis.Forms
                 }).ToList();
             }
         }
+
+        /// <summary>构建：NPC承伤总览（全程 FullRecord）</summary>
+        private List<NpcRow> BuildNpcOverviewRows_FullRecord()
+        {
+            var snap = FullRecord.TakeSnapshot();
+            if (snap.Npcs == null || snap.Npcs.Count == 0) return new();
+
+            // 转为列表并按总承伤降序
+            var list = snap.Npcs.Values
+                .Select(n => new NpcRow
+                {
+                    NpcId = (long)n.NpcId,
+                    Name = n.Name ?? $"NPC[{n.NpcId}]",
+                    TotalTaken = n.TotalTaken,
+                    TakenPerSec = n.TakenPerSec
+                })
+                .Where(r => r.TotalTaken > 0)
+                .OrderByDescending(r => r.TotalTaken)
+                .ToList();
+
+            return list;
+        }
+
+        /// <summary>构建：对指定NPC的攻击者排名（全程 FullRecord）</summary>
+        private List<NpcAttackerRow> BuildNpcAttackerRows_FullRecord(ulong npcId, int topN = 20)
+        {
+            var top = FullRecord.GetNpcTopAttackers(npcId, topN);
+            if (top == null || top.Count == 0) return new();
+
+            // 如果有需要，这里可顺便回填一次昵称/职业/战力
+            foreach (var t in top)
+            {
+                try { PlayerDbSyncService.TryFillFromDbOnce(t.Uid); } catch { }
+            }
+
+            // 将 FullRecord 返回项映射到 UI 行
+            var rows = top.Select(t => new NpcAttackerRow
+            {
+                Uid = (long)t.Uid,
+                Nickname = t.Nickname,
+                CombatPower = t.CombatPower,
+                Profession = t.Profession,
+                SubProfession = StatisticData._manager.GetOrCreate(t.Uid).SubProfession ?? "",
+                DamageToNpc = t.DamageToNpc,
+                PlayerDps = t.PlayerDps,
+                NpcOnlyDps = t.NpcOnlyDps
+            })
+            .Where(r => r.DamageToNpc > 0)
+            .OrderByDescending(r => r.DamageToNpc)
+            .ToList();
+
+            return rows;
+        }
+
     }
 }

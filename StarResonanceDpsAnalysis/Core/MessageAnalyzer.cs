@@ -447,7 +447,10 @@ namespace StarResonanceDpsAnalysis.Core
                 {
                     if (isHeal)
                     {
-                         StatisticData._manager.AddHealing(attackerUuid, (ulong)skillId, damageElement, hpLessen, isCrit, isLucky, isCauseLucky, targetUuid);
+                        
+                            StatisticData._manager.AddHealing(isAttackerPlayer?attackerUuid:0, (ulong)skillId, damageElement, hpLessen, isCrit, isLucky, isCauseLucky, targetUuid);
+                        
+                  
                        
                     }
                     else
@@ -464,11 +467,8 @@ namespace StarResonanceDpsAnalysis.Core
                     }
                     //if (AppConfig.NpcsTakeDamage)
                     //{
-                        StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage, damageSource, isMiss, isDead, isCrit, isLucky, hpLessen);
                         
-                            Console.WriteLine(@$"怪物ID：{targetUuid}受到伤害{damage},来自{attackerUuid}的技能{skillId}");
-                        
-                        
+                    StatisticData._npcManager.AddNpcTakenDamage(targetUuid, attackerUuid, damage, isCrit, isLucky, hpLessen, isMiss, isDead);
                         
                         
                     //}
