@@ -185,7 +185,7 @@
             panel1.Controls.Add(BattleTimeText);
             panel1.Controls.Add(label1);
             panel1.Dock = DockStyle.Bottom;
-            panel1.Location = new Point(0, 460);
+            panel1.Location = new Point(0, 473);
             panel1.Margin = new Padding(5, 4, 5, 4);
             panel1.Name = "panel1";
             panel1.Radius = 3;
@@ -251,7 +251,7 @@
             sortedProgressBarList1.OrderImageRenderSize = new Size(0, 0);
             sortedProgressBarList1.OrderImages = null;
             sortedProgressBarList1.SeletedItemColor = Color.FromArgb(86, 156, 214);
-            sortedProgressBarList1.Size = new Size(582, 345);
+            sortedProgressBarList1.Size = new Size(582, 358);
             sortedProgressBarList1.TabIndex = 18;
             // 
             // panel2
@@ -340,7 +340,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
             BorderWidth = 0;
-            ClientSize = new Size(582, 517);
+            ClientSize = new Size(582, 530);
             Controls.Add(sortedProgressBarList1);
             Controls.Add(panel2);
             Controls.Add(panel1);

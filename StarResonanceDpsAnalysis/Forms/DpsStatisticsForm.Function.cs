@@ -311,7 +311,7 @@ namespace StarResonanceDpsAnalysis.Forms
             sortedProgressBarList1.OrderImages =
             [
                 new Bitmap(new MemoryStream(Resources.皇冠)),
-                            new Bitmap(new MemoryStream(Resources.皇冠白))
+                           
             ];
             sortedProgressBarList1.OrderImageOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
             sortedProgressBarList1.OrderImageRenderSize = new Size(32, 32);

@@ -168,7 +168,6 @@
             select2.Location = new Point(685, 275);
             select2.Name = "select2";
             select2.Radius = 3;
-            select2.SelectedIndex = 0;
             select2.SelectedValue = "KBM显示";
             select2.SelectionStart = 5;
             select2.Size = new Size(207, 68);

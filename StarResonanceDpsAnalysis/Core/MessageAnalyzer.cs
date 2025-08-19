@@ -439,7 +439,7 @@ namespace StarResonanceDpsAnalysis.Core
                 if (AppConfig.PilingMode)
                 {
                     if (attackerUuid != AppConfig.Uid) continue;
-                    if (targetUuid != 74) continue;
+                    if (targetUuid != 75) continue;
                 }
                 
                 // 区分目标是否是玩家
