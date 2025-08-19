@@ -1902,7 +1902,14 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             public NpcData(ulong npcId, string? name = null)
             {
                 NpcId = npcId;
-                if (!string.IsNullOrWhiteSpace(name)) Name = name!;
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    Name = name!;
+                }
+                else
+                {
+                    Name = npcId.ToString();
+                }
             }
 
             public void SetName(string name)
