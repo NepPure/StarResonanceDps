@@ -439,7 +439,7 @@ namespace StarResonanceDpsAnalysis.Core
                 if (AppConfig.PilingMode)
                 {
                     if (attackerUuid != AppConfig.Uid) continue;
-                    if (targetUuid != 75) continue;
+                    if (targetUuid != 74) continue;
                 }
                 
                 // 区分目标是否是玩家
@@ -466,7 +466,9 @@ namespace StarResonanceDpsAnalysis.Core
                     //{
                         StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage, damageSource, isMiss, isDead, isCrit, isLucky, hpLessen);
                         
-                        Console.WriteLine(@$"怪物ID：{targetUuid}受到伤害{damage},来自{attackerUuid}的技能{skillId}");
+                            Console.WriteLine(@$"怪物ID：{targetUuid}受到伤害{damage},来自{attackerUuid}的技能{skillId}");
+                        
+                        
                         
                         
                     //}
@@ -524,7 +526,7 @@ namespace StarResonanceDpsAnalysis.Core
 
             if (vData.Attr?.MaxHp != 0)
                 StatisticData._manager.SetAttrKV(playerUid, "max_hp", (int)vData.Attr.MaxHp);
-         
+       
             if (vData.CharBase != null)
             {
                 if (!string.IsNullOrEmpty(vData.CharBase.Name))
@@ -533,11 +535,19 @@ namespace StarResonanceDpsAnalysis.Core
                     AppConfig.NickName = vData.CharBase.Name;
                     updated = true;
                 }
+                else
+                {
+                    //如果没抓取到则从数据库中抓取
+                }
                 if (vData.CharBase.FightPoint != 0)
                 {
                     StatisticData._manager.SetCombatPower(playerUid, vData.CharBase.FightPoint);
                     AppConfig.CombatPower = vData.CharBase.FightPoint;
                     updated = true;
+                }
+                else
+                {
+                    //如果没抓取到则从数据库中抓取
                 }
             }
 
@@ -547,6 +557,10 @@ namespace StarResonanceDpsAnalysis.Core
                 var professionName = GetProfessionNameFromId(professionList.CurProfessionId);
                 AppConfig.Profession = professionName;
                 updated = true;
+            }
+            else
+            {
+                //如果没抓取到则从数据库抓取
             }
             if (updated) Task.Run(() => PlayerDbSyncService.UpsertCurrentAsync(playerUid));
         }

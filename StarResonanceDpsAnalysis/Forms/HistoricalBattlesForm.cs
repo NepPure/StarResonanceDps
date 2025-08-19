@@ -29,7 +29,7 @@ namespace StarResonanceDpsAnalysis.Forms
             ToggleTableView();
 
             label1.Font = AppConfig.TitleFont;
-            select1.Font = segmented1.Font = AppConfig.ContentFont;
+            select2.Font = select1.Font = segmented1.Font = AppConfig.ContentFont;
             var harmonyOsSansFont_Size11 = HandledResources.GetHarmonyOS_SansFont(11);
             label6.Font = harmonyOsSansFont_Size11;
             label3.Font = label2.Font = label5.Font = AppConfig.ContentFont;
@@ -141,7 +141,9 @@ namespace StarResonanceDpsAnalysis.Forms
             TeamTotalTakenDamageLabel.Text = snap.TeamTotalTakenDamage.ToString();
             var tdTotal = snap.TeamTotalDamage;
 
-            foreach (var p in snap.Players.Values)
+            var orderedPlayers = ApplySort(snap.Players.Values);
+
+            foreach (var p in orderedPlayers)
             {
                 double dmgShare = snap.TeamTotalDamage > 0
             ? Math.Round(p.TotalDamage * 100.0 / snap.TeamTotalDamage, 1)
@@ -207,8 +209,9 @@ namespace StarResonanceDpsAnalysis.Forms
             TeamTotalDamageLabel.Text = snap.TeamTotalDamage.ToString();
             TeamTotalHealingLabel.Text = snap.TeamTotalHealing.ToString();
             TeamTotalTakenDamageLabel.Text = snap.TeamTotalTakenDamage.ToString();
+            var orderedPlayers = ApplySort(snap.Players.Values);
 
-            foreach (var p in snap.Players.Values)
+            foreach (var p in orderedPlayers)
             {
                 double dmgShare = snap.TeamTotalDamage > 0
            ? Math.Round(p.TotalDamage * 100.0 / snap.TeamTotalDamage, 1)
@@ -259,6 +262,37 @@ namespace StarResonanceDpsAnalysis.Forms
             }
 
 
+        }
+
+        // 放在类内部（如字段区）
+        private enum SortMode { ByDamage, ByHealing, ByTaken }
+        private SortMode _sortMode = SortMode.ByDamage; // 默认按伤害
+        // SnapshotPlayer 是你快照里的玩家模型类型，按你项目里的命名替换
+        private IEnumerable<SnapshotPlayer> ApplySort(IEnumerable<SnapshotPlayer> players)
+        {
+            switch (_sortMode)
+            {
+                case SortMode.ByHealing:
+                    // 先按总治疗，再按平均HPS、再按瞬时峰值HPS作为次序
+                    return players
+                        .OrderByDescending(p => p.TotalHealing)
+                        .ThenByDescending(p => p.TotalHps)
+                        .ThenByDescending(p => p.HealingRealtimeMax);
+
+                case SortMode.ByTaken:
+                    // 承伤优先，其次用总伤害打破并列（你也可换成 Taken 的峰值等）
+                    return players
+                        .OrderByDescending(p => p.TakenDamage)
+                        .ThenByDescending(p => p.TotalDamage);
+
+                case SortMode.ByDamage:
+                default:
+                    // 伤害优先，其次平均DPS，再次瞬时峰值
+                    return players
+                        .OrderByDescending(p => p.TotalDamage)
+                        .ThenByDescending(p => p.TotalDps)
+                        .ThenByDescending(p => p.MaxSingleHit);
+            }
         }
 
         private void label1_MouseDown(object sender, MouseEventArgs e)
@@ -362,7 +396,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void HistoricalBattlesForm_ForeColorChanged(object sender, EventArgs e)
         {
-            if(Config.IsLight)
+            if (Config.IsLight)
             {
                 table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#AED4FB");
                 splitter1.Panel2.BackColor = splitter1.BackColor = ColorTranslator.FromHtml("#FFFFFF");
@@ -372,11 +406,34 @@ namespace StarResonanceDpsAnalysis.Forms
             }
             else
             {
-                splitter1.Panel2.BackColor  = splitter1.BackColor = ColorTranslator.FromHtml("#1F1F1F");
+                splitter1.Panel2.BackColor = splitter1.BackColor = ColorTranslator.FromHtml("#1F1F1F");
                 panel1.Back = ColorTranslator.FromHtml("#255AD0");
                 splitter1.Panel1.BackColor = ColorTranslator.FromHtml("#141414");
                 table_DpsDetailDataTable.BackColor = ColorTranslator.FromHtml("#1F1F1F");
                 table_DpsDetailDataTable.RowSelectedBg = ColorTranslator.FromHtml("#10529a");
+            }
+        }
+
+        private void select2_SelectedIndexChanged(object sender, IntEventArgs e)
+        {
+            var val = select2?.SelectedValue?.ToString();
+            _sortMode = val switch
+            {
+                "按治疗排序" => SortMode.ByHealing,
+                "按承伤排序" => SortMode.ByTaken,
+                _ => SortMode.ByDamage
+            };
+
+            // 重新渲染当前视图
+            if (segmented1.SelectIndex == 0)
+            {
+                if (select1.SelectedValue is ComboItemBattle b && b.Snapshot != null)
+                    DumpSnapshot(b.Snapshot);
+            }
+            else
+            {
+                if (select1.SelectedValue is ComboItemFull f && f.Snapshot != null)
+                    DumpFullSnapshot(f.Snapshot);
             }
         }
     }

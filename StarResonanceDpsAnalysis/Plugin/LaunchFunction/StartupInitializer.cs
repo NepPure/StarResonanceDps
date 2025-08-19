@@ -93,7 +93,7 @@ namespace StarResonanceDpsAnalysis.Plugin.LaunchFunction
         /// <summary>
         /// 更新网卡设置提示的显示状态
         /// </summary>
-        private static void UpdateNetworkCardSettingTip()
+        private static  void UpdateNetworkCardSettingTip()
         {
             try
             {
@@ -107,8 +107,10 @@ namespace StarResonanceDpsAnalysis.Plugin.LaunchFunction
                     {
                         // 网卡索引有效，认为已经设置
                         isNetworkCardSet = true;
+                    
                     }
                 }
+           
 
             }
             catch (Exception ex)

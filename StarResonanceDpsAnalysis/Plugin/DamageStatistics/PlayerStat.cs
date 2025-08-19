@@ -992,6 +992,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
     {
         #region 存储
 
+        private readonly object _playersLock = new object(); // ★ 统一锁（2025-08-19 新增）
 
 
         /// <summary>
@@ -1189,33 +1190,23 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <returns><see cref="PlayerData"/> 实例。</returns>
         public PlayerData GetOrCreate(ulong uid)
         {
-            if (!_players.TryGetValue(uid, out var data))
+            lock (_playersLock)
             {
-                data = new PlayerData(uid);
-                _players[uid] = data;
-
-                _lastAddTime = DateTime.Now;
-
-                // 预填缓存信息（若已存在）
-                if (_nicknameRequestedUids.TryGetValue(uid, out var cachedName) &&
-                    !string.IsNullOrWhiteSpace(cachedName))
+                if (!_players.TryGetValue(uid, out var data))
                 {
-                    data.Nickname = cachedName;
-                }
+                    data = new PlayerData(uid);
+                    _players[uid] = data;
+                    _lastAddTime = DateTime.Now;
 
-                if (_combatPowerByUid.TryGetValue(uid, out var power) && power > 0)
-                {
-                    data.CombatPower = power;
+                    if (_nicknameRequestedUids.TryGetValue(uid, out var cachedName) && !string.IsNullOrWhiteSpace(cachedName))
+                        data.Nickname = cachedName;
+                    if (_combatPowerByUid.TryGetValue(uid, out var power) && power > 0)
+                        data.CombatPower = power;
+                    if (_professionByUid.TryGetValue(uid, out var profession) && !string.IsNullOrWhiteSpace(profession))
+                        data.Profession = profession;
                 }
-
-                if (_professionByUid.TryGetValue(uid, out var profession) &&
-                    !string.IsNullOrWhiteSpace(profession))
-                {
-                    data.Profession = profession;
-                }
+                return data;
             }
-
-            return data;
         }
 
 
@@ -1253,8 +1244,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// </summary>
         private async void CheckTimerElapsed(object? sender, ElapsedEventArgs e)
         {
-            if (_lastAddTime == DateTime.MinValue || _players.Count == 0)
-                return;
+            bool hasPlayers;
+            lock (_playersLock) { hasPlayers = _players.Count > 0; }
+            if (_lastAddTime == DateTime.MinValue || !hasPlayers) return;
 
             UpdateAllRealtimeStats();
 
@@ -1385,6 +1377,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         // # 分类：批量与查询（玩家集/技能占比/技能详情/全队聚合）
         // ------------------------------------------------------------
         #region 批量与查询
+    
 
         /// <summary>
         /// 获取有战斗数据的玩家集合（过滤掉没有伤害、治疗与承伤的玩家）。
@@ -1392,28 +1385,44 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <returns>只返回有战斗数据的玩家列表。</returns>
         public IEnumerable<PlayerData> GetPlayersWithCombatData()
         {
-            lock (_players) // 或者用你自己定义的 _playersLock
+            PlayerData[] snapshot;
+            lock (_playersLock)
             {
-                return _players.Values
-                    .Where(p => p != null && p.HasCombatData())
-                    .ToArray(); // 在锁内完成枚举和复制
+                if (_players.Count == 0) return Array.Empty<PlayerData>();
+                snapshot = _players.Values.ToArray(); // 仅在锁内复制
             }
+
+            // 锁外筛选：只读“标量总值”，避免在 HasCombatData() 里枚举可变集合
+            return snapshot.Where(p =>
+                p != null &&
+                (
+                    (p.DamageStats?.Total ?? 0UL) != 0UL ||
+                    (p.HealingStats?.Total ?? 0UL) != 0UL ||
+                    p.TakenDamage != 0UL
+                )
+            );
         }
 
         /// <summary>刷新所有玩家的实时统计（滚动窗口）。</summary>
         public void UpdateAllRealtimeStats()
         {
-            if (_players.Count == 0) return;
-
-            var players = _players.Values.ToArray(); // ← 拍快照
-            foreach (var player in players)
-                player?.UpdateRealtimeStats();
+            PlayerData[] players;
+            lock (_playersLock)
+            {
+                if (_players.Count == 0) return;
+                players = _players.Values.ToArray();
+            }
+            foreach (var p in players) p?.UpdateRealtimeStats();
         }
 
 
         /// <summary>获取所有玩家数据对象。</summary>
         /// <returns>玩家数据的枚举。</returns>
-        public IEnumerable<PlayerData> GetAllPlayers() => _players.Values;
+        public IEnumerable<PlayerData> GetAllPlayers()
+        {
+            lock (_playersLock) { return _players.Values.ToArray(); }
+        }
+
         bool InitialStart = false;
         /// <summary>
         /// 清空所有玩家数据（可选是否保留战斗时钟）。清空前会自动保存当前战斗快照。
@@ -1426,27 +1435,32 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             //    InitialStart = true;
             //    return;
             //}
-          
-            // —— 新增：如果当前有战斗数据，先保存快照
-            if (_players.Count > 0)
+
+            bool hadPlayers;
+            lock (_playersLock) { hadPlayers = _players.Count > 0; }
+
+            if (hadPlayers)
             {
-                // 如果还没标记结束，就把结束时间定为最后活动时间/现在
                 if (_combatStart.HasValue && !_combatEnd.HasValue)
                     _combatEnd = _lastCombatActivity != DateTime.MinValue ? _lastCombatActivity : DateTime.Now;
-
-                SaveCurrentBattleSnapshot();
+                SaveCurrentBattleSnapshot(); // 里面会自己拍玩家快照
             }
-            _players.Clear();
+
+            lock (_playersLock)
+            {
+                _players.Clear();
+            }
 
             FormManager.dpsStatistics.ListClear();
-
-            if (!keepCombatTime)//false为清空
-                ResetCombatClock(); // 手动清空计时
+            ResetCombatClock();
 
         }
 
         /// <summary>获取所有玩家 UID。</summary>
-        public IEnumerable<ulong> GetAllUids() => _players.Keys;
+        public IEnumerable<ulong> GetAllUids()
+        {
+            lock (_playersLock) { return _players.Keys.ToArray(); }
+        }
 
         /// <summary>
         /// 获取“全队 Top 技能”（按总伤害聚合）。
@@ -1455,12 +1469,14 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <returns>全队技能汇总列表（降序）。</returns>
         public List<TeamSkillSummary> GetTeamTopSkillsByTotal(int topN = 20)
         {
-            // skillId -> (total, count)
-            var agg = new Dictionary<ulong, (ulong total, int count)>();
+            PlayerData[] players;
+            lock (_playersLock) { players = _players.Values.ToArray(); }
 
-            foreach (var p in _players.Values)
+            var agg = new Dictionary<ulong, (ulong total, int count)>();
+            foreach (var p in players)
             {
-                foreach (var kv in p.SkillUsage)
+                // 技能字典也拍快照
+                foreach (var kv in p.SkillUsage.ToArray())
                 {
                     if (!agg.TryGetValue(kv.Key, out var a))
                         agg[kv.Key] = (kv.Value.Total, kv.Value.CountTotal);
@@ -1469,17 +1485,16 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 }
             }
 
-            return agg
-                .OrderByDescending(x => x.Value.total)
-                .Take(topN)
-                .Select(x => new TeamSkillSummary
-                {
-                    SkillId = x.Key,
-                    SkillName = SkillBook.Get(x.Key).Name,
-                    Total = x.Value.total,
-                    HitCount = x.Value.count
-                })
-                .ToList();
+            return agg.OrderByDescending(x => x.Value.total)
+                      .Take(topN)
+                      .Select(x => new TeamSkillSummary
+                      {
+                          SkillId = x.Key,
+                          SkillName = SkillBook.Get(x.Key).Name,
+                          Total = x.Value.total,
+                          HitCount = x.Value.count
+                      })
+                      .ToList();
         }
 
         /// <summary>
@@ -1554,59 +1569,45 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="topN">Top N 技能数量。</param>
         /// <param name="includeOthers">是否包含“其他”。</param>
         /// <returns>(SkillId, SkillName, Total, Percent) 列表。</returns>
+        // 2025-08-19 修改：同理，团队整场占比
         public List<(ulong SkillId, string SkillName, ulong Total, int Percent)>
             GetTeamSkillDamageShareTotal(int topN = 10, bool includeOthers = true)
         {
-            // 1) 聚合全队：skillId -> totalDamage
-            var agg = new Dictionary<ulong, ulong>();
-            foreach (var p in _players.Values)
-            {
-                foreach (var kv in p.SkillUsage)
-                {
-                    ulong sid = kv.Key;
-                    ulong val = kv.Value.Total;
-                    if (val == 0) continue;
+            PlayerData[] players;
+            lock (_playersLock) { players = _players.Values.ToArray(); }
 
-                    if (agg.TryGetValue(sid, out var old))
-                        agg[sid] = old + val;
-                    else
-                        agg[sid] = val;
+            var agg = new Dictionary<ulong, ulong>();
+            foreach (var p in players)
+            {
+                foreach (var kv in p.SkillUsage.ToArray())
+                {
+                    if (kv.Value.Total == 0) continue;
+                    agg[kv.Key] = agg.TryGetValue(kv.Key, out var old) ? old + kv.Value.Total : kv.Value.Total;
                 }
             }
             if (agg.Count == 0) return new();
 
-            // 2) 分母：全队总伤害
-            ulong denom = 0;
-            foreach (var v in agg.Values) denom += v;
-            if (denom == 0) return new();
+            ulong denom = 0; foreach (var v in agg.Values) denom += v; if (denom == 0) return new();
 
-            // 3) 排序并取 TopN
-            var top = agg
-                .Select(kv => new { kv.Key, Val = kv.Value })
-                .OrderByDescending(x => x.Val)
-                .ToList();
+            var top = agg.Select(kv => new { kv.Key, Val = kv.Value })
+                         .OrderByDescending(x => x.Val)
+                         .Take(topN)
+                         .ToList();
 
-            var chosen = top.Take(topN).ToList();
-            ulong chosenSum = 0;
-            foreach (var c in chosen) chosenSum += c.Val;
+            ulong chosenSum = 0; foreach (var c in top) chosenSum += c.Val;
 
-            // 4) 组装结果
-            var result = new List<(ulong SkillId, string SkillName, ulong Total, int Percent)>(chosen.Count + 1);
-            foreach (var c in chosen)
+            var result = new List<(ulong, string, ulong, int)>(top.Count + 1);
+            foreach (var c in top)
             {
-                double r = (double)c.Val / denom;
-                int p = (int)Math.Round(r * 100.0);
-                var name = SkillBook.Get(c.Key).Name;
-                result.Add((c.Key, name, c.Val, p));
+                int pcent = (int)Math.Round((double)c.Val / denom * 100.0);
+                result.Add((c.Key, SkillBook.Get(c.Key).Name, c.Val, pcent));
             }
-
-            if (includeOthers && top.Count > chosen.Count)
+            if (includeOthers && agg.Count > top.Count)
             {
                 ulong others = denom - chosenSum;
-                int p = (int)Math.Round((double)others / denom * 100.0);
-                result.Add((0, "其他", others, p));
+                int pcent = (int)Math.Round((double)others / denom * 100.0);
+                result.Add((0, "其他", others, pcent));
             }
-
             return result;
         }
 
@@ -1761,9 +1762,15 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// 生成并保存当前战斗快照（在清空前调用）。
         /// 规则：若当前处于进行中且未标记结束，则结束时间取“最后活动时间或 Now”。
         /// </summary>
+        // 2025-08-19 修改：锁内抽取 players 快照，锁外遍历
         private void SaveCurrentBattleSnapshot()
         {
-            if (_players.Count == 0) return;
+            PlayerData[] players;
+            lock (_playersLock)
+            {
+                if (_players.Count == 0) return;
+                players = _players.Values.ToArray();
+            }
 
             var endedAt = DateTime.Now;
             var startedAt = _combatStart ?? endedAt;
@@ -1772,43 +1779,33 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
             var label = $"结束时间：{endedAt:HH:mm:ss}";
 
-            ulong teamDmg = 0;
-            ulong teamHeal = 0;
-            ulong teamTaken = 0;                 // ★ 新增
+            ulong teamDmg = 0, teamHeal = 0, teamTaken = 0;
+            var snapPlayers = new Dictionary<ulong, SnapshotPlayer>(players.Length);
 
-
-            var snapPlayers = new Dictionary<ulong, SnapshotPlayer>(_players.Count);
-
-            foreach (var p in _players.Values)
+            foreach (var p in players)
             {
-                if (!p.HasCombatData()) continue;
-
+                if (p == null || !p.HasCombatData()) continue;
 
                 var dmg = p.DamageStats;
                 var heal = p.HealingStats;
 
-                // 确保实时窗口是最新（可选）
+                // 先抓一次快照值（同一时刻的视角）
+                var totalDmg = dmg.Total;
+                var totalHeal = heal.Total;
+                var totalTaken = p.TakenDamage;
+                // 用捕获值过滤
+                if (totalDmg == 0 && totalHeal == 0 && totalTaken == 0)
+                    continue;
+
                 dmg.UpdateRealtimeStats();
                 heal.UpdateRealtimeStats();
 
                 teamDmg += dmg.Total;
                 teamHeal += heal.Total;
-                teamTaken += p.TakenDamage;      // ★ 新增
+                teamTaken += p.TakenDamage;
 
-
-                var damageSkills = p.GetSkillSummaries(
-                    topN: null,
-                    orderByTotalDesc: true,
-                    filterType: Core.SkillType.Damage
-                );
-
-                var healingSkills = p.GetSkillSummaries(
-                    topN: null,
-                    orderByTotalDesc: true,
-                    filterType: Core.SkillType.Heal
-                );
-
-                // ★ 新增：承伤按技能
+                var damageSkills = p.GetSkillSummaries(null, true, Core.SkillType.Damage);
+                var healingSkills = p.GetSkillSummaries(null, true, Core.SkillType.Heal);
                 var takenSkills = p.GetTakenDamageSummaries(null, true);
 
                 var sp = new SnapshotPlayer
@@ -1824,27 +1821,22 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                     TotalHps = p.GetTotalHps(),
                     TakenDamage = p.TakenDamage,
                     LastRecordTime = dmg.LastRecordTime,
-
                     DamageSkills = damageSkills,
                     HealingSkills = healingSkills,
-
-                    // —— 新增字段赋值 —— //
+                    TakenSkills = takenSkills,
                     RealtimeDps = dmg.RealtimeValue,
-                    CritRate = dmg.GetCritRate(),          // 0~100
-                    LuckyRate = dmg.GetLuckyRate(),        // 0~100
+                    CritRate = dmg.GetCritRate(),
+                    LuckyRate = dmg.GetLuckyRate(),
                     CriticalDamage = dmg.Critical,
                     LuckyDamage = dmg.Lucky,
                     CritLuckyDamage = dmg.CritLucky,
                     MaxSingleHit = dmg.MaxSingleHit,
-                    TakenSkills = takenSkills,      // ★ 新增
-
                     HealingCritical = heal.Critical,
                     HealingLucky = heal.Lucky,
                     HealingCritLucky = heal.CritLucky,
                     HealingRealtime = heal.RealtimeValue,
                     HealingRealtimeMax = heal.RealtimeMax,
                     RealtimeDpsMax = dmg.RealtimeMax,
-
                 };
 
                 snapPlayers[p.Uid] = sp;
@@ -1859,12 +1851,13 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 Duration = duration,
                 TeamTotalDamage = teamDmg,
                 TeamTotalHealing = teamHeal,
-                TeamTotalTakenDamage = teamTaken,  // ★ 新增
+                TeamTotalTakenDamage = teamTaken,
                 Players = snapPlayers
             };
 
             _history.Add(snapshot);
         }
+
 
         /// <summary>
         /// 清空所有历史快照（不影响当前战斗数据）

@@ -115,8 +115,31 @@ namespace StarResonanceDpsAnalysis.Plugin
 
         // 清空历史数据的快捷键，null 表示未设置
         private static Keys? _clearHistoryKey = null;
+        private static string _damageDisplayType = null;
 
-
+        /// <summary>
+        /// DPS伤害类型显示
+        /// </summary>
+        public static string DamageDisplayType1
+        {
+            get
+            {
+                if(_damageDisplayType == null)
+                {
+                    var value = GetValue("SetUp", "DamageDisplayType1", "专业");
+                    _damageDisplayType = value;
+                }
+                return _damageDisplayType;
+            }
+            set
+            {
+               
+                    SetValue("SetUp", "DamageDisplayType1", value);
+                    _damageDisplayType = value;
+                
+            }
+ 
+        }
         /// <summary>
         /// # 分类：外观/用户信息/业务参数（立即可用的公开字段）
         /// - DpsColor：进度条或 DPS 相关 UI 颜色

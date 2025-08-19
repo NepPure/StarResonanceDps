@@ -34,6 +34,7 @@
             pageHeader1 = new AntdUI.PageHeader();
             label1 = new AntdUI.Label();
             panel6 = new AntdUI.Panel();
+            select2 = new AntdUI.Select();
             button1 = new AntdUI.Button();
             button3 = new AntdUI.Button();
             select1 = new AntdUI.Select();
@@ -91,6 +92,7 @@
             // 
             // panel6
             // 
+            panel6.Controls.Add(select2);
             panel6.Controls.Add(button1);
             panel6.Controls.Add(button3);
             panel6.Dock = DockStyle.Bottom;
@@ -102,6 +104,24 @@
             panel6.Size = new Size(1130, 106);
             panel6.TabIndex = 33;
             panel6.Text = "panel6";
+            // 
+            // select2
+            // 
+            select2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            select2.DropDownTextAlign = AntdUI.TAlign.Top;
+            select2.Items.AddRange(new object[] { "按伤害排序", "按治疗排序", "按承伤排序" });
+            select2.List = true;
+            select2.Location = new Point(881, 34);
+            select2.Name = "select2";
+            select2.Placement = AntdUI.TAlignFrom.Top;
+            select2.Radius = 3;
+            select2.SelectedIndex = 0;
+            select2.SelectedValue = "按伤害排序";
+            select2.SelectionStart = 5;
+            select2.Size = new Size(237, 47);
+            select2.TabIndex = 29;
+            select2.Text = "按伤害排序";
+            select2.SelectedIndexChanged += select2_SelectedIndexChanged;
             // 
             // button1
             // 
@@ -378,5 +398,6 @@
         private AntdUI.Label label6;
         private AntdUI.Label TeamTotalTakenDamageLabel;
         private AntdUI.Label label5;
+        private AntdUI.Select select2;
     }
 }
