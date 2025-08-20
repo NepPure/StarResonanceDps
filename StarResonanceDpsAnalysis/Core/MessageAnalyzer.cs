@@ -8,7 +8,8 @@ using BlueProto;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using ZstdNet;
-using StarResonanceDpsAnalysis.Plugin.Database; // 数据库同步
+using StarResonanceDpsAnalysis.Plugin.Database;
+using StarResonanceDpsAnalysis.Core.test; // 数据库同步
 
 namespace StarResonanceDpsAnalysis.Core
 {
@@ -289,6 +290,7 @@ namespace StarResonanceDpsAnalysis.Core
         /// </summary>
         public static void ProcessSyncNearEntities(byte[] payloadBuffer)
         {
+            #region
             var syncNearEntities = SyncNearEntities.Parser.ParseFrom(payloadBuffer);
             if (syncNearEntities.Appear == null || syncNearEntities.Appear.Count == 0) return;
 
@@ -314,7 +316,7 @@ namespace StarResonanceDpsAnalysis.Core
                     {
                         case (int)AttrType.AttrName:
                             StatisticData._manager.SetNickname(playerUid, reader.ReadString());
-                        
+
                             updated = true;
                             break;
                         case (int)AttrType.AttrProfessionId:
@@ -358,7 +360,10 @@ namespace StarResonanceDpsAnalysis.Core
                 }
                 if (updated) Task.Run(() => PlayerDbSyncService.UpsertCurrentAsync(playerUid));
             }
+            #endregion
         }
+
+
 
         /// <summary>
         /// 同步周边增量伤害（范围内其他角色的技能/伤害）
