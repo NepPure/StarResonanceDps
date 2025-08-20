@@ -316,7 +316,6 @@ namespace StarResonanceDpsAnalysis.Core
                     {
                         case (int)AttrType.AttrName:
                             StatisticData._manager.SetNickname(playerUid, reader.ReadString());
-
                             updated = true;
                             break;
                         case (int)AttrType.AttrProfessionId:
@@ -343,16 +342,22 @@ namespace StarResonanceDpsAnalysis.Core
                             StatisticData._manager.SetAttrKV(playerUid, "hp", reader.ReadInt32());
                             break;
                         case (int)AttrType.AttrMaxHp:
+                            
                             _ = reader.ReadInt32();
+                        
+
                             break;
                         case (int)AttrType.AttrElementFlag:
                             _ = reader.ReadInt32();
+                       
                             break;
                         case (int)AttrType.AttrEnergyFlag:
                             _ = reader.ReadInt32();
+                          
                             break;
                         case (int)AttrType.AttrReductionLevel:
                             _ = reader.ReadInt32();
+                      
                             break;
                         default:
                             break;
@@ -562,7 +567,7 @@ namespace StarResonanceDpsAnalysis.Core
         }
 
         /// <summary>
-        /// 同步自身部分更新（脏数据）
+        /// 同步自身部分更新（脏数据） //增量更新，有数据就更新
         /// </summary>
         public static void ProcessSyncContainerDirtyData(byte[] payloadBuffer)
         {
