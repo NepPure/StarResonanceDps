@@ -1636,9 +1636,13 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         public (string Nickname, int CombatPower, string Profession) GetPlayerBasicInfo(ulong uid)
         {
             // 先查已创建的 PlayerData
-            if (_players.TryGetValue(uid, out var player))
+            // 对 _players 的访问统一加锁
+            lock (_playersLock)
             {
-                return (player.Nickname, player.CombatPower, player.Profession);
+                if (_players.TryGetValue(uid, out var player))
+                {
+                    return (player.Nickname, player.CombatPower, player.Profession);
+                }
             }
 
             // 没有 PlayerData，则用缓存字典
