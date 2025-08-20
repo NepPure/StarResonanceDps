@@ -139,7 +139,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         {
             get
             {
-                if(_damageDisplayType == null)
+                if (_damageDisplayType == null)
                 {
                     var value = GetValue("SetUp", "DamageDisplayType1", "KMB显示");
                     _damageDisplayType = value;
@@ -148,12 +148,12 @@ namespace StarResonanceDpsAnalysis.Plugin
             }
             set
             {
-               
-                    SetValue("SetUp", "DamageDisplayType1", value);
-                    _damageDisplayType = value;
-                
+
+                SetValue("SetUp", "DamageDisplayType1", value);
+                _damageDisplayType = value;
+
             }
- 
+
         }
         /// <summary>
         /// # 分类：外观/用户信息/业务参数（立即可用的公开字段）
@@ -387,16 +387,12 @@ namespace StarResonanceDpsAnalysis.Plugin
             {
                 if (_startUpState == null)
                 {
-                    var psb = Screen.PrimaryScreen?.Bounds;
+                    var psb = Screen.PrimaryScreen?.Bounds;//630, 530 \ 420, 350
                     var valueStr = GetValue("SetUp", "StartUpState", string.Empty);
-                    var valueList = valueStr.Split(',').Select(e => e.ToInt()).ToList();
-                    if (valueList.Count == 4)
+                    var valueList = valueStr.Split(',').Select(e => e.ToInt(-1)).ToList();
+                    if (valueList.Count == 4 && valueList[0] >= 0 && valueList[1] >= 0 && valueList[2] >= 0 && valueList[3] >= 0)
                     {
                         _startUpState = new Rectangle(valueList[0], valueList[1], valueList[2], valueList[3]);
-                    }
-                    else if (psb != null)
-                    {
-                        _startUpState = new Rectangle((int)(psb.Value.Left + psb.Value.Width * 0.85 - 165), psb.Value.Height / 2 - 165, (int)(330 * AntdUI.Config.Dpi), (int)(330 * AntdUI.Config.Dpi));
                     }
                 }
 
