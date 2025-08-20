@@ -535,20 +535,14 @@ namespace StarResonanceDpsAnalysis.Core
                     AppConfig.NickName = vData.CharBase.Name;
                     updated = true;
                 }
-                else
-                {
-                    //如果没抓取到则从数据库中抓取
-                }
+
                 if (vData.CharBase.FightPoint != 0)
                 {
                     StatisticData._manager.SetCombatPower(playerUid, vData.CharBase.FightPoint);
                     AppConfig.CombatPower = vData.CharBase.FightPoint;
                     updated = true;
                 }
-                else
-                {
-                    //如果没抓取到则从数据库中抓取
-                }
+
             }
 
             var professionList = vData.ProfessionList;
@@ -558,10 +552,7 @@ namespace StarResonanceDpsAnalysis.Core
                 AppConfig.Profession = professionName;
                 updated = true;
             }
-            else
-            {
-                //如果没抓取到则从数据库抓取
-            }
+
             if (updated) Task.Run(() => PlayerDbSyncService.UpsertCurrentAsync(playerUid));
         }
 

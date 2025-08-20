@@ -133,7 +133,7 @@
             label10.Prefix = "温馨提示：";
             label10.Size = new Size(727, 37);
             label10.TabIndex = 35;
-            label10.Text = "如果不显示技能，请切换一次地图以便获取人物UID";
+            label10.Text = "如果不显示技能，请切换一次地图";
             label10.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // SkillDiary
