@@ -32,10 +32,10 @@
             pageHeader1 = new AntdUI.PageHeader();
             TitleText = new AntdUI.Label();
             panel6 = new AntdUI.Panel();
-            select2 = new AntdUI.Select();
             button3 = new AntdUI.Button();
             button4 = new AntdUI.Button();
             richTextBox1 = new RichTextBox();
+            label10 = new AntdUI.Label();
             pageHeader1.SuspendLayout();
             panel6.SuspendLayout();
             SuspendLayout();
@@ -72,7 +72,6 @@
             // 
             // panel6
             // 
-            panel6.Controls.Add(select2);
             panel6.Controls.Add(button3);
             panel6.Controls.Add(button4);
             panel6.Dock = DockStyle.Bottom;
@@ -84,17 +83,6 @@
             panel6.Size = new Size(727, 86);
             panel6.TabIndex = 33;
             panel6.Text = "panel6";
-            // 
-            // select2
-            // 
-            select2.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            select2.DropDownTextAlign = AntdUI.TAlign.Top;
-            select2.List = true;
-            select2.Location = new Point(3369, 44);
-            select2.Name = "select2";
-            select2.Radius = 0;
-            select2.Size = new Size(204, 47);
-            select2.TabIndex = 27;
             // 
             // button3
             // 
@@ -131,9 +119,22 @@
             richTextBox1.Location = new Point(0, 52);
             richTextBox1.Name = "richTextBox1";
             richTextBox1.ReadOnly = true;
-            richTextBox1.Size = new Size(727, 737);
+            richTextBox1.Size = new Size(727, 700);
             richTextBox1.TabIndex = 34;
             richTextBox1.Text = "";
+            // 
+            // label10
+            // 
+            label10.BackColor = Color.Transparent;
+            label10.Dock = DockStyle.Bottom;
+            label10.Font = new Font("HarmonyOS Sans SC", 9F);
+            label10.Location = new Point(0, 752);
+            label10.Name = "label10";
+            label10.Prefix = "温馨提示：";
+            label10.Size = new Size(727, 37);
+            label10.TabIndex = 35;
+            label10.Text = "如果不显示技能，请切换一次地图以便获取人物UID";
+            label10.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // SkillDiary
             // 
@@ -142,11 +143,12 @@
             BackColor = Color.White;
             ClientSize = new Size(727, 875);
             Controls.Add(richTextBox1);
+            Controls.Add(label10);
             Controls.Add(panel6);
             Controls.Add(pageHeader1);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "SkillDiary";
-            Text = "SkillDiary";
+            Text = "技能释放记录";
             Load += SkillDiary_Load;
             ForeColorChanged += SkillDiary_ForeColorChanged;
             pageHeader1.ResumeLayout(false);
@@ -162,5 +164,6 @@
         private AntdUI.Button button3;
         private AntdUI.Button button4;
         private RichTextBox richTextBox1;
+        private AntdUI.Label label10;
     }
 }

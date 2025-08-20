@@ -112,7 +112,12 @@ namespace StarResonanceDpsAnalysis.Core
         /// <param name="treat">是否疗伤</param>
         public static void OnHit(ulong uid, ulong skillId, ulong damage, bool iscrit, bool isLucky, bool treat = false)
         {
-            if (FormManager.skillDiary == null || uid != 1278738) return;
+            // 1) 只处理本人的
+            if (uid != AppConfig.Uid) return;
+
+            // 2) 拿一个局部快照，避免检查之后被别的线程置空
+            var form = FormManager.skillDiary;
+            if (form == null || form.IsDisposed || !form.IsHandleCreated) return;
 
             var (shouldWrite, count, totalDamage, critCount, luckyCount) =
                 SkillDiaryGate.Register(uid, skillId, damage, iscrit, isLucky, treat); // ★ 传 treat

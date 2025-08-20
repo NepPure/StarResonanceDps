@@ -108,7 +108,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             StartCapture(); // 启动网络抓包/数据采集（核心运行入口之一）
 
             // 重置为上次关闭前的位置与大小
-           // SetStartupPositionAndSize();
+            SetStartupPositionAndSize();
 
             EnsureTopMost();
         } 
