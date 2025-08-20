@@ -1,4 +1,6 @@
-﻿using StarResonanceDpsAnalysis.Forms;
+﻿using BlueProto;
+using StarResonanceDpsAnalysis.Core;
+using StarResonanceDpsAnalysis.Forms;
 using System.Timers;
 using System.Xml.Linq;
 using static StarResonanceDpsAnalysis.Plugin.DamageStatistics.PlayerDataManager;
@@ -1285,6 +1287,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         // ------------------------------------------------------------
         #region 全局写入（转发至 PlayerData）
 
+       
+
         /// <summary>
         /// 添加全局伤害记录（会标记战斗活动、写入到玩家聚合与分技能，并同步全程记录）。
         /// </summary>
@@ -1300,8 +1304,10 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             // # 分类：进入战斗（自动）
             MarkCombatActivity();
             GetOrCreate(uid).AddDamage(
-     skillId, damage, isCrit, isLucky, hpLessen,
-     damageElement, isCauseLucky);
+             skillId, damage, isCrit, isLucky, hpLessen,
+             damageElement, isCauseLucky);
+            SkillDiaryGate.OnHit(uid,skillId,damage,isCrit,isLucky);
+
         }
 
         /// <summary>
@@ -1330,6 +1336,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             GetOrCreate(uid).AddHealing(
       skillId, healing, isCrit, isLucky,
       damageElement, isCauseLucky, targetUuid);
+            SkillDiaryGate.OnHit(uid, skillId, healing,isCrit,isLucky,true);
         }
 
 
@@ -2061,6 +2068,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             public void AddNpcTakenDamage(
                 ulong npcId,
                 ulong attackerUid,
+                long skillId,
                 ulong damage,
                 bool isCrit,
                 bool isLucky,
@@ -2072,6 +2080,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 var npc = GetOrCreate(npcId, npcName);
                 npc.AddTakenFrom(attackerUid, damage, isCrit, isLucky, hpLessen, isMiss, isDead);
                 FullRecord.RecordNpcTakenDamage(npcId, attackerUid, damage, isCrit, isLucky, hpLessen, isMiss, isDead);
+               
 
             }
 

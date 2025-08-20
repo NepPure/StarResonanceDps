@@ -73,6 +73,8 @@
             PowerText = new AntdUI.Label();
             panel3 = new AntdUI.Panel();
             panel5 = new AntdUI.Panel();
+            Rank_levelLabel = new AntdUI.Label();
+            LevelLabel = new AntdUI.Label();
             select1 = new AntdUI.Select();
             panel6 = new AntdUI.Panel();
             button2 = new AntdUI.Button();
@@ -114,7 +116,7 @@
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
             table_DpsDetailDataTable.RowHeight = 40;
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
-            table_DpsDetailDataTable.Size = new Size(1272, 917);
+            table_DpsDetailDataTable.Size = new Size(1280, 917);
             table_DpsDetailDataTable.TabIndex = 14;
             table_DpsDetailDataTable.Text = "table1";
             // 
@@ -398,7 +400,7 @@
             panel2.Controls.Add(divider2);
             panel2.Controls.Add(label19);
             panel2.Dock = DockStyle.Right;
-            panel2.Location = new Point(655, 10);
+            panel2.Location = new Point(663, 10);
             panel2.Name = "panel2";
             panel2.Shadow = 6;
             panel2.Size = new Size(607, 234);
@@ -621,6 +623,8 @@
             // panel5
             // 
             panel5.BackColor = Color.Transparent;
+            panel5.Controls.Add(Rank_levelLabel);
+            panel5.Controls.Add(LevelLabel);
             panel5.Controls.Add(panel3);
             panel5.Controls.Add(PowerText);
             panel5.Controls.Add(UidText);
@@ -634,6 +638,28 @@
             panel5.Size = new Size(1761, 123);
             panel5.TabIndex = 29;
             panel5.Text = "panel5";
+            // 
+            // Rank_levelLabel
+            // 
+            Rank_levelLabel.BackColor = Color.Transparent;
+            Rank_levelLabel.Font = new Font("HarmonyOS Sans SC", 9F);
+            Rank_levelLabel.Location = new Point(724, 34);
+            Rank_levelLabel.Name = "Rank_levelLabel";
+            Rank_levelLabel.Prefix = "臂章：";
+            Rank_levelLabel.Size = new Size(168, 45);
+            Rank_levelLabel.TabIndex = 28;
+            Rank_levelLabel.Text = "";
+            // 
+            // LevelLabel
+            // 
+            LevelLabel.BackColor = Color.Transparent;
+            LevelLabel.Font = new Font("HarmonyOS Sans SC", 9F);
+            LevelLabel.Location = new Point(550, 33);
+            LevelLabel.Name = "LevelLabel";
+            LevelLabel.Prefix = "等级：";
+            LevelLabel.Size = new Size(168, 45);
+            LevelLabel.TabIndex = 27;
+            LevelLabel.Text = "";
             // 
             // select1
             // 
@@ -708,7 +734,7 @@
             // 
             splitter1.Panel2.Controls.Add(splitter2);
             splitter1.Size = new Size(1761, 1218);
-            splitter1.SplitterDistance = 483;
+            splitter1.SplitterDistance = 475;
             splitter1.SplitterWidth = 6;
             splitter1.TabIndex = 27;
             // 
@@ -723,7 +749,7 @@
             collapse1.Items.Add(collapseItem3);
             collapse1.Location = new Point(0, 0);
             collapse1.Name = "collapse1";
-            collapse1.Size = new Size(483, 1218);
+            collapse1.Size = new Size(475, 1218);
             collapse1.TabIndex = 28;
             collapse1.Text = "collapse1";
             // 
@@ -733,7 +759,7 @@
             collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
             collapseItem1.Location = new Point(27, 87);
             collapseItem1.Name = "collapseItem1";
-            collapseItem1.Size = new Size(429, 300);
+            collapseItem1.Size = new Size(421, 300);
             collapseItem1.TabIndex = 0;
             collapseItem1.Text = "Dps/Hps/DTps实时曲线图";
             // 
@@ -742,7 +768,7 @@
             collapseItem2.Expand = true;
             collapseItem2.Location = new Point(27, 495);
             collapseItem2.Name = "collapseItem2";
-            collapseItem2.Size = new Size(429, 300);
+            collapseItem2.Size = new Size(421, 300);
             collapseItem2.TabIndex = 1;
             collapseItem2.Text = "技能占比分布图";
             // 
@@ -752,7 +778,7 @@
             collapseItem3.Expand = true;
             collapseItem3.Location = new Point(27, 903);
             collapseItem3.Name = "collapseItem3";
-            collapseItem3.Size = new Size(429, 300);
+            collapseItem3.Size = new Size(421, 300);
             collapseItem3.TabIndex = 2;
             collapseItem3.Text = "伤害分布";
             // 
@@ -775,7 +801,7 @@
             splitter2.Panel2.Controls.Add(table_DpsDetailDataTable);
             splitter2.Panel2.Controls.Add(label10);
             splitter2.Panel2MinSize = 0;
-            splitter2.Size = new Size(1272, 1218);
+            splitter2.Size = new Size(1280, 1218);
             splitter2.SplitterDistance = 254;
             splitter2.SplitterWidth = 1;
             splitter2.TabIndex = 23;
@@ -788,7 +814,7 @@
             label10.Location = new Point(0, 917);
             label10.Name = "label10";
             label10.Prefix = "温馨提示：";
-            label10.Size = new Size(1272, 46);
+            label10.Size = new Size(1280, 46);
             label10.TabIndex = 25;
             label10.Text = "快照模式下曲线图 占比图 分布图将失效";
             label10.TextAlign = ContentAlignment.MiddleCenter;
@@ -883,5 +909,7 @@
         private AntdUI.Label label13;
         private AntdUI.Splitter splitter2;
         private AntdUI.Label label10;
+        private AntdUI.Label LevelLabel;
+        private AntdUI.Label Rank_levelLabel;
     }
 }

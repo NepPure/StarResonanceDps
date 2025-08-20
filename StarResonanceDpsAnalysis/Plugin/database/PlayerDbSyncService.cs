@@ -47,7 +47,12 @@ namespace StarResonanceDpsAnalysis.Plugin.Database
 
                 bool changed = false;
                 if (needName && !string.IsNullOrWhiteSpace(dto.Nickname))
-                { StatisticData._manager.SetNickname(uid, dto.Nickname); if (uid == AppConfig.Uid) AppConfig.NickName = dto.Nickname; changed = true; }
+                { 
+                    StatisticData._manager.SetNickname(uid, dto.Nickname); 
+                    if (uid == AppConfig.Uid)
+                        AppConfig.NickName = dto.Nickname; 
+                    changed = true;
+                }
                 if (needProf && !string.IsNullOrWhiteSpace(dto.Profession))
                 { StatisticData._manager.SetProfession(uid, dto.Profession); if (uid == AppConfig.Uid) AppConfig.Profession = dto.Profession; changed = true; }
                 if (needPower && (dto.CombatPower ?? 0) > 0)

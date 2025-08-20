@@ -368,6 +368,9 @@ namespace StarResonanceDpsAnalysis.Control
             NickNameText.Text = nickname;
             PowerText.Text = power.ToString();
             UidText.Text = Uid.ToString();
+            LevelLabel.Text = StatisticData._manager.GetAttrKV(Uid, "level")?.ToString()?? "";
+            Rank_levelLabel.Text = StatisticData._manager.GetAttrKV(Uid, "rank_level")?.ToString()??"";
+           
 
             object? resourceObj = Properties.Resources.ResourceManager.GetObject(profession + "10");
 

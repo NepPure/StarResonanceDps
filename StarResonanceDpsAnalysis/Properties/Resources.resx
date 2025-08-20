@@ -296,4 +296,7 @@
   <data name="皇冠白" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\皇冠白.png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="diaryIcon" xml:space="preserve">
+    <value>&lt;svg t="1755665363494" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6610" width="200" height="200"&gt;&lt;path d="M872 63.9H154c-19.9 0-36 16.1-36 36L98 794.6V885.6h0.8c5.8 41.9 41.7 74.2 85.2 74.2h708c19.9 0 36-16.1 36-36 0 0-43.7-10.7-43.7-47.7s43.7-52.4 43.7-52.4v-28.4-8.3h-0.2L908 99.9c0-19.9-16.1-36-36-36z m-109.3 248c19.9 0 36-16.1 36-36V107.6h65.8l19.6 679.3H141.9l19.6-679.3h446.4V276c0 19.9 16.1 36 36 36l59.4-30 59.4 29.9z m-111.1-52.8V107.6H755v151.5l-32-16.2-19.7-9.9-19.7 9.9-32 16.2zM184.1 916c-23.4 0-42.4-19-42.4-42.4s19-42.4 42.4-42.4h668.6c-7.4 12.6-12.1 27.4-12.1 44.7 0 14.4 3.4 27.9 9.8 40H184.1v0.1z" p-id="6611"&gt;&lt;/path&gt;&lt;/svg&gt;</value>
+  </data>
 </root>

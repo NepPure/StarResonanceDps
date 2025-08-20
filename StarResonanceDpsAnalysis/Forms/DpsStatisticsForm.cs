@@ -18,6 +18,7 @@ using System.Security.Cryptography.Xml;
 using Button = AntdUI.Button;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Color = System.Drawing.Color;
+using StarResonanceDpsAnalysis.Plugin.Database;
 
 namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代码所在位置
 { // 命名空间开始
@@ -253,10 +254,10 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     }, // 一级菜单配置结束
                     new ContextMenuStripItem("基础设置"){ IconSvg = Resources.set_up}, // 一级菜单：基础设置
                     new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, }, // 一级菜单：主窗体
-                    new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
+                    //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
                     //new ContextMenuStripItem("统计筛选"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
-                     //new ContextMenuStripItem("技能日记"){ IconSvg = Resources.reference, },
+                     new ContextMenuStripItem("技能日记"){ IconSvg = Resources.diaryIcon, },
                     new ContextMenuStripItem("伤害参考"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes }, // 一级菜单：打桩模式
                     new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, }, // 一级菜单：退出
@@ -379,11 +380,12 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
         {
             if (PilingModeCheckbox.Checked)
             {
-                if (string.IsNullOrWhiteSpace(AppConfig.NickName) || AppConfig.Uid == 0)
+                if (AppConfig.Uid == 0)
                 {
+                    
                     PilingModeCheckbox.Checked = false;
                     timer1.Enabled = false;
-                    var _ = AppMessageBox.ShowMessage("未获取到昵称或者UID，请换个地图后再进协会", this);
+                    var _ = AppMessageBox.ShowMessage("未获取到UID，请换个地图后再进协会", this);
                     return;
                 }
                 TimeSpan duration = StatisticData._manager.GetCombatDuration();

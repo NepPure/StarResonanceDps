@@ -462,13 +462,13 @@ namespace StarResonanceDpsAnalysis.Core
                 {
                     if (!isHeal && isAttackerPlayer)
                     {
-                      
+                    
                         StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damageElement, damage, isCrit, isLucky, isCauseLucky, hpLessen);
                     }
                     //if (AppConfig.NpcsTakeDamage)
                     //{
                         
-                    StatisticData._npcManager.AddNpcTakenDamage(targetUuid, attackerUuid, damage, isCrit, isLucky, hpLessen, isMiss, isDead);
+                    StatisticData._npcManager.AddNpcTakenDamage(targetUuid, attackerUuid, skillId, damage, isCrit, isLucky, hpLessen, isMiss, isDead);
                         
                         
                     //}
