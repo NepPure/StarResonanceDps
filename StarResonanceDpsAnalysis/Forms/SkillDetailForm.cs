@@ -62,7 +62,7 @@ namespace StarResonanceDpsAnalysis.Control
                 table_DpsDetailDataTable, label13, label14, label1, label2,
                 label4, label5, label6, label7, label8, label9, label17,
                 NumberCriticalHitsText, UidText, PowerText, segmented1, collapse1,
-                label10
+                label10,label19
             };
             foreach (var c in contentFontControls)
             {

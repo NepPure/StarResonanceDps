@@ -12,6 +12,9 @@ namespace StarResonanceDpsAnalysis
         {
             InitializeComponent();
             FormGui.SetDefaultGUI(this);
+            TitleText.Font = AppConfig.SaoFont;
+            label10.Font = AppConfig.ContentFont;
+            richTextBox1.Font = AppConfig.ContentFont;
 
         }
 
