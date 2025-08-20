@@ -30,13 +30,13 @@ namespace StarResonanceDpsAnalysis.Forms
 
             TitleText.Font = AppConfig.TitleFont;
             label1.Font = AppConfig.HeaderFont;
-            label2.Font = label3 .Font= label4.Font= AppConfig.ContentFont;
+            label2.Font = label3.Font = label4.Font = AppConfig.ContentFont;
 
             var harmonyOsSansFont = HandledResources.GetHarmonyOS_SansFont(7);
             label6.Font = label7.Font = label8.Font = harmonyOsSansFont;
 
             InterfaceComboBox.Font = AppConfig.ContentFont;
-            select2.Font = label10.Font = label9.Font = input1.Font = input2.Font = input3.Font = input4.Font = input5.Font = inputNumber2 .Font = label5 .Font= AppConfig.ContentFont;
+            select2.Font = label10.Font = label9.Font = input1.Font = input2.Font = input3.Font = input4.Font = input5.Font = inputNumber2.Font = label5.Font = AppConfig.ContentFont;
         }
         private void SettingsForm_Load(object sender, EventArgs e)
         {
@@ -128,38 +128,43 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void InterfaceComboBox_SelectedIndexChanged(object sender, IntEventArgs e)
         {
-            if (combox_changed)
+            Console.WriteLine($"InterfaceComboBox_SelectedIndexChanged: {InterfaceComboBox.SelectedIndex}");
+            if (AppConfig.NetworkCard == InterfaceComboBox.SelectedIndex)
             {
-                AppConfig.NetworkCard = InterfaceComboBox.SelectedIndex;
+                Console.WriteLine($"网卡窗口初始化赋值, 或值相等");
+                return;
+            }
 
-                // 通知MainForm更新网卡设置提示
-                try
-                {
-                    // var mainForm = Application.OpenForms.OfType<MainForm>().FirstOrDefault();
-                    StartupInitializer.RefreshNetworkCardSettingTip();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"更新MainForm网卡设置提示时出错: {ex.Message}");
-                }
+            AppConfig.NetworkCard = InterfaceComboBox.SelectedIndex;
 
-                var result = AppMessageBox.ShowMessage("""
+            // 通知MainForm更新网卡设置提示
+            try
+            {
+                // var mainForm = Application.OpenForms.OfType<MainForm>().FirstOrDefault();
+                StartupInitializer.RefreshNetworkCardSettingTip();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"更新MainForm网卡设置提示时出错: {ex.Message}");
+            }
+
+            var result = AppMessageBox.ShowMessage("""
                     您已更改网卡设置。
 
                     请注意，修改网卡后需要重新启动应用程序以使更改生效。
                     是否立刻重新启动应用程序？
                     """, this);
-                if (result == DialogResult.OK)
-                {
-                    // 重新启动应用程序
-                    Application.Restart();
-                    Environment.Exit(0); // 确保退出当前进程
-                }
-                else
-                {
-                    AppMessageBox.ShowMessage("您的网卡设置将在下次启动应用时生效。", this);
-                }
+            if (result == DialogResult.OK)
+            {
+                // 重新启动应用程序
+                Application.Restart();
+                Environment.Exit(0); // 确保退出当前进程
             }
+            else
+            {
+                AppMessageBox.ShowMessage("您的网卡设置将在下次启动应用时生效。", this);
+            }
+
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -170,7 +175,7 @@ namespace StarResonanceDpsAnalysis.Forms
             AppConfig.Transparency = slider1.Value;
             AppConfig.CombatTimeClearDelaySeconds = (int)inputNumber2.Value;
             AppConfig.DamageDisplayType = select2.SelectedValue.ToString();
-           
+
             //if()
             //FormManager.dpsStatistics.StopCapture();//关闭
             //Task.Delay(1000); //等待1秒
@@ -238,7 +243,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void switch1_CheckedChanged(object sender, BoolEventArgs e)
         {
-            AppConfig.ClearPicture = e.Value? 1 : 0;
+            AppConfig.ClearPicture = e.Value ? 1 : 0;
         }
     }
 }

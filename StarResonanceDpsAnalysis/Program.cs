@@ -14,6 +14,15 @@ namespace StarResonanceDpsAnalysis
         [STAThread]
         static void Main()
         {
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+            {
+                // 暂时什么都不处理
+            };
+            Application.ThreadException += (sender, e) =>
+            {
+                // 暂时什么都不处理
+            };
+
             //Console.OutputEncoding = Encoding.UTF8;
             //Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); // 关键
 

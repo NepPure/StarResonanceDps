@@ -5,8 +5,6 @@ namespace StarResonanceDpsAnalysis.Forms
 {
     public partial class SettingsForm
     {
-        private static bool combox_changed = false;
-
         /// <summary>
         /// 加载本机所有网卡到下拉框
         /// </summary>
@@ -23,8 +21,8 @@ namespace StarResonanceDpsAnalysis.Forms
 
             if (targetIndex >= 0)
             {
-                InterfaceComboBox.SelectedIndex = targetIndex;
                 AppConfig.NetworkCard = targetIndex;
+                InterfaceComboBox.SelectedIndex = targetIndex;
                 Console.WriteLine($"选择网卡: {devices[targetIndex].Description} (索引: {targetIndex})");
             }
             else
@@ -32,7 +30,6 @@ namespace StarResonanceDpsAnalysis.Forms
                 Console.WriteLine("未找到可用网卡");
             }
 
-            combox_changed = true;
             input1.Text = AppConfig.MouseThroughKey.ToString();
             input2.Text = AppConfig.FormTransparencyKey.ToString();
             input3.Text = AppConfig.WindowToggleKey.ToString();
