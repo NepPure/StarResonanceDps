@@ -606,9 +606,9 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.Uid, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 54, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 56, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
                             new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 86, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -42, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -60, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
                             new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
                         ];
                         DictList[p.Uid] = row;
@@ -732,10 +732,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.NpcId, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 80, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 115, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                                 new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 56, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 86, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -60, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
                         ];
                         DictList[p.NpcId] = row;
                     }
@@ -832,10 +832,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.Uid, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 80, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 115, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                        new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 56, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 86, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -60, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
                         ];
                         DictList[p.Uid] = row;
                     }
