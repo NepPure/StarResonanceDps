@@ -606,10 +606,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.Uid, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 54, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 86, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -42, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 58, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 88, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont},
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -60, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
                         ];
                         DictList[p.Uid] = row;
                     }
@@ -621,13 +621,13 @@ namespace StarResonanceDpsAnalysis.Forms
 
                     row[1].Text = $"{p.Nickname}-{p.SubProfession}({p.CombatPower})";
 
-                    row[2].Text = $"{totalFmt}({perSec})";
+                    row[2].Text = $"{totalFmt} ({perSec})";
                     row[3].Text = share;
 
                     if (p.Uid == (long)AppConfig.Uid)
                     {
                         label1.Text = $" [{i + 1}]";
-                        label2.Text = $"{totalFmt}({perSec})";
+                        label2.Text = $"{totalFmt} ({perSec})";
                     }
 
                     // 复用旧的 ProgressBarData，避免 UI 抖动；没有则新建
@@ -732,10 +732,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.NpcId, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 80, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 115, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 58, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 88, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont},
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -60, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
                         ];
                         DictList[p.NpcId] = row;
                     }
@@ -832,10 +832,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.Uid, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 80, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 115, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 58, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 88, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont},
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -58, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
                         ];
                         DictList[p.Uid] = row;
                     }

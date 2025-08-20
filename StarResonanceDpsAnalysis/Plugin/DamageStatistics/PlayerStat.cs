@@ -1,6 +1,7 @@
 ﻿using BlueProto;
 using StarResonanceDpsAnalysis.Core;
 using StarResonanceDpsAnalysis.Forms;
+using System.Collections.Concurrent;
 using System.Timers;
 using System.Xml.Linq;
 using static StarResonanceDpsAnalysis.Plugin.DamageStatistics.PlayerDataManager;
@@ -1019,13 +1020,13 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         private readonly Dictionary<ulong, PlayerData> _players = new();
 
         /// <summary>UID → 昵称（外部同步缓存）。</summary>
-        private static readonly Dictionary<ulong, string> _nicknameRequestedUids = new();
+        private static readonly ConcurrentDictionary<ulong, string> _nicknameRequestedUids = new();
 
         /// <summary>UID → 战力（外部同步缓存）。</summary>
-        private static readonly Dictionary<ulong, int> _combatPowerByUid = new();
+        private static readonly ConcurrentDictionary<ulong, int> _combatPowerByUid = new();
 
         /// <summary>UID → 职业（外部同步缓存）。</summary>
-        private static readonly Dictionary<ulong, string> _professionByUid = new();
+        private static readonly ConcurrentDictionary<ulong, string> _professionByUid = new();
 
 
         /// <summary>整场战斗开始时间（第一次出现战斗事件时赋值）。</summary>
