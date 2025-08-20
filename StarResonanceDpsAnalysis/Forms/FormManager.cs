@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 
 using StarResonanceDpsAnalysis.Control;
+using StarResonanceDpsAnalysis.Forms.AuxiliaryForms;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -30,6 +31,10 @@ namespace StarResonanceDpsAnalysis.Forms
         public static SkillRotationMonitorForm skillRotationMonitorForm;//技能循环监控窗体
 
         public static HistoricalBattlesForm historicalBattlesForm;//历史战绩窗体
+
+        public static DeathStatisticsForm deathStatisticsForm;//死亡统计窗体
+
+        public static SkillReferenceForm skillReferenceForm;//技能参考窗体
 
         /// <summary>
         /// 统一设置透明度

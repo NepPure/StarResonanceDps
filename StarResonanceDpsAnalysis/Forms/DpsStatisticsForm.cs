@@ -65,6 +65,8 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
 
             // 加载技能配置
             StartupInitializer.LoadFromEmbeddedSkillConfig(); // 从内置资源读取并加载技能数据（元数据/图标/映射）
+
+
             sortedProgressBarList1.SelectionChanged += (s, i, d) => // 订阅进度条列表的选择变化事件（点击条目）
             { // 事件处理开始
                 // # UI 列表交互：当用户点击列表项时触发（i 为索引，d 为 ProgressBarData）
@@ -256,8 +258,8 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, }, // 一级菜单：主窗体
                     //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
-                    //new ContextMenuStripItem("统计筛选"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
-                     new ContextMenuStripItem("技能日记"){ IconSvg = Resources.diaryIcon, },
+                    new ContextMenuStripItem("死亡统计"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
+                    new ContextMenuStripItem("技能日记"){ IconSvg = Resources.diaryIcon, },
                     new ContextMenuStripItem("伤害参考"){ IconSvg = Resources.reference, },
                     new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes }, // 一级菜单：打桩模式
                     new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, }, // 一级菜单：退出
@@ -291,7 +293,13 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         }
                         FormManager.mainForm.Show(); // 显示主窗体
                         break; // 跳出 switch
-                    case "统计筛选":
+
+                    case "死亡统计":
+                        if(FormManager.deathStatisticsForm == null || FormManager.deathStatisticsForm.IsDisposed)
+                        {
+                            FormManager.deathStatisticsForm = new DeathStatisticsForm();
+                        }
+                        FormManager.deathStatisticsForm.Show();
                         break;
                     case "技能日记":
                         if (FormManager.skillDiary == null || FormManager.skillDiary.IsDisposed)

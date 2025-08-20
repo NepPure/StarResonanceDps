@@ -158,6 +158,7 @@
             table_DpsDetailDataTable.Size = new Size(1213, 893);
             table_DpsDetailDataTable.TabIndex = 33;
             table_DpsDetailDataTable.Text = "table1";
+            table_DpsDetailDataTable.CellClick += table_DpsDetailDataTable_CellClick;
             // 
             // panel3
             // 

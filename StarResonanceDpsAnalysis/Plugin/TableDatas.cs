@@ -48,7 +48,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         private string instantHps;         // 实时 HPS
         private string maxInstantHps;      // 最大瞬时 HPS
         private string totalHps;           // 平均 HPS
-        
+
 
         /// <summary>
         /// 构造函数
@@ -75,7 +75,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             ulong maxInstantDps,
             double totalDps,
             double totalHps,
-            int combatPower = 0,double dmgShare=0)
+            int combatPower = 0, double dmgShare = 0)
         {
             // —— 基础信息 ——
             Uid = uid;
@@ -637,6 +637,7 @@ namespace StarResonanceDpsAnalysis.Plugin
     public class LeaderboardTable : NotifyProperty
     {
         #region 字段（私有存储）
+        private string battleId;
         private string nickName;       // 玩家昵称
         private string professional; // 职业
         private CellText combatPower; // 战力
@@ -649,22 +650,34 @@ namespace StarResonanceDpsAnalysis.Plugin
         #endregion
 
         #region 构造函数
-        public LeaderboardTable(string nickName, string professional, double combatPower, double totalDamage, double instantDps, double critRate, double luckyRate,double maxInstantDps,string subProfessional)
+        public LeaderboardTable(string battleId, string nickName, string professional, double combatPower, double totalDamage, double instantDps, double critRate, double luckyRate, double maxInstantDps, string subProfessional)
         {
+            BattleId = battleId;
             NickName = nickName;
             Professional = professional;
             CombatPower = new CellText(combatPower.ToString()) { Font = AppConfig.DigitalFont };
             TotalDamage = new CellText(totalDamage.ToString()) { Font = AppConfig.DigitalFont };
             InstantDps = new CellText(instantDps.ToString()) { Font = AppConfig.DigitalFont };
             MaxInstantDps = new CellText(maxInstantDps.ToString()) { Font = AppConfig.DigitalFont };
-            SubProfessional = new CellText(subProfessional) ;
-            CritRate = new CellText(critRate.ToString()+"%") { Font = AppConfig.DigitalFont };
-            LuckyRate = new CellText(luckyRate.ToString()+"%") { Font = AppConfig.DigitalFont };
+            SubProfessional = new CellText(subProfessional);
+            CritRate = new CellText(critRate.ToString() + "%") { Font = AppConfig.DigitalFont };
+            LuckyRate = new CellText(luckyRate.ToString() + "%") { Font = AppConfig.DigitalFont };
         }
         #endregion
 
         #region 属性封装（包含通知）
         // —— 玩家基础信息 —— 
+
+        public string BattleId
+        {
+            get => battleId;
+            set
+            {
+                if (battleId == value) return;
+                battleId = value;
+                OnPropertyChanged(nameof(BattleId));
+            }
+        }
 
         /// <summary>
         /// 玩家昵称
@@ -801,5 +814,201 @@ namespace StarResonanceDpsAnalysis.Plugin
 
     #endregion
 
+    #region 死亡统计
+    public class DeathStatisticsTableDatas
+    {
+        /// <summary>
+        /// 表格数据绑定
+        /// </summary>
+        public static BindingList<DeathStatisticsTable> DeathStatisticsTable = [];
+        public static readonly object DeathStatisticsTableLock = new();
+    }
 
+    public class DeathStatisticsTable : NotifyProperty
+    {
+        #region 字段（私有存储）
+        private ulong uid;
+        private string nickName;       // 玩家昵称
+        private int totalDeathCount;     // 死亡次数
+        #endregion
+
+        #region 构造函数
+        public DeathStatisticsTable(ulong uid, string nickName,int totalDeathCount)
+        {
+            Uid = uid;
+            NickName = nickName;
+            TotalDeathCount =totalDeathCount;
+        }
+        public ulong Uid
+        {
+            get => uid;
+            set
+            {
+                if (uid == value) return;
+                uid =value;
+                OnPropertyChanged(nameof(Uid));
+            }
+        }
+
+        /// <summary>
+        /// 昵称
+        /// </summary>
+        public string NickName
+        {
+            get => nickName;
+            set
+            {
+                if (nickName == value) return;
+                nickName = value;
+                OnPropertyChanged(nameof(NickName));
+            }
+        }
+        /// <summary>
+        /// 死亡次数
+        /// </summary>
+        public int TotalDeathCount
+        {
+            get => totalDeathCount;
+            set
+            {
+                if (totalDeathCount == value) return;
+                totalDeathCount = value;
+                OnPropertyChanged(nameof(TotalDeathCount));
+            }
+        }
+
+
+        #endregion
+
+    }
+    #endregion
+
+    #region 伤害参考 技能数据
+    public class DamageReferenceSkillData
+    {
+        public static BindingList<DamageReferenceSkill> DamageReferenceSkillTable = new();
+        public static readonly object DamageReferenceSkillTableLock = new();
+    }
+    public class DamageReferenceSkill : NotifyProperty
+    {
+        #region 字段（私有存储）
+        private string name;       // 技能名称
+        private string damage;      // 技能总伤害
+        private string hitCount;      // 技能命中次数
+        private string critRate;   // 暴击率
+        private string luckyRate;  // 幸运率
+        private string avgPerHit;  // 平均值
+        private string totalDps;//秒伤
+        private string share; //百分比
+        #endregion
+
+        #region 构造函数
+        public DamageReferenceSkill(string name,  string damage, int hitCount, string critRate, string luckyRate, string avgPerHit, string totalDps,double share)
+        {
+            Name = name;
+            Damage = damage;
+            HitCount = hitCount.ToString();
+            CritRate = critRate;
+            LuckyRate = luckyRate;
+            AvgPerHit = avgPerHit.ToString();
+            TotalDps = totalDps.ToString();
+            Share = share.ToString("0.00") + "%";
+         
+        }
+
+        public string Name
+        {
+            get => name;
+            set
+            {
+                if (name == value) return;
+                name = value;
+                OnPropertyChanged(nameof(Name));
+            }
+        }
+
+
+        public string Damage
+        {
+            get => damage;
+            set
+            {
+                
+                if (damage == value) return;
+                damage = value;
+                OnPropertyChanged(nameof(Damage));
+            }
+        }
+
+        public string HitCount
+        {
+            get => hitCount;
+            set
+            {
+                if (hitCount == value) return;
+                hitCount = value;
+                OnPropertyChanged(nameof(HitCount));
+            }
+        }
+
+        public string CritRate
+        {
+            get => critRate;
+            set
+            {
+                if (critRate == value) return;
+                critRate = value;
+                OnPropertyChanged(nameof(CritRate));
+            }
+        }
+
+        public string LuckyRate
+        {
+            get => luckyRate;
+            set
+            {   
+                if (luckyRate == value) return;
+                luckyRate = value;
+                OnPropertyChanged(nameof(LuckyRate));
+            }
+        }
+
+        public string AvgPerHit
+        {
+            get => avgPerHit;
+            set
+            {
+                if (avgPerHit == value) return;
+                avgPerHit = value;
+                OnPropertyChanged(nameof(AvgPerHit));
+            }
+        }
+
+        public string TotalDps
+        {
+            get => totalDps;
+            set
+            {
+                if (totalDps == value) return;
+                totalDps = value;
+                OnPropertyChanged(nameof(TotalDps));
+            }
+        }
+
+        public string Share
+        {
+            get => share;
+            set
+            {
+                if (share == value) return;
+                share = value;
+                OnPropertyChanged(nameof(Share));
+            }
+        }
+        #endregion
+    }
+
+
+    #endregion
 }
+

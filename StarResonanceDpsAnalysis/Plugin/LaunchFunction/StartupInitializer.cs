@@ -1,5 +1,6 @@
 ﻿using SharpPcap;
 using StarResonanceDpsAnalysis.Core;
+using StarResonanceDpsAnalysis.Core.TabelJson;
 using StarResonanceDpsAnalysis.Extends;
 using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
@@ -83,6 +84,10 @@ namespace StarResonanceDpsAnalysis.Plugin.LaunchFunction
 
                 }
             }
+
+            MonsterNameResolver.Initialize(AppConfig.MonsterNames);//初始化怪物ID与名称的映射关系
+
+        
 
             // 你也可以在这里写日志：加载了多少条技能
             // Console.WriteLine($"SkillBook loaded {EmbeddedSkillConfig.AllByInt.Count} + {EmbeddedSkillConfig.AllByString.Count} entries.");

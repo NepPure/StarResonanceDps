@@ -1,4 +1,5 @@
 ﻿using AntdUI;
+using StarResonanceDpsAnalysis.Forms.AuxiliaryForms;
 using StarResonanceDpsAnalysis.Plugin;
 using System.Runtime.InteropServices;
 
@@ -77,6 +78,22 @@ namespace StarResonanceDpsAnalysis.Forms
         private void button4_Click(object sender, EventArgs e)
         {
             ToggleTableView();
+        }
+
+        private void table_DpsDetailDataTable_CellClick(object sender, TableClickEventArgs e)
+        {
+            int row = e.RowIndex - 1;
+            if(row>=0)
+            {
+                if(FormManager.skillReferenceForm == null || FormManager.skillReferenceForm.IsDisposed)
+                {
+                    FormManager.skillReferenceForm = new SkillReferenceForm();
+                }
+                string bayyleid = LeaderboardTableDatas.LeaderboardTable[row].BattleId;
+                string nickname = LeaderboardTableDatas.LeaderboardTable[row].NickName;
+                FormManager.skillReferenceForm.LoadInformation(bayyleid, nickname);
+                FormManager.skillReferenceForm.Show();
+            }
         }
     }
 }
