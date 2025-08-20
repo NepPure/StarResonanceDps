@@ -382,7 +382,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             {
                 if (AppConfig.Uid == 0)
                 {
-                    
+
                     PilingModeCheckbox.Checked = false;
                     timer1.Enabled = false;
                     var _ = AppMessageBox.ShowMessage("未获取到UID，请换个地图后再进协会", this);
@@ -526,6 +526,28 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         item.DefaultBack = colorBack;
                     }
 
+                }
+            }
+
+            SetSortedProgressBarListForeColor();
+        }
+
+        private void SetSortedProgressBarListForeColor()
+        {
+            if (sortedProgressBarList1.Data == null) return;
+
+            lock (sortedProgressBarList1.Data)
+            {
+                foreach (var data in sortedProgressBarList1.Data)
+                {
+                    if (data.ContentList == null) continue;
+
+                    foreach (var content in data.ContentList)
+                    {
+                        if (content.Type != Control.GDI.RenderContent.ContentType.Text) continue;
+
+                        content.ForeColor = AppConfig.colorText;
+                    }
                 }
             }
         }

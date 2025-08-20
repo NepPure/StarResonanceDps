@@ -283,7 +283,7 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (ctrl != null && !ctrl.IsDisposed)
                     {
                         if (ctrl.InvokeRequired)
-                            ctrl.BeginInvoke(new Action(() => ctrl.Data = new List<ProgressBarData>()));
+                            ctrl.BeginInvoke(() => ctrl.Data = new List<ProgressBarData>());
                         else
                             ctrl.Data = new List<ProgressBarData>();
                     }
@@ -306,15 +306,15 @@ namespace StarResonanceDpsAnalysis.Forms
         {
             // # 启动与初始化事件：界面样式与渲染设置（仅 UI 外观，不涉及数据）
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
-            sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 50, Y = 0 };
+            sortedProgressBarList1.OrderImageOffset = new RenderContent.ContentOffset { X = 6, Y = 0 };
+            sortedProgressBarList1.OrderImageRenderSize = new Size(22, 22);
+            sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 32, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}.";
             sortedProgressBarList1.OrderImages =
             [
                 new Bitmap(new MemoryStream(Resources.皇冠)),
                            
             ];
-            sortedProgressBarList1.OrderImageOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
-            sortedProgressBarList1.OrderImageRenderSize = new Size(32, 32);
 
 
             if (Config.IsLight)
@@ -396,10 +396,11 @@ namespace StarResonanceDpsAnalysis.Forms
 
         };
 
-        //黑窗体
         // 黑窗体
         Dictionary<string, Color> blackColorDict = new Dictionary<string, Color>()
         {
+            { "未知", ColorTranslator.FromHtml("#67AEF6") },
+
             { "神射手", ColorTranslator.FromHtml("#8e8b47") }, //
             { "冰魔导师", ColorTranslator.FromHtml("#79779c") }, // 
             { "巨刃守护者", ColorTranslator.FromHtml("#537758") }, // 
@@ -424,7 +425,6 @@ namespace StarResonanceDpsAnalysis.Forms
             { "光盾", ColorTranslator.FromHtml("#9c9b75") },
             { "岩盾", ColorTranslator.FromHtml("#537758") },
             { "格挡", ColorTranslator.FromHtml("#537758") },
-            { "未知", ColorTranslator.FromHtml("#67AEF6") }
         };
 
         public static Dictionary<string, Bitmap> imgDict = new Dictionary<string, Bitmap>()
@@ -487,7 +487,7 @@ namespace StarResonanceDpsAnalysis.Forms
                     _ => MetricType.Damage
                 };
                 if (form.InvokeRequired)
-                    form.BeginInvoke(new Action(() => form.RefreshDpsTable(source, metric)));
+                    form.BeginInvoke(() => form.RefreshDpsTable(source, metric));
                 else
                     form.RefreshDpsTable(source, metric);
             }
@@ -540,7 +540,7 @@ namespace StarResonanceDpsAnalysis.Forms
             if (uiList.Count == 0)
             {
                 if (sortedProgressBarList1.InvokeRequired)
-                    sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = new List<ProgressBarData>()));
+                    sortedProgressBarList1.BeginInvoke(() => sortedProgressBarList1.Data = new List<ProgressBarData>());
                 else
                     sortedProgressBarList1.Data = new List<ProgressBarData>();
                 return;
@@ -558,9 +558,9 @@ namespace StarResonanceDpsAnalysis.Forms
 
                 // 1) 拍当前 list 的快照，用它参与所有枚举相关计算
                 var snapshot = list
-    .GroupBy(pb => pb.ID)
-    .Select(g => g.Last())
-    .ToList();
+                    .GroupBy(pb => pb.ID)
+                    .Select(g => g.Last())
+                    .ToList();
 
                 var present = new HashSet<long>(ordered.Select(x => x.Uid));
 
@@ -606,10 +606,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.Uid, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 80, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 115, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -55, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = 0, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 54, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 86, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -42, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.BoldHarmonyFont },
                         ];
                         DictList[p.Uid] = row;
                     }
@@ -688,7 +688,7 @@ namespace StarResonanceDpsAnalysis.Forms
             if (uiList.Count == 0)
             {
                 if (sortedProgressBarList1.InvokeRequired)
-                    sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = new List<ProgressBarData>()));
+                    sortedProgressBarList1.BeginInvoke(() => sortedProgressBarList1.Data = new List<ProgressBarData>());
                 else
                     sortedProgressBarList1.Data = new List<ProgressBarData>();
                 return;
@@ -772,7 +772,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 list = next;
 
                 void Bind() => sortedProgressBarList1.Data = list;
-                if (sortedProgressBarList1.InvokeRequired) sortedProgressBarList1.BeginInvoke((Action)Bind);
+                if (sortedProgressBarList1.InvokeRequired) sortedProgressBarList1.BeginInvoke(Bind);
                 else Bind();
             }
         }
@@ -790,7 +790,7 @@ namespace StarResonanceDpsAnalysis.Forms
             if (uiList.Count == 0)
             {
                 if (sortedProgressBarList1.InvokeRequired)
-                    sortedProgressBarList1.BeginInvoke(new Action(() => sortedProgressBarList1.Data = new List<ProgressBarData>()));
+                    sortedProgressBarList1.BeginInvoke(() => sortedProgressBarList1.Data = new List<ProgressBarData>());
                 else
                     sortedProgressBarList1.Data = new List<ProgressBarData>();
                 return;
