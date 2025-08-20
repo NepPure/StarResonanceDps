@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -101,6 +102,8 @@ namespace StarResonanceDpsAnalysis.Control.GDI
             g.InterpolationMode = InterpolationMode.Low;
             g.SmoothingMode = SmoothingMode.HighSpeed;
             g.PixelOffsetMode = PixelOffsetMode.None;
+
+            g.TextRenderingHint = TextRenderingHint.AntiAlias;
 
             // 25.08.18: 不能用 TextRenderer.DrawText, 会导致渲染不出内存字体
             using var sb = new SolidBrush(content.ForeColor);
