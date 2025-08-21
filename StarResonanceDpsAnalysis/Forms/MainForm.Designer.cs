@@ -249,7 +249,7 @@
             label_NowVersionNumber.Name = "label_NowVersionNumber";
             label_NowVersionNumber.Size = new Size(48, 24);
             label_NowVersionNumber.TabIndex = 13;
-            label_NowVersionNumber.Text = "2.0.0";
+            label_NowVersionNumber.Text = "-.-.-";
             // 
             // label_NowVersionTip
             // 
