@@ -82,18 +82,28 @@ namespace StarResonanceDpsAnalysis.Forms
 
         private void table_DpsDetailDataTable_CellClick(object sender, TableClickEventArgs e)
         {
+
+        }
+
+        private void table_DpsDetailDataTable_CellButtonDown(object sender, TableButtonEventArgs e)
+        {
             int row = e.RowIndex - 1;
             if(row>=0)
             {
-                if(FormManager.skillReferenceForm == null || FormManager.skillReferenceForm.IsDisposed)
+                if (e.Btn.Text == "查看技能数据")
                 {
-                    FormManager.skillReferenceForm = new SkillReferenceForm();
+                    if (FormManager.skillReferenceForm == null || FormManager.skillReferenceForm.IsDisposed)
+                    {
+                        FormManager.skillReferenceForm = new SkillReferenceForm();
+                    }
+                    string bayyleid = LeaderboardTableDatas.LeaderboardTable[row].BattleId;
+                    string nickname = LeaderboardTableDatas.LeaderboardTable[row].NickName;
+                    FormManager.skillReferenceForm.LoadInformation(bayyleid, nickname);
+                    FormManager.skillReferenceForm.Show();
                 }
-                string bayyleid = LeaderboardTableDatas.LeaderboardTable[row].BattleId;
-                string nickname = LeaderboardTableDatas.LeaderboardTable[row].NickName;
-                FormManager.skillReferenceForm.LoadInformation(bayyleid, nickname);
-                FormManager.skillReferenceForm.Show();
             }
+          
+
         }
     }
 }

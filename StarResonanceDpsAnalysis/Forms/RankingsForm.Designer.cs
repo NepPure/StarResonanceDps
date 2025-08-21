@@ -159,6 +159,7 @@
             table_DpsDetailDataTable.TabIndex = 33;
             table_DpsDetailDataTable.Text = "table1";
             table_DpsDetailDataTable.CellClick += table_DpsDetailDataTable_CellClick;
+            table_DpsDetailDataTable.CellButtonDown += table_DpsDetailDataTable_CellButtonDown;
             // 
             // panel3
             // 

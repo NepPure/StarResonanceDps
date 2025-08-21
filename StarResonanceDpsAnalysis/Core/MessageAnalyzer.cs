@@ -8,7 +8,6 @@ using BlueProto;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using ZstdNet;
-using StarResonanceDpsAnalysis.Plugin.Database;
 using StarResonanceDpsAnalysis.Core.test;
 using Google.Protobuf.Collections;
 using StarResonanceDpsAnalysis.Core.TabelJson; // 数据库同步
@@ -292,8 +291,7 @@ namespace StarResonanceDpsAnalysis.Core
         /// <param name="playerUid"></param>
         /// <param name="attrs"></param>
         public static void processPlayerAttrs(ulong playerUid,RepeatedField<Attr> attrs)
-        {      // 如果数据库里没有缓存，尝试同步
-            PlayerDbSyncService.TryFillFromDbOnce(playerUid);
+        {     
             bool updated = false;
             foreach (var attr in attrs)
             {
@@ -351,7 +349,7 @@ namespace StarResonanceDpsAnalysis.Core
                         break;
                 }
             }
-            if (updated) Task.Run(() => PlayerDbSyncService.UpsertCurrentAsync(playerUid));
+ 
         }
 
         public static void processEnemyAttrs(ulong enemyUid, RepeatedField<Attr> attrs)
@@ -516,8 +514,6 @@ namespace StarResonanceDpsAnalysis.Core
                 if (isAttackerPlayer && attackerUuid != 0)
                 {
                     var info = StatisticData._manager.GetPlayerBasicInfo(attackerUuid);
-                    if (IsUnknownString(info.Nickname) || IsUnknownString(info.Profession) || info.CombatPower <= 0)
-                        PlayerDbSyncService.TryFillFromDbOnce(attackerUuid);
                 }
 
                 // 伤害数值
@@ -606,7 +602,6 @@ namespace StarResonanceDpsAnalysis.Core
             if (uuid != 0 && currentUserUuid != uuid)
             {
                 currentUserUuid = uuid;
-                PlayerDbSyncService.TryFillFromDbOnce((ulong)currentUserUuid >> 16);
             }
             var aoiSyncDelta = aoiSyncToMeDelta.BaseDelta;
             if (aoiSyncDelta == null) return;
@@ -627,8 +622,6 @@ namespace StarResonanceDpsAnalysis.Core
             if (vData.CharId == null || vData.CharId == 0) return;
 
             ulong playerUid = (ulong)vData.CharId;
-            if (playerUid != 0) { try { AppConfig.Uid = playerUid; } catch { } }
-            PlayerDbSyncService.TryFillFromDbOnce(playerUid);
 
             bool updated = false;
 
@@ -667,7 +660,7 @@ namespace StarResonanceDpsAnalysis.Core
                 updated = true;
             }
 
-            if (updated) Task.Run(() => PlayerDbSyncService.UpsertCurrentAsync(playerUid));
+
         }
 
         /// <summary>
@@ -771,7 +764,7 @@ namespace StarResonanceDpsAnalysis.Core
                         }
                 }
 
-                if (updated) Task.Run(() => PlayerDbSyncService.UpsertCurrentAsync(playerUid));
+
             }
             catch { }
         }

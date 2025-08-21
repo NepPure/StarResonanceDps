@@ -647,6 +647,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         private CellText luckyRate; // 幸运率
         private CellText maxInstantDps;     // 最大瞬时DPS
         private CellText subProfessional; //分支职业
+        private CellButton button;//按钮
         #endregion
 
         #region 构造函数
@@ -662,10 +663,23 @@ namespace StarResonanceDpsAnalysis.Plugin
             SubProfessional = new CellText(subProfessional);
             CritRate = new CellText(critRate.ToString() + "%") { Font = AppConfig.DigitalFont };
             LuckyRate = new CellText(luckyRate.ToString() + "%") { Font = AppConfig.DigitalFont };
+            Button = new CellButton("Button","查看技能数据",TTypeMini.Primary);
         }
         #endregion
 
         #region 属性封装（包含通知）
+
+        public CellButton Button
+        {
+            get => button;
+            set
+            {
+              
+                button = value;
+                //OnPropertyChanged(nameof(Button));
+            }
+        }
+
         // —— 玩家基础信息 —— 
 
         public string BattleId

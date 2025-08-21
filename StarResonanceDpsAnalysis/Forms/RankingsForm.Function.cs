@@ -11,22 +11,26 @@ namespace StarResonanceDpsAnalysis.Forms
             table_DpsDetailDataTable.Columns.Clear();
 
             table_DpsDetailDataTable.Columns = new AntdUI.ColumnCollection
-            {   new("", "序号")
+            {   
+                new AntdUI.Column("Button", "操作"),
+                new("", "序号")
                 {
                    
                     Render = (value, record, rowIndex) => rowIndex + 1,
                     Fixed = true
                 },
+
                 new AntdUI.Column("NickName","玩家昵称"){ Fixed = true},
                 new AntdUI.Column("Professional","职业"){ Fixed = true},
                 new AntdUI.Column("SubProfessional","分支"){ Fixed = true},
-                new AntdUI.Column("CombatPower","战力"){ Fixed = true},
-                new AntdUI.Column("TotalDamage","总伤"){ Fixed = true},
-                new AntdUI.Column("InstantDps","秒伤"){ Fixed = true},
+                new AntdUI.Column("CombatPower","战力"){ Fixed = true,SortOrder=true },
+                new AntdUI.Column("TotalDamage","总伤"){ Fixed = true,SortOrder=true},
+                new AntdUI.Column("InstantDps","秒伤"){ Fixed = true,SortOrder=true},
                 new AntdUI.Column("CritRate","暴击率"){ Fixed = true},
                 new AntdUI.Column("LuckyRate","幸运率"){ Fixed = true},
               
-                new AntdUI.Column("MaxInstantDps","最大瞬时"){ Fixed = true},
+                new AntdUI.Column("MaxInstantDps","最大瞬时"){ Fixed = true,SortOrder=true},
+
                 //new AntdUI.Column("battleTime","战斗时长"),
             };
 
@@ -51,7 +55,8 @@ namespace StarResonanceDpsAnalysis.Forms
             var query = new
             {
                 rank_type = rank_type_dict[divider3.Text],
-                professional = segmented1.Items[segmented1.SelectIndex]
+                professional = segmented1.Items[segmented1.SelectIndex],
+                uid = AppConfig.Uid
             };
             var data = await Common.RequestGet(url,query);
             if (data["code"].ToString()=="200")
@@ -72,6 +77,21 @@ namespace StarResonanceDpsAnalysis.Forms
                     //int battleTime = int.Parse(item["battleTime"].ToString());
                     LeaderboardTableDatas.LeaderboardTable.Add(new LeaderboardTable(battleid, nickName, professional, combatPower, totalDamage,instantDps, critRate, luckyRate, maxInstantDps, subProfessional));
                 }
+                if (data["myself"].Count()>0)
+                {
+                    string battleid = data["myself"][0]["battleId"].ToString();
+                    string nickName = data["myself"][0]["nickName"].ToString();
+                    string professional = data["myself"][0]["professional"].ToString();
+                    double combatPower = double.Parse(data["myself"][0]["combatPower"].ToString());
+                    double instantDps = double.Parse(data["myself"][0]["instantDps"].ToString());
+                    double totalDamage = double.Parse(data["myself"][0]["totalDamage"].ToString());
+                    double maxInstantDps = double.Parse(data["myself"][0]["maxInstantDps"].ToString());
+                    double critRate = double.Parse(data["myself"][0]["critRate"].ToString());
+                    double luckyRate = double.Parse(data["myself"][0]["luckyRate"].ToString());
+                    string subProfessional = data["myself"][0]["subProfession"].ToString();
+
+                    LeaderboardTableDatas.LeaderboardTable.Add(new LeaderboardTable(battleid, nickName, professional, combatPower, totalDamage, instantDps, critRate, luckyRate, maxInstantDps, subProfessional));
+                }
             }
             else
             {
@@ -82,6 +102,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 //    MaskClosable = false,
                 //});
             }
+            
         }
     }
 }

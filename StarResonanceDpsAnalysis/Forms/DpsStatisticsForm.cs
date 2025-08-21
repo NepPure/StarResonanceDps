@@ -18,7 +18,6 @@ using System.Security.Cryptography.Xml;
 using Button = AntdUI.Button;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Color = System.Drawing.Color;
-using StarResonanceDpsAnalysis.Plugin.Database;
 
 namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代码所在位置
 { // 命名空间开始

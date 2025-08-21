@@ -8,7 +8,6 @@ using StarResonanceDpsAnalysis.Effects.Enum;
 using StarResonanceDpsAnalysis.Extends;
 using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.Plugin.Database;
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 using StarResonanceDpsAnalysis.Properties;
 using System;
@@ -55,8 +54,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
                 if (AppConfig.Uid != 0)
                 {
-                    // 仅在未知时从 API 回填（单 UID 去重）
-                    PlayerDbSyncService.TryFillFromDbOnce(AppConfig.Uid);
+
                     // 回填完成后按当前视图刷新（避免依赖后续抓包）
                     RequestActiveViewRefresh();
                 }
@@ -955,11 +953,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 var statsList = StatisticData._manager.GetPlayersWithCombatData().ToArray();
                 if (statsList.Length == 0) return new();
 
-                // 新增：为当前视图内的所有玩家尝试回填昵称/职业/战力（每 UID 只请求一次）
-                foreach (var p in statsList)
-                {
-                    try { PlayerDbSyncService.TryFillFromDbOnce(p.Uid); } catch { }
-                }
+
 
                 return statsList.Select(p =>
                 {
@@ -998,11 +992,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 var fr = FullRecord.GetPlayersWithTotalsArray();
                 if (fr.Length == 0) return new();
 
-                // 新增：为全程中出现过的所有玩家尝试回填一次基础信息
-                foreach (var p in fr)
-                {
-                    try { PlayerDbSyncService.TryFillFromDbOnce(p.Uid); } catch { }
-                }
+
 
                 var sessionSecs = Math.Max(1.0, FullRecord.GetSessionTotalTimeSpan().TotalSeconds);
 
@@ -1068,11 +1058,6 @@ namespace StarResonanceDpsAnalysis.Forms
             var top = FullRecord.GetNpcTopAttackers(npcId, topN);
             if (top == null || top.Count == 0) return new();
 
-            // 如果有需要，这里可顺便回填一次昵称/职业/战力
-            foreach (var t in top)
-            {
-                try { PlayerDbSyncService.TryFillFromDbOnce(t.Uid); } catch { }
-            }
 
             // 将 FullRecord 返回项映射到 UI 行
             var rows = top.Select(t => new NpcAttackerRow
