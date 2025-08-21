@@ -310,10 +310,91 @@
         }
 
         // ======================================================================
+        // # 分类 4.5：死亡统计查询（基于 TakenSkills.CountDead）
+        // ======================================================================
+
+        /// <summary>获取团队在当前会话的总死亡次数（所有玩家之和）。</summary>
+        public static int GetTeamDeathCount()
+        {
+            int teamDeaths = 0;
+            PlayerAcc[] playersSnapshot;
+            lock (_sync) { playersSnapshot = _players.Values.ToArray(); }
+
+            foreach (var p in playersSnapshot)
+                foreach (var kv in p.TakenSkills)
+                    teamDeaths += kv.Value.CountDead;
+
+            return teamDeaths;
+        }
+
+        /// <summary>获取指定玩家在当前会话的死亡次数。</summary>
+        public static int GetPlayerDeathCount(ulong uid)
+        {
+            lock (_sync)
+            {
+                if (!_players.TryGetValue(uid, out var p)) return 0;
+                int deaths = 0;
+                foreach (var kv in p.TakenSkills)
+                    deaths += kv.Value.CountDead;
+                return deaths;
+            }
+        }
+
+        /// <summary>
+        /// 获取“所有玩家”的死亡次数清单（默认降序）。
+        /// includeZero=false 时，会过滤掉死亡数为 0 的玩家。
+        /// </summary>
+        public static List<(ulong Uid, string Nickname, int CombatPower, string Profession, string? SubProfession, int Deaths)>
+            GetAllPlayerDeathCounts(bool includeZero = false)
+        {
+            var result = new List<(ulong, string, int, string, string?, int)>();
+            PlayerAcc[] playersSnapshot;
+            lock (_sync) { playersSnapshot = _players.Values.ToArray(); }
+
+            foreach (var p in playersSnapshot)
+            {
+                int deaths = 0;
+                foreach (var kv in p.TakenSkills)
+                    deaths += kv.Value.CountDead;
+
+                if (includeZero || deaths > 0)
+                    result.Add((p.Uid, p.Nickname, p.CombatPower, p.Profession, p.SubProfession, deaths));
+            }
+
+            return result.OrderByDescending(x => x.Item6).ToList(); // 按 Deaths 降序
+        }
+
+        /// <summary>
+        /// 获取“某玩家按技能”的死亡次数细分（降序）。
+        /// 返回：SkillId, SkillName, Deaths
+        /// </summary>
+        public static List<(ulong SkillId, string SkillName, int Deaths)>
+            GetPlayerDeathBreakdownBySkill(ulong uid)
+        {
+            lock (_sync)
+            {
+                if (!_players.TryGetValue(uid, out var p) || p.TakenSkills.Count == 0)
+                    return new();
+
+                var list = new List<(ulong, string, int)>(p.TakenSkills.Count);
+                foreach (var kv in p.TakenSkills)
+                {
+                    var sid = kv.Key;
+                    var s = kv.Value;
+                    if (s.CountDead <= 0) continue;
+
+                    var name = SkillBook.Get(sid).Name;
+                    list.Add((sid, name, s.CountDead));
+                }
+                return list.OrderByDescending(x => x.Item3).ToList();
+
+            }
+        }
+        // ======================================================================
         // # 分类 5：对外绑定的行结构（列表项定义）
         // ======================================================================
 
-        // # 用于对外绑定的行结构（可按需增删字段）
+                // # 用于对外绑定的行结构（可按需增删字段）
         public sealed record FullPlayerTotal(
                 ulong Uid,
                 string Nickname,

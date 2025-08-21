@@ -176,11 +176,6 @@ namespace StarResonanceDpsAnalysis.Forms
             AppConfig.CombatTimeClearDelaySeconds = (int)inputNumber2.Value;
             AppConfig.DamageDisplayType = select2.SelectedValue.ToString();
 
-            //if()
-            //FormManager.dpsStatistics.StopCapture();//关闭
-            //Task.Delay(1000); //等待1秒
-            //FormManager.dpsStatistics.StartCapture(); //开启
-
             this.Close();
         }
 

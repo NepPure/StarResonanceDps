@@ -13,7 +13,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Core\TabelJson\monster_names.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Assets\ApplicationIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Core\TabelJson\monster_names.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

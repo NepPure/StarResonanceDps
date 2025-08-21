@@ -612,6 +612,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="isCrit">是否暴擊（若協議可區分）。</param>
         /// <param name="isLucky">是否幸運（若協議可區分）。</param>
         /// <param name="hpLessen">HP 真实减少值；为 0 时以 <paramref name="damage"/> 作为扣血。</param>
+        /// <param name="damageSource">伤害来源（0=玩家，1=怪物，2=法术，3=其他）。</param>
+        /// <param name="isMiss">是否未命中。</param>
+        /// <param name="isDead">是否死亡。</param>
         public void AddTakenDamage(
             ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0,
             int damageSource = 0, bool isMiss = false, bool isDead = false)
@@ -1006,6 +1009,30 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         private readonly object _playersLock = new object(); // ★ 统一锁（2025-08-19 新增）
 
 
+        private readonly Dictionary<ulong, (ulong SkillId, DateTime Time)> _lastNonLuckySkillByUid = new();
+
+
+        // ★ 可配置：哪些 skillId 被认为是“幸运一击”（按你实际ID填）
+        // ★ 标记哪些 skillId 是“幸运一击”
+        private static readonly HashSet<ulong> LuckyStrikeSkillIds = new()
+        {
+            2031104u,
+            2031101u,
+            2031111u,
+            2031005u,
+            2031105u,
+            2031109u,
+            2031102u,
+            2031110u,
+            2031106u,
+            2031107u,
+            2031108u
+        };
+
+
+        // ★ 可调：允许把“幸运一击”归因到“上一发技能”的时间窗口
+        private static readonly TimeSpan LuckyAttributionWindow = TimeSpan.FromMilliseconds(500); // 0.5s
+
         /// <summary>
         /// 快照 战斗数据历史列表。
         /// </summary>
@@ -1288,7 +1315,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         // ------------------------------------------------------------
         #region 全局写入（转发至 PlayerData）
 
-       
+
 
         /// <summary>
         /// 添加全局伤害记录（会标记战斗活动、写入到玩家聚合与分技能，并同步全程记录）。
@@ -1300,16 +1327,51 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="isLucky">是否幸运。</param>
         ///   /// <param name="damageSource">伤害类型</param>
         /// <param name="hpLessen">HP 扣减值（可选）。</param>
-        public void AddDamage(ulong uid, ulong skillId,string damageElement, ulong damage, bool isCrit, bool isLucky,bool isCauseLucky, ulong hpLessen = 0)
+        public void AddDamage(ulong uid, ulong skillId, string damageElement, ulong damage, bool isCrit, bool isLucky, bool isCauseLucky, ulong hpLessen = 0)
         {
-            // # 分类：进入战斗（自动）
             MarkCombatActivity();
-            GetOrCreate(uid).AddDamage(
-             skillId, damage, isCrit, isLucky, hpLessen,
-             damageElement, isCauseLucky);
-            SkillDiaryGate.OnHit(uid,skillId,damage,isCrit,isLucky);
+            var now = DateTime.Now;
 
+            // 幸运一击：无条件并到“上一发非幸运技能”，不单独入账
+            if (LuckyStrikeSkillIds.Contains(skillId))
+            {
+                if (_lastNonLuckySkillByUid.TryGetValue(uid, out var last))
+                {
+                    var prevSkillId = last.SkillId;
+
+                    GetOrCreate(uid).AddDamage(
+                        prevSkillId, damage,
+                        isCrit: false,              // 幸运一般不叠暴击；如协议允许可改 true
+                        isLucky: true,
+                        hpLessen,
+                        damageElement,
+                        isCauseLucky: true
+                    );
+                    // UI 也用上一发技能ID
+                    SkillDiaryGate.OnHit(uid, prevSkillId, damage, false, true);
+
+                    // 仍把上一发视作最近一次
+                    _lastNonLuckySkillByUid[uid] = (prevSkillId, now);
+
+                    // 双保险：剔除任何可能出现的“幸运一击”行
+                    GetOrCreate(uid).SkillUsage.Remove(skillId);
+                    return;
+                }
+
+                // 按你的假设这不会发生；为稳妥留一行告警并丢弃，避免把幸运记成独立技能
+                //Console.WriteLine($"[Lucky-Dmg][WARN-no-prev] uid={uid}, luckySkill={skillId} dropped");
+                return;
+            }
+
+            // 非幸运：正常记账 & 更新“上一发非幸运技能”
+            GetOrCreate(uid).AddDamage(skillId, damage, isCrit, isLucky, hpLessen, damageElement, isCauseLucky);
+            SkillDiaryGate.OnHit(uid, skillId, damage, isCrit, isLucky);
+            _lastNonLuckySkillByUid[uid] = (skillId, now);
         }
+
+
+
+
 
         /// <summary>
         /// 添加全局治疗记录（写入至玩家聚合与分技能，并同步全程记录）。
@@ -1320,25 +1382,51 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
         /// <param name="hpFull">HP 补满值（可选）。</param>
-        ///   /// <param name="damageSource">治疗类型</param>
+        /// <param name="damageSource">治疗类型</param>
         /// <param name="targetUuid">被治疗的ID（可选）。</param>
-
-
-        // PlayerDataManager 内 —— 只在“已由伤害/承伤开启战斗”后才纳入治疗
-        public void AddHealing(ulong uid, ulong skillId,string damageElement, ulong healing, bool isCrit, bool isLucky,bool isCauseLucky,ulong targetUuid)
+        public void AddHealing(ulong uid, ulong skillId, string damageElement, ulong healing, bool isCrit, bool isLucky, bool isCauseLucky, ulong targetUuid)
         {
-            // 1) 还没由伤害/承伤开启战斗，或者上一场已结束：忽略这次治疗（不纳入统计、也不写全程）
             if (!_combatStart.HasValue || _combatEnd.HasValue)
                 return;
 
-            // 2) 战斗已开始：治疗计入，并刷新“最后活跃时间”，避免被空闲判定清场
             _lastCombatActivity = DateTime.Now;
+            var now = DateTime.Now;
 
-            GetOrCreate(uid).AddHealing(
-      skillId, healing, isCrit, isLucky,
-      damageElement, isCauseLucky, targetUuid);
-            SkillDiaryGate.OnHit(uid, skillId, healing,isCrit,isLucky,true);
+            // 幸运一击：无条件并到“上一发非幸运技能”，不单独入账
+            if (LuckyStrikeSkillIds.Contains(skillId))
+            {
+                if (_lastNonLuckySkillByUid.TryGetValue(uid, out var last))
+                {
+                    var prevSkillId = last.SkillId;
+
+                    GetOrCreate(uid).AddHealing(
+                        prevSkillId, healing,
+                        isCrit: false,
+                        isLucky: true,
+                        damageElement,
+                        isCauseLucky: true,
+                        targetUuid
+                    );
+                    SkillDiaryGate.OnHit(uid, prevSkillId, healing, false, true, true);
+
+                    _lastNonLuckySkillByUid[uid] = (prevSkillId, now);
+
+                    // 双保险：剔除任何可能出现的“幸运一击”行（治疗侧）
+                    GetOrCreate(uid).HealingBySkill.Remove(skillId);
+                    return;
+                }
+
+                // 理论上不会发生；留告警并丢弃，避免把幸运记成独立技能
+                //Console.WriteLine($"[Lucky-Heal][WARN-no-prev] uid={uid}, luckySkill={skillId} dropped");
+                return;
+            }
+
+            // 非幸运：正常记账 & 更新“上一发非幸运技能”
+            GetOrCreate(uid).AddHealing(skillId, healing, isCrit, isLucky, damageElement, isCauseLucky, targetUuid);
+            SkillDiaryGate.OnHit(uid, skillId, healing, isCrit, isLucky, true);
+            _lastNonLuckySkillByUid[uid] = (skillId, now);
         }
+
 
 
 
@@ -1461,7 +1549,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             }
 
             // 清玩家
-            lock (_playersLock) { _players.Clear(); }
+            lock (_playersLock) { _players.Clear(); _lastNonLuckySkillByUid.Clear();
+            }
 
             // ✅ 清“当前战斗”的 NPC 统计（与玩家同一生命周期）
             // 假设你把 NpcManager 实例挂在同级位置（例如 PlayerDataManager 外的静态单例）
@@ -2191,7 +2280,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                                 TotalDps: totalDps);
                     })
                     .ToList();
-
+                
                 return ordered;
             }
 

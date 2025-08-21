@@ -58,6 +58,7 @@ namespace StarResonanceDpsAnalysis.Forms
             {
                 foreach (var item in data["data"])
                 {
+                    string battleid = item["battleId"].ToString();
                     string nickName = item["nickName"].ToString();
                     string professional = item["professional"].ToString();
                     double combatPower = double.Parse(item["combatPower"].ToString());
@@ -69,7 +70,7 @@ namespace StarResonanceDpsAnalysis.Forms
                     string subProfessional = item["subProfession"].ToString();
 
                     //int battleTime = int.Parse(item["battleTime"].ToString());
-                    LeaderboardTableDatas.LeaderboardTable.Add(new LeaderboardTable(nickName, professional, combatPower, totalDamage,instantDps, critRate, luckyRate, maxInstantDps, subProfessional));
+                    LeaderboardTableDatas.LeaderboardTable.Add(new LeaderboardTable(battleid, nickName, professional, combatPower, totalDamage,instantDps, critRate, luckyRate, maxInstantDps, subProfessional));
                 }
             }
             else

@@ -9,7 +9,9 @@ using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using ZstdNet;
 using StarResonanceDpsAnalysis.Plugin.Database;
-using StarResonanceDpsAnalysis.Core.test; // 数据库同步
+using StarResonanceDpsAnalysis.Core.test;
+using Google.Protobuf.Collections;
+using StarResonanceDpsAnalysis.Core.TabelJson; // 数据库同步
 
 namespace StarResonanceDpsAnalysis.Core
 {
@@ -72,7 +74,7 @@ namespace StarResonanceDpsAnalysis.Core
         {
             /// <summary>名称（玩家/单位名，字符串）</summary>
             AttrName = 0x01,                    // name
-
+            AttrId = 0x0A, // 整数（实体/怪物 ID，可映射名字）
             /// <summary>职业 ID（职业枚举/配置映射用）</summary>
             AttrProfessionId = 0xDC,            // profession id
 
@@ -284,9 +286,137 @@ namespace StarResonanceDpsAnalysis.Core
             return output.ToArray();
         }
         #endregion
+        /// <summary>
+        /// 同步周边实体，玩家数据
+        /// </summary>
+        /// <param name="playerUid"></param>
+        /// <param name="attrs"></param>
+        public static void processPlayerAttrs(ulong playerUid,RepeatedField<Attr> attrs)
+        {      // 如果数据库里没有缓存，尝试同步
+            PlayerDbSyncService.TryFillFromDbOnce(playerUid);
+            bool updated = false;
+            foreach (var attr in attrs)
+            {
+                if (attr.Id == 0 || attr.RawData == null || attr.RawData.Length == 0) continue;
+                var reader = new Google.Protobuf.CodedInputStream(attr.RawData.ToByteArray());
+
+                switch (attr.Id)
+                {
+                    case (int)AttrType.AttrName:
+                        StatisticData._manager.SetNickname(playerUid, reader.ReadString());
+                        updated = true;
+                        break;
+                    case (int)AttrType.AttrProfessionId:
+                        StatisticData._manager.SetProfession(playerUid, GetProfessionNameFromId(reader.ReadInt32()));
+                        updated = true;
+                        break;
+                    case (int)AttrType.AttrFightPoint:
+                        StatisticData._manager.SetCombatPower(playerUid, reader.ReadInt32());
+                        updated = true;
+                        break;
+                    case (int)AttrType.AttrLevel:
+                        StatisticData._manager.SetAttrKV(playerUid, "level", reader.ReadInt32());
+                        break;
+                    case (int)AttrType.AttrRankLevel:
+                        StatisticData._manager.SetAttrKV(playerUid, "rank_level", reader.ReadInt32());
+                        break;
+                    case (int)AttrType.AttrCri:
+                        StatisticData._manager.SetAttrKV(playerUid, "cri", reader.ReadInt32());
+                        break;
+                    case (int)AttrType.AttrLucky:
+                        StatisticData._manager.SetAttrKV(playerUid, "lucky", reader.ReadInt32());
+                        break;
+                    case (int)AttrType.AttrHp:
+                        StatisticData._manager.SetAttrKV(playerUid, "hp", reader.ReadInt32());
+                        break;
+                    case (int)AttrType.AttrMaxHp:
+
+                        _ = reader.ReadInt32();
+
+
+                        break;
+                    case (int)AttrType.AttrElementFlag:
+                        _ = reader.ReadInt32();
+
+                        break;
+                    case (int)AttrType.AttrEnergyFlag:
+                        _ = reader.ReadInt32();
+
+                        break;
+                    case (int)AttrType.AttrReductionLevel:
+                        _ = reader.ReadInt32();
+
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (updated) Task.Run(() => PlayerDbSyncService.UpsertCurrentAsync(playerUid));
+        }
+
+        public static void processEnemyAttrs(ulong enemyUid, RepeatedField<Attr> attrs)
+        {
+            foreach (var attr in attrs)
+            {
+                if (attr.Id == 0 || attr.RawData == null)
+                    continue;
+                var reader = new Google.Protobuf.CodedInputStream(attr.RawData.ToByteArray());
+
+               // Console.WriteLine(@$"发现属性ID {attr.Id} 对应敌人E{enemyUid} 原始数据={Convert.ToBase64String(attr.RawData.ToByteArray())}");
+                switch (attr.Id)
+                {
+                    case (int)AttrType.AttrName:
+                        {
+                            // 怪物名直接是 string
+                            string enemyName = reader.ReadString();
+
+                            Console.WriteLine($"发现怪物名 {enemyName}，对应ID {enemyUid}");
+                            break;
+                        }
+                    case (int)AttrType.AttrId:
+                        {
+                            // 怪物模板 ID
+                            int templateId = reader.ReadInt32();
+                            string name = MonsterNameResolver.Instance.GetName(templateId);
+                            if(!string.IsNullOrEmpty(name))
+                            {
+                                Console.WriteLine($"怪物名：{name}，对应模板ID {templateId}");
+                            }
+
+                            break;
+                        }
+                    case (int)AttrType.AttrHp:
+                        {
+                            var data = attr.RawData.ToByteArray();
+                            if (data.Length == 0)
+                            {
+                                //Console.WriteLine($"怪物 {enemyUid} 的血量数据为空，跳过");
+                                break;
+                            }
+                            int enemyHp = reader.ReadInt32();
+                           
+                            //Console.WriteLine($"发现怪物当前血量 {enemyHp}，对应敌人ID {enemyUid}"); 
+                            break;
+                        }
+                    case (int)AttrType.AttrMaxHp:
+                        {
+                            int enemyMaxHp = reader.ReadInt32();
+
+                            Console.WriteLine($"发现怪物最大血量 {enemyMaxHp}，对应敌人ID {enemyUid}");
+                            break;
+                        }
+                    default:
+                        {
+                            // 未知属性静默，可选 debug
+                            // this.logger.Debug($"Found unknown attrId {attr.Id} for E{enemyUid} {Convert.ToBase64String(attr.RawData)}");
+                            break;
+                        }
+                }
+            }
+        }
 
         /// <summary>
-        /// 同步周边实体（主要是玩家）的数据：昵称、职业、战力等
+        /// 同步周边实体 怪物和玩家
         /// </summary>
         public static void ProcessSyncNearEntities(byte[] payloadBuffer)
         {
@@ -298,72 +428,26 @@ namespace StarResonanceDpsAnalysis.Core
             {
                 if (entity.EntType != EEntityType.EntChar) continue;
                 ulong playerUid = Shr16((ulong)entity.Uuid); // 提取UID
+               
                 if (playerUid == 0) continue;
 
-                // 如果数据库里没有缓存，尝试同步
-                PlayerDbSyncService.TryFillFromDbOnce(playerUid);
+          
 
                 var attrCollection = entity.Attrs;
                 if (attrCollection?.Attrs == null) continue;
-
-                bool updated = false;
-                foreach (var attr in attrCollection.Attrs)
+                switch(entity.EntType)
                 {
-                    if (attr.Id == 0 || attr.RawData == null || attr.RawData.Length == 0) continue;
-                    var reader = new Google.Protobuf.CodedInputStream(attr.RawData.ToByteArray());
-
-                    switch (attr.Id)
-                    {
-                        case (int)AttrType.AttrName:
-                            StatisticData._manager.SetNickname(playerUid, reader.ReadString());
-                            updated = true;
-                            break;
-                        case (int)AttrType.AttrProfessionId:
-                            StatisticData._manager.SetProfession(playerUid, GetProfessionNameFromId(reader.ReadInt32()));
-                            updated = true;
-                            break;
-                        case (int)AttrType.AttrFightPoint:
-                            StatisticData._manager.SetCombatPower(playerUid, reader.ReadInt32());
-                            updated = true;
-                            break;
-                        case (int)AttrType.AttrLevel:
-                            StatisticData._manager.SetAttrKV(playerUid, "level", reader.ReadInt32());
-                            break;
-                        case (int)AttrType.AttrRankLevel:
-                            StatisticData._manager.SetAttrKV(playerUid, "rank_level", reader.ReadInt32());
-                            break;
-                        case (int)AttrType.AttrCri:
-                            StatisticData._manager.SetAttrKV(playerUid, "cri", reader.ReadInt32());
-                            break;
-                        case (int)AttrType.AttrLucky:
-                            StatisticData._manager.SetAttrKV(playerUid, "lucky", reader.ReadInt32());
-                            break;
-                        case (int)AttrType.AttrHp:
-                            StatisticData._manager.SetAttrKV(playerUid, "hp", reader.ReadInt32());
-                            break;
-                        case (int)AttrType.AttrMaxHp:
-                            
-                            _ = reader.ReadInt32();
-                        
-
-                            break;
-                        case (int)AttrType.AttrElementFlag:
-                            _ = reader.ReadInt32();
-                       
-                            break;
-                        case (int)AttrType.AttrEnergyFlag:
-                            _ = reader.ReadInt32();
-                          
-                            break;
-                        case (int)AttrType.AttrReductionLevel:
-                            _ = reader.ReadInt32();
-                      
-                            break;
-                        default:
-                            break;
-                    }
+                    case EEntityType.EntMonster:
+                        processEnemyAttrs(playerUid, attrCollection.Attrs);
+                        break;
+                    case EEntityType.EntChar:
+                        processPlayerAttrs(playerUid, attrCollection.Attrs);
+                        break;
+                    default:
+                        break;
                 }
-                if (updated) Task.Run(() => PlayerDbSyncService.UpsertCurrentAsync(playerUid));
+               
+        
             }
             #endregion
         }
@@ -395,11 +479,30 @@ namespace StarResonanceDpsAnalysis.Core
             if (targetUuidRaw == 0) return;
             bool isTargetPlayer = IsUuidPlayerRaw(targetUuidRaw);
             ulong targetUuid = Shr16(targetUuidRaw);
+            var attrCollection = delta.Attrs;
+            if (attrCollection?.Attrs != null)
+            {
+                if(isTargetPlayer)
+                {
+                    //玩家
+                    processPlayerAttrs(targetUuidRaw, attrCollection.Attrs);
+                }
+                else
+                {
+                    //怪物
+                    processEnemyAttrs(targetUuid, attrCollection.Attrs);
+                }
+            }
 
-            var se = delta.SkillEffects;
-            if (se?.Damages == null || se.Damages.Count == 0) return;
 
-            foreach (var d in se.Damages)
+
+                // SkillEffects：本次增量包含的技能相关效果（伤害/治疗等）
+
+                var skillEffect = delta.SkillEffects;
+            if (skillEffect?.Damages == null || skillEffect.Damages.Count == 0) return;
+
+
+            foreach (var d in skillEffect.Damages)
             {
                 long skillId = d.OwnerId;
                 if (skillId == 0) continue;
@@ -457,7 +560,7 @@ namespace StarResonanceDpsAnalysis.Core
                 {
                     if (isHeal)
                     {
-                        
+
                             StatisticData._manager.AddHealing(isAttackerPlayer?attackerUuid:0, (ulong)skillId, damageElement, hpLessen, isCrit, isLucky, isCauseLucky, targetUuid);
                         
                   
@@ -465,6 +568,7 @@ namespace StarResonanceDpsAnalysis.Core
                     }
                     else
                     {
+                       
                         StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage, damageSource, isMiss, isDead, isCrit, isLucky, hpLessen);
                     }
                 }
@@ -477,7 +581,7 @@ namespace StarResonanceDpsAnalysis.Core
                     }
                     //if (AppConfig.NpcsTakeDamage)
                     //{
-                        
+               
                     StatisticData._npcManager.AddNpcTakenDamage(targetUuid, attackerUuid, skillId, damage, isCrit, isLucky, hpLessen, isMiss, isDead);
                         
                         

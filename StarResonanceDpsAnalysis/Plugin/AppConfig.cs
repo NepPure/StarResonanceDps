@@ -100,6 +100,8 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// </summary>
         private static string FilePath { get; } = $"{Environment.CurrentDirectory}\\config.ini";
 
+        public static string MonsterNames = $"{Environment.CurrentDirectory}\\monster_names.json";
+
         /// <summary>
         /// # 分类：静态字段（延迟加载缓存）
         /// - 仅在首次读取对应属性时，从 INI 取值并写入缓存；之后命中缓存避免重复 IO。
