@@ -18,6 +18,7 @@ using System.Security.Cryptography.Xml;
 using Button = AntdUI.Button;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using Color = System.Drawing.Color;
+using StarResonanceDpsAnalysis.Forms.ModuleForm;
 
 namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代码所在位置
 { // 命名空间开始
@@ -255,6 +256,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     }, // 一级菜单配置结束
                     new ContextMenuStripItem("基础设置"){ IconSvg = Resources.set_up}, // 一级菜单：基础设置
                     new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, }, // 一级菜单：主窗体
+                    new ContextMenuStripItem("模组配置"), // 一级菜单：数据显示设置
                     //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
                     new ContextMenuStripItem("死亡统计"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
@@ -292,6 +294,13 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         }
                         FormManager.mainForm.Show(); // 显示主窗体
                         break; // 跳出 switch
+                    case "模组配置":
+                        if (FormManager.moduleCalculationForm == null || FormManager.moduleCalculationForm.IsDisposed) // 若主窗体不存在或已释放
+                        {
+                            FormManager.moduleCalculationForm = new ModuleCalculationForm(); // 创建主窗体
+                        }
+                        FormManager.moduleCalculationForm.Show(); // 显示主窗体
+                        break;
 
                     case "死亡统计":
                         if(FormManager.deathStatisticsForm == null || FormManager.deathStatisticsForm.IsDisposed)

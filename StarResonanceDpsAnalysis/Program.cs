@@ -2,6 +2,7 @@ using System.Text;
 using System.Windows.Forms;
 using AntdUI;
 using StarResonanceDpsAnalysis.Forms;
+using StarResonanceDpsAnalysis.Forms.ModuleForm;
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 
 namespace StarResonanceDpsAnalysis
@@ -39,9 +40,9 @@ namespace StarResonanceDpsAnalysis
 
             ApplicationConfiguration.Initialize();
             FormManager.dpsStatistics = new DpsStatisticsForm();
-            Application.Run(FormManager.dpsStatistics);
+           Application.Run(FormManager.dpsStatistics);
 
-            //Application.Run(new TestForm());
+            //Application.Run(new ModuleCalculationForm());
         }
 
         private static float GetPrimaryResolutionScale()

@@ -10,7 +10,7 @@ using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using ZstdNet;
 using StarResonanceDpsAnalysis.Core.test;
 using Google.Protobuf.Collections;
-using StarResonanceDpsAnalysis.Core.TabelJson; // 数据库同步
+using StarResonanceDpsAnalysis.Core.Module; // 数据库同步
 
 namespace StarResonanceDpsAnalysis.Core
 {
@@ -616,6 +616,8 @@ namespace StarResonanceDpsAnalysis.Core
         /// </summary>
         public static void ProcessSyncContainerData(byte[] payloadBuffer)
         {
+            
+            BuildEliteCandidatePool.ParseModuleInfo(payloadBuffer);
             //Console.WriteLine("Head (前64字节): " + ToHex(payloadBuffer));
             var syncContainerData = SyncContainerData.Parser.ParseFrom(payloadBuffer);
             if (syncContainerData?.VData == null) return;
@@ -664,6 +666,7 @@ namespace StarResonanceDpsAnalysis.Core
 
 
         }
+
 
         /// <summary>
         /// 同步自身部分更新（脏数据） //增量更新，有数据就更新

@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 
 using StarResonanceDpsAnalysis.Control;
 using StarResonanceDpsAnalysis.Forms.AuxiliaryForms;
+using StarResonanceDpsAnalysis.Forms.ModuleForm;
 
 namespace StarResonanceDpsAnalysis.Forms
 {
@@ -35,6 +36,8 @@ namespace StarResonanceDpsAnalysis.Forms
         public static DeathStatisticsForm deathStatisticsForm;//死亡统计窗体
 
         public static SkillReferenceForm skillReferenceForm;//技能参考窗体
+
+        public static ModuleCalculationForm moduleCalculationForm;//模块计算窗体
 
         /// <summary>
         /// 统一设置透明度
