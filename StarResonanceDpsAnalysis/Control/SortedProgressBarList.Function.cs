@@ -26,19 +26,20 @@ namespace StarResonanceDpsAnalysis.Control
             { Quality.Extreme, 160 },
             { Quality.AlmostAccurate, 999 }
         };
-        private PeriodicTimer _animationPeriodicTimer;
-        private CubicBezier _moveAnimationCubicBezier;
-        private CubicBezier _fadeAnimationCubicBezier;
+        private readonly PeriodicTimer _animationPeriodicTimer;
+        private readonly CubicBezier _moveAnimationCubicBezier;
+        private readonly CubicBezier _fadeAnimationCubicBezier;
 
         private readonly object _lock = new();
         private readonly Dictionary<long, GDI_ProgressBar> _gdiProgressBarDict = [];
         private readonly DrawInfo _drawInfo = new();
         private readonly ProgressBarPrivateData _progressBarPrivateData = new();
-        private readonly List<RenderContent> _renderContentBuffer = new();
+        private readonly List<RenderContent> _renderContentBuffer = [];
 
         private Pen? _selectionBorderPen = null;
+        private readonly SolidBrush _scrollBarBrush = new(Color.FromArgb(0x33, 0x33, 0x33));
 
-        private Stopwatch _animationWatch = new();
+        private readonly Stopwatch _animationWatch = new();
         private bool _animating = false;
         private List<long> _prevIdOrder = [];
         private List<SortAnimatingInfo> _animatingInfoBuffer = [];
@@ -79,6 +80,7 @@ namespace StarResonanceDpsAnalysis.Control
 
                 var staticDraw = aniMs >= AnimationDuration;
 
+                // 绘制进度条内容
                 foreach (var data in _animatingInfoBuffer)
                 {
                     var outOfHeightIndex = (Height / ProgressBarHeight) + 1;
@@ -88,7 +90,7 @@ namespace StarResonanceDpsAnalysis.Control
                     var toIndex = data.ToIndex == -1
                         ? outOfHeightIndex
                         : data.ToIndex;
-                    float top = fromIndex * ProgressBarHeight;
+                    var top = 1f * fromIndex * ProgressBarHeight - ScrollOffsetY;
 
                     _progressBarPrivateData.OrderAlign = OrderAlign;
                     _progressBarPrivateData.OrderColor = OrderColor;
@@ -114,7 +116,7 @@ namespace StarResonanceDpsAnalysis.Control
                         _progressBarPrivateData.Top = top;
                         _progressBarPrivateData.Opacity = 255;
 
-                        if (top > Height)
+                        if (top < -ProgressBarHeight || top > Height)
                         {
                             continue;
                         }
@@ -143,7 +145,7 @@ namespace StarResonanceDpsAnalysis.Control
                         _progressBarPrivateData.Top = top;
                         _progressBarPrivateData.Opacity = opacity;
 
-                        if (top > Height)
+                        if (top < -ProgressBarHeight || top > Height)
                         {
                             continue;
                         }
@@ -152,20 +154,44 @@ namespace StarResonanceDpsAnalysis.Control
                     }
                 }
 
+                // 绘制选取框
                 if (_selectedIndex != null)
                 {
                     var borderWidth = 2;
                     var halfWidth = borderWidth / 2;
-                    _selectionBorderPen ??= new Pen(_seletedItemColor, borderWidth);
+                    var top = _selectedIndex.Value * ProgressBarHeight - ScrollOffsetY + halfWidth;
+                    if (top > -ProgressBarHeight && top < Height)
+                    {
 
-                    g.InterpolationMode = InterpolationMode.Low;
-                    g.SmoothingMode = SmoothingMode.HighSpeed;
-                    g.PixelOffsetMode = PixelOffsetMode.None;
+                        _selectionBorderPen ??= new Pen(_seletedItemColor, borderWidth);
 
-                    g.DrawRectangle(_selectionBorderPen, halfWidth, _selectedIndex.Value * ProgressBarHeight + halfWidth, Width - borderWidth, ProgressBarHeight - halfWidth);
+                        g.InterpolationMode = InterpolationMode.Low;
+                        g.SmoothingMode = SmoothingMode.HighSpeed;
+                        g.PixelOffsetMode = PixelOffsetMode.None;
+
+                        g.DrawRectangle(_selectionBorderPen, halfWidth, top, Width - borderWidth - ScrollBarWidth, ProgressBarHeight - halfWidth);
+                    }
                 }
+
+                // 绘制滚动条
+                var totalHeight = Padding.Top + Padding.Bottom + _animatingInfoBuffer.Count * ProgressBarHeight;
+                var scrollBarSizePersent = Math.Min(1f * Height / totalHeight, 1);
+                var offsetYPersent = (1f - scrollBarSizePersent) * ScrollOffsetY / (totalHeight - Height);
+
+                _scrollBarRect.X = Width - ScrollBarWidth - ScrollBarPadding;
+                _scrollBarRect.Y = Height * offsetYPersent;
+                _scrollBarRect.Width = ScrollBarWidth - ScrollBarPadding * 2;
+                _scrollBarRect.Height = Height * scrollBarSizePersent;
+
+                GDI_Base.RenderRoundedCornerRectangle(
+                    g,
+                    _scrollBarRect,
+                    new Padding(ScrollBarPadding),
+                    99,
+                    _scrollBarBrush);
             }
         }
+
         private bool Resort()
         {
             var result = false;
@@ -264,7 +290,7 @@ namespace StarResonanceDpsAnalysis.Control
                 _gdiProgressBarDict[data.ID] = gdiProgressBar;
             }
 
-            _drawInfo.Width = Width;
+            _drawInfo.Width = Width - ScrollBarWidth;
             _drawInfo.Height = ProgressBarHeight;
             _drawInfo.BackColor = BackColor;
             _drawInfo.ProgressBarColor = Color.FromArgb(privateData.Opacity, data.ProgressBarColor);
