@@ -24,6 +24,7 @@ namespace StarResonanceDpsAnalysis.Forms
 
 
             pageHeader_MainHeader.Text = Text = $"{FormManager.APP_NAME} {FormManager.AppVersion}";
+            label_NowVersionNumber.Text = FormManager.AppVersion;
 
             //InitTableColumnsConfigAtFirstRun(); // # 列显隐初始化：首次运行建立列配置
             //LoadTableColumnVisibilitySettings(); // # 读取列显隐配置
