@@ -624,7 +624,7 @@ namespace StarResonanceDpsAnalysis.Core
             if (vData.CharId == null || vData.CharId == 0) return;
 
             ulong playerUid = (ulong)vData.CharId;
-
+            AppConfig.Uid = playerUid;
             bool updated = false;
 
             if (vData.RoleLevel?.Level != 0)

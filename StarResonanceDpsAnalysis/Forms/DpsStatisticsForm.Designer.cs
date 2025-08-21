@@ -250,6 +250,8 @@
             sortedProgressBarList1.OrderImageAlign = Control.GDI.RenderContent.ContentAlign.MiddleLeft;
             sortedProgressBarList1.OrderImageRenderSize = new Size(0, 0);
             sortedProgressBarList1.OrderImages = null;
+            sortedProgressBarList1.ScrollBarWidth = 8;
+            sortedProgressBarList1.ScrollOffsetY = 0F;
             sortedProgressBarList1.SeletedItemColor = Color.FromArgb(86, 156, 214);
             sortedProgressBarList1.Size = new Size(631, 358);
             sortedProgressBarList1.TabIndex = 18;
