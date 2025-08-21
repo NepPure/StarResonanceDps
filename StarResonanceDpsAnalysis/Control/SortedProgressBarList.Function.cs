@@ -37,7 +37,7 @@ namespace StarResonanceDpsAnalysis.Control
         private readonly List<RenderContent> _renderContentBuffer = [];
 
         private Pen? _selectionBorderPen = null;
-        private readonly SolidBrush _scrollBarBrush = new(Color.FromArgb(0x33, 0x33, 0x33));
+        private readonly SolidBrush _scrollBarBrush = new(Color.FromArgb(0xB2, 0xB2, 0xB2));
 
         private readonly Stopwatch _animationWatch = new();
         private bool _animating = false;
