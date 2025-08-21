@@ -39,36 +39,42 @@ namespace StarResonanceDpsAnalysis.Control.GDI
                     _progressBarBrush = new SolidBrush(info.ProgressBarColor);
                 }
 
-                var barWidth = (info.Width - info.Padding.Left - info.Padding.Right) * info.ProgressBarValue;
+                var barWidth = (info.Width - info.Padding.Left - info.Padding.Right) * (float)info.ProgressBarValue;
                 var barHeight = info.Height - info.Padding.Top - info.Padding.Bottom;
                 if (barWidth >= 1)
                 {
-                    var diameter = Math.Max(1, Math.Min(info.ProgressBarCornerRadius * 2, Math.Min(barWidth, barHeight)));
-                    var rect = new RectangleF(0, 0, (float)diameter, (float)diameter);
+                    //var diameter = Math.Max(1, Math.Min(info.ProgressBarCornerRadius * 2, Math.Min(barWidth, barHeight)));
+                    //var rect = new RectangleF(0, 0, (float)diameter, (float)diameter);
 
-                    using var path = new GraphicsPath();
-                    // 左上角
-                    rect.X = info.Padding.Left;
-                    rect.Y = info.Top + info.Padding.Top;
-                    path.AddArc(rect, 180, 90);
-                    // 右上角
-                    rect.X = (float)(info.Padding.Left + (barWidth - diameter));
-                    path.AddArc(rect, 270, 90);
-                    // 右下角
-                    rect.Y = (float)(info.Top + info.Height - info.Padding.Bottom - diameter);
-                    path.AddArc(rect, 0, 90);
-                    // 左下角
-                    rect.X = info.Padding.Left;
-                    path.AddArc(rect, 90, 90);
-                    // 闭合图形
-                    path.CloseFigure();
+                    //using var path = new GraphicsPath();
+                    //// 左上角
+                    //rect.X = info.Padding.Left;
+                    //rect.Y = info.Top + info.Padding.Top;
+                    //path.AddArc(rect, 180, 90);
+                    //// 右上角
+                    //rect.X = (float)(info.Padding.Left + (barWidth - diameter));
+                    //path.AddArc(rect, 270, 90);
+                    //// 右下角
+                    //rect.Y = (float)(info.Top + info.Height - info.Padding.Bottom - diameter);
+                    //path.AddArc(rect, 0, 90);
+                    //// 左下角
+                    //rect.X = info.Padding.Left;
+                    //path.AddArc(rect, 90, 90);
+                    //// 闭合图形
+                    //path.CloseFigure();
 
-                    g.InterpolationMode = InterpolationMode.Default;
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-                    g.PixelOffsetMode = PixelOffsetMode.None;
+                    //g.InterpolationMode = InterpolationMode.Default;
+                    //g.SmoothingMode = SmoothingMode.AntiAlias;
+                    //g.PixelOffsetMode = PixelOffsetMode.None;
 
-                    g.FillPath(_progressBarBrush, path);
+                    //g.FillPath(_progressBarBrush, path);
 
+                    GDI_Base.RenderRoundedCornerRectangle(
+                        g,
+                        new RectangleF(0, info.Top, barWidth, barHeight),
+                        info.Padding,
+                        info.ProgressBarCornerRadius,
+                        _progressBarBrush);
                 }
 
                 if (info.ContentList != null)
@@ -211,131 +217,4 @@ namespace StarResonanceDpsAnalysis.Control.GDI
         public List<RenderContent>? ContentList { get; set; }
     }
 
-    public class RenderContent
-    {
-        /// <summary>
-        /// 内容类型
-        /// </summary>
-        public ContentType Type { get; set; } = ContentType.Text;
-        /// <summary>
-        /// 内容对齐方式
-        /// </summary>
-        public ContentAlign Align { get; set; } = ContentAlign.MiddleLeft;
-        /// <summary>
-        /// 偏移量, 相对于 Align 后的位置进行偏移
-        /// </summary>
-        /// <remarks>
-        /// 无论 Align 如何设置, Offset 始终 - 为左, + 为右
-        /// </remarks>
-        public ContentOffset Offset { get; set; } = new ContentOffset { X = 0, Y = 0 };
-
-        /// <summary>
-        /// 文本内容
-        /// </summary>
-        /// <remarks>
-        /// Type 为 ContentType.Text 时有效
-        /// </remarks>
-        public string? Text { get; set; }
-        /// <summary>
-        /// 文本颜色
-        /// </summary>
-        /// <remarks>
-        /// AutoTextColor 为 true 时, 此属性无效
-        /// </remarks>
-        public Color ForeColor { get; set; } = Color.Black;
-        /// <summary>
-        /// 文本字体
-        /// </summary>
-        public Font Font { get; set; } = SystemFonts.DefaultFont;
-
-        /// <summary>
-        /// 图片内容
-        /// </summary>
-        /// <remarks>
-        /// Type 为 ContentType.Image 时有效
-        /// </remarks>
-        public Image? Image { get; set; }
-        /// <summary>
-        /// 将要绘制的大小
-        /// </summary>
-        public Size ImageRenderSize { get; set; } = new Size(0, 0);
-
-
-        public enum ContentType
-        {
-            /// <summary>
-            /// 用于标记当前项为序号项, 组件使用者请勿使用该枚举
-            /// </summary>
-            [EditorBrowsable(EditorBrowsableState.Never)]
-            Order = -1,
-            /// <summary>
-            /// 文字项
-            /// </summary>
-            Text = 0,
-            /// <summary>
-            /// 图片项
-            /// </summary>
-            Image = 1,
-        }
-        public enum Direction
-        {
-            Left = 1,
-            Center = 2,
-            Right = 4,
-
-            Top = 8,
-            Middle = 16,
-            Bottom = 32,
-        }
-        public enum ContentAlign
-        {
-            /// <summary>
-            /// ↖
-            /// </summary>
-            TopLeft = Direction.Left | Direction.Top,
-            /// <summary>
-            /// ↑
-            /// </summary>
-            TopCenter = Direction.Center | Direction.Top,
-            /// <summary>
-            /// ↗
-            /// </summary>
-            TopRight = Direction.Right | Direction.Top,
-            /// <summary>
-            /// ←
-            /// </summary>
-            MiddleLeft = Direction.Left | Direction.Middle,
-            /// <summary>
-            /// ○
-            /// </summary>
-            MiddleCenter = Direction.Center | Direction.Middle,
-            /// <summary>
-            /// →
-            /// </summary>
-            MiddleRight = Direction.Right | Direction.Middle,
-            /// <summary>
-            /// ↙
-            /// </summary>
-            BottomLeft = Direction.Left | Direction.Bottom,
-            /// <summary>
-            /// ↓
-            /// </summary>
-            BottomCenter = Direction.Center | Direction.Bottom,
-            /// <summary>
-            /// ↘
-            /// </summary>
-            BottomRight = Direction.Right | Direction.Bottom,
-        }
-        public struct ContentOffset
-        {
-            /// <summary>
-            /// 左右偏移量, 无论 ContentAlign 如何定义, X 永远 - 为左, + 为右
-            /// </summary>
-            public int X { get; set; }
-            /// <summary>
-            /// 上下偏移量, 无论 ContentAlign 如何定义, Y 永远 - 为上, + 为下
-            /// </summary>
-            public int Y { get; set; }
-        }
-    }
 }

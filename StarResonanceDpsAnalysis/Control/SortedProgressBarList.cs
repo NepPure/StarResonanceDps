@@ -29,8 +29,14 @@ namespace StarResonanceDpsAnalysis.Control
         private Func<int, string>? _orderCallback = null;
         private Color _orderColor = Color.Black;
         private Font _orderFont = SystemFonts.DefaultFont;
+        private float _scrollOffsetY = 0;
+        private int _scrollBarWidth = 8;
+        private int _scrollBarPadding = 1;
         private int? _selectedIndex = null;
         private Color _seletedItemColor = Color.FromArgb(0x56, 0x9C, 0xD6);
+        private bool _isMouseDownInScrollBar = false;
+        private Point? _prevMousePoint = null;
+        private RectangleF _scrollBarRect = new(0, 0, 0, 0);
 
         /// <summary>
         /// 数据源
@@ -259,6 +265,68 @@ namespace StarResonanceDpsAnalysis.Control
         }
 
         /// <summary>
+        /// 滚动偏移量 Y
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("滚动偏移量 Y")]
+        [DefaultValue(0)]
+        public float ScrollOffsetY
+        {
+            get => _scrollOffsetY;
+            set
+            {
+                value = Math.Max(0, Math.Min(_animatingInfoBuffer.Count * ProgressBarHeight - Height, value));
+
+                if (_scrollOffsetY != value)
+                {
+                    _scrollOffsetY = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 滚动条宽度
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("滚动条宽度")]
+        [DefaultValue(6)]
+        public int ScrollBarWidth
+        {
+            get => _scrollBarWidth;
+            set
+            {
+                if (_scrollBarWidth != value)
+                {
+                    _scrollBarWidth = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 滚动条内边距
+        /// </summary>
+        [Browsable(true)]
+        [Category("外观")]
+        [Description("滚动条内边距")]
+        [DefaultValue(1)]
+        public int ScrollBarPadding
+        {
+            get => _scrollBarPadding;
+            set
+            {
+                if (_scrollBarPadding != value)
+                {
+                    _scrollBarPadding = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
         /// 已选择的进度条项目索引
         /// </summary>
         [Browsable(true)]
@@ -299,6 +367,13 @@ namespace StarResonanceDpsAnalysis.Control
             Redraw(e);
         }
 
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            ScrollOffsetY -= e.Delta;
+        }
+
         protected override void OnHandleDestroyed(EventArgs e)
         {
             base.OnHandleDestroyed(e);
@@ -310,15 +385,16 @@ namespace StarResonanceDpsAnalysis.Control
         private void SortedProgressBarList_MouseClick(object sender, MouseEventArgs e)
         {
             // 边界判断
-            if (e.Location.X < Padding.Left || e.Location.Y < Padding.Top ||
-                e.Location.X > Width - Padding.Right || e.Location.Y > Height - Padding.Bottom)
+            if (e.Location.X < Padding.Left || e.Location.X > Width - Padding.Right - ScrollBarWidth)
             {
                 _selectedIndex = null;
                 SelectionChanged?.Invoke(this, -1, null);
                 return;
             }
 
-            var index = e.Location.Y / ProgressBarHeight;
+            var locationY = e.Location.Y + ScrollOffsetY;
+
+            var index = (int)(locationY / ProgressBarHeight);
             if (index < 0 || index >= _animatingInfoBuffer.Count)
             {
                 _selectedIndex = null;
@@ -327,7 +403,7 @@ namespace StarResonanceDpsAnalysis.Control
             }
 
             var progressBar = _animatingInfoBuffer[index].Data;
-            var offsetY = e.Location.Y % ProgressBarHeight;
+            var offsetY = locationY % ProgressBarHeight;
 
             if (e.Location.X < Padding.Left + progressBar.ProgressBarPadding.Left ||
                 e.Location.X > Width - Padding.Right - progressBar.ProgressBarPadding.Right ||
@@ -341,6 +417,53 @@ namespace StarResonanceDpsAnalysis.Control
 
             _selectedIndex = index;
             SelectionChanged?.Invoke(this, index, progressBar);
+        }
+
+        private void SortedProgressBarList_MouseDown(object sender, MouseEventArgs e)
+        {
+            if ((e.Button & MouseButtons.Left) > 0)
+            {
+                _prevMousePoint = e.Location;
+
+                // 判定鼠标着陆点在 ScrollBar 范围之内
+                _isMouseDownInScrollBar = e.Location.X > _scrollBarRect.X && e.Location.X < _scrollBarRect.X + _scrollBarRect.Width
+                    && e.Location.Y > _scrollBarRect.Y && e.Location.Y < _scrollBarRect.Y + _scrollBarRect.Height;
+            }
+            else
+            {
+                _prevMousePoint = null;
+                _isMouseDownInScrollBar = false;
+            }
+        }
+
+        private void SortedProgressBarList_MouseMove(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                if (_prevMousePoint == null || !_isMouseDownInScrollBar)
+                {
+                    return;
+                }
+
+                var offsetY = e.Location.Y - _prevMousePoint.Value.Y;
+
+                ScrollOffsetY += offsetY * (1f * _animatingInfoBuffer.Count * ProgressBarHeight / Height);
+            }
+            finally
+            {
+                _prevMousePoint = (e.Button & MouseButtons.Left) > 0
+                    ? e.Location
+                    : null;
+            }
+        }
+
+        private void SortedProgressBarList_MouseUp(object sender, MouseEventArgs e)
+        {
+            if ((e.Button & MouseButtons.Left) == 0)
+            {
+                _prevMousePoint = null;
+                _isMouseDownInScrollBar = false;
+            }
         }
     }
 }
