@@ -206,9 +206,9 @@ namespace StarResonanceDpsAnalysis.Forms
             DpsTableDatas.DpsTable.Clear(); // 清空旧数据
             var sb = new StringBuilder();
             sb.AppendLine($"[全程快照] {snap.StartedAt:MM-dd HH:mm:ss} ~ {snap.EndedAt:HH:mm:ss}  时长: {snap.Duration}");
-            TeamTotalDamageLabel.Text = snap.TeamTotalDamage.ToString();
-            TeamTotalHealingLabel.Text = snap.TeamTotalHealing.ToString();
-            TeamTotalTakenDamageLabel.Text = snap.TeamTotalTakenDamage.ToString();
+            TeamTotalDamageLabel.Text = Common.FormatWithEnglishUnits(snap.TeamTotalDamage.ToString());
+            TeamTotalHealingLabel.Text = Common.FormatWithEnglishUnits(snap.TeamTotalHealing.ToString());
+            TeamTotalTakenDamageLabel.Text = Common.FormatWithEnglishUnits( snap.TeamTotalTakenDamage.ToString());
             var orderedPlayers = ApplySort(snap.Players.Values);
 
             foreach (var p in orderedPlayers)

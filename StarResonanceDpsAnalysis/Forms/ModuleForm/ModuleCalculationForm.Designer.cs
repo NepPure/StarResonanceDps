@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModuleCalculationForm));
             pageHeader1 = new AntdUI.PageHeader();
             TitleText = new AntdUI.Label();
             panel6 = new AntdUI.Panel();
@@ -54,6 +55,7 @@
             groupBox4 = new GroupBox();
             button1 = new AntdUI.Button();
             virtualPanel1 = new AntdUI.VirtualPanel();
+            label1 = new AntdUI.Label();
             pageHeader1.SuspendLayout();
             panel6.SuspendLayout();
             groupBox1.SuspendLayout();
@@ -98,7 +100,7 @@
             panel6.Controls.Add(button3);
             panel6.Controls.Add(button4);
             panel6.Dock = DockStyle.Bottom;
-            panel6.Location = new Point(0, 999);
+            panel6.Location = new Point(0, 1013);
             panel6.Name = "panel6";
             panel6.Radius = 3;
             panel6.Shadow = 6;
@@ -370,12 +372,23 @@
             virtualPanel1.TabIndex = 53;
             virtualPanel1.Text = "virtualPanel1";
             // 
+            // label1
+            // 
+            label1.Dock = DockStyle.Bottom;
+            label1.Location = new Point(0, 979);
+            label1.Name = "label1";
+            label1.Size = new Size(1259, 34);
+            label1.TabIndex = 54;
+            label1.Text = "打开此界面后需要过图或者重新登录一次才能进行分析";
+            label1.TextAlign = ContentAlignment.MiddleCenter;
+            // 
             // ModuleCalculationForm
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(1259, 1085);
+            ClientSize = new Size(1259, 1099);
+            Controls.Add(label1);
             Controls.Add(virtualPanel1);
             Controls.Add(button1);
             Controls.Add(groupBox4);
@@ -385,8 +398,10 @@
             Controls.Add(select1);
             Controls.Add(panel6);
             Controls.Add(pageHeader1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "ModuleCalculationForm";
-            Text = "ModuleCalculationForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "模组分析";
             Load += ModuleCalculationForm_Load;
             pageHeader1.ResumeLayout(false);
             panel6.ResumeLayout(false);
@@ -429,5 +444,6 @@
         private AntdUI.Button button1;
         public AntdUI.VirtualPanel virtualPanel1;
         private AntdUI.Checkbox chkEliteStrike;
+        private AntdUI.Label label1;
     }
 }

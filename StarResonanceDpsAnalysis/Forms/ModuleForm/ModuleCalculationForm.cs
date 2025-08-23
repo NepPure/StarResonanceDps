@@ -28,7 +28,7 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
             TitleText.Font = AppConfig.SaoFont;
-            select1.Font = AppConfig.ContentFont;
+            select1.Font = label1.Font = AppConfig.ContentFont;
             button1.Font = AppConfig.ContentFont;
             AntdUI.Checkbox[] checkboxes =
             {
