@@ -1097,6 +1097,21 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         #endregion
 
+        // 放在 PlayerDataManager 类内部任意位置（方法区）
+        private void UpsertCacheProfile(ulong uid) // ★ 新增
+        {
+            // 统一从 PlayerData 拿最新三件套，保证写入完整字段（避免把未知覆盖成默认值）
+            var p = GetOrCreate(uid);
+            _userCache.UpsertIfChanged(new UserProfile
+            {
+                Uid = uid,
+                Nickname = p.Nickname ?? string.Empty,
+                Profession = p.Profession ?? string.Empty,
+                Power = p.CombatPower
+            }, caseInsensitiveName: true, trimName: true);
+        }
+
+
         // ------------------------------------------------------------
         // # 分类：全局战斗时间（开始/结束/持续/格式化）
         // ------------------------------------------------------------
@@ -1185,11 +1200,16 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         #region 构造
 
+        // 在 PlayerDataManager 类字段区新增：
+        private readonly UserLocalCache _userCache; // ★ 新增
+
         /// <summary>
         /// 构造函数：启动定时器，按固定频率刷新实时统计。
         /// </summary>
         public PlayerDataManager()
         {
+            _userCache = new UserLocalCache(flushDelayMs: 1500); // ★ 新增：本地缓存，默认1.5s合并写盘
+
             _checkTimer = new System.Timers.Timer(1000)
             {
                 AutoReset = true,
@@ -1248,12 +1268,38 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                     _players[uid] = data;
                     _lastAddTime = DateTime.Now;
 
+
+
+                    // ★ 先从 UserLocalCache 取一份（若存在）
+                    var prof = _userCache.Get(uid.ToString());
+
+                    // ★ 字典 > 缓存 > 默认 值 的优先级合并策略
+                    // 昵称
                     if (_nicknameRequestedUids.TryGetValue(uid, out var cachedName) && !string.IsNullOrWhiteSpace(cachedName))
                         data.Nickname = cachedName;
+                    else if (prof != null && !string.IsNullOrWhiteSpace(prof.Nickname))
+                    {
+                        data.Nickname = prof.Nickname;
+                        _nicknameRequestedUids[uid] = prof.Nickname; // 同步回字典缓存
+                    }
+
+                    // 战力
                     if (_combatPowerByUid.TryGetValue(uid, out var power) && power > 0)
                         data.CombatPower = power;
+                    else if (prof != null && prof.Power > 0)
+                    {
+                        data.CombatPower = (int)prof.Power;
+                        _combatPowerByUid[uid] = data.CombatPower;
+                    }
+
+                    // 职业
                     if (_professionByUid.TryGetValue(uid, out var profession) && !string.IsNullOrWhiteSpace(profession))
                         data.Profession = profession;
+                    else if (prof != null && !string.IsNullOrWhiteSpace(prof.Profession))
+                    {
+                        data.Profession = prof.Profession;
+                        _professionByUid[uid] = data.Profession;
+                    }
                 }
                 return data;
             }
@@ -1467,6 +1513,8 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         {
             _professionByUid[uid] = profession;
             GetOrCreate(uid).SetProfession(profession);
+            UpsertCacheProfile(uid); // ★ 新增：写回本地缓存
+
         }
 
         /// <summary>设置玩家战力（缓存 + 实例）。</summary>
@@ -1476,6 +1524,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         {
             _combatPowerByUid[uid] = combatPower;
             GetOrCreate(uid).CombatPower = combatPower;
+            UpsertCacheProfile(uid); // ★ 新增：写回本地缓存
         }
 
         /// <summary>设置玩家昵称（缓存 + 实例）。</summary>
@@ -1485,6 +1534,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         {
             _nicknameRequestedUids[uid] = nickname;
             GetOrCreate(uid).Nickname = nickname;
+            UpsertCacheProfile(uid); // ★ 新增：写回本地缓存
         }
 
         #endregion

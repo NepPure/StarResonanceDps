@@ -349,16 +349,7 @@ namespace StarResonanceDpsAnalysis.Core
                         break;
                 }
             }
-            if(updated)
-            {
-                AppConfig.cache.Upsert(new UserProfile
-                {
-                    Uid = playerUid,
-                    Nickname = "小明",
-                    Profession = "Mage",
-                    Power = 456789
-                }); // 若数据未变，不会触发落盘；变了才保存
-            }
+
  
         }
 

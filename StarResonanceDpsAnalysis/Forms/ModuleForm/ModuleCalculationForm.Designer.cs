@@ -144,6 +144,7 @@
             button4.Name = "button4";
             button4.Size = new Size(57, 49);
             button4.TabIndex = 0;
+            button4.Click += button4_Click;
             // 
             // select1
             // 

@@ -70,7 +70,7 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
                     """, this);
                 return;
             }
-           
+
             BuildEliteCandidatePool.ParseModuleInfo(MessageAnalyzer.PayloadBuffer);
 
 
@@ -206,7 +206,7 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
             foreach (var c in cards) virtualPanel1.Items.Add(c);
             virtualPanel1.ResumeLayout();
             virtualPanel1.Refresh();              // 一次刷新即可看到统一宽高效果
-     
+
 
         }
 
@@ -233,6 +233,11 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
         private void button3_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("装饰用");
         }
     }
 }
