@@ -403,6 +403,7 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "模组分析";
             Load += ModuleCalculationForm_Load;
+            ForeColorChanged += ModuleCalculationForm_ForeColorChanged;
             pageHeader1.ResumeLayout(false);
             panel6.ResumeLayout(false);
             groupBox1.ResumeLayout(false);

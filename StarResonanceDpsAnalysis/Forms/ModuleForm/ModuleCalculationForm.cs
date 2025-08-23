@@ -28,7 +28,7 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
             TitleText.Font = AppConfig.SaoFont;
-            select1.Font = label1.Font = AppConfig.ContentFont;
+            select1.Font = label1.Font = groupBox1.Font = groupBox2.Font = groupBox3.Font = groupBox4.Font = AppConfig.ContentFont;
             button1.Font = AppConfig.ContentFont;
             AntdUI.Checkbox[] checkboxes =
             {
@@ -238,6 +238,18 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
         private void button4_Click(object sender, EventArgs e)
         {
             MessageBox.Show("装饰用");
+        }
+
+        private void ModuleCalculationForm_ForeColorChanged(object sender, EventArgs e)
+        {
+            if (Config.IsLight)
+            {
+                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.Wheat;
+            }
+            else
+            {
+                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.Black;
+            }
         }
     }
 }
