@@ -27,6 +27,15 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
         private void ModuleCalculationForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
+            if (Config.IsLight)
+            {
+                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.Black;
+            }
+            else
+            {
+                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.White;
+               
+            }
             TitleText.Font = AppConfig.SaoFont;
             select1.Font = label1.Font = groupBox1.Font = groupBox2.Font = groupBox3.Font = groupBox4.Font = AppConfig.ContentFont;
             button1.Font = AppConfig.ContentFont;
@@ -244,11 +253,12 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
         {
             if (Config.IsLight)
             {
-                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.Wheat;
+                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.Black;
             }
             else
             {
-                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.Black;
+                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.White;
+
             }
         }
     }
