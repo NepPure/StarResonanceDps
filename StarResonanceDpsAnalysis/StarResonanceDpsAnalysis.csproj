@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Assets\ApplicationIcon.ico</ApplicationIcon>
     <Platforms>AnyCPU;x86;x64</Platforms>
-    <Version>2.0.3</Version>
+    <Version>2.0.4</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
@@ -52,5 +52,17 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
+  <ItemGroup>
+    <!-- 把任意 *.Function.cs 的文件类型识别改回正常的代码文件 -->
+    <Compile Update="**/*.Function.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- 把任意 *.Function.cs 折叠到去掉 .Function 后的同名 .cs 下 -->
+    <Compile Update="**/*.Function.cs">
+      <!-- %(Filename) 不带扩展名 -->
+      <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.Function','')).cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>
