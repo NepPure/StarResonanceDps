@@ -61,6 +61,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// </summary>
         public int CountDead { get; private set; }
 
+   
 
 
 
@@ -553,14 +554,14 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0,
             string? damageElement = null, bool isCauseLucky = false)
         {
-            DamageStats.AddRecord(damage, isCrit, isLucky, hpLessen);
+            DamageStats.AddRecord(damage, isCrit, isLucky, hpLessen, isCauseLucky);
 
             if (!SkillUsage.TryGetValue(skillId, out var stat))
             {
                 stat = new StatisticData();
                 SkillUsage[skillId] = stat;
             }
-            stat.AddRecord(damage, isCrit, isLucky, hpLessen);
+            stat.AddRecord(damage, isCrit, isLucky, hpLessen, isCauseLucky);
             if (string.IsNullOrEmpty(SubProfession))
             {
                 var sp = Common.GetSubProfessionBySkillId(skillId);
@@ -585,14 +586,14 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             ulong skillId, ulong healing, bool isCrit, bool isLucky,
             string? damageElement = null, bool isCauseLucky = false, ulong targetUuid = 0)
         {
-            HealingStats.AddRecord(healing, isCrit, isLucky);
+            HealingStats.AddRecord(healing, isCrit, isLucky, 0, isCauseLucky);
 
             if (!HealingBySkill.TryGetValue(skillId, out var stat))
             {
                 stat = new StatisticData();
                 HealingBySkill[skillId] = stat;
             }
-            stat.AddRecord(healing, isCrit, isLucky);
+            stat.AddRecord(healing, isCrit, isLucky, 0, isCauseLucky);
             string subProfession = Common.GetSubProfessionBySkillId(skillId);
             if (string.IsNullOrEmpty(SubProfession))
             {
@@ -787,7 +788,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                     TotalDps = s.GetTotalPerSecond(),
                     LastTime = s.LastRecordTime,     // 如果你没加这个属性，就先删这一行
                     ShareOfTotal = (double)s.Total / denom,  // 0~1 占比（与 source 对齐）
-                    LuckyDamage = s.Lucky + s.CritLucky,
+                    LuckyDamage = s.Lucky + s.CritLucky,   // ★ 合并
                     CritLuckyDamage = s.CritLucky,
                     CauseLuckyDamage = s.CauseLucky,
                     CountLucky = s.CountLucky,
@@ -1018,30 +1019,6 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
 
         private readonly object _playersLock = new object(); // ★ 统一锁（2025-08-19 新增）
 
-
-        private readonly Dictionary<ulong, (ulong SkillId, DateTime Time)> _lastNonLuckySkillByUid = new();
-
-
-        // ★ 可配置：哪些 skillId 被认为是“幸运一击”（按你实际ID填）
-        // ★ 标记哪些 skillId 是“幸运一击”
-        private static readonly HashSet<ulong> LuckyStrikeSkillIds = new()
-        {
-            2031104u,
-            2031101u,
-            2031111u,
-            2031005u,
-            2031105u,
-            2031109u,
-            2031102u,
-            2031110u,
-            2031106u,
-            2031107u,
-            2031108u
-        };
-
-
-        // ★ 可调：允许把“幸运一击”归因到“上一发技能”的时间窗口
-        private static readonly TimeSpan LuckyAttributionWindow = TimeSpan.FromMilliseconds(500); // 0.5s
 
         /// <summary>
         /// 快照 战斗数据历史列表。
@@ -1386,43 +1363,13 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         public void AddDamage(ulong uid, ulong skillId, string damageElement, ulong damage, bool isCrit, bool isLucky, bool isCauseLucky, ulong hpLessen = 0)
         {
             MarkCombatActivity();
-            var now = DateTime.Now;
 
-            // 幸运一击：无条件并到“上一发非幸运技能”，不单独入账
-            if (LuckyStrikeSkillIds.Contains(skillId))
-            {
-                if (_lastNonLuckySkillByUid.TryGetValue(uid, out var last))
-                {
-                    var prevSkillId = last.SkillId;
-
-                    GetOrCreate(uid).AddDamage(
-                        prevSkillId, damage,
-                        isCrit: false,              // 幸运一般不叠暴击；如协议允许可改 true
-                        isLucky: true,
-                        hpLessen,
-                        damageElement,
-                        isCauseLucky: true
-                    );
-                    // UI 也用上一发技能ID
-                    SkillDiaryGate.OnHit(uid, prevSkillId, damage, false, true);
-
-                    // 仍把上一发视作最近一次
-                    _lastNonLuckySkillByUid[uid] = (prevSkillId, now);
-
-                    // 双保险：剔除任何可能出现的“幸运一击”行
-                    GetOrCreate(uid).SkillUsage.Remove(skillId);
-                    return;
-                }
-
-                // 按你的假设这不会发生；为稳妥留一行告警并丢弃，避免把幸运记成独立技能
-                //Console.WriteLine($"[Lucky-Dmg][WARN-no-prev] uid={uid}, luckySkill={skillId} dropped");
-                return;
-            }
-
-            // 非幸运：正常记账 & 更新“上一发非幸运技能”
+            // ✅ 直接按实际 skillId 记账，不再做幸运并入上一发
             GetOrCreate(uid).AddDamage(skillId, damage, isCrit, isLucky, hpLessen, damageElement, isCauseLucky);
+
+            // ✅ 日志/技能日记同样使用本次 skillId
             SkillDiaryGate.OnHit(uid, skillId, damage, isCrit, isLucky);
-            _lastNonLuckySkillByUid[uid] = (skillId, now);
+
         }
 
 
@@ -1446,41 +1393,12 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 return;
 
             _lastCombatActivity = DateTime.Now;
-            var now = DateTime.Now;
 
-            // 幸运一击：无条件并到“上一发非幸运技能”，不单独入账
-            if (LuckyStrikeSkillIds.Contains(skillId))
-            {
-                if (_lastNonLuckySkillByUid.TryGetValue(uid, out var last))
-                {
-                    var prevSkillId = last.SkillId;
-
-                    GetOrCreate(uid).AddHealing(
-                        prevSkillId, healing,
-                        isCrit: false,
-                        isLucky: true,
-                        damageElement,
-                        isCauseLucky: true,
-                        targetUuid
-                    );
-                    SkillDiaryGate.OnHit(uid, prevSkillId, healing, false, true, true);
-
-                    _lastNonLuckySkillByUid[uid] = (prevSkillId, now);
-
-                    // 双保险：剔除任何可能出现的“幸运一击”行（治疗侧）
-                    GetOrCreate(uid).HealingBySkill.Remove(skillId);
-                    return;
-                }
-
-                // 理论上不会发生；留告警并丢弃，避免把幸运记成独立技能
-                //Console.WriteLine($"[Lucky-Heal][WARN-no-prev] uid={uid}, luckySkill={skillId} dropped");
-                return;
-            }
-
-            // 非幸运：正常记账 & 更新“上一发非幸运技能”
+            // ✅ 直接按实际 skillId 记账
             GetOrCreate(uid).AddHealing(skillId, healing, isCrit, isLucky, damageElement, isCauseLucky, targetUuid);
+
+            // ✅ 记录命中
             SkillDiaryGate.OnHit(uid, skillId, healing, isCrit, isLucky, true);
-            _lastNonLuckySkillByUid[uid] = (skillId, now);
         }
 
 
@@ -1609,8 +1527,7 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             }
 
             // 清玩家
-            lock (_playersLock) { _players.Clear(); _lastNonLuckySkillByUid.Clear();
-            }
+            lock (_playersLock) { _players.Clear();}
 
             // ✅ 清“当前战斗”的 NPC 统计（与玩家同一生命周期）
             // 假设你把 NpcManager 实例挂在同级位置（例如 PlayerDataManager 外的静态单例）
@@ -1997,11 +1914,11 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                     CritRate = dmg.GetCritRate(),
                     LuckyRate = dmg.GetLuckyRate(),
                     CriticalDamage = dmg.Critical,
-                    LuckyDamage = dmg.Lucky,
+                    LuckyDamage = dmg.Lucky + dmg.CritLucky,   // ★ 合并
                     CritLuckyDamage = dmg.CritLucky,
                     MaxSingleHit = dmg.MaxSingleHit,
                     HealingCritical = heal.Critical,
-                    HealingLucky = heal.Lucky,
+                    HealingLucky = heal.Lucky + heal.CritLucky,
                     HealingCritLucky = heal.CritLucky,
                     HealingRealtime = heal.RealtimeValue,
                     HealingRealtimeMax = heal.RealtimeMax,

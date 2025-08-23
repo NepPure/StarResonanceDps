@@ -79,7 +79,7 @@
                     Total = s.Total,
                     Normal = s.Normal,
                     Critical = s.Critical,
-                    Lucky = s.Lucky,
+                    Lucky = s.Lucky + s.CritLucky,   // ★ 合并
                     CountTotal = s.CountTotal,
                     CountNormal = s.CountNormal,
                     CountCritical = s.CountCritical,
@@ -212,12 +212,12 @@
             double lucky = ct > 0 ? R2((double)s.CountLucky * 100.0 / ct) : 0.0;
 
             ulong min = s.MinSingleHit; // StatAcc 里 Min=0 表示未赋值，直接返回 0 即可
-
+            ulong luckyCombined = s.Lucky + s.CritLucky;   // ★ 关键：合并
             return new StatView(
                 Total: s.Total,
                 Normal: s.Normal,
                 Critical: s.Critical,
-                Lucky: s.Lucky,
+                Lucky: luckyCombined,
                 CountTotal: s.CountTotal,
                 CountNormal: s.CountNormal,
                 CountCritical: s.CountCritical,
@@ -1117,7 +1117,7 @@
 
                     // —— 伤害侧细分与比率 —— 
                     CriticalDamage = p.Damage.Critical,
-                    LuckyDamage = p.Damage.Lucky,
+                    LuckyDamage = p.Damage.Lucky + p.Damage.CritLucky, // ★ 合并
                     CritLuckyDamage = p.Damage.CritLucky,
                     MaxSingleHit = p.Damage.MaxSingleHit,
                     CritRate = p.Damage.CountTotal > 0 ? R2((double)p.Damage.CountCritical * 100.0 / p.Damage.CountTotal) : 0.0,
