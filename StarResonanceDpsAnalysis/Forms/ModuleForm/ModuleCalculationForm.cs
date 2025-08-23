@@ -18,6 +18,7 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
 {
     public partial class ModuleCalculationForm : BorderlessForm
     {
+
         public ModuleCalculationForm()
         {
             InitializeComponent();

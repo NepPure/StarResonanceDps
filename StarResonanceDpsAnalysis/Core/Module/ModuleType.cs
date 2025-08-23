@@ -40,7 +40,8 @@ namespace StarResonanceDpsAnalysis.Core.Module
     {
         ATTACK,
         GUARDIAN,
-        SUPPORT
+        SUPPORT,
+        ALL
     }
     /// <summary>模组信息</summary>
     public class ModuleInfo

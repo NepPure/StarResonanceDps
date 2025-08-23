@@ -151,7 +151,7 @@
             // select1
             // 
             select1.Font = new Font("HarmonyOS Sans SC", 9F);
-            select1.Items.AddRange(new object[] { "攻击", "辅助", "守护" });
+            select1.Items.AddRange(new object[] { "攻击", "辅助", "守护", "全部" });
             select1.List = true;
             select1.Location = new Point(18, 60);
             select1.Name = "select1";
