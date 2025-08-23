@@ -10,10 +10,13 @@ namespace StarResonanceDpsAnalysis.Core.Module
     {
         BASIC_ATTACK = 5500101,
         HIGH_PERFORMANCE_ATTACK = 5500102,
+        OUTSTANDING_ATTACK = 5500103,
         BASIC_HEALING = 5500201,
         HIGH_PERFORMANCE_HEALING = 5500202,
+        OUTSTANDING_HEALING = 5500203,
         BASIC_PROTECTION = 5500301,
         HIGH_PERFORMANCE_PROTECTION = 5500302,
+        OUTSTANDING_PROTECTION = 5500303,
     }
 
     public enum ModuleAttrType : int
@@ -63,10 +66,13 @@ namespace StarResonanceDpsAnalysis.Core.Module
     {
         { (int)ModuleType.BASIC_ATTACK, "基础攻击" },
         { (int)ModuleType.HIGH_PERFORMANCE_ATTACK, "高性能攻击" },
+        { (int)ModuleType.OUTSTANDING_ATTACK, "卓越攻击" },
         { (int)ModuleType.BASIC_HEALING, "基础治疗" },
         { (int)ModuleType.HIGH_PERFORMANCE_HEALING, "高性能治疗" },
+        { (int)ModuleType.OUTSTANDING_HEALING, "卓越治疗" },
         { (int)ModuleType.BASIC_PROTECTION, "基础防护" },
         { (int)ModuleType.HIGH_PERFORMANCE_PROTECTION, "高性能守护" },
+        { (int)ModuleType.OUTSTANDING_PROTECTION, "卓越防护" },
     };
 
         // 模组属性名称映射
@@ -92,19 +98,22 @@ namespace StarResonanceDpsAnalysis.Core.Module
     {
         { (int)ModuleType.BASIC_ATTACK, ModuleCategory.ATTACK },
         { (int)ModuleType.HIGH_PERFORMANCE_ATTACK, ModuleCategory.ATTACK },
+        { (int)ModuleType.OUTSTANDING_ATTACK, ModuleCategory.ATTACK },
         { (int)ModuleType.BASIC_PROTECTION, ModuleCategory.GUARDIAN },
         { (int)ModuleType.HIGH_PERFORMANCE_PROTECTION, ModuleCategory.GUARDIAN },
+        { (int)ModuleType.OUTSTANDING_PROTECTION, ModuleCategory.GUARDIAN },
         { (int)ModuleType.BASIC_HEALING, ModuleCategory.SUPPORT },
         { (int)ModuleType.HIGH_PERFORMANCE_HEALING, ModuleCategory.SUPPORT },
+        { (int)ModuleType.OUTSTANDING_HEALING, ModuleCategory.SUPPORT },
     };
 
         // 分类中文名（C# 枚举不能直接持有字符串值）
         public static readonly Dictionary<ModuleCategory, string> MODULE_CATEGORY_NAMES = new()
-    {
-        { ModuleCategory.ATTACK, "攻击" },
-        { ModuleCategory.GUARDIAN, "守护" },
-        { ModuleCategory.SUPPORT, "辅助" },
-    };
+        {
+            { ModuleCategory.ATTACK, "攻击" },
+            { ModuleCategory.GUARDIAN, "守护" },
+            { ModuleCategory.SUPPORT, "辅助" },
+        };
 
         // 属性阈值和效果等级
         public static readonly int[] ATTR_THRESHOLDS = new[] { 1, 4, 8, 12, 16, 20 };

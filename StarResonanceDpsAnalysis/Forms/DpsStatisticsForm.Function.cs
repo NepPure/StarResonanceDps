@@ -12,6 +12,7 @@ using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 using StarResonanceDpsAnalysis.Properties;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -327,7 +328,7 @@ namespace StarResonanceDpsAnalysis.Forms
             sortedProgressBarList1.OrderFont = AppConfig.SaoFont;
 
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
-            sortedProgressBarList1.ProgressBarHeight = 50;  // 每行高度
+            sortedProgressBarList1.ProgressBarHeight = AppConfig.ProgressBarHeight;  // 每行高度
             sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
             sortedProgressBarList1.AnimationQuality = Quality.Low; // 动画品质（你项目里的枚举）
             //sortedProgressBarList1.OrderImages =
@@ -424,10 +425,16 @@ namespace StarResonanceDpsAnalysis.Forms
             { "岩盾", ColorTranslator.FromHtml("#537758") },
             { "格挡", ColorTranslator.FromHtml("#537758") },
         };
-
+        static Bitmap EmptyBitmap(int w = 1, int h = 1)
+        {
+            var bmp = new Bitmap(w, h, PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(bmp))
+                g.Clear(Color.Transparent);   // 完全透明
+            return bmp;
+        }
         public static Dictionary<string, Bitmap> imgDict = new Dictionary<string, Bitmap>()
         {
-            { "未知", new Bitmap(new MemoryStream(Resources.hp_icon)) },
+            { "未知", EmptyBitmap() },
             { "冰魔导师", new Bitmap(new MemoryStream(Resources.冰魔导师)) },
             { "巨刃守护者", new Bitmap(new MemoryStream(Resources.巨刃守护者)) },
             { "森语者", new Bitmap(new MemoryStream(Resources.森语者)) },
@@ -604,10 +611,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.Uid, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 58, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 88, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont},
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -62, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarImage, Image = profBmp, ImageRenderSize = AppConfig.ProgressBarImageSize },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarNmae, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont},
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarHarm, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset =AppConfig.ProgressBarProportion,  ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
                         ];
                         DictList[p.Uid] = row;
                     }
@@ -730,10 +737,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.NpcId, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 58, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 88, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont},
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -62, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarImage, Image = profBmp, ImageRenderSize = AppConfig.ProgressBarImageSize },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarNmae, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont},
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarHarm, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset =AppConfig.ProgressBarProportion,  ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
                         ];
                         DictList[p.NpcId] = row;
                     }
@@ -830,10 +837,10 @@ namespace StarResonanceDpsAnalysis.Forms
                     if (!DictList.TryGetValue(p.Uid, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 58, Y = 0 }, Image = profBmp, ImageRenderSize = new Size(30, 30) },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = new RenderContent.ContentOffset{ X = 88, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont},
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -62, Y = 0 }, ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = new RenderContent.ContentOffset{ X = -6, Y = 0 },  ForeColor = AppConfig.colorText, Font = AppConfig.DigitalFont },
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarImage, Image = profBmp, ImageRenderSize = AppConfig.ProgressBarImageSize },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarNmae, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont},
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarHarm, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset =AppConfig.ProgressBarProportion,  ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
                         ];
                         DictList[p.Uid] = row;
                     }

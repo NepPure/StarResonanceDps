@@ -265,13 +265,13 @@ namespace StarResonanceDpsAnalysis.Core.Module
                 var shortUuid = m.Uuid.ToString();
                 if (shortUuid.Length > 6) shortUuid = shortUuid[..6];
 
-                Console.WriteLine($"  {i + 1}. {m.Name} (品质{m.Quality}, UUID:{shortUuid}) - {partsStr}");
+              //  Console.WriteLine($"  {i + 1}. {m.Name} (品质{m.Quality}, UUID:{shortUuid}) - {partsStr}");
             }
 
            // Console.WriteLine("\n属性分布 (原始总值):");
             foreach (var kv in combination.AttrBreakdown.OrderBy(k => k.Key, StringComparer.Ordinal))
             {
-                Console.WriteLine($"  {kv.Key}: +{kv.Value}");
+                //Console.WriteLine($"  {kv.Key}: +{kv.Value}");
             }
             var dto = ResultCardData.FromCombination(combination, rank);
             ModuleResultMemory.Add(dto);
@@ -421,9 +421,15 @@ namespace StarResonanceDpsAnalysis.Core.Module
                         }
 
                     }
+                    //挑选优质模组
+                    FilterModulesByAttributes(filtered_modules, type);
                 }
-                //挑选优质模组
-                FilterModulesByAttributes(modules, "攻击");
+                else
+                {
+                    //挑选优质模组
+                    FilterModulesByAttributes(modules, type);
+                }
+               
             }
 
         }

@@ -256,7 +256,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                     }, // 一级菜单配置结束
                     new ContextMenuStripItem("基础设置"){ IconSvg = Resources.set_up}, // 一级菜单：基础设置
                     new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, }, // 一级菜单：主窗体
-                    new ContextMenuStripItem("模组配置"), // 一级菜单：数据显示设置
+                    new ContextMenuStripItem("模组配置"){ IconSvg= Resources.moduleIcon }, // 一级菜单：数据显示设置
                     //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
                     new ContextMenuStripItem("死亡统计"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
@@ -303,7 +303,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
                         break;
 
                     case "死亡统计":
-                        if(FormManager.deathStatisticsForm == null || FormManager.deathStatisticsForm.IsDisposed)
+                        if (FormManager.deathStatisticsForm == null || FormManager.deathStatisticsForm.IsDisposed)
                         {
                             FormManager.deathStatisticsForm = new DeathStatisticsForm();
                         }
@@ -741,5 +741,20 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             _npcFocusId = 0;
         }
 
+        private void button_ThemeSwitch_Click(object sender, EventArgs e)
+        {
+            AppConfig.IsLight = !AppConfig.IsLight; // # 状态翻转：明/暗
+
+            button_ThemeSwitch.Toggle = !AppConfig.IsLight; // # UI同步：按钮切换状态
+
+            FormGui.SetColorMode(this, AppConfig.IsLight);
+            FormGui.SetColorMode(FormManager.skillDiary, AppConfig.IsLight);
+            FormGui.SetColorMode(FormManager.mainForm, AppConfig.IsLight);//设置窗体颜色
+            FormGui.SetColorMode(FormManager.skillDetailForm, AppConfig.IsLight);//设置窗体颜色
+            FormGui.SetColorMode(FormManager.settingsForm, AppConfig.IsLight);//设置窗体颜色
+            FormGui.SetColorMode(FormManager.dpsStatistics, AppConfig.IsLight);//设置窗体颜色
+            FormGui.SetColorMode(FormManager.rankingsForm, AppConfig.IsLight);//设置窗体颜色
+            FormGui.SetColorMode(FormManager.historicalBattlesForm, AppConfig.IsLight);//设置窗体颜色
+        }
     }
 }

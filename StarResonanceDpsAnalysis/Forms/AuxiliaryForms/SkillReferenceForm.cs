@@ -25,7 +25,9 @@ namespace StarResonanceDpsAnalysis.Forms.AuxiliaryForms
 
         private void SkillReferenceForm_Load(object sender, EventArgs e)
         {
-
+            TitleText.Font = AppConfig.SaoFont;
+            divider1.Font = AppConfig.ContentFont;
+            table_DpsDetailDataTable.Font = AppConfig.ContentFont;
         }
 
         public void ToggleTableView()

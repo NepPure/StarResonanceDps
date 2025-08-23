@@ -1,5 +1,7 @@
 ﻿using AntdUI;
+using StarResonanceDpsAnalysis.Core;
 using StarResonanceDpsAnalysis.Core.Module;
+using StarResonanceDpsAnalysis.Forms.PopUp;
 using StarResonanceDpsAnalysis.Plugin;
 using System;
 using System.Collections.Generic;
@@ -25,6 +27,28 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
         private void ModuleCalculationForm_Load(object sender, EventArgs e)
         {
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
+            TitleText.Font = AppConfig.SaoFont;
+            select1.Font = AppConfig.ContentFont;
+            button1.Font = AppConfig.ContentFont;
+            AntdUI.Checkbox[] checkboxes =
+            {
+                chkStrengthBoost,
+                chkAgilityBoost,
+                chkIntelligenceBoost,
+                chkSpecialAttackDamage,
+                chkSpecialHealingBoost,
+                chkExpertHealingBoost,
+                chkCastingFocus,
+                chkAttackSpeedFocus,
+                chkCriticalFocus,
+                chkLuckFocus,
+                chkMagicResistance,
+                chkPhysicalResistance,
+            };
+            foreach (var item in checkboxes)
+            {
+                item.Font = AppConfig.ContentFont;
+            }
         }
 
         private void TitleText_MouseDown(object sender, MouseEventArgs e)
@@ -39,8 +63,16 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
 
         private void button1_Click(object sender, EventArgs e)
         {
-         
-      
+            if (MessageAnalyzer.PayloadBuffer.Length == 0)
+            {
+                var result = AppMessageBox.ShowMessage("""
+                    请先过图一次在点此按钮
+                    """, this);
+                return;
+            }
+           
+            BuildEliteCandidatePool.ParseModuleInfo(MessageAnalyzer.PayloadBuffer);
+
 
             virtualPanel1.Waterfall = false;      // 行优先（有 Align 的话设 Start）
             virtualPanel1.Items.Clear();
@@ -174,7 +206,7 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
             foreach (var c in cards) virtualPanel1.Items.Add(c);
             virtualPanel1.ResumeLayout();
             virtualPanel1.Refresh();              // 一次刷新即可看到统一宽高效果
-
+     
 
         }
 
@@ -183,17 +215,24 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
             Checkbox checkbox = (Checkbox)sender;
             if (e.Value)
             {
-                BuildEliteCandidatePool.Attributes.Add(checkbox.Name);
+
+                BuildEliteCandidatePool.Attributes.Add(checkbox.Text);
             }
             else
             {
-                BuildEliteCandidatePool.Attributes.Remove(checkbox.Name);
+
+                BuildEliteCandidatePool.Attributes.Remove(checkbox.Text);
             }
         }
 
         private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
         {
-            BuildEliteCandidatePool.type= select1.SelectedValue.ToString();
+            BuildEliteCandidatePool.type = select1.SelectedValue.ToString();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

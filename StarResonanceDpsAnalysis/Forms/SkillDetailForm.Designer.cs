@@ -116,7 +116,7 @@
             table_DpsDetailDataTable.Name = "table_DpsDetailDataTable";
             table_DpsDetailDataTable.RowHeight = 40;
             table_DpsDetailDataTable.RowSelectedBg = Color.FromArgb(174, 212, 251);
-            table_DpsDetailDataTable.Size = new Size(1280, 917);
+            table_DpsDetailDataTable.Size = new Size(1284, 917);
             table_DpsDetailDataTable.TabIndex = 14;
             table_DpsDetailDataTable.Text = "table1";
             // 
@@ -399,7 +399,6 @@
             panel2.Controls.Add(label6);
             panel2.Controls.Add(divider2);
             panel2.Controls.Add(label19);
-            panel2.Dock = DockStyle.Right;
             panel2.Location = new Point(663, 10);
             panel2.Name = "panel2";
             panel2.Shadow = 6;
@@ -721,7 +720,7 @@
             splitter1.ArrowColor = SystemColors.ActiveCaption;
             splitter1.CollapsePanel = AntdUI.Splitter.ADCollapsePanel.Panel1;
             splitter1.Dock = DockStyle.Fill;
-            splitter1.FixedPanel = FixedPanel.Panel2;
+            splitter1.FixedPanel = FixedPanel.Panel1;
             splitter1.Location = new Point(0, 175);
             splitter1.Name = "splitter1";
             // 
@@ -734,7 +733,7 @@
             // 
             splitter1.Panel2.Controls.Add(splitter2);
             splitter1.Size = new Size(1761, 1218);
-            splitter1.SplitterDistance = 475;
+            splitter1.SplitterDistance = 471;
             splitter1.SplitterWidth = 6;
             splitter1.TabIndex = 27;
             // 
@@ -749,7 +748,7 @@
             collapse1.Items.Add(collapseItem3);
             collapse1.Location = new Point(0, 0);
             collapse1.Name = "collapse1";
-            collapse1.Size = new Size(475, 1218);
+            collapse1.Size = new Size(471, 1218);
             collapse1.TabIndex = 28;
             collapse1.Text = "collapse1";
             // 
@@ -759,7 +758,7 @@
             collapseItem1.Font = new Font("HarmonyOS Sans SC", 10F, FontStyle.Bold);
             collapseItem1.Location = new Point(27, 87);
             collapseItem1.Name = "collapseItem1";
-            collapseItem1.Size = new Size(421, 300);
+            collapseItem1.Size = new Size(417, 300);
             collapseItem1.TabIndex = 0;
             collapseItem1.Text = "Dps/Hps/DTps实时曲线图";
             // 
@@ -768,7 +767,7 @@
             collapseItem2.Expand = true;
             collapseItem2.Location = new Point(27, 495);
             collapseItem2.Name = "collapseItem2";
-            collapseItem2.Size = new Size(421, 300);
+            collapseItem2.Size = new Size(417, 300);
             collapseItem2.TabIndex = 1;
             collapseItem2.Text = "技能占比分布图";
             // 
@@ -778,7 +777,7 @@
             collapseItem3.Expand = true;
             collapseItem3.Location = new Point(27, 903);
             collapseItem3.Name = "collapseItem3";
-            collapseItem3.Size = new Size(421, 300);
+            collapseItem3.Size = new Size(417, 300);
             collapseItem3.TabIndex = 2;
             collapseItem3.Text = "伤害分布";
             // 
@@ -801,7 +800,7 @@
             splitter2.Panel2.Controls.Add(table_DpsDetailDataTable);
             splitter2.Panel2.Controls.Add(label10);
             splitter2.Panel2MinSize = 0;
-            splitter2.Size = new Size(1280, 1218);
+            splitter2.Size = new Size(1284, 1218);
             splitter2.SplitterDistance = 254;
             splitter2.SplitterWidth = 1;
             splitter2.TabIndex = 23;
@@ -814,7 +813,7 @@
             label10.Location = new Point(0, 917);
             label10.Name = "label10";
             label10.Prefix = "温馨提示：";
-            label10.Size = new Size(1280, 46);
+            label10.Size = new Size(1284, 46);
             label10.TabIndex = 25;
             label10.Text = "快照模式下曲线图 占比图 分布图将失效";
             label10.TextAlign = ContentAlignment.MiddleCenter;

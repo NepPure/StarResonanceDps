@@ -130,6 +130,7 @@
             button3.Name = "button3";
             button3.Size = new Size(57, 49);
             button3.TabIndex = 1;
+            button3.Click += button3_Click;
             // 
             // button4
             // 
@@ -148,12 +149,17 @@
             // 
             select1.Font = new Font("HarmonyOS Sans SC", 9F);
             select1.Items.AddRange(new object[] { "攻击", "辅助", "守护" });
+            select1.List = true;
             select1.Location = new Point(18, 60);
             select1.Name = "select1";
             select1.PrefixText = "选择模组类型：";
             select1.Radius = 3;
+            select1.SelectedIndex = 0;
+            select1.SelectedValue = "攻击";
+            select1.SelectionStart = 2;
             select1.Size = new Size(600, 83);
             select1.TabIndex = 35;
+            select1.Text = "攻击";
             select1.SelectedIndexChanged += select1_SelectedIndexChanged;
             // 
             // chkStrengthBoost
@@ -164,6 +170,7 @@
             chkStrengthBoost.Size = new Size(126, 54);
             chkStrengthBoost.TabIndex = 36;
             chkStrengthBoost.Text = "力量加持";
+            chkStrengthBoost.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // chkAgilityBoost
             // 
@@ -173,6 +180,7 @@
             chkAgilityBoost.Size = new Size(126, 54);
             chkAgilityBoost.TabIndex = 37;
             chkAgilityBoost.Text = "敏捷加持";
+            chkAgilityBoost.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // chkIntelligenceBoost
             // 
@@ -182,6 +190,7 @@
             chkIntelligenceBoost.Size = new Size(126, 54);
             chkIntelligenceBoost.TabIndex = 38;
             chkIntelligenceBoost.Text = "智力加持";
+            chkIntelligenceBoost.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // chkSpecialAttackDamage
             // 
@@ -191,6 +200,7 @@
             chkSpecialAttackDamage.Size = new Size(126, 54);
             chkSpecialAttackDamage.TabIndex = 39;
             chkSpecialAttackDamage.Text = "特攻伤害";
+            chkSpecialAttackDamage.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // chkSpecialHealingBoost
             // 
@@ -200,6 +210,7 @@
             chkSpecialHealingBoost.Size = new Size(162, 54);
             chkSpecialHealingBoost.TabIndex = 40;
             chkSpecialHealingBoost.Text = "特攻治疗加持";
+            chkSpecialHealingBoost.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // chkExpertHealingBoost
             // 
@@ -209,6 +220,7 @@
             chkExpertHealingBoost.Size = new Size(162, 54);
             chkExpertHealingBoost.TabIndex = 41;
             chkExpertHealingBoost.Text = "专精治疗加持";
+            chkExpertHealingBoost.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // chkCastingFocus
             // 
@@ -218,6 +230,7 @@
             chkCastingFocus.Size = new Size(126, 54);
             chkCastingFocus.TabIndex = 42;
             chkCastingFocus.Text = "施法专注";
+            chkCastingFocus.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // chkAttackSpeedFocus
             // 
@@ -237,6 +250,7 @@
             chkCriticalFocus.Size = new Size(126, 54);
             chkCriticalFocus.TabIndex = 44;
             chkCriticalFocus.Text = "暴击专注";
+            chkCriticalFocus.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // chkLuckFocus
             // 
@@ -246,6 +260,7 @@
             chkLuckFocus.Size = new Size(126, 54);
             chkLuckFocus.TabIndex = 45;
             chkLuckFocus.Text = "幸运专注";
+            chkLuckFocus.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // chkMagicResistance
             // 
@@ -255,6 +270,7 @@
             chkMagicResistance.Size = new Size(126, 54);
             chkMagicResistance.TabIndex = 46;
             chkMagicResistance.Text = "抵御魔法";
+            chkMagicResistance.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // chkPhysicalResistance
             // 
@@ -264,6 +280,7 @@
             chkPhysicalResistance.Size = new Size(126, 54);
             chkPhysicalResistance.TabIndex = 47;
             chkPhysicalResistance.Text = "抵御物理";
+            chkPhysicalResistance.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // groupBox1
             // 
@@ -288,6 +305,7 @@
             chkEliteStrike.Size = new Size(126, 54);
             chkEliteStrike.TabIndex = 46;
             chkEliteStrike.Text = "精英打击";
+            chkEliteStrike.CheckedChanged += chkAttackSpeedFocus_CheckedChanged;
             // 
             // groupBox2
             // 
@@ -330,7 +348,7 @@
             // button1
             // 
             button1.Font = new Font("HarmonyOS Sans SC", 9F);
-            button1.Location = new Point(641, 60);
+            button1.Location = new Point(624, 60);
             button1.Name = "button1";
             button1.Size = new Size(347, 83);
             button1.TabIndex = 52;

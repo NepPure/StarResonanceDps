@@ -1409,7 +1409,12 @@
                 RealtimeMax = 0,            // 同上
                 TotalDps = s.ActiveSeconds > 0 ? R2(s.Total / s.ActiveSeconds) : 0,
                 LastTime = null,            // 可按需扩展：记录技能最后出现时间
-                ShareOfTotal = 0            // 可按需扩展：占比（由外部渲染时计算亦可）
+                ShareOfTotal = 0,            // 可按需扩展：占比（由外部渲染时计算亦可）
+                LuckyDamage = s.Lucky + s.CritLucky,
+                CritLuckyDamage = s.CritLucky,
+                CauseLuckyDamage = s.CauseLucky, // StatAcc 已含该字段
+                CountLucky = s.CountLucky,
+
             };
         }
 

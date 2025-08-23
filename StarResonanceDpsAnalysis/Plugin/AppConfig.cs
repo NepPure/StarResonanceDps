@@ -1,4 +1,6 @@
-﻿using StarResonanceDpsAnalysis.Effects;
+﻿using StarResonanceDpsAnalysis.Control.GDI;
+using StarResonanceDpsAnalysis.Core;
+using StarResonanceDpsAnalysis.Effects;
 using StarResonanceDpsAnalysis.Extends;
 using StarResonanceDpsAnalysis.Properties;
 using System;
@@ -23,17 +25,107 @@ namespace StarResonanceDpsAnalysis.Plugin
     /// </summary>
     public class AppConfig
     {
+        public static UserLocalCache cache = new StarResonanceDpsAnalysis.Core.UserLocalCache();
 
+
+        public static float dpi;
+
+        public static int ProgressBarHeight
+        {
+            get
+            {
+                int height = 50;
+                switch(dpi)
+                {
+                    case 1:
+                        height = 30;
+                        break;
+                    case (float)1.25:
+                        height = 40;
+                        break;
+                    case (float)1.5:
+                        height = 40;
+                        break;
+                    case (float)1.75:
+                        height = 40;
+                        break;
+                    case 2:
+                        height = 40;
+                        break;
+                
+                }
+
+                return height;
+            }
+        }
+        public static Size ProgressBarImageSize = new Size(25, 25);
+        public static RenderContent.ContentOffset ProgressBarImage
+        {
+            get
+            {
+                int x = 64;
+                if(dpi==1)
+                {
+                    x = 55;
+                }
+
+                return new RenderContent.ContentOffset { X = x, Y = 0 };
+            }
+        }
+        public static RenderContent.ContentOffset ProgressBarNmae = new RenderContent.ContentOffset { X = 88, Y = 1 };
+        public static RenderContent.ContentOffset ProgressBarHarm
+        {
+            get
+            {
+                int x = ProgressBarProportion.X - 50;
+                switch(dpi)
+                {
+                    case 1:
+                        x = -35;
+                        break;
+                    case (float)1.25:
+                        x = -40;
+                        break;
+                    case (float)1.5:
+                        x = ProgressBarProportion.X - 45;
+                        break;
+                    case (float)1.75:
+                        x = ProgressBarProportion.X - 55;
+                        break;
+                    case 2:
+                        x = ProgressBarProportion.X - 60;
+                        break;
+                }
+                if(dpi==1)
+                {
+
+                }
+                // if (SomeFlag) y = 10; // 需要更多条件时继续写
+                return new RenderContent.ContentOffset { X = x, Y = 0 };
+            }
+        }
+        public static RenderContent.ContentOffset ProgressBarProportion = new RenderContent.ContentOffset { X = -6, Y = 0 };
         #region 字体
+        /// <summary>
+        /// 进度条字体
+        /// </summary>
+        public static Font ProgressBarFont
+        {
+            get => HandledResources.GetHarmonyOS_SansFont(8);
+        }
 
         /// <summary>
-        /// 数字或者单英文
+        /// 内容文本2
         /// </summary>
         public static Font DigitalFont
         {
+
             get => HandledResources.GetHarmonyOS_SansFont(9);
         }
 
+        /// <summary>
+        /// SAO字体小
+        /// </summary>
         public static Font SaoFont
         {
             get => HandledResources.GetSAOWelcomeTTFont(10);

@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using AntdUI;
 using StarResonanceDpsAnalysis.Forms;
 using StarResonanceDpsAnalysis.Forms.ModuleForm;
+using StarResonanceDpsAnalysis.Plugin;
 using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 
 namespace StarResonanceDpsAnalysis
@@ -27,12 +28,14 @@ namespace StarResonanceDpsAnalysis
             //Console.OutputEncoding = Encoding.UTF8;
             //Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); // 关键
 
-            // 根据主屏分辨率设置 AntdUI 全局 DPI 缩放，使 1080p=1.0，2K≈1.33，4K=2.0
-            //float dpiScale = GetPrimaryResolutionScale();
-            //AntdUI.Config.SetDpi(dpiScale);
+           // 根据主屏分辨率设置 AntdUI 全局 DPI 缩放，使 1080p=1.0，2K≈1.33，4K=2.0
+           // float dpiScale = GetPrimaryResolutionScale();
+            AppConfig.dpi = AntdUI.Config.Dpi;
+
+       
             AntdUI.Config.TextRenderingHighQuality = true;
-            //float dpi = AntdUI.Config.Dpi;
-            //AntdUI.Config.SetDpi(dpi/2);
+
+            
 
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             // To customize application configuration such as set high DPI settings or default font,

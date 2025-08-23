@@ -60,7 +60,7 @@
             // 
             button_ThemeSwitch.Dock = DockStyle.Right;
             button_ThemeSwitch.Ghost = true;
-            button_ThemeSwitch.IconSvg = "SunOutlined";
+            button_ThemeSwitch.IconSvg = resources.GetString("button_ThemeSwitch.IconSvg");
             button_ThemeSwitch.Location = new Point(998, 0);
             button_ThemeSwitch.Name = "button_ThemeSwitch";
             button_ThemeSwitch.Size = new Size(49, 42);
@@ -247,7 +247,7 @@
             label_NowVersionNumber.Location = new Point(20, 230);
             label_NowVersionNumber.Margin = new Padding(5, 0, 5, 0);
             label_NowVersionNumber.Name = "label_NowVersionNumber";
-            label_NowVersionNumber.Size = new Size(48, 24);
+            label_NowVersionNumber.Size = new Size(45, 24);
             label_NowVersionNumber.TabIndex = 13;
             label_NowVersionNumber.Text = "-.-.-";
             // 
@@ -281,7 +281,7 @@
             Controls.Add(pageHeader_MainHeader);
             Dark = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
-            Margin = new Padding(6, 6, 6, 6);
+            Margin = new Padding(6);
             MaximizeBox = false;
             Mode = AntdUI.TAMode.Dark;
             Name = "MainForm";

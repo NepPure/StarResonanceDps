@@ -10,7 +10,8 @@ using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
 using ZstdNet;
 using StarResonanceDpsAnalysis.Core.test;
 using Google.Protobuf.Collections;
-using StarResonanceDpsAnalysis.Core.Module; // 数据库同步
+using StarResonanceDpsAnalysis.Core.Module;
+using StarResonanceDpsAnalysis.Forms; // 数据库同步
 
 namespace StarResonanceDpsAnalysis.Core
 {
@@ -293,6 +294,7 @@ namespace StarResonanceDpsAnalysis.Core
         public static void processPlayerAttrs(ulong playerUid,RepeatedField<Attr> attrs)
         {     
             bool updated = false;
+            string name = "";
             foreach (var attr in attrs)
             {
                 if (attr.Id == 0 || attr.RawData == null || attr.RawData.Length == 0) continue;
@@ -328,9 +330,7 @@ namespace StarResonanceDpsAnalysis.Core
                         StatisticData._manager.SetAttrKV(playerUid, "hp", reader.ReadInt32());
                         break;
                     case (int)AttrType.AttrMaxHp:
-
                         _ = reader.ReadInt32();
-
 
                         break;
                     case (int)AttrType.AttrElementFlag:
@@ -348,6 +348,16 @@ namespace StarResonanceDpsAnalysis.Core
                     default:
                         break;
                 }
+            }
+            if(updated)
+            {
+                AppConfig.cache.Upsert(new UserProfile
+                {
+                    Uid = playerUid,
+                    Nickname = "小明",
+                    Profession = "Mage",
+                    Power = 456789
+                }); // 若数据未变，不会触发落盘；变了才保存
             }
  
         }
@@ -464,10 +474,6 @@ namespace StarResonanceDpsAnalysis.Core
             foreach (var aoiSyncDelta in syncNearDeltaInfo.DeltaInfos) ProcessAoiSyncDelta(aoiSyncDelta);
         }
 
-        /// <summary>
-        /// 判断昵称/职业等字符串是否未知
-        /// </summary>
-        private static bool IsUnknownString(string? s) => string.IsNullOrWhiteSpace(s) || s == "未知" || s == "未知昵称" || s == "未知职业" || s == "Unknown";
 
         /// <summary>
         /// 处理一条技能伤害/治疗记录
@@ -611,13 +617,18 @@ namespace StarResonanceDpsAnalysis.Core
         }
 
 
+        public static byte[] PayloadBuffer = new byte[0];
         /// <summary>
         /// 同步自身完整容器数据（基础属性、昵称、职业、战力）
         /// </summary>
         public static void ProcessSyncContainerData(byte[] payloadBuffer)
         {
-            
-            BuildEliteCandidatePool.ParseModuleInfo(payloadBuffer);
+            if(FormManager.moduleCalculationForm != null&& !FormManager.moduleCalculationForm.IsDisposed)
+            {
+                PayloadBuffer = payloadBuffer;
+                
+            }
+           
             //Console.WriteLine("Head (前64字节): " + ToHex(payloadBuffer));
             var syncContainerData = SyncContainerData.Parser.ParseFrom(payloadBuffer);
             if (syncContainerData?.VData == null) return;

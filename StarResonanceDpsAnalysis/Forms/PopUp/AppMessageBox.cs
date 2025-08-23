@@ -37,7 +37,8 @@ namespace StarResonanceDpsAnalysis.Forms.PopUp
 
         private void AppMessageBox_Load(object sender, EventArgs e)
         {
-
+            label1.Font = AppConfig.SaoFont;
+            labelMessage.Font = AppConfig.DigitalFont;
         }
 
         private void button4_Click(object sender, EventArgs e)

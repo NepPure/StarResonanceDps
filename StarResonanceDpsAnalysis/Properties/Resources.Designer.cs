@@ -246,6 +246,15 @@ namespace StarResonanceDpsAnalysis.Properties {
         }
         
         /// <summary>
+        ///   查找类似 &lt;svg t=&quot;1755922612322&quot; class=&quot;icon&quot; viewBox=&quot;0 0 1024 1024&quot; version=&quot;1.1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot; p-id=&quot;11643&quot; width=&quot;200&quot; height=&quot;200&quot;&gt;&lt;path d=&quot;M440.507964 511.963431L92.738519 357.277337a63.849154 63.849154 0 0 0-60.045997 0A62.313263 62.313263 0 0 0 0 411.179773v394.723805a62.166988 62.166988 0 0 0 35.54489 56.315978l348.500821 154.905506a64.361117 64.361117 0 0 0 28.377402 6.8018 66.408971 66.408971 0 0 0 31.010356-8.849653 63.264053 63.264053 0 0 0 32.399971-53.975573V565.865867A63.629741 63 [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string moduleIcon {
+            get {
+                return ResourceManager.GetString("moduleIcon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
         internal static byte[] Npc {
