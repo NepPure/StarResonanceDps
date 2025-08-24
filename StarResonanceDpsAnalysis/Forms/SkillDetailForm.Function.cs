@@ -500,7 +500,7 @@ namespace StarResonanceDpsAnalysis.Control
 
                     NormalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Normal);
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Lucky);
+                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.LuckyAndCritical);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());
 
                     NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountTotal);
@@ -517,7 +517,7 @@ namespace StarResonanceDpsAnalysis.Control
 
                     NormalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Normal);
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Lucky);
+                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.LuckyAndCritical);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.GetAveragePerHit());
 
                     NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);
@@ -536,7 +536,7 @@ namespace StarResonanceDpsAnalysis.Control
 
                     NormalDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Total);
                     CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Lucky);
+                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.LuckyAndCritical);
                     AvgDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.GetAveragePerHit());
 
                     NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);

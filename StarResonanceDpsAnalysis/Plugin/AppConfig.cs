@@ -38,19 +38,19 @@ namespace StarResonanceDpsAnalysis.Plugin
                 switch(dpi)
                 {
                     case 1:
-                        height = 30;
+                        height = 35;
                         break;
                     case (float)1.25:
-                        height = 40;
+                        height = 45;
                         break;
                     case (float)1.5:
-                        height = 40;
+                        height = 45;
                         break;
                     case (float)1.75:
-                        height = 40;
+                        height = 45;
                         break;
                     case 2:
-                        height = 40;
+                        height = 45;
                         break;
                 
                 }

@@ -91,6 +91,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
         /// <summary>幸运命中数值总和。</summary>
         public ulong Lucky { get; private set; }
 
+        public ulong LuckyAndCritical { get; private set; }      // 幸运伤害总和（= Lucky + CritLucky）
+
+
         /// <summary>暴击且幸运数值总和。</summary>
         public ulong CritLucky { get; private set; }
 
@@ -175,10 +178,19 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
             var now = DateTime.Now;
 
             // —— 原有累计/计数/极值逻辑保持不变 —— 
-            if (isCrit && isLucky) CritLucky += value;
+            if (isCrit && isLucky)
+            {
+                CritLucky += value; 
+                LuckyAndCritical += value;
+            }
             else if (isCrit) Critical += value;
-            else if (isLucky) Lucky += value;
+            else if (isLucky)
+            {
+                Lucky += value;
+                LuckyAndCritical += value;
+            }
             else Normal += value;
+
 
             Total += value;
             HpLessen += hpLessenValue;
@@ -193,6 +205,9 @@ namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
                 if (value > MaxSingleHit) MaxSingleHit = value;
                 if (value < MinSingleHit) MinSingleHit = value;
             }
+          
+               
+            
 
             if (isLucky && isCauseLucky)
             {

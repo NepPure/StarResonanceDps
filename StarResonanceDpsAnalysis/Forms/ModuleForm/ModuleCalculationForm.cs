@@ -30,35 +30,49 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
             if (Config.IsLight)
             {
-                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.Black;
+                groupBox1.ForeColor = groupBox3.ForeColor = Color.Black;
             }
             else
             {
-                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.White;
-               
+                groupBox1.ForeColor = groupBox3.ForeColor = Color.White;
+
             }
             TitleText.Font = AppConfig.SaoFont;
-            select1.Font = label1.Font = groupBox1.Font = groupBox2.Font = groupBox3.Font = groupBox4.Font = AppConfig.ContentFont;
+            label1.Font = groupBox1.Font = AppConfig.ContentFont;
             button1.Font = AppConfig.ContentFont;
-            AntdUI.Checkbox[] checkboxes =
+
+            List<Select> selects = new List<Select>
+{
+    select1,
+    select2,
+    select4,
+    select5,
+    select6,
+    select7,
+    select8,
+    select9,
+    select10,
+    select11,
+    select12
+};
+            List<InputNumber> inputNumbers = new List<InputNumber>
+{
+    inputNumber1,
+    inputNumber2,
+    inputNumber3,
+    inputNumber4,
+    inputNumber5
+};
+            foreach (var sel in selects)
             {
-                chkStrengthBoost,
-                chkAgilityBoost,
-                chkIntelligenceBoost,
-                chkSpecialAttackDamage,
-                chkSpecialHealingBoost,
-                chkExpertHealingBoost,
-                chkCastingFocus,
-                chkAttackSpeedFocus,
-                chkCriticalFocus,
-                chkLuckFocus,
-                chkMagicResistance,
-                chkPhysicalResistance,
-            };
-            foreach (var item in checkboxes)
-            {
-                item.Font = AppConfig.ContentFont;
+                sel.Font = AppConfig.ContentFont;
             }
+
+            foreach (var num in inputNumbers)
+            {
+                num.Font = AppConfig.ContentFont;
+            }
+
         }
 
         private void TitleText_MouseDown(object sender, MouseEventArgs e)
@@ -81,7 +95,9 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
                 return;
             }
 
+
             BuildEliteCandidatePool.ParseModuleInfo(MessageAnalyzer.PayloadBuffer);
+
 
 
             virtualPanel1.Waterfall = false;      // 行优先（有 Align 的话设 Start）
@@ -254,13 +270,274 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
         {
             if (Config.IsLight)
             {
-                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.Black;
+                groupBox1.ForeColor = groupBox3.ForeColor = Color.Black;
             }
             else
             {
-                groupBox1.ForeColor = groupBox2.ForeColor = groupBox3.ForeColor = groupBox4.ForeColor = Color.White;
+                groupBox1.ForeColor = groupBox3.ForeColor = Color.White;
 
             }
+
+        }
+        ModuleExcludeForm moduleExcludeForm = null;
+        private void button2_Click(object sender, EventArgs e)
+        {
+
+            if (moduleExcludeForm == null || moduleExcludeForm.IsDisposed)
+            {
+                moduleExcludeForm = new ModuleExcludeForm();
+            }
+            moduleExcludeForm.Show();
+        }
+
+
+
+        private void select2_SelectedIndexChanged(object sender, IntEventArgs e)
+        {
+            // 通用：5 个下拉都可指向这个事件，靠 Tag 区分第几行
+            if (sender is Select combo)
+            {
+                int rowIndex = 0;
+                if (combo.Tag != null) int.TryParse(combo.Tag.ToString(), out rowIndex);
+
+                string selectedAttr = combo.SelectedValue?.ToString() ?? string.Empty;
+
+                // 旧的该行词条（若存在，等会要从 Attributes/DesiredLevels 里移干净）
+                string old = null;
+                if (BuildEliteCandidatePool.WhitelistPickByRow.TryGetValue(rowIndex, out var oldName))
+                    old = oldName;
+
+                // 写入“按行”映射
+                if (!string.IsNullOrEmpty(selectedAttr))
+                    BuildEliteCandidatePool.WhitelistPickByRow[rowIndex] = selectedAttr;
+                else
+                    BuildEliteCandidatePool.WhitelistPickByRow.Remove(rowIndex);
+
+                // 维护 Attributes（白名单集合）：= 所有行里挑出的非空属性去重集合
+                var newWhitelist = BuildEliteCandidatePool.WhitelistPickByRow.Values
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList();
+
+                BuildEliteCandidatePool.Attributes.Clear();
+                BuildEliteCandidatePool.Attributes.AddRange(newWhitelist);  // 供 UI 最高等级展示与优先判定
+
+                // 如果换了词条，把旧词条的期望等级也删掉，避免残留
+                if (!string.IsNullOrEmpty(old) && old != selectedAttr)
+                {
+                    BuildEliteCandidatePool.DesiredLevels.Remove(old);
+                }
+                // —— 互斥：若所选属性在“排除集合”里，自动撤销排除并清掉排除UI
+                if (!string.IsNullOrEmpty(selectedAttr)
+                    && BuildEliteCandidatePool.ExcludedAttributes.Contains(selectedAttr))
+                {
+                    // 1) 集合中移除
+                    BuildEliteCandidatePool.ExcludedAttributes.Remove(selectedAttr);
+
+                    // 2) 清空排除区所有等于 selectedAttr 的下拉
+                    foreach (var exSel in GetAllExcludeSelects())
+                    {
+                        if (exSel?.SelectedValue?.ToString() == selectedAttr)
+                        {
+                            exSel.SelectedIndex = -1;
+                            exSel.Tag = null; // 你之前在排除事件里用 Tag 记旧值，这里同步清掉
+                        }
+                    }
+                }
+            }
+        }
+
+        private void inputNumber1_ValueChanged(object sender, DecimalEventArgs e)
+        {
+            if (sender is InputNumber num)
+            {
+                int rowIndex = 0;
+                if (num.Tag != null) int.TryParse(num.Tag.ToString(), out rowIndex);
+
+                // 找这一行当前绑定的白名单属性
+                if (!BuildEliteCandidatePool.WhitelistPickByRow.TryGetValue(rowIndex, out var attrName)
+                    || string.IsNullOrEmpty(attrName))
+                {
+                    return; // 行未选属性，忽略
+                }
+
+                // 直接读取 Value（decimal 类型）
+                int desiredLevel = Convert.ToInt32(num.Value);
+                desiredLevel = Math.Max(0, Math.Min(6, desiredLevel));
+
+                if (desiredLevel > 0)
+                    BuildEliteCandidatePool.DesiredLevels[attrName] = desiredLevel;
+                else
+                    BuildEliteCandidatePool.DesiredLevels.Remove(attrName);
+            }
+        }
+
+        private void select12_SelectedIndexChanged_1(object sender, IntEventArgs e)
+        {
+            if (sender is AntdUI.Select combo)
+            {
+                // 先清除旧的（避免重复/冲突）
+                BuildEliteCandidatePool.ExcludedAttributes.RemoveWhere(x => x == (string)combo.Tag);
+
+                // 新选项
+                string selectedAttr = combo.SelectedValue?.ToString();
+
+                if (!string.IsNullOrEmpty(selectedAttr))
+                {
+                    // 用 Tag 标识是第几个下拉，避免重复覆盖
+                    combo.Tag = selectedAttr;
+                    BuildEliteCandidatePool.ExcludedAttributes.Add(selectedAttr);
+                }
+                // —— 互斥：若排除了 selectedAttr，就把目标白名单里所有等于它的行清掉（不动期望等级）
+                if (!string.IsNullOrEmpty(selectedAttr))
+                {
+                    // 找到所有匹配的行（可能多行选了同一属性）
+                    var hitRows = BuildEliteCandidatePool.WhitelistPickByRow
+                        .Where(kv => string.Equals(kv.Value, selectedAttr, StringComparison.Ordinal))
+                        .Select(kv => kv.Key)
+                        .ToList();
+
+                    if (hitRows.Count > 0)
+                    {
+                        // 1) 从“行→属性”的映射中移除这些行（不删 DesiredLevels，保留用户设定）
+                        foreach (var r in hitRows)
+                        {
+                            BuildEliteCandidatePool.WhitelistPickByRow.Remove(r);
+
+                            // 2) 清空这些行的目标下拉 UI
+                            var wlSel = GetWhitelistSelectByRow(r);
+                            if (wlSel != null) wlSel.SelectedIndex = -1;
+                            // 注意：不去改对应的 InputNumber，等级保留
+                        }
+
+                        // 3) 重建 Attributes（白名单集合）
+                        var newWhitelist = BuildEliteCandidatePool.WhitelistPickByRow.Values
+                            .Where(s => !string.IsNullOrEmpty(s))
+                            .Distinct(StringComparer.Ordinal)
+                            .ToList();
+                        BuildEliteCandidatePool.Attributes.Clear();
+                        BuildEliteCandidatePool.Attributes.AddRange(newWhitelist);
+                    }
+                }
+
+            }
+        }
+
+        private void select3_SelectedIndexChanged(object sender, IntEventArgs e)
+        {
+
+        }
+
+        private void select2_ClearClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// 右键清除排除属性
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void selectEmptyRule_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+
+            if (sender is AntdUI.Select combo)
+            {
+                // 移除掉之前存进去的排除属性
+                if (combo.Tag is string old && !string.IsNullOrEmpty(old))
+                {
+                    BuildEliteCandidatePool.ExcludedAttributes.Remove(old);
+                }
+
+                // 清空下拉显示（如果 AntdUI.Select 支持）
+                combo.SelectedIndex = -1;
+
+                // 清空 Tag
+                combo.Tag = null;
+            }
+        }
+
+        /// <summary>
+        /// 清除所有行的属性选择
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void selectClearSelection_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+            if (sender is AntdUI.Select combo)
+            {
+                if (!(combo.Tag is string tagStr) || !int.TryParse(tagStr, out int row)) return;
+
+                // 1) 找到这行当前绑定的白名单属性
+                if (BuildEliteCandidatePool.WhitelistPickByRow.TryGetValue(row, out var attrName)
+                    && !string.IsNullOrEmpty(attrName))
+                {
+                    // 2) 删期望等级
+                    BuildEliteCandidatePool.DesiredLevels.Remove(attrName);
+
+                    // 3) 删“按行绑定”
+                    BuildEliteCandidatePool.WhitelistPickByRow.Remove(row);
+                }
+
+                // 4) 重建 Attributes（= 所有行的非空属性去重集合）
+                var newWhitelist = BuildEliteCandidatePool.WhitelistPickByRow.Values
+                    .Where(s => !string.IsNullOrEmpty(s))
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList();
+                BuildEliteCandidatePool.Attributes.Clear();
+                BuildEliteCandidatePool.Attributes.AddRange(newWhitelist);
+
+                // 5) 清空 UI：本行下拉和该行的期望等级数值框
+                combo.SelectedIndex = -1;
+                GetDesiredLevelControlByRow(row).Value = 0;
+
+                // （不改 combo.Tag，Tag 保持“行号”，方便继续用）
+            }
+        }
+        private AntdUI.InputNumber GetDesiredLevelControlByRow(int row)
+        {
+            return row switch
+            {
+                0 => inputNumber1,
+                1 => inputNumber2,
+                2 => inputNumber3,
+                3 => inputNumber4,
+                4 => inputNumber5,
+                _ => null
+            };
+        }
+
+        private AntdUI.Select GetWhitelistSelectByRow(int row)
+        {
+            return row switch
+            {
+                0 => select2,
+                1 => select4,
+                2 => select5,
+                3 => select6,
+                4 => select7,
+                _ => null
+            };
+        }
+
+        private IEnumerable<AntdUI.Select> GetAllExcludeSelects()
+        {
+            // 你的排除下拉（按你实际命名补全）
+            yield return select8;
+            yield return select9;
+            yield return select10;
+            yield return select11;
+            yield return select12;
+        }
+
+        private void select3_SelectedIndexChanged_1(object sender, IntEventArgs e)
+        {
+            // e.Value 就是选中的索引
+            BuildEliteCandidatePool.SortBy = (e.Value == 0)
+                ? ModuleOptimizer.SortMode.ByTotalAttr
+                : ModuleOptimizer.SortMode.ByScore;
         }
     }
 }
