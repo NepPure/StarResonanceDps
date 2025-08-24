@@ -433,10 +433,8 @@ namespace StarResonanceDpsAnalysis.Plugin
         private CellText damage;      // 技能总伤害
         private CellText hitCount;      // 技能命中次数
         private CellText critRate;   // 暴击率
-        private CellText luckyRate;  // 幸运率
-        private CellText luckyDamage; // 幸运伤害
-        private CellProgress share; // 占比（0~1）
         private CellText avgPerHit;  // 平均值
+        private CellProgress share; // 占比（0~1）
         private CellText totalDps;//秒伤
         private CellText percentage; //百分比
 
@@ -444,7 +442,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         #endregion
 
         #region 构造函数
-        public SkillData(ulong skillId, string name, string icon, ulong damage, int hitCount, string critRate, ulong luckyDamage, string luckyRate, double share, double avgPerHit, double totalDps)
+        public SkillData(ulong skillId, string name, string icon, ulong damage, int hitCount, string critRate, double share, double avgPerHit, double totalDps)
         {
             SkillId = skillId;
             Name = name;
@@ -452,8 +450,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             Damage = new CellText(damage.ToString()) { Font = AppConfig.DigitalFont };
             HitCount = new CellText(hitCount.ToString()) { Font = AppConfig.DigitalFont };
             CritRate = new CellText(critRate) { Font = AppConfig.DigitalFont };
-            LuckyRate = new CellText(luckyRate) { Font = AppConfig.DigitalFont };
-            LuckyDamage = new CellText(luckyDamage.ToString()) { Font = AppConfig.DigitalFont };
+
             Share = new CellProgress((float)share) { Fill = AppConfig.DpsColor, Size = new Size(200, 10) };
             AvgPerHit = new CellText(avgPerHit.ToString()) { Font = AppConfig.DigitalFont };
             TotalDps = new CellText(totalDps.ToString()) { Font = AppConfig.DigitalFont };
@@ -463,19 +460,6 @@ namespace StarResonanceDpsAnalysis.Plugin
         #endregion
 
         #region 属性封装（包含通知）
-        public CellText LuckyDamage
-        {
-            get => luckyDamage;
-            set
-            {
-                ulong val = (ulong)Math.Floor(double.Parse(value.Text));
-                CellText formatted = new CellText(Common.FormatWithEnglishUnits(val)) { Font = AppConfig.DigitalFont };
-
-                if (luckyDamage == formatted) return;
-                luckyDamage = formatted;
-                OnPropertyChanged(nameof(LuckyDamage));
-            }
-        }
 
         // —— 技能基础信息 —— 
 
@@ -565,19 +549,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             }
         }
 
-        /// <summary>
-        /// 幸运率（百分比字符串）
-        /// </summary>
-        public CellText LuckyRate
-        {
-            get => luckyRate;
-            set
-            {
-                if (luckyRate == value) return;
-                luckyRate = value;
-                OnPropertyChanged(nameof(LuckyRate));
-            }
-        }
+
 
         /// <summary>
         /// 总伤害占比（0~1 之间的小数）

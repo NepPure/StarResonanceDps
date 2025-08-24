@@ -33,8 +33,7 @@ namespace StarResonanceDpsAnalysis.Control
                 new AntdUI.Column("TotalDps","DPS/秒"),
                 new AntdUI.Column("HitCount","命中次数"),
                 new AntdUI.Column("CritRate","暴击率"),
-                new AntdUI.Column("LuckyRate","幸运率"),
-                 new AntdUI.Column("LuckyDamage","幸运伤害"),
+                new AntdUI.Column("AvgPerHit","平均伤害"),
                 new AntdUI.Column("Percentage","百分比"),
             };
 
@@ -170,9 +169,6 @@ namespace StarResonanceDpsAnalysis.Control
                         item.Total,
                         item.HitCount,
                         critRateStr,
-                        item.LuckyDamage,
-                        luckyRateStr,
-
                         share,
                         item.AvgPerHit,
                         item.TotalDps
@@ -191,11 +187,9 @@ namespace StarResonanceDpsAnalysis.Control
                     existing.Damage = new CellText(item.Total.ToString()) { Font = AppConfig.ContentFont };
                     existing.HitCount = new CellText(item.HitCount.ToString()) { Font = AppConfig.ContentFont };
                     existing.CritRate = new CellText(critRateStr) { Font = AppConfig.ContentFont };
-                    existing.LuckyRate = new CellText(luckyRateStr) { Font = AppConfig.ContentFont };
                     existing.AvgPerHit = new CellText(item.AvgPerHit.ToString()) { Font = AppConfig.ContentFont };
                     existing.TotalDps = new CellText(item.TotalDps.ToString()) { Font = AppConfig.ContentFont };
                     existing.Percentage = new CellText(share.ToString()) { Font = AppConfig.ContentFont };
-                    existing.LuckyDamage = new CellText(item.LuckyDamage.ToString()) { Font = AppConfig.ContentFont };
 
                     var cp = new CellProgress((float)share);
                     cp.Fill = AppConfig.DpsColor;
@@ -799,8 +793,6 @@ namespace StarResonanceDpsAnalysis.Control
                     s.Total,
                     s.HitCount,
                     s.CritRate.ToString() + "%",
-                    s.LuckyDamage,
-                    s.LuckyRate.ToString() + "%",
                     share,
                     s.AvgPerHit,
                     s.TotalDps
