@@ -11,7 +11,7 @@ namespace StarResonanceDpsAnalysis.Core.Module
 {
     public class BuildEliteCandidatePool
     {
-        public static string type = "攻击";
+        public static string type = "全部";
         public static List<string> Attributes = new List<string>();
 
         public static ModuleOptimizer.SortMode SortBy { get; set; } = ModuleOptimizer.SortMode.ByTotalAttr;
@@ -145,6 +145,7 @@ namespace StarResonanceDpsAnalysis.Core.Module
             // 如果解析到了模组
             if (modules.Count > 0)
             {
+         
                 // 这里存放筛选后的模组列表
                 List<ModuleInfo> filteredModules;
           

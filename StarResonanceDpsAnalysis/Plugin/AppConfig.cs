@@ -111,7 +111,7 @@ namespace StarResonanceDpsAnalysis.Plugin
         /// </summary>
         public static Font ProgressBarFont
         {
-            get => HandledResources.GetHarmonyOS_SansFont(8);
+            get => HandledResources.GetHarmonyOS_SansFont(9);
         }
 
         /// <summary>
