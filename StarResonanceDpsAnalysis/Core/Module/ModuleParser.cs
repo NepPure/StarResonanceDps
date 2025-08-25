@@ -30,6 +30,24 @@ namespace StarResonanceDpsAnalysis.Core.Module
         public static bool MixCategories { get; set; } = false;              // 允许攻击/守护/辅助混搭
 
         /// <summary>
+        /// 清空一次本次筛选中所有用户选择（白名单、排除、等级等）。
+        /// keepSortMode=true 则保留当前排序模式；false 则回到默认。
+        /// </summary>
+        public static void ResetSelections(bool keepSortMode = true)
+        {
+            Attributes.Clear();
+            ExcludedAttributes.Clear();
+            WhitelistPickByRow.Clear();
+            DesiredLevels.Clear();
+
+            if (!keepSortMode)
+            {
+                SortBy = ModuleOptimizer.SortMode.ByTotalAttr; // 想恢复到“默认按属性”
+                                                               // 如果你希望恢复到“默认按战力”，这里改为：ModuleOptimizer.SortMode.ByScore;
+            }
+        }
+
+        /// <summary>
         /// 解析模组信息（等价于 Python 版 parse_module_info）
         /// - 从 protobuf payload 中提取 CharSerialize
         /// - 遍历所有包裹 Items → 筛选出有 ModNewAttr 的物品

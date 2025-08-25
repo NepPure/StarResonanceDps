@@ -53,7 +53,8 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
     select9,
     select10,
     select11,
-    select12
+    select12,
+    select3
 };
             List<InputNumber> inputNumbers = new List<InputNumber>
 {
@@ -539,5 +540,23 @@ namespace StarResonanceDpsAnalysis.Forms.ModuleForm
                 ? ModuleOptimizer.SortMode.ByTotalAttr
                 : ModuleOptimizer.SortMode.ByScore;
         }
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            // 1) 清空这次界面的所有“目标/排除/等级”选择
+            BuildEliteCandidatePool.ResetSelections(keepSortMode: false);
+            // keepSortMode=false：连排序模式也恢复到默认（上面方法里指定的默认）。
+            // 若你想保留用户上次的排序模式：传 true。
+
+            // 2)（可选）清空界面卡片缓存/显示
+            try
+            {
+                virtualPanel1?.Items?.Clear();
+                virtualPanel1?.Refresh();
+            }
+            catch { /* 忽略释放时控件已销毁的异常 */ }
+
+            base.OnFormClosed(e);
+        }
+
     }
 }
