@@ -8,6 +8,12 @@ namespace StarResonanceDpsAnalysis.Core.Module
 {
     public class ModuleOptimizer
     {
+        // —— 超标容差：允许比“期望等级”最多高出这么多“级”而不扣分（默认 1 级）
+        private const int OvershootToleranceLevels = 1;
+        // —— 超过容差后，每超出 1 级的惩罚（保持你原本的力度 200）
+        private const double OvershootHardPenaltyPerLevel = 50;
+
+
         // 目标等级映射：属性名 -> 期望等级（1~6，0 或缺省表示不限制）
         private readonly Dictionary<string, int> _desiredLevels = new(StringComparer.Ordinal);
 
@@ -279,23 +285,39 @@ namespace StarResonanceDpsAnalysis.Core.Module
 
                 if (isWhite && hasTarget)
                 {
-                    // —— 不能超过目标：超标强扣分，绝不优于“刚好达到”
-                    if (lvl == targetLvl)
+                    // —— 新逻辑：无论期望如何，整体往 6 凑；允许小幅超出期望不扣分
+                    const int AimLevel = 6;
+
+                    if (lvl >= AimLevel)
                     {
-                        tier1 += 2000.0;               // 精确达标强奖励（压住一切次级因素）
+                        // 命中 6 级：直接给最强奖励（视为理想命中）
+                        tier1 += 2000.0;
                     }
-                    else if (lvl < targetLvl)
+                    else if (lvl >= targetLvl)
                     {
-                        // 未达标：越接近越好（0..6）
+                        // 达到或超过期望但尚未到 6
+                        int overshoot = lvl - targetLvl; // >= 0
+
+                        if (overshoot <= OvershootToleranceLevels)
+                        {
+                            // 小幅超出期望：不扣分（视作“合理溢出”）
+                            tier1 += 2000.0;
+                        }
+                        else
+                        {
+                            // 超过“容差”之后才开始扣
+                            int hard = overshoot - OvershootToleranceLevels;
+                            tier1 += 2000.0 - hard * OvershootHardPenaltyPerLevel;
+                        }
+                    }
+                    else
+                    {
+                        // 未达标：仍然按“接近程度”给分（与你原来的权重一致）
                         int diff = Math.Min(6, targetLvl - lvl);
-                        int closenessLocal = 6 - diff;  // 越接近分越高
-                        tier1 += closenessLocal * 20.0; // 适中权重
+                        int closenessLocal = 6 - diff;      // 0..6
+                        tier1 += closenessLocal * 20.0;     // 适中权重（保持原有手感）
                     }
-                    else // lvl > targetLvl（超标 = 浪费）
-                    {
-                        int overshoot = Math.Min(6, lvl - targetLvl);
-                        tier1 -= overshoot * 200.0;     // 强力惩罚，确保劣于“刚好达标”
-                    }
+
                     // 注意：有期望的属性，不再额外叠加 w 避免“超标因为权重更高反而被奖励”
                 }
                 else if (isWhite)
