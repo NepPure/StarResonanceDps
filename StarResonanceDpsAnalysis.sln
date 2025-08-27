@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarResonanceDpsAnalysis", "StarResonanceDpsAnalysis\StarResonanceDpsAnalysis.csproj", "{AA1BF9A8-D834-428C-A2BF-938392A76FB7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarResonanceDpsAnalysis", "StarResonanceDpsAnalysis.WinForm\StarResonanceDpsAnalysis.WinForm.csproj", "{AA1BF9A8-D834-428C-A2BF-938392A76FB7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
