@@ -6,18 +6,14 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>Assets\ApplicationIcon.ico</ApplicationIcon>
-    <Platforms>AnyCPU;x86;x64</Platforms>
+    <ApplicationIcon>..\StarResonanceDpsAnalysis.Assets\ApplicationIcon.ico</ApplicationIcon>
+    <Platforms>AnyCPU;x64;x86</Platforms>
     <Version>2.0.4</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Core\TabelJson\monster_names.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Assets\ApplicationIcon.ico" />
   </ItemGroup>
 
   <ItemGroup>

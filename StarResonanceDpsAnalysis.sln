@@ -3,7 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarResonanceDpsAnalysis", "StarResonanceDpsAnalysis.WinForm\StarResonanceDpsAnalysis.WinForm.csproj", "{AA1BF9A8-D834-428C-A2BF-938392A76FB7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarResonanceDpsAnalysis.WinForm", "StarResonanceDpsAnalysis.WinForm\StarResonanceDpsAnalysis.WinForm.csproj", "{AA1BF9A8-D834-428C-A2BF-938392A76FB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarResonanceDpsAnalysis.Assets", "StarResonanceDpsAnalysis.Assets\StarResonanceDpsAnalysis.Assets.csproj", "{B18E1B47-56AC-4889-8FF5-555A9153B7E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarResonanceDpsAnalysis.Core", "StarResonanceDpsAnalysis.Core\StarResonanceDpsAnalysis.Core.csproj", "{984EA7E8-2102-4E33-BBF9-E3915C4D2650}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarResonanceDpsAnalysis.WPF", "StarResonanceDpsAnalysis.WPF\StarResonanceDpsAnalysis.WPF.csproj", "{BE04269E-E414-4398-863E-3FC52129B2A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +33,42 @@ Global
 		{AA1BF9A8-D834-428C-A2BF-938392A76FB7}.Release|x64.Build.0 = Release|x64
 		{AA1BF9A8-D834-428C-A2BF-938392A76FB7}.Release|x86.ActiveCfg = Release|x86
 		{AA1BF9A8-D834-428C-A2BF-938392A76FB7}.Release|x86.Build.0 = Release|x86
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Debug|x64.ActiveCfg = Debug|x64
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Debug|x64.Build.0 = Debug|x64
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Debug|x86.ActiveCfg = Debug|x86
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Debug|x86.Build.0 = Debug|x86
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Release|x64.ActiveCfg = Release|x64
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Release|x64.Build.0 = Release|x64
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Release|x86.ActiveCfg = Release|x86
+		{B18E1B47-56AC-4889-8FF5-555A9153B7E1}.Release|x86.Build.0 = Release|x86
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Debug|x64.Build.0 = Debug|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Debug|x86.Build.0 = Debug|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Release|Any CPU.Build.0 = Release|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Release|x64.ActiveCfg = Release|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Release|x64.Build.0 = Release|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Release|x86.ActiveCfg = Release|Any CPU
+		{984EA7E8-2102-4E33-BBF9-E3915C4D2650}.Release|x86.Build.0 = Release|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Debug|x64.Build.0 = Debug|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Debug|x86.Build.0 = Debug|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Release|x64.ActiveCfg = Release|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Release|x64.Build.0 = Release|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Release|x86.ActiveCfg = Release|Any CPU
+		{BE04269E-E414-4398-863E-3FC52129B2A1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
