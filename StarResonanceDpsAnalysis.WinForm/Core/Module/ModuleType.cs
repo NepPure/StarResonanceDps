@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace StarResonanceDpsAnalysis.Core.Module
+namespace StarResonanceDpsAnalysis.WinForm.Core.Module
 {
     public enum ModuleType : int
     {

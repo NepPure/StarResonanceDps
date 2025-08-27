@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis.Forms
+﻿namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     partial class SettingsForm
     {

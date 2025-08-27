@@ -1,11 +1,12 @@
-﻿using StarResonanceDpsAnalysis.Plugin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Forms
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class HistoricalBattlesForm
     {

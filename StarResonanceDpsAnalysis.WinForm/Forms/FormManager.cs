@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-using StarResonanceDpsAnalysis.Control;
-using StarResonanceDpsAnalysis.Forms.AuxiliaryForms;
-using StarResonanceDpsAnalysis.Forms.ModuleForm;
+using StarResonanceDpsAnalysis.WinForm.Control;
+using StarResonanceDpsAnalysis.WinForm.Forms.AuxiliaryForms;
+using StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm;
 
-namespace StarResonanceDpsAnalysis.Forms
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public class FormManager
     {

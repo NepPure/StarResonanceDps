@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace StarResonanceDpsAnalysis
+namespace StarResonanceDpsAnalysis.WinForm
 {
     public static class MousePenetrationHelper
     {

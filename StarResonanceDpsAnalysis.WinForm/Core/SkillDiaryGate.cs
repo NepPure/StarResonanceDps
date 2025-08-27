@@ -1,12 +1,13 @@
-﻿using StarResonanceDpsAnalysis.Forms;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.Plugin;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace StarResonanceDpsAnalysis.Core
+using StarResonanceDpsAnalysis.WinForm.Forms;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+
+namespace StarResonanceDpsAnalysis.WinForm.Core
 {
     internal static class SkillDiaryGate
     {

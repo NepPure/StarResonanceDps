@@ -5,22 +5,20 @@ using System.Threading.Tasks; // 引用异步任务支持（Task/async/await）
 using System.Windows.Forms;
 
 using AntdUI; // 引用 AntdUI 组件库（第三方 UI 控件/样式）
-using StarResonanceDpsAnalysis.Control; // 引用项目内的 UI 控制/辅助类命名空间
-using StarResonanceDpsAnalysis.Effects;
-using StarResonanceDpsAnalysis.Forms.PopUp; // 引用弹窗相关窗体/组件命名空间
-using StarResonanceDpsAnalysis.Plugin; // 引用项目插件层通用命名空间
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics; // 引用伤害统计插件命名空间（含 FullRecord、StatisticData 等）
-using StarResonanceDpsAnalysis.Plugin.LaunchFunction; // 引用启动相关功能（加载技能配置等）
-using StarResonanceDpsAnalysis.Properties; // 引用资源（图标/本地化字符串等）
+using StarResonanceDpsAnalysis.WinForm.Control; // 引用项目内的 UI 控制/辅助类命名空间
+using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.WinForm.Forms.PopUp; // 引用弹窗相关窗体/组件命名空间
+using StarResonanceDpsAnalysis.WinForm.Plugin; // 引用项目插件层通用命名空间
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics; // 引用伤害统计插件命名空间（含 FullRecord、StatisticData 等）
+using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction; // 引用启动相关功能（加载技能配置等）
+using StarResonanceDpsAnalysis.WinForm.Properties; // 引用资源（图标/本地化字符串等）
+using StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm;
 
-using static StarResonanceDpsAnalysis.Control.SkillDetailForm;
-using System.Security.Cryptography.Xml;
+using static StarResonanceDpsAnalysis.WinForm.Control.SkillDetailForm;
 using Button = AntdUI.Button;
-using DocumentFormat.OpenXml.Office2010.Excel;
 using Color = System.Drawing.Color;
-using StarResonanceDpsAnalysis.Forms.ModuleForm;
 
-namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代码所在位置
+namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体相关代码所在位置
 { // 命名空间开始
     public partial class DpsStatisticsForm : BorderlessForm // 定义无边框窗体的局部类（与 Designer 生成的部分合并）
     { // 类开始
@@ -617,7 +615,7 @@ namespace StarResonanceDpsAnalysis.Forms // 定义命名空间：窗体相关代
             else if (e.KeyData == AppConfig.ClearHistoryKey)
             {
                 StatisticData._manager.ClearSnapshots();//清空快照
-                StarResonanceDpsAnalysis.Plugin.DamageStatistics.FullRecord.ClearSessionHistory();//清空全程快照
+                FullRecord.ClearSessionHistory();//清空全程快照
 
             }
         }

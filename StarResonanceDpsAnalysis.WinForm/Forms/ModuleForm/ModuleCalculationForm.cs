@@ -1,9 +1,4 @@
-﻿using AntdUI;
-using StarResonanceDpsAnalysis.Core;
-using StarResonanceDpsAnalysis.Core.Module;
-using StarResonanceDpsAnalysis.Forms.PopUp;
-using StarResonanceDpsAnalysis.Plugin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,9 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static StarResonanceDpsAnalysis.Core.Module.ModuleCardDisplay;
 
-namespace StarResonanceDpsAnalysis.Forms.ModuleForm
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Core;
+using StarResonanceDpsAnalysis.WinForm.Core.Module;
+using StarResonanceDpsAnalysis.WinForm.Forms.PopUp;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+
+using static StarResonanceDpsAnalysis.WinForm.Core.Module.ModuleCardDisplay;
+
+namespace StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm
 {
     public partial class ModuleCalculationForm : BorderlessForm
     {

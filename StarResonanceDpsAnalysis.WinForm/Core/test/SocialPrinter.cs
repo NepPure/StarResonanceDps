@@ -1,12 +1,13 @@
-﻿using BlueProto;
-using Google.Protobuf;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Core.test
+using BlueProto;
+using Google.Protobuf;
+
+namespace StarResonanceDpsAnalysis.WinForm.Core.test
 {
     public static class SocialPrinter
     {

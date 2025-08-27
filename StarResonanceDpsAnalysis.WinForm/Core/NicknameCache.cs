@@ -6,9 +6,10 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+
 using Timer = System.Threading.Timer;
 
-namespace StarResonanceDpsAnalysis.Core
+namespace StarResonanceDpsAnalysis.WinForm.Core
 {
 
 

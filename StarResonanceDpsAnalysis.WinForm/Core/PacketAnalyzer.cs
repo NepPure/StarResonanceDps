@@ -1,12 +1,13 @@
-﻿using PacketDotNet;
-using SharpPcap;
-using StarResonanceDpsAnalysis.Extends;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 
-namespace StarResonanceDpsAnalysis.Core
+using PacketDotNet;
+using SharpPcap;
+using StarResonanceDpsAnalysis.WinForm.Extends;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+
+namespace StarResonanceDpsAnalysis.WinForm.Core
 {
     public class PacketAnalyzer()
     {

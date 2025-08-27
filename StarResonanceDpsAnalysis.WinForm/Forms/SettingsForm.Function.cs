@@ -1,7 +1,7 @@
 ﻿using SharpPcap;
-using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
 
-namespace StarResonanceDpsAnalysis.Forms
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class SettingsForm
     {

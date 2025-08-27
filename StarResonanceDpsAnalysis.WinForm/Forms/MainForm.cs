@@ -1,14 +1,16 @@
+using System;
 using System.Diagnostics;
+
 using AntdUI;
 using SharpPcap;
-using StarResonanceDpsAnalysis.Control;
-using StarResonanceDpsAnalysis.Core;
-using StarResonanceDpsAnalysis.Effects;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.Properties;
+using StarResonanceDpsAnalysis.WinForm.Control;
+using StarResonanceDpsAnalysis.WinForm.Core;
+using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.WinForm.Properties;
 
-namespace StarResonanceDpsAnalysis.Forms
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class MainForm : BorderlessForm
     {

@@ -1,7 +1,4 @@
-﻿using AntdUI;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -11,7 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace StarResonanceDpsAnalysis.Forms
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class DeathStatisticsForm : BorderlessForm
     {

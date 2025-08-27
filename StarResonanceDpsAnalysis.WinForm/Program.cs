@@ -1,12 +1,13 @@
 using System.Text;
 using System.Windows.Forms;
-using AntdUI;
-using StarResonanceDpsAnalysis.Forms;
-using StarResonanceDpsAnalysis.Forms.ModuleForm;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
 
-namespace StarResonanceDpsAnalysis
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Forms;
+using StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction;
+
+namespace StarResonanceDpsAnalysis.WinForm
 {
     internal static class Program
     {

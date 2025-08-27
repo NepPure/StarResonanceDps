@@ -1,6 +1,6 @@
 using System.Drawing.Drawing2D;
 
-namespace StarResonanceDpsAnalysis.Plugin.Charts
+namespace StarResonanceDpsAnalysis.WinForm.Plugin.Charts
 {
     /// <summary>
     /// 扁平化线性图控件 - 支持拖动、缩放和实时刷新功能

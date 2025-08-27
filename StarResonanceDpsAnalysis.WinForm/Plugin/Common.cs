@@ -1,11 +1,12 @@
-﻿using Flurl;
-using Flurl.Http;
-using Newtonsoft.Json.Linq;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+﻿using System;
 using System.Security.Cryptography;
 
+using Flurl;
+using Flurl.Http;
+using Newtonsoft.Json.Linq;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
 
-namespace StarResonanceDpsAnalysis.Plugin
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     public class Common
     {

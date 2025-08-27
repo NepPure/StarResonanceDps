@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
 
-namespace StarResonanceDpsAnalysis.Control.GDI
+namespace StarResonanceDpsAnalysis.WinForm.Control.GDI
 {
     public class GDI_ProgressBar : IDisposable
     {

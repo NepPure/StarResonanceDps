@@ -1,14 +1,15 @@
-﻿using StarResonanceDpsAnalysis.Control.GDI;
-using StarResonanceDpsAnalysis.Core;
-using StarResonanceDpsAnalysis.Effects;
-using StarResonanceDpsAnalysis.Extends;
-using StarResonanceDpsAnalysis.Properties;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace StarResonanceDpsAnalysis.Plugin
+using StarResonanceDpsAnalysis.WinForm.Control.GDI;
+using StarResonanceDpsAnalysis.WinForm.Core;
+using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.WinForm.Extends;
+using StarResonanceDpsAnalysis.WinForm.Properties;
+
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     /// <summary>
     /// # 分类：类概览
@@ -25,7 +26,7 @@ namespace StarResonanceDpsAnalysis.Plugin
     /// </summary>
     public class AppConfig
     {
-        public static UserLocalCache cache = new StarResonanceDpsAnalysis.Core.UserLocalCache();
+        public static UserLocalCache cache = new();
 
 
         public static float dpi;
@@ -35,7 +36,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             get
             {
                 int height = 50;
-                switch(dpi)
+                switch (dpi)
                 {
                     case 1:
                         height = 35;
@@ -52,7 +53,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                     case 2:
                         height = 45;
                         break;
-                
+
                 }
 
                 return height;
@@ -64,7 +65,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             get
             {
                 int x = 64;
-                if(dpi==1)
+                if (dpi == 1)
                 {
                     x = 55;
                 }
@@ -78,7 +79,7 @@ namespace StarResonanceDpsAnalysis.Plugin
             get
             {
                 int x = ProgressBarProportion.X - 50;
-                switch(dpi)
+                switch (dpi)
                 {
                     case 1:
                         x = -35;
@@ -96,7 +97,7 @@ namespace StarResonanceDpsAnalysis.Plugin
                         x = ProgressBarProportion.X - 60;
                         break;
                 }
-                if(dpi==1)
+                if (dpi == 1)
                 {
 
                 }

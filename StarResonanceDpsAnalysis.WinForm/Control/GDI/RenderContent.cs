@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Control.GDI
+namespace StarResonanceDpsAnalysis.WinForm.Control.GDI
 {
 
     public class RenderContent

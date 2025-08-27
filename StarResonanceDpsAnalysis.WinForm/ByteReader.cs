@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis
+﻿namespace StarResonanceDpsAnalysis.WinForm
 {
     public sealed class ByteReader
     {

@@ -1,16 +1,17 @@
-﻿using SharpPcap;
-using StarResonanceDpsAnalysis.Core;
-using StarResonanceDpsAnalysis.Core.TabelJson;
-using StarResonanceDpsAnalysis.Extends;
-using StarResonanceDpsAnalysis.Forms;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Plugin.LaunchFunction
+using SharpPcap;
+using StarResonanceDpsAnalysis.WinForm.Core;
+using StarResonanceDpsAnalysis.WinForm.Core.TabelJson;
+using StarResonanceDpsAnalysis.WinForm.Extends;
+using StarResonanceDpsAnalysis.WinForm.Forms;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+
+namespace StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction
 {
     public class StartupInitializer
     {

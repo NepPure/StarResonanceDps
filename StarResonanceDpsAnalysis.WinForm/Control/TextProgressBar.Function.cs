@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using StarResonanceDpsAnalysis.Control.GDI;
+using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 
-namespace StarResonanceDpsAnalysis.Control
+namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     public partial class TextProgressBar
     {

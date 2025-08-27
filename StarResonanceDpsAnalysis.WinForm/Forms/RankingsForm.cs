@@ -1,9 +1,11 @@
-﻿using AntdUI;
-using StarResonanceDpsAnalysis.Forms.AuxiliaryForms;
-using StarResonanceDpsAnalysis.Plugin;
+﻿using System;
 using System.Runtime.InteropServices;
 
-namespace StarResonanceDpsAnalysis.Forms
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Forms.AuxiliaryForms;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class RankingsForm : BorderlessForm
     {

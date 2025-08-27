@@ -1,13 +1,15 @@
-﻿using AntdUI;
-using StarResonanceDpsAnalysis.Forms;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using static StarResonanceDpsAnalysis.Forms.DpsStatisticsForm;
 
-namespace StarResonanceDpsAnalysis.Control
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Forms;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+
+using static StarResonanceDpsAnalysis.WinForm.Forms.DpsStatisticsForm;
+
+namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     public partial class SkillDetailForm
     {
@@ -118,8 +120,8 @@ namespace StarResonanceDpsAnalysis.Control
                 else
                 {
                     var skillType = (metric == MetricType.Healing)
-                        ? StarResonanceDpsAnalysis.Core.SkillType.Heal
-                        : StarResonanceDpsAnalysis.Core.SkillType.Damage;
+                        ? Core.SkillType.Heal
+                        : Core.SkillType.Damage;
 
                     var temp = StatisticData._manager.GetPlayerSkillSummaries(uid, null, true, skillType);
                     skills = ToListOrEmpty(temp);
@@ -710,7 +712,7 @@ namespace StarResonanceDpsAnalysis.Control
                 {
                     if (metric == MetricType.Healing)
                     {
-                        var tmp = StatisticData._manager.GetPlayerSkillSummaries(Uid, 10, true, StarResonanceDpsAnalysis.Core.SkillType.Heal);
+                        var tmp = StatisticData._manager.GetPlayerSkillSummaries(Uid, 10, true, Core.SkillType.Heal);
                         skills = ToListOrEmpty(tmp);
                     }
                     else if (metric == MetricType.Taken)
@@ -720,7 +722,7 @@ namespace StarResonanceDpsAnalysis.Control
                     }
                     else
                     {
-                        var tmp = StatisticData._manager.GetPlayerSkillSummaries(Uid, 10, true, StarResonanceDpsAnalysis.Core.SkillType.Damage);
+                        var tmp = StatisticData._manager.GetPlayerSkillSummaries(Uid, 10, true, Core.SkillType.Damage);
                         skills = ToListOrEmpty(tmp);
                     }
                     // 保险：再按排序器排序一遍，截前10

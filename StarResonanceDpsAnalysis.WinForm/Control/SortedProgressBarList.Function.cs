@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using StarResonanceDpsAnalysis.Control.GDI;
-using StarResonanceDpsAnalysis.Effects;
-using StarResonanceDpsAnalysis.Effects.Enum;
+using StarResonanceDpsAnalysis.WinForm.Control.GDI;
+using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
 
-using static StarResonanceDpsAnalysis.Control.GDI.RenderContent;
+using static StarResonanceDpsAnalysis.WinForm.Control.GDI.RenderContent;
 
-namespace StarResonanceDpsAnalysis.Control
+namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     public partial class SortedProgressBarList
     {

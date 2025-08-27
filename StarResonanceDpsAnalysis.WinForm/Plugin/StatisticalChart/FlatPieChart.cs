@@ -1,6 +1,6 @@
 using System.Drawing.Drawing2D;
 
-namespace StarResonanceDpsAnalysis.Plugin.Charts
+namespace StarResonanceDpsAnalysis.WinForm.Plugin.Charts
 {
     /// <summary>
     /// ±âÆ½»¯±ýÍ¼¿Ø¼þ

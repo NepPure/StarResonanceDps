@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace StarResonanceDpsAnalysis.Extends
+namespace StarResonanceDpsAnalysis.WinForm.Extends
 {
     public static class ByteExtends
     {

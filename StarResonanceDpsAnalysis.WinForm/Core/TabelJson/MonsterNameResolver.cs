@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Core.TabelJson
+namespace StarResonanceDpsAnalysis.WinForm.Core.TabelJson
 {
     /// 怪物名字解析器：启动时从 monster_names.json 读取到内存，后续直接查字典。
     /// </summary>

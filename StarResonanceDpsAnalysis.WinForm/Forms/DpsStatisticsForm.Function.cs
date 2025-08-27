@@ -1,16 +1,4 @@
-﻿using AntdUI;
-using SharpPcap;
-using StarResonanceDpsAnalysis.Control;
-using StarResonanceDpsAnalysis.Control.GDI;
-using StarResonanceDpsAnalysis.Core;
-using StarResonanceDpsAnalysis.Effects;
-using StarResonanceDpsAnalysis.Effects.Enum;
-using StarResonanceDpsAnalysis.Extends;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
-using StarResonanceDpsAnalysis.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -18,7 +6,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Forms
+using AntdUI;
+using SharpPcap;
+using StarResonanceDpsAnalysis.WinForm.Control;
+using StarResonanceDpsAnalysis.WinForm.Control.GDI;
+using StarResonanceDpsAnalysis.WinForm.Core;
+using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
+using StarResonanceDpsAnalysis.WinForm.Extends;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction;
+using StarResonanceDpsAnalysis.WinForm.Properties;
+
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class DpsStatisticsForm
     {

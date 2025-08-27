@@ -1,10 +1,11 @@
 using AntdUI;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.Charts;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.Charts;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+
 using SystemPanel = System.Windows.Forms.Panel;
 
-namespace StarResonanceDpsAnalysis.Forms
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     /// <summary>
     /// 实时图表窗口 - 使用扁平化自定义图表控件，自动加载所有图表

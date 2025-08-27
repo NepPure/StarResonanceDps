@@ -5,15 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 using BlueProto;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using ZstdNet;
-using StarResonanceDpsAnalysis.Core.test;
 using Google.Protobuf.Collections;
-using StarResonanceDpsAnalysis.Core.Module;
-using StarResonanceDpsAnalysis.Forms; // 数据库同步
+using StarResonanceDpsAnalysis.WinForm.Core.Module;
+using StarResonanceDpsAnalysis.WinForm.Core.test;
+using StarResonanceDpsAnalysis.WinForm.Forms; // 数据库同步
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+using ZstdNet;
 
-namespace StarResonanceDpsAnalysis.Core
+namespace StarResonanceDpsAnalysis.WinForm.Core
 {
     /// <summary>
     /// 消息解析器

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-namespace StarResonanceDpsAnalysis.Core.Module
+namespace StarResonanceDpsAnalysis.WinForm.Core.Module
 {
     public class ModuleCardDisplay
     {

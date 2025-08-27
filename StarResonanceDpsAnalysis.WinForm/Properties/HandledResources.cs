@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using StarResonanceDpsAnalysis.Effects;
+using StarResonanceDpsAnalysis.WinForm.Effects;
 
-namespace StarResonanceDpsAnalysis.Properties
+namespace StarResonanceDpsAnalysis.WinForm.Properties
 {
     public static class HandledResources
     {

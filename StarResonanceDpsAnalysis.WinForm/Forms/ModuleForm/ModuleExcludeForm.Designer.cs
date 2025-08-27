@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis.Forms.ModuleForm
+﻿namespace StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm
 {
     partial class ModuleExcludeForm
     {

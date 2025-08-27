@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using StarResonanceDpsAnalysis.Effects.Enum;
+using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
 
-namespace StarResonanceDpsAnalysis.Effects
+namespace StarResonanceDpsAnalysis.WinForm.Effects
 {
     /// <summary>
     /// Cubic Bezier 曲线计算类

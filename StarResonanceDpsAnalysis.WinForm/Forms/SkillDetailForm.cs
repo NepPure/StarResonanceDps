@@ -1,13 +1,14 @@
 ﻿using AntdUI;
-using StarResonanceDpsAnalysis.Effects;
-using StarResonanceDpsAnalysis.Forms;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.Charts;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.Properties;
-using static StarResonanceDpsAnalysis.Forms.DpsStatisticsForm;
+using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.WinForm.Forms;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.Charts;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.WinForm.Properties;
 
-namespace StarResonanceDpsAnalysis.Control
+using static StarResonanceDpsAnalysis.WinForm.Forms.DpsStatisticsForm;
+
+namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     public partial class SkillDetailForm : BorderlessForm
     {

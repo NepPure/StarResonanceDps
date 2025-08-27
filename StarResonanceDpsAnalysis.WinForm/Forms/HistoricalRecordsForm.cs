@@ -1,6 +1,4 @@
-﻿using AntdUI;
-using StarResonanceDpsAnalysis.Plugin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -10,7 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace StarResonanceDpsAnalysis.Forms
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class HistoricalRecordsForm : BorderlessForm
     {

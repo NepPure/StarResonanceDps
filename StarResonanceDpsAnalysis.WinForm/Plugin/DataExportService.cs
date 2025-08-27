@@ -1,8 +1,10 @@
-using ClosedXML.Excel;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using System;
 using System.Text;
 
-namespace StarResonanceDpsAnalysis.Plugin
+using ClosedXML.Excel;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     /// <summary>
     /// 数据导出服务，支持Excel和CSV格式

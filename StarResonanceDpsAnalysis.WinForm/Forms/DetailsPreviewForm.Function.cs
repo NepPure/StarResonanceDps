@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Forms
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class DetailsPreviewForm
     {

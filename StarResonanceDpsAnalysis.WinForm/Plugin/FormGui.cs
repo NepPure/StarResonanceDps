@@ -1,7 +1,8 @@
 ﻿using AntdUI;
+
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
-namespace StarResonanceDpsAnalysis.Plugin
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     public class FormGui
     {

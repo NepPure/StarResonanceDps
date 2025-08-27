@@ -1,14 +1,16 @@
-﻿using AntdUI;
-using DocumentFormat.OpenXml.Math;
-using StarResonanceDpsAnalysis.Effects;
-using StarResonanceDpsAnalysis.Forms.PopUp;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.LaunchFunction;
-using StarResonanceDpsAnalysis.Properties;
+﻿using System;
 using System.Runtime.InteropServices;
+
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.WinForm.Forms.PopUp;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction;
+using StarResonanceDpsAnalysis.WinForm.Properties;
+
 using static System.ComponentModel.Design.ObjectSelectorEditor;
 
-namespace StarResonanceDpsAnalysis.Forms
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class SettingsForm : BorderlessForm
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Core.Module
+namespace StarResonanceDpsAnalysis.WinForm.Core.Module
 {
     public class ModuleOptimizer
     {

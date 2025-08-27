@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace StarResonanceDpsAnalysis.Properties {
+namespace StarResonanceDpsAnalysis.WinForm.Properties {
     using System;
     
     

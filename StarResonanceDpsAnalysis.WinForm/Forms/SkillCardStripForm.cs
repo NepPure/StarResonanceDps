@@ -1,10 +1,11 @@
 using AntdUI;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+
 using WinFormsControl = System.Windows.Forms.Control;
 using WinFormsPanel = System.Windows.Forms.Panel;
 
-namespace StarResonanceDpsAnalysis.Forms
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     // 仅显示一行技能卡片的简洁窗口（仅展示 AppConfig.Uid 的数据）
     public class SkillCardStripForm : BorderlessForm
@@ -97,7 +98,7 @@ namespace StarResonanceDpsAnalysis.Forms
                 var skillSummaries = playerData.GetSkillSummaries(
                     topN: null,
                     orderByTotalDesc: false,
-                    filterType: StarResonanceDpsAnalysis.Core.SkillType.Damage);
+                    filterType: Core.SkillType.Damage);
 
                 if (skillSummaries == null || skillSummaries.Count == 0) return;
 

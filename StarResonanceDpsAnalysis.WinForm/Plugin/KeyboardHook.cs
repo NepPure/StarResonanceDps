@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace StarResonanceDpsAnalysis.Plugin
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     public class KeyboardHook
 

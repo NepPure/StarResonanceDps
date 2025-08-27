@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.ServiceProcess;
 
-namespace StarResonanceDpsAnalysis.Plugin
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     public static class NpcapInstaller
     {

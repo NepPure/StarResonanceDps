@@ -1,6 +1,4 @@
-﻿using AntdUI;
-using StarResonanceDpsAnalysis.Plugin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -9,9 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+
 using static System.Net.Mime.MediaTypeNames;
 
-namespace StarResonanceDpsAnalysis.Forms.AuxiliaryForms
+namespace StarResonanceDpsAnalysis.WinForm.Forms.AuxiliaryForms
 {
     public partial class SkillReferenceForm : BorderlessForm
     {

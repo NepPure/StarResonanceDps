@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Plugin
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     public sealed class EvictedEventArgs<TKey, TValue>(TKey key, TValue value) : EventArgs
     {

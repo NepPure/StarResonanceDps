@@ -1,4 +1,4 @@
-namespace StarResonanceDpsAnalysis.Core
+namespace StarResonanceDpsAnalysis.WinForm.Core
 {
     // Auto-generated from skill_config.json (v2.0.1)
     public enum SkillType

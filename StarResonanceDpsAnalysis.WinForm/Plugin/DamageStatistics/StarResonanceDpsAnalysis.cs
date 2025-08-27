@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
+﻿namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
 {
     /// <summary>
     /// 全程记录（跨战斗，会话级）：通过在 AddDamage/AddHealing/AddTakenDamage 内部打点，实时累加

@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis.Forms
+﻿namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     partial class DpsStatisticsForm
     {
@@ -44,7 +44,7 @@
             label1 = new AntdUI.Label();
             timer_RefreshRunningTime = new System.Windows.Forms.Timer(components);
             timer1 = new System.Windows.Forms.Timer(components);
-            sortedProgressBarList1 = new StarResonanceDpsAnalysis.Control.SortedProgressBarList();
+            sortedProgressBarList1 = new StarResonanceDpsAnalysis.WinForm.Control.SortedProgressBarList();
             panel2 = new AntdUI.Panel();
             NpcTakeDamageButton = new AntdUI.Button();
             AlwaysInjuredButton = new AntdUI.Button();

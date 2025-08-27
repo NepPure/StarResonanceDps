@@ -1,11 +1,4 @@
-﻿using AntdUI;
-using DocumentFormat.OpenXml.Wordprocessing;
-using StarResonanceDpsAnalysis.Control;
-using StarResonanceDpsAnalysis.Effects;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.Properties;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -14,10 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static StarResonanceDpsAnalysis.Control.SkillDetailForm;
+
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Control;
+using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.WinForm.Properties;
+
+using static StarResonanceDpsAnalysis.WinForm.Control.SkillDetailForm;
 using static System.ComponentModel.Design.ObjectSelectorEditor;
 
-namespace StarResonanceDpsAnalysis.Forms
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class HistoricalBattlesForm : BorderlessForm
     {

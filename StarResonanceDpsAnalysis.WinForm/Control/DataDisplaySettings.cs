@@ -1,7 +1,7 @@
 ﻿using AntdUI;
-using StarResonanceDpsAnalysis.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
 
-namespace StarResonanceDpsAnalysis.Control
+namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     public partial class DataDisplaySettings : UserControl
     {

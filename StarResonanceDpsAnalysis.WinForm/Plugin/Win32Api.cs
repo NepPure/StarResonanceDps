@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace StarResonanceDpsAnalysis.Plugin
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     public class Win32Api
 

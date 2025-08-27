@@ -1,8 +1,10 @@
-using StarResonanceDpsAnalysis.Plugin.Charts;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+using System;
 using System.Timers;
 
-namespace StarResonanceDpsAnalysis.Plugin
+using StarResonanceDpsAnalysis.WinForm.Plugin.Charts;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     /// <summary>
     /// 图表配置管理器 - 统一处理各类图表的默认设置
@@ -637,9 +639,9 @@ namespace StarResonanceDpsAnalysis.Plugin
                 // 根据数据类型获取相应的技能数据
                 var skillData = dataType switch
                 {
-                    ChartDataType.Healing => StatisticData._manager.GetPlayerSkillSummaries(playerId, topN: 8, orderByTotalDesc: true, StarResonanceDpsAnalysis.Core.SkillType.Heal),
+                    ChartDataType.Healing => StatisticData._manager.GetPlayerSkillSummaries(playerId, topN: 8, orderByTotalDesc: true, Core.SkillType.Heal),
                     ChartDataType.TakenDamage => StatisticData._manager.GetPlayerTakenDamageSummaries(playerId, topN: 8, orderByTotalDesc: true),
-                    _ => StatisticData._manager.GetPlayerSkillSummaries(playerId, topN: 8, orderByTotalDesc: true, StarResonanceDpsAnalysis.Core.SkillType.Damage)
+                    _ => StatisticData._manager.GetPlayerSkillSummaries(playerId, topN: 8, orderByTotalDesc: true, Core.SkillType.Damage)
                 };
 
                 if (skillData.Count == 0) return;

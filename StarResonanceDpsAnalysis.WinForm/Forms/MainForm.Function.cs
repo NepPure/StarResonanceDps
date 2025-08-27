@@ -1,25 +1,9 @@
-﻿using AntdUI;
-using SharpPcap;
-using StarResonanceDpsAnalysis.Control;
-using StarResonanceDpsAnalysis.Core;
-using StarResonanceDpsAnalysis.Extends;
-using StarResonanceDpsAnalysis.Forms;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
-using System.Runtime.InteropServices;
+﻿using System;
 
-namespace StarResonanceDpsAnalysis.Forms
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class MainForm
     {
-     
-
-
-
-
-
-
-
 
     }
 }

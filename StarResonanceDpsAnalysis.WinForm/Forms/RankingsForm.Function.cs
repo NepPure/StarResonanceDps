@@ -1,7 +1,9 @@
-﻿using StarResonanceDpsAnalysis.Plugin;
+﻿using System;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Forms
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class RankingsForm
     {

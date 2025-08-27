@@ -4,11 +4,11 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using StarResonanceDpsAnalysis.Control.GDI;
-using StarResonanceDpsAnalysis.Effects;
-using StarResonanceDpsAnalysis.Effects.Enum;
+using StarResonanceDpsAnalysis.WinForm.Control.GDI;
+using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
 
-namespace StarResonanceDpsAnalysis.Control
+namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     public partial class SortedProgressBarList : UserControl
     {

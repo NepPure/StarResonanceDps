@@ -1,10 +1,12 @@
-﻿using AntdUI;
-using StarResonanceDpsAnalysis.Core;
-using StarResonanceDpsAnalysis.Forms;
-using StarResonanceDpsAnalysis.Plugin;
+﻿using System;
 using System.Text.RegularExpressions;
 
-namespace StarResonanceDpsAnalysis
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Core;
+using StarResonanceDpsAnalysis.WinForm.Forms;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class SkillDiary : BorderlessForm
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.Effects.Enum
+namespace StarResonanceDpsAnalysis.WinForm.Effects.Enum
 {
     public enum Quality
     {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.EMMA;
 
-namespace StarResonanceDpsAnalysis.Control.GDI
+namespace StarResonanceDpsAnalysis.WinForm.Control.GDI
 {
     public static class GDI_Base
     {

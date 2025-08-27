@@ -1,8 +1,10 @@
-﻿using AntdUI;
-using BlueProto;
+﻿using System;
 using System.ComponentModel;
 
-namespace StarResonanceDpsAnalysis.Plugin
+using AntdUI;
+using BlueProto;
+
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     #region DpsTableDatas 类
     public class DpsTableDatas

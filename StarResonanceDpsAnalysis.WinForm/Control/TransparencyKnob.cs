@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 
-namespace StarResonanceDpsAnalysis.Control
+namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     /// <summary>
     /// Í¸Ã÷¶ÈÐýÅ¥¿Ø¼þ

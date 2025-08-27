@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis.Forms
+﻿namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     partial class TestForm
     {
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TestForm));
-            sortedProgressBarList1 = new StarResonanceDpsAnalysis.Control.SortedProgressBarList();
+            sortedProgressBarList1 = new StarResonanceDpsAnalysis.WinForm.Control.SortedProgressBarList();
             numericUpDown1 = new NumericUpDown();
             numericUpDown2 = new NumericUpDown();
             button1 = new Button();

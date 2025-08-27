@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis.Control
+﻿namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     partial class TextProgressBar
     {

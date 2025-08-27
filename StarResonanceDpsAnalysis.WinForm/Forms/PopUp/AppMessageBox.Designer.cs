@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis.Forms.PopUp
+﻿namespace StarResonanceDpsAnalysis.WinForm.Forms.PopUp
 {
     partial class AppMessageBox
     {

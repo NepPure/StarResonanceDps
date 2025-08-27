@@ -1,13 +1,15 @@
-﻿using AntdUI;
-using StarResonanceDpsAnalysis.Forms;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static StarResonanceDpsAnalysis.Core.Module.ModuleCardDisplay;
-using static StarResonanceDpsAnalysis.Core.Module.ModuleOptimizer;
-using static StarResonanceDpsAnalysis.Forms.ModuleForm.ModuleCalculationForm;
 
-namespace StarResonanceDpsAnalysis.Core.Module
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Forms;
+
+using static StarResonanceDpsAnalysis.WinForm.Core.Module.ModuleCardDisplay;
+using static StarResonanceDpsAnalysis.WinForm.Core.Module.ModuleOptimizer;
+using static StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm.ModuleCalculationForm;
+
+namespace StarResonanceDpsAnalysis.WinForm.Core.Module
 {
     public class BuildEliteCandidatePool
     {

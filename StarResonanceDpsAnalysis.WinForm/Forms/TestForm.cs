@@ -8,14 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using StarResonanceDpsAnalysis.Control;
-using StarResonanceDpsAnalysis.Control.GDI;
-using StarResonanceDpsAnalysis.Effects;
-using StarResonanceDpsAnalysis.Effects.Enum;
-using StarResonanceDpsAnalysis.Extends;
-using StarResonanceDpsAnalysis.Properties;
+using StarResonanceDpsAnalysis.WinForm.Control;
+using StarResonanceDpsAnalysis.WinForm.Control.GDI;
+using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
+using StarResonanceDpsAnalysis.WinForm.Extends;
+using StarResonanceDpsAnalysis.WinForm.Properties;
 
-namespace StarResonanceDpsAnalysis.Forms
+namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class TestForm : Form
     {

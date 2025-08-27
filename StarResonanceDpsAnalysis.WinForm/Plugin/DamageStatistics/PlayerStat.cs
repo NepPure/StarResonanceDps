@@ -1,12 +1,14 @@
-﻿using BlueProto;
-using StarResonanceDpsAnalysis.Core;
-using StarResonanceDpsAnalysis.Forms;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Timers;
 using System.Xml.Linq;
-using static StarResonanceDpsAnalysis.Plugin.DamageStatistics.PlayerDataManager;
 
-namespace StarResonanceDpsAnalysis.Plugin.DamageStatistics
+using StarResonanceDpsAnalysis.WinForm.Core;
+using StarResonanceDpsAnalysis.WinForm.Forms;
+
+using static StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics.PlayerDataManager;
+
+namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
 {
     /// <summary>
     /// 通用统计类：用于伤害或治疗的数据累计、次数统计、实时窗口统计，以及总 DPS/HPS 计算

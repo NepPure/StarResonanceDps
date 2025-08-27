@@ -1,6 +1,6 @@
 ﻿using AntdUI;
 
-namespace StarResonanceDpsAnalysis.Plugin
+namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
     public class ColumnSetting
     {

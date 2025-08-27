@@ -1,10 +1,12 @@
-﻿using AntdUI;
-using StarResonanceDpsAnalysis.Forms;
-using StarResonanceDpsAnalysis.Plugin;
-using StarResonanceDpsAnalysis.Plugin.DamageStatistics;
+﻿using System;
 using System.Runtime.InteropServices;
 
-namespace StarResonanceDpsAnalysis.Control
+using AntdUI;
+using StarResonanceDpsAnalysis.WinForm.Forms;
+using StarResonanceDpsAnalysis.WinForm.Plugin;
+using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+
+namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     public partial class UserUidSetForm : BorderlessForm
     {
