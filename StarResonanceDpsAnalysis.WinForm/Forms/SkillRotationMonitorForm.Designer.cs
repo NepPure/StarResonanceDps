@@ -87,8 +87,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // 
             button2.Anchor = AnchorStyles.Bottom;
             button2.Ghost = true;
-            button2.Icon = Properties.Resources.cancel_normal;
-            button2.IconHover = Properties.Resources.cancel_hover;
+            button2.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Normal;
+            button2.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Hover;
             button2.IconPosition = AntdUI.TAlignMini.None;
             button2.IconRatio = 1.5F;
             button2.Location = new Point(585, 12);
@@ -100,8 +100,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // 
             button1.Anchor = AnchorStyles.Bottom;
             button1.Ghost = true;
-            button1.Icon = Properties.Resources.flushed_normal;
-            button1.IconHover = Properties.Resources.flushed_hover;
+            button1.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Flushed_Normal;
+            button1.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Flushed_Hover;
             button1.IconPosition = AntdUI.TAlignMini.None;
             button1.IconRatio = 1.5F;
             button1.Location = new Point(441, 12);

@@ -3,11 +3,10 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 
+using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 using StarResonanceDpsAnalysis.WinForm.Core;
-using StarResonanceDpsAnalysis.WinForm.Effects;
 using StarResonanceDpsAnalysis.WinForm.Extends;
-using StarResonanceDpsAnalysis.WinForm.Properties;
 
 namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
@@ -112,7 +111,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// </summary>
         public static Font ProgressBarFont
         {
-            get => HandledResources.GetHarmonyOS_SansFont(9);
+            get => HandledAssets.HarmonyOS_Sans(9);
         }
 
         /// <summary>
@@ -121,7 +120,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         public static Font DigitalFont
         {
 
-            get => HandledResources.GetHarmonyOS_SansFont(9);
+            get => HandledAssets.HarmonyOS_Sans(9);
         }
 
         /// <summary>
@@ -129,7 +128,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// </summary>
         public static Font SaoFont
         {
-            get => HandledResources.GetSAOWelcomeTTFont(10);
+            get => HandledAssets.SAOWelcomeTT(10);
         }
 
 
@@ -138,7 +137,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// </summary>
         public static Font TitleFont
         {
-            get => HandledResources.GetSAOWelcomeTTFont(12);
+            get => HandledAssets.SAOWelcomeTT(12);
         }
 
         /// <summary>
@@ -146,12 +145,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// </summary>
         public static Font HeaderFont
         {
-            get => HandledResources.GetAliMaMaShuHeiTiFont(10);
+            get => HandledAssets.AliMaMaShuHeiTi(10);
         }
 
         public static Font BoldHarmonyFont
         {
-            get => HandledResources.GetHarmonyOS_SansBoldFont(9);
+            get => HandledAssets.HarmonyOS_Sans_Bold(9);
         }
 
         /// <summary>
@@ -159,7 +158,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// </summary>
         public static Font ContentFont
         {
-            get => HandledResources.GetHarmonyOS_SansFont(9);
+            get => HandledAssets.HarmonyOS_Sans(9);
         }
 
         #endregion

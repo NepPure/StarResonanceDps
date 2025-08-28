@@ -3,18 +3,17 @@ using System.Diagnostics;
 
 using AntdUI;
 using SharpPcap;
+using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Core;
 using StarResonanceDpsAnalysis.WinForm.Effects;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.WinForm.Properties;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class MainForm : BorderlessForm
     {
-
 
         #region ========== 构造与启动加载 ==========
 
@@ -35,8 +34,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             FormGui.SetColorMode(this, AppConfig.IsLight); // # 主题：主窗体明暗模式
 
-            var alimamaFont_Size12Bold = HandledResources.GetHarmonyOS_SansFont(12, FontStyle.Bold);
-            var alimamaFont_Size9 = HandledResources.GetHarmonyOS_SansFont(9);
+            var alimamaFont_Size12Bold = HandledAssets.HarmonyOS_Sans(12, FontStyle.Bold);
+            var alimamaFont_Size9 = HandledAssets.HarmonyOS_Sans(9);
 
             var size12BoldControlList = new List<System.Windows.Forms.Control>()
             {
@@ -61,8 +60,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             label_AppName.Text = $"{FormManager.APP_NAME}";
 
-            using var ms = new MemoryStream(Resources.ApplicationIcon_256x256);
-            pictureBox_AppIcon.Image = new Bitmap(ms);
+            pictureBox_AppIcon.Image = HandledAssets.ApplicationIcon_256x256;
         }
 
 

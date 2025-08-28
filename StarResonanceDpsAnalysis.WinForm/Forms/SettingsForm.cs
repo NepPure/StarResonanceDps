@@ -2,11 +2,10 @@
 using System.Runtime.InteropServices;
 
 using AntdUI;
-using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.WinForm.Forms.PopUp;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction;
-using StarResonanceDpsAnalysis.WinForm.Properties;
 
 using static System.ComponentModel.Design.ObjectSelectorEditor;
 
@@ -34,7 +33,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             label1.Font = AppConfig.HeaderFont;
             label2.Font = label3.Font = label4.Font = AppConfig.ContentFont;
 
-            var harmonyOsSansFont = HandledResources.GetHarmonyOS_SansFont(7);
+            var harmonyOsSansFont = HandledAssets.HarmonyOS_Sans(7);
             label6.Font = label7.Font = label8.Font = harmonyOsSansFont;
 
             InterfaceComboBox.Font = AppConfig.ContentFont;

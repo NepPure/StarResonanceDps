@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using AntdUI;
 using SharpPcap;
+using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 using StarResonanceDpsAnalysis.WinForm.Core;
@@ -17,7 +18,6 @@ using StarResonanceDpsAnalysis.WinForm.Extends;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
 using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction;
-using StarResonanceDpsAnalysis.WinForm.Properties;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
@@ -310,11 +310,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             sortedProgressBarList1.OrderImageRenderSize = new Size(22, 22);
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 32, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}.";
-            sortedProgressBarList1.OrderImages =
-            [
-                new Bitmap(new MemoryStream(Resources.皇冠)),
-                           
-            ];
+            sortedProgressBarList1.OrderImages = [ HandledAssets.皇冠 ];
 
 
             if (Config.IsLight)
@@ -334,8 +330,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             sortedProgressBarList1.AnimationQuality = Quality.Low; // 动画品质（你项目里的枚举）
             //sortedProgressBarList1.OrderImages =
             //[
-            //    new Bitmap(new MemoryStream(Resources.皇冠)),
-            //                new Bitmap(new MemoryStream(Resources.皇冠白))
+            //    (Bitmap)HandledAssets.皇冠,
+            //                (Bitmap)HandledAssets.皇冠白
             //];
         }
 
@@ -426,48 +422,53 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             { "岩盾", ColorTranslator.FromHtml("#537758") },
             { "格挡", ColorTranslator.FromHtml("#537758") },
         };
-        static Bitmap EmptyBitmap(int w = 1, int h = 1)
+
+        private static readonly Dictionary<(int w, int h), Bitmap> _emptyBitmapCache = [];
+        internal static Bitmap EmptyBitmap(int w = 1, int h = 1)
         {
-            var bmp = new Bitmap(w, h, PixelFormat.Format32bppArgb);
-            using (var g = Graphics.FromImage(bmp))
-                g.Clear(Color.Transparent);   // 完全透明
-            return bmp;
+            if (_emptyBitmapCache.TryGetValue((w, h), out var bm)) return bm;
+            
+            bm = new Bitmap(w, h, PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(bm)) g.Clear(Color.Transparent);
+            _emptyBitmapCache[(w, h)] = bm;
+            return bm;
         }
         public static Dictionary<string, Bitmap> imgDict = new Dictionary<string, Bitmap>()
         {
             { "未知", EmptyBitmap() },
-            { "冰魔导师", new Bitmap(new MemoryStream(Resources.冰魔导师)) },
-            { "巨刃守护者", new Bitmap(new MemoryStream(Resources.巨刃守护者)) },
-            { "森语者", new Bitmap(new MemoryStream(Resources.森语者)) },
-            { "灵魂乐手", new Bitmap(new MemoryStream(Resources.灵魂乐手)) },
-            { "神射手", new Bitmap(new MemoryStream(Resources.神射手)) },
-            { "雷影剑士", new Bitmap(new MemoryStream(Resources.雷影剑士)) },
-            { "青岚骑士", new Bitmap(new MemoryStream(Resources.青岚骑士)) },
-            { "神盾骑士", new Bitmap(new MemoryStream(Resources.神盾骑士)) },
-            { "射线",  new Bitmap(new MemoryStream(Resources.冰魔导师)) },
-            { "冰矛",  new Bitmap(new MemoryStream(Resources.冰魔导师)) },
 
-            { "协奏",  new Bitmap(new MemoryStream(Resources.灵魂乐手)) },
-            { "狂音",  new Bitmap(new MemoryStream(Resources.灵魂乐手)) },
+            { "冰魔导师", (Bitmap)HandledAssets.冰魔导师 },
+            { "巨刃守护者", (Bitmap)HandledAssets.巨刃守护者 },
+            { "森语者", (Bitmap)HandledAssets.森语者 },
+            { "灵魂乐手", (Bitmap)HandledAssets.灵魂乐手 },
+            { "神射手", (Bitmap)HandledAssets.神射手 },
+            { "雷影剑士", (Bitmap)HandledAssets.雷影剑士 },
+            { "青岚骑士", (Bitmap)HandledAssets.青岚骑士 },
+            { "神盾骑士", (Bitmap)HandledAssets.神盾骑士 },
 
-            { "居合",  new Bitmap(new MemoryStream(Resources.雷影剑士)) },
-            { "月刃",  new Bitmap(new MemoryStream(Resources.雷影剑士)) },
+            { "射线",  (Bitmap)HandledAssets.冰魔导师 },
+            { "冰矛",  (Bitmap)HandledAssets.冰魔导师 },
 
-            { "鹰弓",  new Bitmap(new MemoryStream(Resources.神射手)) },
-            { "狼弓",  new Bitmap(new MemoryStream(Resources.神射手)) },
+            { "协奏",  (Bitmap)HandledAssets.灵魂乐手 },
+            { "狂音",  (Bitmap)HandledAssets.灵魂乐手 },
 
-            { "空枪",  new Bitmap(new MemoryStream(Resources.青岚骑士)) },
-            { "重装",  new Bitmap(new MemoryStream(Resources.青岚骑士)) },
+            { "居合",  (Bitmap)HandledAssets.雷影剑士 },
+            { "月刃",  (Bitmap)HandledAssets.雷影剑士 },
 
-            { "防盾",  new Bitmap(new MemoryStream(Resources.神盾骑士)) },
-            { "光盾",  new Bitmap(new MemoryStream(Resources.神盾骑士)) },
+            { "鹰弓",  (Bitmap)HandledAssets.神射手 },
+            { "狼弓",  (Bitmap)HandledAssets.神射手 },
 
-            { "岩盾",  new Bitmap(new MemoryStream(Resources.巨刃守护者)) },
-            { "格挡",  new Bitmap(new MemoryStream(Resources.巨刃守护者)) },
+            { "空枪",  (Bitmap)HandledAssets.青岚骑士 },
+            { "重装",  (Bitmap)HandledAssets.青岚骑士 },
 
-            { "愈合",  new Bitmap(new MemoryStream(Resources.森语者)) },
-            { "惩戒",  new Bitmap(new MemoryStream(Resources.森语者)) },
+            { "防盾",  (Bitmap)HandledAssets.神盾骑士 },
+            { "光盾",  (Bitmap)HandledAssets.神盾骑士 },
 
+            { "岩盾",  (Bitmap)HandledAssets.巨刃守护者 },
+            { "格挡",  (Bitmap)HandledAssets.巨刃守护者 },
+
+            { "愈合",  (Bitmap)HandledAssets.森语者 },
+            { "惩戒",  (Bitmap)HandledAssets.森语者 },
 
         };
 

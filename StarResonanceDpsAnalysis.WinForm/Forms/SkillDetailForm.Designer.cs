@@ -107,7 +107,7 @@
             // 
             table_DpsDetailDataTable.BackgroundImageLayout = ImageLayout.Zoom;
             table_DpsDetailDataTable.Dock = DockStyle.Fill;
-            table_DpsDetailDataTable.EmptyImage = Properties.Resources.cancel_hover;
+            table_DpsDetailDataTable.EmptyImage = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Hover;
             table_DpsDetailDataTable.FixedHeader = false;
             table_DpsDetailDataTable.Font = new Font("HarmonyOS Sans SC", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             table_DpsDetailDataTable.Gap = 8;
@@ -691,8 +691,8 @@
             // 
             button2.Anchor = AnchorStyles.Bottom;
             button2.Ghost = true;
-            button2.Icon = Properties.Resources.cancel_normal;
-            button2.IconHover = Properties.Resources.cancel_hover;
+            button2.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Normal;
+            button2.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Hover;
             button2.IconPosition = AntdUI.TAlignMini.None;
             button2.IconRatio = 1.5F;
             button2.Location = new Point(962, 12);
@@ -705,8 +705,8 @@
             // 
             button1.Anchor = AnchorStyles.Bottom;
             button1.Ghost = true;
-            button1.Icon = Properties.Resources.flushed_normal;
-            button1.IconHover = Properties.Resources.flushed_hover;
+            button1.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Flushed_Normal;
+            button1.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Flushed_Hover;
             button1.IconPosition = AntdUI.TAlignMini.None;
             button1.IconRatio = 1.5F;
             button1.Location = new Point(745, 12);

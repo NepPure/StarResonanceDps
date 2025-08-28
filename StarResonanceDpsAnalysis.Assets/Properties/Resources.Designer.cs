@@ -39,7 +39,7 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("StarResonanceDpsAnalysis.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("StarResonanceDpsAnalysis.Assets.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -81,22 +81,22 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap cancel_hover {
+        internal static byte[] cancel_hover {
             get {
                 object obj = ResourceManager.GetObject("cancel_hover", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap cancel_normal {
+        internal static byte[] cancel_normal {
             get {
                 object obj = ResourceManager.GetObject("cancel_normal", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
@@ -128,42 +128,42 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap flushed_hover {
+        internal static byte[] flushed_hover {
             get {
                 object obj = ResourceManager.GetObject("flushed_hover", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap flushed_normal {
+        internal static byte[] flushed_normal {
             get {
                 object obj = ResourceManager.GetObject("flushed_normal", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap handoff_hover {
+        internal static byte[] handoff_hover {
             get {
                 object obj = ResourceManager.GetObject("handoff_hover", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap handoff_normal {
+        internal static byte[] handoff_normal {
             get {
                 object obj = ResourceManager.GetObject("handoff_normal", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
@@ -216,32 +216,32 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap left_hover {
+        internal static byte[] left_hover {
             get {
                 object obj = ResourceManager.GetObject("left_hover", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap left_normal {
+        internal static byte[] left_normal {
             get {
                 object obj = ResourceManager.GetObject("left_normal", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap minimize_normal {
+        internal static byte[] minimize_normal {
             get {
                 object obj = ResourceManager.GetObject("minimize_normal", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
@@ -275,22 +275,22 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap ok_hover {
+        internal static byte[] ok_hover {
             get {
                 object obj = ResourceManager.GetObject("ok_hover", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap ok_normal {
+        internal static byte[] ok_normal {
             get {
                 object obj = ResourceManager.GetObject("ok_normal", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
@@ -313,22 +313,22 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap right_hover {
+        internal static byte[] right_hover {
             get {
                 object obj = ResourceManager.GetObject("right_hover", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap right_normal {
+        internal static byte[] right_normal {
             get {
                 object obj = ResourceManager.GetObject("right_normal", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
@@ -352,22 +352,22 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap setting_hover {
+        internal static byte[] setting_hover {
             get {
                 object obj = ResourceManager.GetObject("setting_hover", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap setting_normal {
+        internal static byte[] setting_normal {
             get {
                 object obj = ResourceManager.GetObject("setting_normal", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
@@ -381,22 +381,22 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap top_hover {
+        internal static byte[] top_hover {
             get {
                 object obj = ResourceManager.GetObject("top_hover", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
         /// <summary>
-        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static System.Drawing.Bitmap top_normal {
+        internal static byte[] top_normal {
             get {
                 object obj = ResourceManager.GetObject("top_normal", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                return ((byte[])(obj));
             }
         }
         
@@ -442,9 +442,9 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] 冰魔导师10 {
+        internal static byte[] 冰魔导师_Opacity10 {
             get {
-                object obj = ResourceManager.GetObject("冰魔导师10", resourceCulture);
+                object obj = ResourceManager.GetObject("冰魔导师_Opacity10", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -462,9 +462,9 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] 巨刃守护者10 {
+        internal static byte[] 巨刃守护者_Opacity10 {
             get {
-                object obj = ResourceManager.GetObject("巨刃守护者10", resourceCulture);
+                object obj = ResourceManager.GetObject("巨刃守护者_Opacity10", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -502,9 +502,9 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] 森语者10 {
+        internal static byte[] 森语者_Opacity10 {
             get {
-                object obj = ResourceManager.GetObject("森语者10", resourceCulture);
+                object obj = ResourceManager.GetObject("森语者_Opacity10", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -542,9 +542,9 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] 灵魂乐手10 {
+        internal static byte[] 灵魂乐手_Opacity10 {
             get {
-                object obj = ResourceManager.GetObject("灵魂乐手10", resourceCulture);
+                object obj = ResourceManager.GetObject("灵魂乐手_Opacity10", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -582,9 +582,9 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] 神射手10 {
+        internal static byte[] 神射手_Opacity10 {
             get {
-                object obj = ResourceManager.GetObject("神射手10", resourceCulture);
+                object obj = ResourceManager.GetObject("神射手_Opacity10", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -602,9 +602,9 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] 神盾骑士10 {
+        internal static byte[] 神盾骑士_Opacity10 {
             get {
-                object obj = ResourceManager.GetObject("神盾骑士10", resourceCulture);
+                object obj = ResourceManager.GetObject("神盾骑士_Opacity10", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -622,9 +622,9 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] 雷影剑士10 {
+        internal static byte[] 雷影剑士_Opacity10 {
             get {
-                object obj = ResourceManager.GetObject("雷影剑士10", resourceCulture);
+                object obj = ResourceManager.GetObject("雷影剑士_Opacity10", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -642,9 +642,9 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
-        internal static byte[] 青岚骑士10 {
+        internal static byte[] 青岚骑士_Opacity10 {
             get {
-                object obj = ResourceManager.GetObject("青岚骑士10", resourceCulture);
+                object obj = ResourceManager.GetObject("青岚骑士_Opacity10", resourceCulture);
                 return ((byte[])(obj));
             }
         }

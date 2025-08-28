@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>..\StarResonanceDpsAnalysis.Assets\ApplicationIcon.ico</ApplicationIcon>
+    <ApplicationIcon>..\StarResonanceDpsAnalysis.Assets\Images\ApplicationIcon.ico</ApplicationIcon>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <Version>2.0.4</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -35,18 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <ProjectReference Include="..\StarResonanceDpsAnalysis.Assets\StarResonanceDpsAnalysis.Assets.csproj" />
   </ItemGroup>
   <ItemGroup>
     <!-- 把任意 *.Function.cs 的文件类型识别改回正常的代码文件 -->

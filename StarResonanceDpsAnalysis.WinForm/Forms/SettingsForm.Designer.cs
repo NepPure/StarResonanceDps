@@ -517,8 +517,8 @@
             // 
             button4.Anchor = AnchorStyles.Bottom;
             button4.Ghost = true;
-            button4.Icon = Properties.Resources.cancel_normal;
-            button4.IconHover = Properties.Resources.cancel_hover;
+            button4.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Normal;
+            button4.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Hover;
             button4.IconPosition = AntdUI.TAlignMini.None;
             button4.IconRatio = 1.3F;
             button4.Location = new Point(534, 20);
@@ -531,8 +531,8 @@
             // 
             SaveButton.Anchor = AnchorStyles.Bottom;
             SaveButton.Ghost = true;
-            SaveButton.Icon = Properties.Resources.ok_normal;
-            SaveButton.IconHover = Properties.Resources.ok_hover;
+            SaveButton.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Ok_Normal;
+            SaveButton.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Ok_Hover;
             SaveButton.IconPosition = AntdUI.TAlignMini.None;
             SaveButton.IconRatio = 1.3F;
             SaveButton.Location = new Point(371, 20);

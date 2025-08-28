@@ -1,10 +1,9 @@
 ﻿using AntdUI;
-using StarResonanceDpsAnalysis.WinForm.Effects;
+using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.WinForm.Forms;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 using StarResonanceDpsAnalysis.WinForm.Plugin.Charts;
 using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.WinForm.Properties;
 
 using static StarResonanceDpsAnalysis.WinForm.Forms.DpsStatisticsForm;
 
@@ -41,10 +40,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
             label1.Font = AppConfig.HeaderFont;
             label2.Font = label3.Font = label4.Font = AppConfig.ContentFont;
 
-            var harmonyOsSansFont_Size11 = HandledResources.GetHarmonyOS_SansFont(11);
+            var harmonyOsSansFont_Size11 = HandledAssets.HarmonyOS_Sans(11);
             label3.Font = label9.Font = harmonyOsSansFont_Size11;
 
-            var harmonyOsSansFont_Size12 = HandledResources.GetHarmonyOS_SansFont(12);
+            var harmonyOsSansFont_Size12 = HandledAssets.HarmonyOS_Sans(12);
             NickNameText.Font = harmonyOsSansFont_Size12;
 
             var digitalFontsControls = new List<System.Windows.Forms.Control>()
@@ -364,30 +363,28 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
             UpdateCritLuckyChart();
         }
 
+        private static readonly Dictionary<string, Image> _professionImages = new()
+        {
+            { "冰魔导师", HandledAssets.冰魔导师_Opacity10 },
+            { "巨刃守护者", HandledAssets.巨刃守护者_Opacity10 },
+            { "森语者", HandledAssets.森语者_Opacity10 },
+            { "灵魂乐手", HandledAssets.灵魂乐手_Opacity10 },
+            { "神射手", HandledAssets.神射手_Opacity10 },
+            { "神盾骑士", HandledAssets.神盾骑士_Opacity10 },
+            { "雷影剑士", HandledAssets.雷影剑士_Opacity10 },
+            { "青岚骑士", HandledAssets.青岚骑士_Opacity10 },
+        };
+
         public void GetPlayerInfo(string nickname, int power, string profession)
         {
             NickNameText.Text = nickname;
             PowerText.Text = power.ToString();
             UidText.Text = Uid.ToString();
-            LevelLabel.Text = StatisticData._manager.GetAttrKV(Uid, "level")?.ToString()?? "";
-            Rank_levelLabel.Text = StatisticData._manager.GetAttrKV(Uid, "rank_level")?.ToString()??"";
-           
+            LevelLabel.Text = StatisticData._manager.GetAttrKV(Uid, "level")?.ToString() ?? "";
+            Rank_levelLabel.Text = StatisticData._manager.GetAttrKV(Uid, "rank_level")?.ToString() ?? "";
 
-            object? resourceObj = Properties.Resources.ResourceManager.GetObject(profession + "10");
-
-            if (resourceObj is byte[] bytes)
-            {
-                using var ms = new MemoryStream(bytes);
-                table_DpsDetailDataTable.BackgroundImage = Image.FromStream(ms);
-            }
-            else if (resourceObj is Image img)
-            {
-                table_DpsDetailDataTable.BackgroundImage = img;
-            }
-            else
-            {
-                table_DpsDetailDataTable.BackgroundImage = null; // 默认空白
-            }
+            var flag = _professionImages.TryGetValue(profession, out var img);
+            table_DpsDetailDataTable.BackgroundImage = flag ? img : null;
 
             if (_dpsTrendChart != null)
             {

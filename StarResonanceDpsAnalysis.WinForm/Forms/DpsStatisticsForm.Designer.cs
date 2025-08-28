@@ -133,8 +133,8 @@
             // 
             button3.Dock = DockStyle.Left;
             button3.Ghost = true;
-            button3.Icon = Properties.Resources.handoff_normal;
-            button3.IconHover = Properties.Resources.handoff_hover;
+            button3.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Handoff_Normal;
+            button3.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Handoff_Hover;
             button3.IconRatio = 0.8F;
             button3.Location = new Point(256, 0);
             button3.Margin = new Padding(4);
@@ -184,7 +184,7 @@
             button_Settings.DefaultBack = Color.Transparent;
             button_Settings.Dock = DockStyle.Right;
             button_Settings.Ghost = true;
-            button_Settings.Icon = Properties.Resources.setting_hover;
+            button_Settings.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Setting_Hover;
             button_Settings.IconRatio = 1F;
             button_Settings.IconSvg = "";
             button_Settings.Location = new Point(600, 0);

@@ -85,8 +85,8 @@
             // 
             DialogResultCancel.Anchor = AnchorStyles.Bottom;
             DialogResultCancel.Ghost = true;
-            DialogResultCancel.Icon = Properties.Resources.cancel_normal;
-            DialogResultCancel.IconHover = Properties.Resources.cancel_hover;
+            DialogResultCancel.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Normal;
+            DialogResultCancel.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Hover;
             DialogResultCancel.IconPosition = AntdUI.TAlignMini.None;
             DialogResultCancel.IconRatio = 1.7F;
             DialogResultCancel.Location = new Point(387, 33);
@@ -99,8 +99,8 @@
             // 
             DialogResultOK.Anchor = AnchorStyles.Bottom;
             DialogResultOK.Ghost = true;
-            DialogResultOK.Icon = Properties.Resources.ok_normal;
-            DialogResultOK.IconHover = Properties.Resources.ok_hover;
+            DialogResultOK.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Ok_Normal;
+            DialogResultOK.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Ok_Hover;
             DialogResultOK.IconPosition = AntdUI.TAlignMini.None;
             DialogResultOK.IconRatio = 1.7F;
             DialogResultOK.Location = new Point(129, 33);

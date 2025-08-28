@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using AntdUI;
+using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Effects;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.WinForm.Properties;
 
 using static StarResonanceDpsAnalysis.WinForm.Control.SkillDetailForm;
 using static System.ComponentModel.Design.ObjectSelectorEditor;
@@ -31,7 +31,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             label1.Font = AppConfig.TitleFont;
             select2.Font = select1.Font = segmented1.Font = AppConfig.ContentFont;
-            var harmonyOsSansFont_Size11 = HandledResources.GetHarmonyOS_SansFont(11);
+            var harmonyOsSansFont_Size11 = HandledAssets.HarmonyOS_Sans(11);
             label6.Font = harmonyOsSansFont_Size11;
             label3.Font = label2.Font = label5.Font = AppConfig.ContentFont;
 

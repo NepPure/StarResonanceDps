@@ -8,12 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
-using StarResonanceDpsAnalysis.WinForm.Effects;
 using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
 using StarResonanceDpsAnalysis.WinForm.Extends;
-using StarResonanceDpsAnalysis.WinForm.Properties;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
@@ -21,15 +20,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
     {
         int id = 0;
         List<ProgressBarData> data = [];
-        List<byte[]> images =
+        List<Image> images =
         [
-            Resources.冰魔导师,
-            Resources.巨刃守护者,
-            Resources.森语者,
-            Resources.灵魂乐手,
-            Resources.神射手,
-            Resources.雷影剑士,
-            Resources.青岚骑士
+            HandledAssets.冰魔导师,
+            HandledAssets.巨刃守护者,
+            HandledAssets.森语者,
+            HandledAssets.灵魂乐手,
+            HandledAssets.神射手,
+            HandledAssets.雷影剑士,
+            HandledAssets.青岚骑士
         ];
         Random rd = new();
 
@@ -46,8 +45,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             sortedProgressBarList1.OrderFont = new Font("平方韶华体", 24f, FontStyle.Bold, GraphicsUnit.Pixel);
             sortedProgressBarList1.OrderImages =
             [
-                new Bitmap(new MemoryStream(Resources.皇冠)),
-                new Bitmap(new MemoryStream(Resources.皇冠白))
+                HandledAssets.皇冠,
+                HandledAssets.皇冠白
             ];
             sortedProgressBarList1.OrderImageOffset = new RenderContent.ContentOffset { X = 10, Y = 0 };
             //sortedProgressBarList1.OrderImageRenderSize = new Size(32, 32);
@@ -76,7 +75,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                                 Type = RenderContent.ContentType.Image,
                                 Align = RenderContent.ContentAlign.MiddleLeft,
                                 Offset = new RenderContent.ContentOffset { X = 48, Y = 0 },
-                                Image = new Bitmap(new MemoryStream(images[rd.Next(images.Count)])),
+                                Image = images[rd.Next(images.Count)],
                                 ImageRenderSize = new Size(32, 32)
                             },
                             new RenderContent

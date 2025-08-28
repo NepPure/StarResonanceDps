@@ -5,13 +5,12 @@ using System.Threading.Tasks; // 引用异步任务支持（Task/async/await）
 using System.Windows.Forms;
 
 using AntdUI; // 引用 AntdUI 组件库（第三方 UI 控件/样式）
+using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.WinForm.Control; // 引用项目内的 UI 控制/辅助类命名空间
-using StarResonanceDpsAnalysis.WinForm.Effects;
 using StarResonanceDpsAnalysis.WinForm.Forms.PopUp; // 引用弹窗相关窗体/组件命名空间
 using StarResonanceDpsAnalysis.WinForm.Plugin; // 引用项目插件层通用命名空间
 using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics; // 引用伤害统计插件命名空间（含 FullRecord、StatisticData 等）
 using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction; // 引用启动相关功能（加载技能配置等）
-using StarResonanceDpsAnalysis.WinForm.Properties; // 引用资源（图标/本地化字符串等）
 using StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm;
 
 using static StarResonanceDpsAnalysis.WinForm.Control.SkillDetailForm;
@@ -250,18 +249,18 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
              { // 数组开始
                     new ContextMenuStripItem("历史战斗") // 一级菜单：历史战斗
                     { // 配置开始
-                        IconSvg = Resources.historicalRecords, // 图标
+                        IconSvg = HandledAssets.HistoricalRecords, // 图标
                     }, // 一级菜单配置结束
-                    new ContextMenuStripItem("基础设置"){ IconSvg = Resources.set_up}, // 一级菜单：基础设置
-                    new ContextMenuStripItem("主窗体"){ IconSvg = Resources.HomeIcon, }, // 一级菜单：主窗体
-                    new ContextMenuStripItem("模组配置"){ IconSvg= Resources.moduleIcon }, // 一级菜单：数据显示设置
+                    new ContextMenuStripItem("基础设置"){ IconSvg = HandledAssets.Set_Up }, // 一级菜单：基础设置
+                    new ContextMenuStripItem("主窗体"){ IconSvg = HandledAssets.HomeIcon }, // 一级菜单：主窗体
+                    new ContextMenuStripItem("模组配置"){ IconSvg= HandledAssets.ModuleIcon }, // 一级菜单：数据显示设置
                     //new ContextMenuStripItem("技能循环监测"), // 一级菜单：技能循环监测
                     //new ContextMenuStripItem(""){ IconSvg = Resources.userUid, }, // 示例：用户 UID（暂不用）
-                    new ContextMenuStripItem("死亡统计"){ IconSvg = Resources.exclude, }, // 一级菜单：统计排除
-                    new ContextMenuStripItem("技能日记"){ IconSvg = Resources.diaryIcon, },
-                    new ContextMenuStripItem("伤害参考"){ IconSvg = Resources.reference, },
-                    new ContextMenuStripItem("打桩模式"){ IconSvg = Resources.Stakes }, // 一级菜单：打桩模式
-                    new ContextMenuStripItem("退出"){ IconSvg = Resources.quit, }, // 一级菜单：退出
+                    new ContextMenuStripItem("死亡统计"){ IconSvg = HandledAssets.Exclude, }, // 一级菜单：统计排除
+                    new ContextMenuStripItem("技能日记"){ IconSvg = HandledAssets.DiaryIcon, },
+                    new ContextMenuStripItem("伤害参考"){ IconSvg = HandledAssets.Reference, },
+                    new ContextMenuStripItem("打桩模式"){ IconSvg = HandledAssets.Stakes }, // 一级菜单：打桩模式
+                    new ContextMenuStripItem("退出"){ IconSvg = HandledAssets.Quit, }, // 一级菜单：退出
              } // 数组结束
             ; // 语句结束（分号保持）
 
@@ -479,10 +478,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
                 panel1.Back = ColorTranslator.FromHtml("#F5F5F5");
                 panel2.Back = ColorTranslator.FromHtml("#F5F5F5");
 
-                TotalDamageButton.Icon = Common.BytesToImage(Properties.Resources.伤害);
-                TotalTreatmentButton.Icon = Common.BytesToImage(Properties.Resources.治疗);
-                AlwaysInjuredButton.Icon = Common.BytesToImage(Properties.Resources.承伤);
-                NpcTakeDamageButton.Icon = Common.BytesToImage(Properties.Resources.Npc);
+                TotalDamageButton.Icon = HandledAssets.伤害;
+                TotalTreatmentButton.Icon = HandledAssets.治疗;
+                AlwaysInjuredButton.Icon = HandledAssets.承伤;
+                NpcTakeDamageButton.Icon = HandledAssets.Npc;
                 Color colorWhite = Color.FromArgb(223, 223, 223);
                 foreach (var item in buttonList)
                 {
@@ -515,10 +514,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
 
                 AppConfig.colorText = Color.White;
                 sortedProgressBarList1.OrderColor = Color.White;
-                TotalDamageButton.Icon = Common.BytesToImage(Properties.Resources.伤害白色);
-                TotalTreatmentButton.Icon = Common.BytesToImage(Properties.Resources.治疗白色);
-                AlwaysInjuredButton.Icon = Common.BytesToImage(Properties.Resources.承伤白色);
-                NpcTakeDamageButton.Icon = Common.BytesToImage(Properties.Resources.NpcWhite);
+                TotalDamageButton.Icon = HandledAssets.伤害白色;
+                TotalTreatmentButton.Icon = HandledAssets.治疗白色;
+                AlwaysInjuredButton.Icon = HandledAssets.承伤白色;
+                NpcTakeDamageButton.Icon = HandledAssets.NpcWhite;
                 Color colorBack = Color.FromArgb(60, 60, 60);
                 foreach (var item in buttonList)
                 {
