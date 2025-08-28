@@ -14,7 +14,6 @@ namespace StarResonanceDpsAnalysis.Assets
         private static readonly PrivateFontCollection _pfc = new();
         private static readonly Dictionary<string, FontFamily> _fontFamilyCache = [];
         private static readonly Dictionary<(FontFamily, float, FontStyle), Font> _fontCache = [];
-        private static string[] _prevFontFamilyNames = [];
 
         public static Font LoadFontFromBytesAndCache(string fontName, byte[] bytes, float fontSize, FontStyle fontStyle = FontStyle.Regular)
         {
@@ -23,7 +22,7 @@ namespace StarResonanceDpsAnalysis.Assets
                 // var ffFlag = _fontFamilyCache.TryGetValue(fontName, out var fontFamily);
                 if (!_fontFamilyCache.TryGetValue(fontName, out var fontFamily))
                 {
-                    fontFamily = LoadFontFamilyFromBytes(bytes);
+                    fontFamily = LoadFontFamilyFromBytes(bytes, fontName);
                     _fontFamilyCache[fontName] = fontFamily;
                 }
 
@@ -46,7 +45,7 @@ namespace StarResonanceDpsAnalysis.Assets
             }
         }
 
-        private static FontFamily LoadFontFamilyFromBytes(byte[] bytes)
+        private static FontFamily LoadFontFamilyFromBytes(byte[] bytes, string fontName)
         {
             var fontPtr = Marshal.AllocCoTaskMem(bytes.Length);
             Marshal.Copy(bytes, 0, fontPtr, bytes.Length);
@@ -55,19 +54,18 @@ namespace StarResonanceDpsAnalysis.Assets
             {
                 _pfc.AddMemoryFont(fontPtr, bytes.Length);
 
-                for (var i = 0; i < _prevFontFamilyNames.Length; ++i)
+                for (var i = 0; i < _pfc.Families.Length; ++i)
                 {
-                    if (_prevFontFamilyNames[i] != _pfc.Families[i].Name)
+                    if (_pfc.Families[i].Name == fontName)
                     {
                         return _pfc.Families[i];
                     }
                 }
 
-                return _pfc.Families.Length > _prevFontFamilyNames.Length ? _pfc.Families[^1] : FontFamily.GenericSansSerif;
+                return FontFamily.GenericSansSerif;
             }
             finally
             {
-                _prevFontFamilyNames = [.. _pfc.Families.Select(e => e.Name)];
                 Marshal.FreeCoTaskMem(fontPtr);
             }
         }

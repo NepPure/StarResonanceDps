@@ -114,14 +114,14 @@ namespace StarResonanceDpsAnalysis.Assets
         #endregion
 
         #region HarmonyOS_Sans
-        private const string HARMONY_OS_SANS_FONT_KEY = "HarmonyOS Sans";
+        private const string HARMONY_OS_SANS_FONT_KEY = "HarmonyOS Sans SC";
         public static Font HarmonyOS_Sans(float fontSize = 9, FontStyle fontStyle = FontStyle.Regular)
             => FontLoader.LoadFontFromBytesAndCache(HARMONY_OS_SANS_FONT_KEY, Resources.HarmonyOS_Sans, fontSize, fontStyle);
         #endregion
 
         #region HarmonyOS_Sans_SC_Bold
-        private const string HARMONU_OS_SANS_SC_BOLD_FONT_KEY = "HarmonyOS Sans SC Bold";
-        public static Font HarmonyOS_Sans_Bold(float fontSize = 9, FontStyle fontStyle = FontStyle.Regular)
+        private const string HARMONU_OS_SANS_SC_BOLD_FONT_KEY = "HarmonyOS Sans SC";
+        public static Font HarmonyOS_Sans_Bold(float fontSize = 9, FontStyle fontStyle = FontStyle.Bold)
             => FontLoader.LoadFontFromBytesAndCache(HARMONU_OS_SANS_SC_BOLD_FONT_KEY, Resources.HarmonyOS_Sans_SC_Bold, fontSize, fontStyle);
         #endregion
 
