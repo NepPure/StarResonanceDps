@@ -12,7 +12,6 @@ using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
-using StarResonanceDpsAnalysis.WinForm.Extends;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
@@ -187,7 +186,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         }
         public static double GetScaling()
         {
-            Screen screen = Screen.PrimaryScreen;
+            var screen = Screen.PrimaryScreen;
+            if (screen == null) return 1;
+
             Rectangle workingArea = screen.WorkingArea;
             Rectangle bounds = screen.Bounds;
             double scale = (double)workingArea.Width / bounds.Width;

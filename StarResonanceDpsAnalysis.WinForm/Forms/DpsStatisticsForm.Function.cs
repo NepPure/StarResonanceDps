@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 using AntdUI;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Assets;
+using StarResonanceDpsAnalysis.Core.Analyze;
+using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 using StarResonanceDpsAnalysis.WinForm.Core;
 using StarResonanceDpsAnalysis.WinForm.Effects;
 using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
-using StarResonanceDpsAnalysis.WinForm.Extends;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
 using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction;
@@ -310,7 +311,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             sortedProgressBarList1.OrderImageRenderSize = new Size(22, 22);
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 32, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}.";
-            sortedProgressBarList1.OrderImages = [ HandledAssets.皇冠 ];
+            sortedProgressBarList1.OrderImages = [HandledAssets.皇冠];
 
 
             if (Config.IsLight)
@@ -343,7 +344,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// <summary>
         /// 实例化 SortedProgressBarList 控件
         /// </summary>
-        public static SortedProgressBarList SortedProgressBarStatic { get; private set; }
+        public static SortedProgressBarList? SortedProgressBarStatic { get; private set; }
 
         /// <summary>
         /// 用户战斗数据字典
@@ -427,7 +428,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         internal static Bitmap EmptyBitmap(int w = 1, int h = 1)
         {
             if (_emptyBitmapCache.TryGetValue((w, h), out var bm)) return bm;
-            
+
             bm = new Bitmap(w, h, PixelFormat.Format32bppArgb);
             using (var g = Graphics.FromImage(bm)) g.Clear(Color.Transparent);
             _emptyBitmapCache[(w, h)] = bm;
@@ -504,7 +505,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         private class NpcRow
         {
             public long NpcId;
-            public string Name;
+            public string? Name;
             public ulong TotalTaken;
             public double TakenPerSec;
         }
@@ -512,10 +513,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         private class NpcAttackerRow
         {
             public long Uid;
-            public string Nickname;
+            public string? Nickname;
             public int CombatPower;
-            public string Profession;
-            public string SubProfession;
+            public string? Profession;
+            public string? SubProfession;
             public ulong DamageToNpc;
             public double PlayerDps;   // 玩家全程DPS（信息项）
             public double NpcOnlyDps;  // 该玩家对这个NPC的专属DPS（进度条主要依据）
@@ -524,12 +525,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         private class UiRow
         {
             public long Uid;
-            public string Nickname;
+            public string? Nickname;
             public int CombatPower;
-            public string Profession;
+            public string? Profession;
             public ulong Total;
             public double PerSecond;
-            public string SubProfession;
+            public string? SubProfession;
         }
 
         public void RefreshDpsTable(SourceType source, MetricType metric)
@@ -587,6 +588,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 {
                     var p = ordered[i];
 
+                    if (p == null) continue;
+
 
                     float ratio = (float)(p.Total / top);
                     if (!float.IsFinite(ratio)) ratio = 0f;
@@ -595,16 +598,16 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     string totalFmt = Common.FormatWithEnglishUnits(p.Total);
                     string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
 
-                    var iconKey = (p?.Profession is string pr && pr != "未知" && imgDict.ContainsKey(pr)) ? pr
-                                : (p?.SubProfession is string sr && sr != "未知" && imgDict.ContainsKey(sr)) ? sr
+                    var iconKey = (p.Profession is string pr && pr != "未知" && imgDict.ContainsKey(pr)) ? pr
+                                : (p.SubProfession is string sr && sr != "未知" && imgDict.ContainsKey(sr)) ? sr
                                 : "未知";
 
                     var profBmp = imgDict.TryGetValue(iconKey, out var bmp) ? bmp : imgDict["未知"];
 
                     var colorMap = Config.IsLight ? colorDict : blackColorDict;
 
-                    var colorKey = (p?.Profession is string pr2 && pr2 != "未知" && colorMap.ContainsKey(pr2)) ? pr2
-                                 : (p?.SubProfession is string sr2 && sr2 != "未知" && colorMap.ContainsKey(sr2)) ? sr2
+                    var colorKey = (p.Profession is string pr2 && pr2 != "未知" && colorMap.ContainsKey(pr2)) ? pr2
+                                 : (p.SubProfession is string sr2 && sr2 != "未知" && colorMap.ContainsKey(sr2)) ? sr2
                                  : "未知";
 
                     var color = colorMap.TryGetValue(colorKey, out var c) ? c : ColorTranslator.FromHtml("#67AEF6");
@@ -613,10 +616,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     if (!DictList.TryGetValue(p.Uid, out var row))
                     {
                         row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarImage, Image = profBmp, ImageRenderSize = AppConfig.ProgressBarImageSize },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarNmae, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont},
+                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = AppConfig.ProgressBarImage, Image = profBmp, ImageRenderSize = AppConfig.ProgressBarImageSize },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = AppConfig.ProgressBarNmae, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont},
                             new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarHarm, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset =AppConfig.ProgressBarProportion,  ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
+                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarProportion,  ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
                         ];
                         DictList[p.Uid] = row;
                     }

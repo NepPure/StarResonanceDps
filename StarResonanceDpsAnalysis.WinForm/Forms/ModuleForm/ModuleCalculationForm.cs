@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using AntdUI;
+using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.WinForm.Core;
 using StarResonanceDpsAnalysis.WinForm.Core.Module;
 using StarResonanceDpsAnalysis.WinForm.Forms.PopUp;
@@ -90,16 +91,20 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (MessageAnalyzer.PayloadBuffer.Length == 0)
-            {
-                var result = AppMessageBox.ShowMessage("""
-                    请先过图一次在点此按钮
-                    """, this);
-                return;
-            }
+            // TODO: 重构逻辑
+
+            throw new NotImplementedException();
+
+            //if (MessageAnalyzer.PayloadBuffer.Length == 0)
+            //{
+            //    var result = AppMessageBox.ShowMessage("""
+            //        请先过图一次在点此按钮
+            //        """, this);
+            //    return;
+            //}
 
 
-            BuildEliteCandidatePool.ParseModuleInfo(MessageAnalyzer.PayloadBuffer);
+            //BuildEliteCandidatePool.ParseModuleInfo(MessageAnalyzer.PayloadBuffer);
 
 
 
@@ -241,22 +246,22 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm
 
         private void chkAttackSpeedFocus_CheckedChanged(object sender, BoolEventArgs e)
         {
-            Checkbox checkbox = (Checkbox)sender;
+            var checkbox = (Checkbox)sender;
             if (e.Value)
             {
 
-                BuildEliteCandidatePool.Attributes.Add(checkbox.Text);
+                BuildEliteCandidatePool.Attributes.Add(checkbox.Text ?? string.Empty);
             }
             else
             {
 
-                BuildEliteCandidatePool.Attributes.Remove(checkbox.Text);
+                BuildEliteCandidatePool.Attributes.Remove(checkbox.Text ?? string.Empty);
             }
         }
 
         private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
         {
-            BuildEliteCandidatePool.type = select1.SelectedValue.ToString();
+            BuildEliteCandidatePool.type = select1.SelectedValue?.ToString() ?? string.Empty;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -282,7 +287,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm
             }
 
         }
-        ModuleExcludeForm moduleExcludeForm = null;
+        ModuleExcludeForm? moduleExcludeForm = null;
         private void button2_Click(object sender, EventArgs e)
         {
 
@@ -300,13 +305,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm
             // 通用：5 个下拉都可指向这个事件，靠 Tag 区分第几行
             if (sender is Select combo)
             {
-                int rowIndex = 0;
-                if (combo.Tag != null) int.TryParse(combo.Tag.ToString(), out rowIndex);
+                var rowIndex = combo.Tag.ToInt();
 
                 string selectedAttr = combo.SelectedValue?.ToString() ?? string.Empty;
 
                 // 旧的该行词条（若存在，等会要从 Attributes/DesiredLevels 里移干净）
-                string old = null;
+                string? old = null;
                 if (BuildEliteCandidatePool.WhitelistPickByRow.TryGetValue(rowIndex, out var oldName))
                     old = oldName;
 
@@ -354,8 +358,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm
         {
             if (sender is InputNumber num)
             {
-                int rowIndex = 0;
-                if (num.Tag != null) int.TryParse(num.Tag.ToString(), out rowIndex);
+                int rowIndex = num.Tag.ToInt();
 
                 // 找这一行当前绑定的白名单属性
                 if (!BuildEliteCandidatePool.WhitelistPickByRow.TryGetValue(rowIndex, out var attrName)
@@ -380,10 +383,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm
             if (sender is AntdUI.Select combo)
             {
                 // 先清除旧的（避免重复/冲突）
-                BuildEliteCandidatePool.ExcludedAttributes.RemoveWhere(x => x == (string)combo.Tag);
+                BuildEliteCandidatePool.ExcludedAttributes.RemoveWhere(x => x == (string)(combo.Tag ?? string.Empty));
 
                 // 新选项
-                string selectedAttr = combo.SelectedValue?.ToString();
+                var selectedAttr = combo.SelectedValue?.ToString() ?? string.Empty;
 
                 if (!string.IsNullOrEmpty(selectedAttr))
                 {
@@ -494,12 +497,16 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm
 
                 // 5) 清空 UI：本行下拉和该行的期望等级数值框
                 combo.SelectedIndex = -1;
-                GetDesiredLevelControlByRow(row).Value = 0;
+                var inputNumber = GetDesiredLevelControlByRow(row);
+                if (inputNumber != null)
+                {
+                    inputNumber.Value = 0;
+                }
 
                 // （不改 combo.Tag，Tag 保持“行号”，方便继续用）
             }
         }
-        private AntdUI.InputNumber GetDesiredLevelControlByRow(int row)
+        private InputNumber? GetDesiredLevelControlByRow(int row)
         {
             return row switch
             {
@@ -512,7 +519,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm
             };
         }
 
-        private AntdUI.Select GetWhitelistSelectByRow(int row)
+        private Select? GetWhitelistSelectByRow(int row)
         {
             return row switch
             {

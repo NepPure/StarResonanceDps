@@ -394,13 +394,13 @@
         // # 分类 5：对外绑定的行结构（列表项定义）
         // ======================================================================
 
-                // # 用于对外绑定的行结构（可按需增删字段）
+        // # 用于对外绑定的行结构（可按需增删字段）
         public sealed record FullPlayerTotal(
                 ulong Uid,
                 string Nickname,
                 int CombatPower,
                 string Profession,
-                string SubProfession,
+                string? SubProfession,
                 ulong TotalDamage,
                 ulong TotalHealing,
                 ulong TakenDamage,
@@ -696,7 +696,7 @@
         public static void RecordDamage(
             ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
             string nickname, int combatPower, string profession,
-            string? damageElement = null, bool isCauseLucky = false,string subProfession=null // ★ 新增
+            string? damageElement = null, bool isCauseLucky = false, string? subProfession = null // ★ 新增
         )
         {
             if (!IsRecording || value == 0) return;
@@ -735,7 +735,7 @@
         public static void RecordHealing(
             ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky,
             string nickname, int combatPower, string profession,
-            string? damageElement = null, bool isCauseLucky = false, ulong targetUuid = 0,string subProfession=null // ★ 新增
+            string? damageElement = null, bool isCauseLucky = false, ulong targetUuid = 0, string? subProfession = null // ★ 新增
         )
 
         {
@@ -1312,7 +1312,7 @@
         /// <summary>
         /// 获取或创建玩家累计器，并同步基础信息（昵称/战力/职业以最近一次为准）。
         /// </summary>
-        private static PlayerAcc GetOrCreate(ulong uid, string nickname, int combatPower, string profession,string subProfession = null)
+        private static PlayerAcc GetOrCreate(ulong uid, string nickname, int combatPower, string profession, string? subProfession = null)
         {
             if (!_players.TryGetValue(uid, out var p))
             {
@@ -1323,12 +1323,12 @@
             p.Nickname = nickname;
             p.CombatPower = combatPower;
             p.Profession = profession;
-            if(subProfession!=null)
+            if (subProfession != null)
             {
                 p.SubProfession = subProfession;
 
             }
-          
+
             return p;
         }
 
@@ -1451,7 +1451,7 @@
             public Dictionary<ulong, Dictionary<string, StatAcc>> DamageSkillsByElement { get; } = new();
             public Dictionary<ulong, Dictionary<ulong, StatAcc>> HealingSkillsByTarget { get; } = new();
 
-         
+
         }
 
         /// <summary>

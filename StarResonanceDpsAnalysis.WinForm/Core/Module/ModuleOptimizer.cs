@@ -111,7 +111,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core.Module
 
         // ====== 参数/状态 ======
         private readonly Random _rand = new();
-        private string _resultLogFile = null;
+        private string? _resultLogFile = null;
 
         public int LocalSearchIterations { get; set; } = 30;
         public int MaxSolutions { get; set; } = 60;
@@ -138,7 +138,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core.Module
             ISet<int> specialAttrIds,
             IReadOnlyDictionary<string, string> attrNameTypeMap,
             IEnumerable<string>? priorityAttrNames = null,
-            string resultLogFile = null
+            string? resultLogFile = null
         )
         {
             _moduleCategoryMap = moduleCategoryMap;

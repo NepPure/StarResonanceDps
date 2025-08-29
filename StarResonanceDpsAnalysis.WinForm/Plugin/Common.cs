@@ -38,7 +38,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
 
                 44701 or 179906 => "月刃",
 
-                220112 or 2203622 or 220106  => "鹰弓",
+                220112 or 2203622 or 220106 => "鹰弓",
 
                 2292 or 1700820 or 1700825 or 1700827 => "狼弓",
 
@@ -106,7 +106,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             2052 => "山贼头目战斧",
             15159 => "凶猛金牙",
             1 => "(首领)凶猛金牙",
-            148 => "铁牙", 
+            148 => "铁牙",
             146 => "(幻妖蟹蛛)飓风哥布林王",// 注意：146 同时对应 "飓风哥布林王" 和 "幻妖蟹蛛"
             40 => "哥布林王",
             19 => "姆克王",
@@ -419,7 +419,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// <param name="queryParams">请求参数</param>
         /// <param name="cookies">请求cookies</param>
         /// <returns></returns>
-        public async static Task<JObject> RequestGet(string url, object queryParams = null, string cookies = "", object headers = null)
+        public async static Task<JObject> RequestGet(string url, object? queryParams = null, string cookies = "", object? headers = null)
         {
             JObject data;
 
@@ -454,7 +454,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// <param name="queryParams">请求参数</param>
         /// <param name="cookies">请求cookies</param>
         /// <returns></returns>
-        public async static Task<JObject> RequestPost(string url, object queryParams, string cookies = "", object headers = null)
+        public async static Task<JObject> RequestPost(string url, object queryParams, string cookies = "", object? headers = null)
         {
             JObject data;
 
@@ -532,7 +532,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// <returns></returns>
         public static string FormatWithEnglishUnits<T>(T number)
         {
-            if(AppConfig.DamageDisplayType== "KMB显示")
+            if (AppConfig.DamageDisplayType == "KMB显示")
             {
                 double value = Convert.ToDouble(number);
 
@@ -545,9 +545,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             }
             else
             {
-              return  FormatWithWanOnly(number);
+                return FormatWithWanOnly(number);
             }
-         
+
         }
 
         public static string FormatWithWanOnly<T>(T number, int maxDecimals = 2)
@@ -584,7 +584,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             string nickName = sp.Nickname;
             string professional = sp.Profession;
             int combatPower = sp.CombatPower;
-            string subProfession = sp.SubProfession;
+            var subProfession = sp.SubProfession;
             // 3) 伤害/治疗汇总（快照）
             ulong totalDamage = sp.TotalDamage;
 
@@ -592,9 +592,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             var runtime = StatisticData._manager.GetOrCreate(AppConfig.Uid);
 
             double instantDps = sp.TotalDps;
-           
+
             int critRate = sp.CritRate > 0 ? (int)sp.CritRate : (int)runtime.DamageStats.GetCritRate();
-            int luckyRate = sp.LuckyRate > 0 ? (int)sp.LuckyRate: (int)runtime.DamageStats.GetLuckyRate();
+            int luckyRate = sp.LuckyRate > 0 ? (int)sp.LuckyRate : (int)runtime.DamageStats.GetLuckyRate();
 
             double criticalDamage = sp.CriticalDamage > 0 ? sp.CriticalDamage : runtime.DamageStats.Critical;
             double luckyDamage = sp.LuckyDamage > 0 ? sp.LuckyDamage : runtime.DamageStats.Lucky;
@@ -608,11 +608,11 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
                 ? snapshot.Duration.ToString(@"hh\:mm\:ss")
                 : snapshot.Duration.ToString(@"mm\:ss");
 
-    
+
 
             // 7) 技能列表（快照里的伤害技能汇总）
             List<SkillSummary> kill = sp.DamageSkills ?? new List<SkillSummary>();
-           
+
             // 8) 组装并上报
             string url = @$"{AppConfig.url}/add_user_dps";
             var body = new
@@ -630,19 +630,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
                 critLuckyDamage,
                 maxInstantDps,
                 battleTime = duration,
-                battleId= AppConfig.Uid,
+                battleId = AppConfig.Uid,
                 kill,
-                subProfession= subProfession
+                subProfession
             };
 
-            var resp = await Common.RequestPost(url, body);
-            if (resp["code"].ToString()=="200")
-            {
-                return true;
-            }
+            var resp = await RequestPost(url, body);
+            var code = resp["code"];
 
-            // 9) 将返回值稳妥转为 JObject
-            return false;
+            return code != null && code.ToString() == "200";
         }
 
 

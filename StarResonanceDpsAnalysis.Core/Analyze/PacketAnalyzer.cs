@@ -4,10 +4,9 @@ using System.Runtime.CompilerServices;
 
 using PacketDotNet;
 using SharpPcap;
-using StarResonanceDpsAnalysis.WinForm.Extends;
-using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
+using StarResonanceDpsAnalysis.Core.Extends.System;
 
-namespace StarResonanceDpsAnalysis.WinForm.Core
+namespace StarResonanceDpsAnalysis.Core.Analyze
 {
     public class PacketAnalyzer()
     {
@@ -236,7 +235,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Core
                                         CurrentServer = srcServer;
                                         ClearTcpCache();
                                         TcpNextSeq = tcpPacket.SequenceNumber + (uint)payload.Length;
-                                        FullRecord.Reset();//全程统计数据清空
+                                        // TODO: Reset 全程统计数据
+                                        // FullRecord.Reset();//全程统计数据清空
                                         Console.WriteLine($"Got Scene Server Address by Login Return Packet: {srcServer}");
                                     }
                                 }

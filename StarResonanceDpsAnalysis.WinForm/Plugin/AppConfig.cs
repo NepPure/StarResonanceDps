@@ -4,9 +4,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 using StarResonanceDpsAnalysis.Assets;
+using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 using StarResonanceDpsAnalysis.WinForm.Core;
-using StarResonanceDpsAnalysis.WinForm.Extends;
 
 namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {
@@ -224,7 +224,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
 
         // 清空历史数据的快捷键，null 表示未设置
         private static Keys? _clearHistoryKey = null;
-        private static string _damageDisplayType = null;
+        private static string? _damageDisplayType = null;
 
         /// <summary>
         /// DPS伤害类型显示

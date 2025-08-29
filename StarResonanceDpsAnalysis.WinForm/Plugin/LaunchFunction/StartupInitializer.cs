@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using SharpPcap;
+using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.WinForm.Core;
 using StarResonanceDpsAnalysis.WinForm.Core.TabelJson;
-using StarResonanceDpsAnalysis.WinForm.Extends;
 using StarResonanceDpsAnalysis.WinForm.Forms;
 using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
 
@@ -101,28 +101,29 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction
         /// </summary>
         private static  void UpdateNetworkCardSettingTip()
         {
-            try
-            {
-                // 检查网卡是否已经正确设置
-                bool isNetworkCardSet = false;
+            //// TODO: 这里好像也没做什么特殊操作啊?
+            //try
+            //{
+            //    // 检查网卡是否已经正确设置
+            //    bool isNetworkCardSet = false;
 
-                if (AppConfig.NetworkCard >= 0)
-                {
-                    var devices = CaptureDeviceList.Instance;
-                    if (devices != null && devices.Count > 0 && AppConfig.NetworkCard < devices.Count)
-                    {
-                        // 网卡索引有效，认为已经设置
-                        isNetworkCardSet = true;
+            //    if (AppConfig.NetworkCard >= 0)
+            //    {
+            //        var devices = CaptureDeviceList.Instance;
+            //        if (devices != null && devices.Count > 0 && AppConfig.NetworkCard < devices.Count)
+            //        {
+            //            // 网卡索引有效，认为已经设置
+            //            isNetworkCardSet = true;
                     
-                    }
-                }
+            //        }
+            //    }
            
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"更新网卡设置提示时出错: {ex.Message}");
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"更新网卡设置提示时出错: {ex.Message}");
+            //}
         }
 
         /// <summary>

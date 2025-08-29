@@ -2,7 +2,6 @@
 using System.ComponentModel;
 
 using AntdUI;
-using BlueProto;
 
 namespace StarResonanceDpsAnalysis.WinForm.Plugin
 {

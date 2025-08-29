@@ -9,6 +9,9 @@ using static StarResonanceDpsAnalysis.WinForm.Core.Module.ModuleCardDisplay;
 using static StarResonanceDpsAnalysis.WinForm.Core.Module.ModuleOptimizer;
 using static StarResonanceDpsAnalysis.WinForm.Forms.ModuleForm.ModuleCalculationForm;
 
+// 0472 -> 针对可控类型与 null 的比较, 由于使用了 BlueprotobufPb2 的固定类型, 本页禁用该警告
+#pragma warning disable 0472
+
 namespace StarResonanceDpsAnalysis.WinForm.Core.Module
 {
     public class BuildEliteCandidatePool
@@ -68,7 +71,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core.Module
             // 如果没有 ModInfos，直接返回
             if (Serialize?.Mod?.ModInfos == null) return;
             var mod_infos = Serialize?.Mod?.ModInfos;
-            if (Serialize.ItemPackage.Packages == null) return;
+            if (Serialize?.ItemPackage.Packages == null) return;
 
             var modules = new List<ModuleInfo>();
 
@@ -107,8 +110,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Core.Module
                         };
 
                         // 词条数 = min(ModParts, InitLinkNums)
-                        var init_link_nums = modInfoVal.InitLinkNums;
-                        int n = Math.Min(modParts.Count, init_link_nums.Count);
+                        var init_link_nums = modInfoVal?.InitLinkNums;
+                        int n = Math.Min(modParts.Count, init_link_nums?.Count ?? 0);
 
                         for (int i = 0; i < n; i++)
                         {
@@ -119,8 +122,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Core.Module
                                 ? name
                                 : $"未知属性({partId})";
 
-                            int attrValue = init_link_nums[i];
-              
+                            int attrValue = init_link_nums?[i] ?? 0;
+
                             // 构造 ModulePart
                             var modulePart = new ModulePart
                             {
@@ -142,15 +145,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Core.Module
                 }
             }
 
-          
+
 
             // 如果解析到了模组
             if (modules.Count > 0)
             {
-         
+
                 // 这里存放筛选后的模组列表
                 List<ModuleInfo> filteredModules;
-          
+
 
                 // 判断是否给了“包含属性清单”和“排除属性清单”
                 bool hasIncludeAttributes = (Attributes != null && Attributes.Count > 0);
@@ -172,7 +175,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core.Module
                     }
 
                     // 转换排除属性集合（HashSet → List）
-                    List<string> excludeList = null;
+                    List<string>? excludeList = null;
                     if (ExcludedAttributes != null)
                     {
                         excludeList = ExcludedAttributes.ToList();
@@ -219,13 +222,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Core.Module
         ///   筛选后的模组列表
         /// </summary>
         public static List<ModuleInfo> FilterModulesByAttributes(
-      List<ModuleInfo> modules,
-      List<string> attributes = null,
-      List<string> excludeAttributes = null,
-      int matchCount = 1)
+            List<ModuleInfo> modules,
+            List<string>? attributes = null,
+            List<string>? excludeAttributes = null,
+            int matchCount = 1)
         {
             // 筛选后的结果集合
-            List<ModuleInfo> filteredModules = new List<ModuleInfo>();
+            List<ModuleInfo> filteredModules = [];
 
             // 如果模块列表为空，直接返回空结果
             if (modules == null || modules.Count == 0)
@@ -234,14 +237,14 @@ namespace StarResonanceDpsAnalysis.WinForm.Core.Module
             }
 
             // 用于快速查询的 HashSet（包含属性）
-            HashSet<string> includeSet = null;
+            HashSet<string>? includeSet = null;
             if (attributes != null && attributes.Count > 0)
             {
                 includeSet = new HashSet<string>(attributes, StringComparer.Ordinal);
             }
 
             // 用于快速查询的 HashSet（排除属性）
-            HashSet<string> excludeSet = null;
+            HashSet<string>? excludeSet = null;
             if (excludeAttributes != null && excludeAttributes.Count > 0)
             {
                 excludeSet = new HashSet<string>(excludeAttributes, StringComparer.Ordinal);

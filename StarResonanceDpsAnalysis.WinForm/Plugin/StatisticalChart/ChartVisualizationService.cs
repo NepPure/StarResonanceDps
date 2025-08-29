@@ -443,7 +443,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// <param name="size">图表的初始大小</param>
         /// <param name="customConfig">可选：自定义配置回调，可修改图表控件的各种参数</param>
         /// <returns>已创建并应用默认配置的图表实例</returns>
-        private static T CreateChart<T>(Size size, Action<T> customConfig = null) where T : UserControl, new()
+        private static T CreateChart<T>(Size size, Action<T>? customConfig = null) where T : UserControl, new()
         {
             var chart = new T { Size = size };
             ChartConfigManager.ApplySettings(chart); // 应用统一的图表配置

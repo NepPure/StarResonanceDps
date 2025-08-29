@@ -5,9 +5,9 @@ namespace StarResonanceDpsAnalysis.WinForm
     public class ProtoValue
     {
         public byte[] Raw;
-        public Dictionary<int, object> Decoded;
+        public Dictionary<int, object?>? Decoded;
 
-        public ProtoValue(byte[] raw, Dictionary<int, object> decoded = null)
+        public ProtoValue(byte[] raw, Dictionary<int, object?>? decoded = null)
         {
             Raw = raw;
             Decoded = decoded;
@@ -18,7 +18,7 @@ namespace StarResonanceDpsAnalysis.WinForm
 
     public static class Blueprotobuf
     {
-        public static string FormatProtoValue(object value, int indent = 0)
+        public static string FormatProtoValue(object? value, int indent = 0)
         {
             string pad = new(' ', indent);
             if (value is ProtoValue pv)
@@ -61,9 +61,9 @@ namespace StarResonanceDpsAnalysis.WinForm
 
         private static long Remaining(BinaryReader r) =>
         r.BaseStream.Length - r.BaseStream.Position;
-        public static Dictionary<int, object> Decode(byte[] data)
+        public static Dictionary<int, object?> Decode(byte[] data)
         {
-            var result = new Dictionary<int, object>();
+            var result = new Dictionary<int, object?>();
             using var ms = new MemoryStream(data);
             using var reader = new BinaryReader(ms);
 
@@ -71,14 +71,14 @@ namespace StarResonanceDpsAnalysis.WinForm
             {
                 uint key = ReadVarint(reader);
                 // 检查uint到int的转换是否会溢出
-                if (key > (long)int.MaxValue * 8 + 7)
+                if (key > int.MaxValue)
                 {
                     throw new OverflowException("Key too large to convert to int");
                 }
                 int tag = (int)(key >> 3);
                 int wireType = (int)(key & 0x7);
 
-                object value = null;
+                object? value = null;
 
                 switch (wireType)
                 {
@@ -170,13 +170,13 @@ namespace StarResonanceDpsAnalysis.WinForm
 
                 if (result.TryGetValue(tag, out var existing))
                 {
-                    if (existing is List<object> list)
+                    if (existing is List<object?> list)
                     {
                         list.Add(value);
                     }
                     else
                     {
-                        result[tag] = new List<object> { existing, value };
+                        result[tag] = new List<object?> { existing, value };
                     }
                 }
                 else

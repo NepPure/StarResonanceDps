@@ -26,16 +26,14 @@
     <PackageReference Include="AntdUI" Version="2.0.17" />
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="Flurl.Http" Version="3.2.4" />
-    <PackageReference Include="Google.Protobuf" Version="3.32.0-rc2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="PacketDotNet" Version="1.4.9-pre44" />
     <PackageReference Include="SharpPcap" Version="6.3.1" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.8" />
-    <PackageReference Include="ZstdNet" Version="1.4.5" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\StarResonanceDpsAnalysis.Assets\StarResonanceDpsAnalysis.Assets.csproj" />
+    <ProjectReference Include="..\StarResonanceDpsAnalysis.Core\StarResonanceDpsAnalysis.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <!-- 把任意 *.Function.cs 的文件类型识别改回正常的代码文件 -->
