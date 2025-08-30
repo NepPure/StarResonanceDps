@@ -6,6 +6,8 @@ using System.Windows.Forms;
 
 using AntdUI; // 引用 AntdUI 组件库（第三方 UI 控件/样式）
 using StarResonanceDpsAnalysis.Assets;
+using StarResonanceDpsAnalysis.Core.Data;
+using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.WinForm.Control; // 引用项目内的 UI 控制/辅助类命名空间
 using StarResonanceDpsAnalysis.WinForm.Forms.PopUp; // 引用弹窗相关窗体/组件命名空间
 using StarResonanceDpsAnalysis.WinForm.Plugin; // 引用项目插件层通用命名空间
@@ -36,7 +38,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
         // # 构造与启动流程
         public DpsStatisticsForm() // 构造函数：创建窗体实例时执行一次
         {
-            // 构造函数开始
+
             InitializeComponent(); // 初始化设计器生成的控件与布局
 
 
@@ -65,35 +67,58 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
 
 
             sortedProgressBarList1.SelectionChanged += (s, i, d) => // 订阅进度条列表的选择变化事件（点击条目）
-            { // 事件处理开始
+            {
                 // # UI 列表交互：当用户点击列表项时触发（i 为索引，d 为 ProgressBarData）
-                if (i < 0 || d == null) // 若未选中有效项或数据为空
-                { // 条件分支开始
-                    return; // 直接返回，不做任何处理
-                } // 条件分支结束
+
+                // 若未选中有效项或数据为空则直接返回
+                if (i < 0 || d == null)
+                {
+                    return;
+                }
+
                 // # 将选中项的 UID 传入详情窗口刷新
                 sortedProgressBarList_SelectionChanged((ulong)d.ID); // 将条目 ID 转为 UID 并调用详情刷新逻辑
-            }; // 事件处理结束并解除与下一语句的关联
+            };
 
             SetStyle(); // 设置/应用本窗体的个性化样式（定义在同类/局部类的其他部分）
 
-        } // 构造函数结束
+            // TODO: 此处的 4 个事件是临时测试用, 后续需要规范注册事件并实现功能
+            DataStorage.PlayerInfoUpdated += playerInfo =>
+            {
+                Console.WriteLine($"PlayerInfo Updated: {playerInfo.Name}({playerInfo.UID})");
+            };
 
+            DataStorage.BattleLogNewSectionCreated += () => 
+            {
+                Console.WriteLine($"New Battle Section Created.");
+            };
+
+            DataStorage.BattleLogUpdated += battleLog => 
+            {
+                Console.WriteLine($"BattleLog Updated({DataStorage.ReadOnlyBattleLogs.Count}): {battleLog.AttackerUuid}→{battleLog.TargetUuid}: {battleLog.SkillID}({battleLog.Value})");
+            };
+
+            DataStorage.DataUpdated += () => 
+            {
+                Console.WriteLine($"Data Updated.");
+            };
+
+        }
 
         // # 屏幕分辨率缩放判定
         private static float GetPrimaryResolutionScale() // 依据主屏高度返回推荐缩放比例
         {
-            try // 防御：获取屏幕信息可能在某些环境异常
-            { // try 开始
+            try
+            { 
                 var bounds = Screen.PrimaryScreen?.Bounds ?? new Rectangle(0, 0, 1920, 1080); // 获取主屏尺寸，失败则默认 1080p
                 if (bounds.Height >= 2160) return 2.0f;       // 4K 屏：建议缩放 2.0
                 if (bounds.Height >= 1440) return 1.3333f;    // 2K 屏：建议缩放 1.3333
                 return 1.0f;                                   // 1080p：不缩放
-            } // try 结束
-            catch // 捕获任何异常
-            { // catch 开始
+            }
+            catch
+            {
                 return 1.0f; // 异常时安全返回 1.0（不缩放）
-            } // catch 结束
+            }
         }
 
         // # 窗体加载事件：启动抓包
@@ -398,7 +423,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
 
                     PilingModeCheckbox.Checked = false;
                     timer1.Enabled = false;
-                    var _ = AppMessageBox.ShowMessage("未获取到UID，请换个地图后再进协会", this);
+                    _ = AppMessageBox.ShowMessage("未获取到UID，请换个地图后再进协会", this);
                     return;
                 }
                 TimeSpan duration = StatisticData._manager.GetCombatDuration();
@@ -415,7 +440,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
                         bool data = await Common.AddUserDps(snapshot);
                         if (data)
                         {
-                            AntdUI.Modal.open(new AntdUI.Modal.Config(this, "上传成功", "上传成功")
+                            AntdUI.Modal.open(new Modal.Config(this, "上传成功", "上传成功")
                             {
                                 CloseIcon = true,
                                 Keyboard = false,
@@ -424,7 +449,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
                         }
                         else
                         {
-                            AntdUI.Modal.open(new AntdUI.Modal.Config(this, "上传失败", "请检查网络状况，服务器暂时不支持外网上传")
+                            AntdUI.Modal.open(new Modal.Config(this, "上传失败", "请检查网络状况，服务器暂时不支持外网上传")
                             {
                                 CloseIcon = true,
                                 Keyboard = false,

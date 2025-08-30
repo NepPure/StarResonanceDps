@@ -23,7 +23,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
     /// 消息解析器
     /// 负责处理从游戏抓包获得的TCP数据，包括解压缩、Protobuf解析、数据同步、伤害统计等。
     /// </summary>
-    public class MessageAnalyzer
+    internal class MessageAnalyzer
     {
         /// <summary>
         /// 顶层消息类型处理器
@@ -240,7 +240,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
 
                 if (vData.CharBase.FightPoint != 0)
                 {
-                    DataStorage.CurrentPlayerInfo.FightPoint = vData.CharBase.FightPoint;
+                    DataStorage.CurrentPlayerInfo.CombatPower = vData.CharBase.FightPoint;
                     DataStorage.SetPlayerFightPoint(playerUid, vData.CharBase.FightPoint);
                 }
             }
@@ -276,6 +276,8 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
 
                 var playerUid = DataStorage.CurrentPlayerInfo.UUID.ShiftRight16();
 
+                DataStorage.TestCreatePlayerInfoByUID(playerUid);
+
                 switch (fieldIndex)
                 {
                     // 名字和战力
@@ -301,7 +303,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                                 _ = br.ReadInt32();
                                 if (fightPoint != 0)
                                 {
-                                    DataStorage.CurrentPlayerInfo.FightPoint = fightPoint;
+                                    DataStorage.CurrentPlayerInfo.CombatPower = fightPoint;
                                     DataStorage.SetPlayerFightPoint(playerUid, fightPoint);
                                 }
                                 break;
@@ -572,6 +574,8 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         /// <param name="attrs"></param>
         public static void ProcessPlayerAttrs(long playerUid, RepeatedField<Attr> attrs)
         {
+            DataStorage.TestCreatePlayerInfoByUID(playerUid);
+
             foreach (var attr in attrs)
             {
                 if (attr.Id == 0 || attr.RawData == null || attr.RawData.Length == 0) continue;

@@ -6,9 +6,18 @@ using System.Threading.Tasks;
 
 namespace StarResonanceDpsAnalysis.Core.Data.Models
 {
-    public struct BattleLogSection
+    /// <summary>
+    /// 战斗日志分段
+    /// </summary>
+    public struct BattleLogSection()
     {
+        /// <summary>
+        /// 分段开始索引
+        /// </summary>
         public int StartIndex { get; set; }
-        public int EndIndex { get; set; }
+        /// <summary>
+        /// 分段结束索引 (如果为最后一个分段, 则为 -1)
+        /// </summary>
+        public int EndIndex { get; set; } = -1;
     }
 }
