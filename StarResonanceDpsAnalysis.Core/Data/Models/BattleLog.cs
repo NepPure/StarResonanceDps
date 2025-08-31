@@ -36,10 +36,9 @@ namespace StarResonanceDpsAnalysis.Core.Data.Models
         /// </summary>
         public long TargetUuid { get; internal set; }
         /// <summary>
-        /// 具体数值
+        /// 具体数值 (伤害)
         /// </summary>
         public long Value { get; internal set; }
-
         /// <summary>
         /// 数值元素类型
         /// </summary>

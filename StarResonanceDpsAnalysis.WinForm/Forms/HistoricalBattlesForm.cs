@@ -346,7 +346,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             if (idx < 0 || idx >= DpsTableDatas.DpsTable.Count) return;
 
             var row = DpsTableDatas.DpsTable[idx];
-            ulong uid = row.Uid;
+            var uid = row.Uid;
             string nick = row.NickName;
             int power = row.CombatPower;
             string prof = row.Profession;

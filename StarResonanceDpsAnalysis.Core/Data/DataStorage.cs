@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,11 +18,11 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <summary>
         /// 当前玩家信息
         /// </summary>
-        public static PlayerInfo CurrentPlayerInfo { get; } = new();
+        public static PlayerInfo CurrentPlayerInfo { get; private set; } = new();
         /// <summary>
         /// 玩家信息字典 (Key: UID)
         /// </summary>
-        internal static Dictionary<long, PlayerInfo> PlayerInfoDatas { get; } = [];
+        private static Dictionary<long, PlayerInfo> PlayerInfoDatas { get; } = [];
         /// <summary>
         /// 只读玩家信息字典 (Key: UID)
         /// </summary>
@@ -30,7 +31,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <summary>
         /// 战斗日志列表
         /// </summary>
-        internal static List<BattleLog> BattleLogs { get; } = new(262144);
+        private static List<BattleLog> BattleLogs { get; } = new(262144);
         /// <summary>
         /// 只读战斗日志列表
         /// </summary>
@@ -38,7 +39,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <summary>
         /// 玩家战斗日志列表字典 (Key: UID)
         /// </summary>
-        internal static Dictionary<long, List<BattleLog>> PlayerBattleLogs { get; } = [];
+        private static Dictionary<long, List<BattleLog>> PlayerBattleLogs { get; } = [];
         /// <summary>
         /// 只读玩家战斗日志列表字典 (Key: UID)
         /// </summary>
@@ -46,7 +47,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <summary>
         /// 战斗日志分段列表
         /// </summary>
-        internal static List<BattleLogSection> BattleLogSections { get; } = [];
+        private static List<BattleLogSection> BattleLogSections { get; } = [];
         /// <summary>
         /// 只读战斗日志分段列表
         /// </summary>
@@ -55,11 +56,38 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 战斗日志分段超时时间 (默认: 5000ms)
         /// </summary>
         public static TimeSpan SectionTimeout { get; set; } = TimeSpan.FromMilliseconds(5000);
+        /// <summary>
+        /// 强制新分段标记
+        /// </summary>
+        /// <remarks>
+        /// 设置为 true 后将在下一次添加战斗日志时, 强制创建一个新的分段之后重置为 false
+        /// </remarks>
+        private static bool ForceNewBattleSection { get; set; } = false;
 
-        // TODO: 还没实现
-        internal static Dictionary<long, DpsData> DpsDatas { get; } = [];
-        public static ReadOnlyDictionary<long, DpsData> ReadOnlyDpsDatas { get => new(DpsDatas); }
-        public static IReadOnlyList<DpsData> ReadOnlyDpsDataList { get => DpsDatas.Values.ToList().AsReadOnly(); }
+        /// <summary>
+        /// 全程玩家DPS字典 (Key: UID)
+        /// </summary>
+        private static Dictionary<long, DpsData> FullDpsData { get; } = [];
+        /// <summary>
+        /// 只读全程玩家DPS字典 (Key: UID)
+        /// </summary>
+        public static ReadOnlyDictionary<long, DpsData> ReadOnlyFullDpsData { get => FullDpsData.AsReadOnly(); }
+        /// <summary>
+        /// 只读全程玩家DPS列表; 注意! 频繁读取该属性可能会导致性能问题!
+        /// </summary>
+        public static IReadOnlyList<DpsData> ReadOnlyFullDpsDataList { get => FullDpsData.Values.ToList().AsReadOnly(); }
+        /// <summary>
+        /// 阶段性玩家DPS字典 (Key: UID)
+        /// </summary>
+        private static Dictionary<long, DpsData> SectionedDpsDatas { get; } = [];
+        /// <summary>
+        /// 阶段性只读玩家DPS字典 (Key: UID)
+        /// </summary>
+        public static ReadOnlyDictionary<long, DpsData> ReadOnlySectionedDpsDatas { get => SectionedDpsDatas.AsReadOnly(); }
+        /// <summary>
+        /// 阶段性只读玩家DPS列表; 注意! 频繁读取该属性可能会导致性能问题!
+        /// </summary>
+        public static IReadOnlyList<DpsData> ReadOnlySectionedDpsDataList { get => SectionedDpsDatas.Values.ToList().AsReadOnly(); }
 
         public delegate void PlayerInfoUpdatedEventHandler(PlayerInfo info);
         public delegate void BattleLogNewSectionCreatedEventHandler();
@@ -135,9 +163,9 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// </summary>
         /// <param name="uid">UID</param>
         /// <param name="fightPoint">战力</param>
-        internal static void SetPlayerFightPoint(long uid, int fightPoint)
+        internal static void SetPlayerCombatPower(long uid, int combatPower)
         {
-            PlayerInfoDatas[uid].CombatPower = fightPoint;
+            PlayerInfoDatas[uid].CombatPower = combatPower;
 
             TriggerPlayerInfoUpdated(uid);
         }
@@ -221,7 +249,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 触发玩家信息更新事件
         /// </summary>
         /// <param name="uid">UID</param>
-        internal static void TriggerPlayerInfoUpdated(long uid)
+        private static void TriggerPlayerInfoUpdated(long uid)
         {
             PlayerInfoUpdated?.Invoke(PlayerInfoDatas[uid]);
             DataUpdated?.Invoke();
@@ -236,15 +264,30 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 如果传入的 UID 已存在, 则不会进行任何操作;
         /// 否则会创建一个新的对应 UID 的 List<BattleLog>
         /// </remarks>
-        internal static bool TestCreateBattleLogByUID(long uid)
+        internal static bool TestCreateBattleLogAndDpsDataByUID(long uid)
         {
-            if (PlayerBattleLogs.ContainsKey(uid))
+            var battleLogFlag = PlayerBattleLogs.ContainsKey(uid);
+            if (!battleLogFlag)
             {
-                return true;
+                PlayerBattleLogs[uid] = new(16384);
             }
 
-            PlayerBattleLogs[uid] = new(16384);
-            return false;
+            var sectionedDpsDataFlag = SectionedDpsDatas.TryGetValue(uid, out var sectionedDpsData);
+            if (!sectionedDpsDataFlag)
+            {
+                sectionedDpsData = new() { UID = uid };
+            }
+
+            var fullDpsDataFlag = FullDpsData.TryGetValue(uid, out var fullDpsData);
+            if (!fullDpsDataFlag)
+            {
+                fullDpsData = new() { UID = uid };
+            }
+
+            SectionedDpsDatas[uid] = sectionedDpsData;
+            FullDpsData[uid] = fullDpsData;
+
+            return battleLogFlag && sectionedDpsDataFlag;
         }
 
         /// <summary>
@@ -252,23 +295,110 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// </summary>
         /// <param name="uid">UID</param>
         /// <param name="log">战斗日志</param>
-        internal static void AddBattleLog(long uid, BattleLog log)
+        internal static void AddBattleLog(BattleLog log)
         {
             var tt = new TimeSpan(log.TimeTicks);
             var sectionFlag = BattleLogs.Count == 0;
             if (!sectionFlag)
             {
+                // 如果超时或强制创建新战斗阶段时, 关闭上一分段, 最后创建新分段
                 var prevTt = new TimeSpan(BattleLogs[^1].TimeTicks);
-                if (tt - prevTt > SectionTimeout)
+                if (tt - prevTt > SectionTimeout || ForceNewBattleSection)
                 {
+                    CloseBattleSection();
+
                     sectionFlag = true;
 
-                    CloseBattleSection();
+                    ForceNewBattleSection = false;
                 }
             }
 
             BattleLogs.Add(log);
-            PlayerBattleLogs[uid].Add(log);
+
+            if (log.IsTargetPlayer)
+            {
+                if (log.IsHeal)
+                {
+                    TestCreatePlayerInfoByUID(log.AttackerUuid);
+                    TestCreateBattleLogAndDpsDataByUID(log.AttackerUuid);
+
+                    var data = SectionedDpsDatas[log.AttackerUuid];
+                    data.StartLoggedTick ??= log.TimeTicks;
+                    data.TotalHeal += log.Value;
+                    data.LastLoggedTick = log.TimeTicks;
+                    SectionedDpsDatas[log.AttackerUuid] = data;
+
+                    data = FullDpsData[log.AttackerUuid];
+                    data.StartLoggedTick ??= log.TimeTicks;
+                    data.TotalHeal += log.Value;
+                    data.LastLoggedTick = log.TimeTicks;
+                    FullDpsData[log.AttackerUuid] = data;
+
+                    PlayerBattleLogs[log.AttackerUuid].Add(log);
+                }
+                else
+                {
+                    TestCreatePlayerInfoByUID(log.TargetUuid);
+                    TestCreateBattleLogAndDpsDataByUID(log.TargetUuid);
+
+                    var data = SectionedDpsDatas[log.TargetUuid];
+                    data.StartLoggedTick ??= log.TimeTicks;
+                    data.TotalTakenDamage += log.Value;
+                    data.LastLoggedTick = log.TimeTicks;
+                    SectionedDpsDatas[log.TargetUuid] = data;
+
+                    data = FullDpsData[log.TargetUuid];
+                    data.StartLoggedTick ??= log.TimeTicks;
+                    data.TotalTakenDamage += log.Value;
+                    data.LastLoggedTick = log.TimeTicks;
+                    FullDpsData[log.TargetUuid] = data;
+
+                    PlayerBattleLogs[log.TargetUuid].Add(log);
+                }
+            }
+            else
+            {
+                if (!log.IsHeal && log.IsAttackerPlayer)
+                {
+                    TestCreatePlayerInfoByUID(log.AttackerUuid);
+                    TestCreateBattleLogAndDpsDataByUID(log.AttackerUuid);
+
+                    var data = SectionedDpsDatas[log.AttackerUuid];
+                    data.StartLoggedTick ??= log.TimeTicks;
+                    data.TotalAttackDamage += log.Value;
+                    data.LastLoggedTick = log.TimeTicks;
+                    SectionedDpsDatas[log.AttackerUuid] = data;
+
+                    data = FullDpsData[log.AttackerUuid];
+                    data.StartLoggedTick ??= log.TimeTicks;
+                    data.TotalAttackDamage += log.Value;
+                    data.LastLoggedTick = log.TimeTicks;
+                    FullDpsData[log.AttackerUuid] = data;
+
+                    PlayerBattleLogs[log.AttackerUuid].Add(log);
+                }
+
+                // 提升局部, 统一局部变量名
+                {
+                    TestCreatePlayerInfoByUID(log.TargetUuid);
+                    TestCreateBattleLogAndDpsDataByUID(log.TargetUuid);
+
+                    var data = SectionedDpsDatas[log.TargetUuid];
+                    data.StartLoggedTick ??= log.TimeTicks;
+                    data.TotalTakenDamage += log.Value;
+                    data.LastLoggedTick = log.TimeTicks;
+                    data.IsNpcData = true;
+                    SectionedDpsDatas[log.TargetUuid] = data;
+
+                    data = FullDpsData[log.TargetUuid];
+                    data.StartLoggedTick ??= log.TimeTicks;
+                    data.TotalTakenDamage += log.Value;
+                    data.LastLoggedTick = log.TimeTicks;
+                    FullDpsData[log.TargetUuid] = data;
+                    data.IsNpcData = true;
+                    PlayerBattleLogs[log.TargetUuid].Add(log);
+                }
+            }
 
             if (sectionFlag)
             {
@@ -297,6 +427,49 @@ namespace StarResonanceDpsAnalysis.Core.Data
         private static void StartNewBattleSection()
         {
             BattleLogSections.Add(new() { StartIndex = BattleLogs.Count - 1 });
+        }
+
+        /// <summary>
+        /// 清除所有DPS数据 (包括全程和阶段性)
+        /// </summary>
+        public static void ClearAllDpsData()
+        {
+            SectionedDpsDatas.Clear();
+            FullDpsData.Clear();
+        }
+
+        /// <summary>
+        /// 标记新的战斗日志分段 (清空阶段性Dps数据)
+        /// </summary>
+        public static void MarkNewBattleSection()
+        {
+            ForceNewBattleSection = true;
+            SectionedDpsDatas.Clear();
+        }
+
+        /// <summary>
+        /// 清除当前玩家信息
+        /// </summary>
+        public static void ClearCurrentPlayerInfo()
+        {
+            CurrentPlayerInfo = new();
+        }
+
+        /// <summary>
+        /// 清除所有玩家信息
+        /// </summary>
+        public static void ClearPlayerInfos()
+        {
+            PlayerInfoDatas.Clear();
+        }
+
+        /// <summary>
+        /// 清除所有数据 (包括缓存历史)
+        /// </summary>
+        public static void ClearAllData()
+        {
+            ClearCurrentPlayerInfo();
+            ClearPlayerInfos();
         }
 
     }

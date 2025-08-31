@@ -125,7 +125,7 @@
             /// <summary>
             /// # 获取“只读玩家视图”：从 FullRecord 内部数据投影为与 StatisticData 类似的结构
             /// </summary>
-            public static PlayerLike GetOrCreate(ulong uid)
+            public static PlayerLike GetOrCreate(long uid)
             {
                 // # 以 FullRecord 的内部累加为来源，返回近似 StatisticData 的“只读外观”
                 lock (_sync)
@@ -161,7 +161,7 @@
             /// <summary>
             /// # 承伤总览（合计、每秒均值、最大/最小单次）
             /// </summary>
-            public static TakenOverviewLike GetPlayerTakenOverview(ulong uid)
+            public static TakenOverviewLike GetPlayerTakenOverview(long uid)
             {
                 // # 承伤总览：总量/每秒均值/单击最大最小
                 var p = GetOrCreate(uid);
@@ -269,7 +269,7 @@
         // ======================================================================
 
         /// <summary>获取玩家全程伤害统计（UI 视图口径）。</summary>
-        public static StatView GetPlayerDamageStats(ulong uid)
+        public static StatView GetPlayerDamageStats(long uid)
         {
             lock (_sync)
             {
@@ -280,7 +280,7 @@
         }
 
         /// <summary>获取玩家全程治疗统计（UI 视图口径）。</summary>
-        public static StatView GetPlayerHealingStats(ulong uid)
+        public static StatView GetPlayerHealingStats(long uid)
         {
             lock (_sync)
             {
@@ -291,7 +291,7 @@
         }
 
         /// <summary>获取玩家全程承伤统计（UI 视图口径）。</summary>
-        public static StatView GetPlayerTakenStats(ulong uid)
+        public static StatView GetPlayerTakenStats(long uid)
         {
             lock (_sync)
             {
@@ -328,7 +328,7 @@
         }
 
         /// <summary>获取指定玩家在当前会话的死亡次数。</summary>
-        public static int GetPlayerDeathCount(ulong uid)
+        public static int GetPlayerDeathCount(long uid)
         {
             lock (_sync)
             {
@@ -344,10 +344,10 @@
         /// 获取“所有玩家”的死亡次数清单（默认降序）。
         /// includeZero=false 时，会过滤掉死亡数为 0 的玩家。
         /// </summary>
-        public static List<(ulong Uid, string Nickname, int CombatPower, string Profession, string? SubProfession, int Deaths)>
+        public static List<(long Uid, string Nickname, int CombatPower, string Profession, string? SubProfession, int Deaths)>
             GetAllPlayerDeathCounts(bool includeZero = false)
         {
-            var result = new List<(ulong, string, int, string, string?, int)>();
+            var result = new List<(long, string, int, string, string?, int)>();
             PlayerAcc[] playersSnapshot;
             lock (_sync) { playersSnapshot = _players.Values.ToArray(); }
 
@@ -368,15 +368,15 @@
         /// 获取“某玩家按技能”的死亡次数细分（降序）。
         /// 返回：SkillId, SkillName, Deaths
         /// </summary>
-        public static List<(ulong SkillId, string SkillName, int Deaths)>
-            GetPlayerDeathBreakdownBySkill(ulong uid)
+        public static List<(long SkillId, string SkillName, int Deaths)>
+            GetPlayerDeathBreakdownBySkill(long uid)
         {
             lock (_sync)
             {
                 if (!_players.TryGetValue(uid, out var p) || p.TakenSkills.Count == 0)
                     return new();
 
-                var list = new List<(ulong, string, int)>(p.TakenSkills.Count);
+                var list = new List<(long, string, int)>(p.TakenSkills.Count);
                 foreach (var kv in p.TakenSkills)
                 {
                     var sid = kv.Key;
@@ -396,7 +396,7 @@
 
         // # 用于对外绑定的行结构（可按需增删字段）
         public sealed record FullPlayerTotal(
-                ulong Uid,
+                long Uid,
                 string Nickname,
                 int CombatPower,
                 string Profession,
@@ -422,7 +422,7 @@
         private static readonly bool DisableIdleAutoStop = true;
 
         // # 持久累加存储：跨战斗的全程聚合
-        private static readonly Dictionary<ulong, PlayerAcc> _players = new();
+        private static readonly Dictionary<long, PlayerAcc> _players = new();
 
         // # ★ 全程快照历史（Stop 或 自动停止时都会入栈）
         private static readonly List<FullSessionSnapshot> _sessionHistory = new();
@@ -545,7 +545,7 @@
         public static (IReadOnlyList<SkillSummary> DamageSkills,
                        IReadOnlyList<SkillSummary> HealingSkills,
                        IReadOnlyList<SkillSummary> TakenSkills)
-            GetPlayerSkills(ulong uid)
+            GetPlayerSkills(long uid)
         {
             var snap = TakeSnapshot();
             if (snap.Players.TryGetValue(uid, out var p))
@@ -694,7 +694,7 @@
         /// - 忽略 0 值。
         /// </summary>
         public static void RecordDamage(
-            ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
+            long uid, long skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
             string nickname, int combatPower, string profession,
             string? damageElement = null, bool isCauseLucky = false, string? subProfession = null // ★ 新增
         )
@@ -733,7 +733,7 @@
         /// - 忽略 0 值。
         /// </summary>
         public static void RecordHealing(
-            ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky,
+            long uid, long skillId, ulong value, bool isCrit, bool isLucky,
             string nickname, int combatPower, string profession,
             string? damageElement = null, bool isCauseLucky = false, ulong targetUuid = 0, string? subProfession = null // ★ 新增
         )
@@ -780,7 +780,7 @@
         /// - 忽略 0 值。
         /// </summary>
         public static void RecordTakenDamage(
-            ulong uid, ulong skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
+            long uid, long skillId, ulong value, bool isCrit, bool isLucky, ulong hpLessen,
             string nickname, int combatPower, string profession,
             int damageSource = 0, bool isMiss = false, bool isDead = false // ★ 新增
         )
@@ -876,17 +876,17 @@
 
         private sealed class NpcAcc
         {
-            public ulong NpcId { get; }
+            public long NpcId { get; }
             public string Name { get; set; } = "未知NPC";
             public StatAcc Taken { get; } = new();                       // NPC 总承伤
-            public Dictionary<ulong, StatAcc> DamageByPlayer { get; } = new(); // 玩家→该NPC 的聚合
+            public Dictionary<long, StatAcc> DamageByPlayer { get; } = new(); // 玩家→该NPC 的聚合
 
-            public NpcAcc(ulong id) { NpcId = id; }
+            public NpcAcc(long id) { NpcId = id; }
         }
 
-        private static readonly Dictionary<ulong, NpcAcc> _npcs = new();
+        private static readonly Dictionary<long, NpcAcc> _npcs = new();
 
-        private static NpcAcc GetOrCreateNpc(ulong npcId, string? name = null)
+        private static NpcAcc GetOrCreateNpc(long npcId, string? name = null)
         {
             if (!_npcs.TryGetValue(npcId, out var n))
             {
@@ -897,7 +897,7 @@
             return n;
         }
 
-        private static StatAcc GetNpcPlayerAcc(NpcAcc n, ulong uid)
+        private static StatAcc GetNpcPlayerAcc(NpcAcc n, long uid)
         {
             if (!n.DamageByPlayer.TryGetValue(uid, out var s))
                 s = n.DamageByPlayer[uid] = new StatAcc();
@@ -911,8 +911,8 @@
         /// - Dead 仅计次（NPC承伤侧 Taken.CountDead++）。
         /// </summary>
         public static void RecordNpcTakenDamage(
-            ulong npcId,
-            ulong attackerUid,
+            long npcId,
+            long attackerUid,
             ulong value,
             bool isCrit,
             bool isLucky,
@@ -944,21 +944,21 @@
         }
 
         /// <summary>设置 NPC 名称（可选）。</summary>
-        public static void SetNpcName(ulong npcId, string name)
+        public static void SetNpcName(long npcId, string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return;
             GetOrCreateNpc(npcId).Name = name;
         }
 
         /// <summary>获取当前会话中出现过的 NPC 列表（ID 集）。</summary>
-        public static IReadOnlyList<ulong> GetAllNpcIds() => _npcs.Keys.ToList();
+        public static IReadOnlyList<long> GetAllNpcIds() => _npcs.Keys.ToList();
 
         /// <summary>
         /// 读取 NPC 全程承伤概览：总量/每秒/最大最小单次/最后时间。
         /// PerSec 用 NPC 自身的 ActiveSeconds（由 Accumulate 推进）。
         /// </summary>
         public static (ulong Total, double PerSec, ulong MaxHit, ulong MinHit, DateTime? LastTime, string Name)
-            GetNpcOverview(ulong npcId)
+            GetNpcOverview(long npcId)
         {
             if (!_npcs.TryGetValue(npcId, out var n)) return (0, 0, 0, 0, null, "未知NPC");
             var s = n.Taken;
@@ -972,9 +972,9 @@
         /// 对指定 NPC 的“对其伤害排名”（按总伤害降序）。
         /// 同时返回：玩家全程 DPS（GetPlayerDps）与对该NPC“专属DPS”（玩家→该NPC桶的ActiveSeconds）。
         /// </summary>
-        public static List<(ulong Uid, string Nickname, int CombatPower, string Profession,
+        public static List<(long Uid, string Nickname, int CombatPower, string Profession,
                            ulong DamageToNpc, double PlayerDps, double NpcOnlyDps)>
-            GetNpcTopAttackers(ulong npcId, int topN = 20)
+            GetNpcTopAttackers(long npcId, int topN = 20)
         {
             if (!_npcs.TryGetValue(npcId, out var n) || n.DamageByPlayer.Count == 0) return new();
 
@@ -982,7 +982,7 @@
             var arr = n.DamageByPlayer.ToArray();
 
             // 先拿一份玩家基础信息快照
-            Dictionary<ulong, (string Nick, int Power, string Prof)> baseInfo;
+            Dictionary<long, (string Nick, int Power, string Prof)> baseInfo;
             lock (_sync)
             {
                 baseInfo = _players.ToDictionary(
@@ -1045,7 +1045,7 @@
             ulong teamDmg = 0, teamHeal = 0, teamTaken = 0;
 
             // 注意：这里是“快照字典”，跟 _players 无关
-            var players = new Dictionary<ulong, SnapshotPlayer>(playersSnap.Length);
+            var players = new Dictionary<long, SnapshotPlayer>(playersSnap.Length);
 
             foreach (var p in playersSnap)
             {
@@ -1055,9 +1055,9 @@
                 teamTaken += p.TakenDamage;
 
                 // —— 逐技能：对内部字典也先定格为数组，再做 Select/OrderBy —— //
-                var damageSkillsArr = p.DamageSkills.Count > 0 ? p.DamageSkills.ToArray() : Array.Empty<KeyValuePair<ulong, StatAcc>>();
-                var healingSkillsArr = p.HealingSkills.Count > 0 ? p.HealingSkills.ToArray() : Array.Empty<KeyValuePair<ulong, StatAcc>>();
-                var takenSkillsArr = p.TakenSkills.Count > 0 ? p.TakenSkills.ToArray() : Array.Empty<KeyValuePair<ulong, StatAcc>>();
+                var damageSkillsArr = p.DamageSkills.Count > 0 ? p.DamageSkills.ToArray() : Array.Empty<KeyValuePair<long, StatAcc>>();
+                var healingSkillsArr = p.HealingSkills.Count > 0 ? p.HealingSkills.ToArray() : Array.Empty<KeyValuePair<long, StatAcc>>();
+                var takenSkillsArr = p.TakenSkills.Count > 0 ? p.TakenSkills.ToArray() : Array.Empty<KeyValuePair<long, StatAcc>>();
 
                 var damageSkills = damageSkillsArr
                     .Select(kv => ToSkillSummary(kv.Key, kv.Value, duration))
@@ -1126,7 +1126,7 @@
             }
 
             // —— NPC 会话快照 —— //
-            var nps = new Dictionary<ulong, FullSessionNpc>(npcSnap.Length);
+            var nps = new Dictionary<long, FullSessionNpc>(npcSnap.Length);
             foreach (var n in npcSnap)
             {
                 var s = n.Taken;
@@ -1207,7 +1207,7 @@
         /// - 分母：整个会话秒数（SessionSeconds）；
         /// - 若尚未开始或分母为 0，返回 0。
         /// </summary>
-        public static double GetPlayerDps(ulong uid)
+        public static double GetPlayerDps(long uid)
         {
             var secs = SessionSeconds();
             if (secs <= 0) return 0;
@@ -1219,7 +1219,7 @@
         public static (IReadOnlyList<SkillSummary> DamageSkills,
                       IReadOnlyList<SkillSummary> HealingSkills,
                       IReadOnlyList<SkillSummary> TakenSkills)
-        GetPlayerSkillsBySnapshotTimeEx(DateTime snapshotStartTime, ulong uid, double toleranceSeconds = 2.0)
+        GetPlayerSkillsBySnapshotTimeEx(DateTime snapshotStartTime, long uid, double toleranceSeconds = 2.0)
         {
             // —— 先查【全程历史】——
             var session = SessionHistory?.FirstOrDefault(s =>
@@ -1263,7 +1263,7 @@
         /// 按快照的开始时间获取该快照中所有玩家数据。
         /// - 如果找不到对应快照，返回 null。
         /// </summary>
-        public static IReadOnlyDictionary<ulong, SnapshotPlayer>? GetAllPlayersDataBySnapshotTime(DateTime snapshotStartTime)
+        public static IReadOnlyDictionary<long, SnapshotPlayer>? GetAllPlayersDataBySnapshotTime(DateTime snapshotStartTime)
         {
             var snapshot = SessionHistory.FirstOrDefault(s => s.StartedAt == snapshotStartTime);
             return snapshot?.Players;
@@ -1274,7 +1274,7 @@
         /// - 返回 (伤害技能, 治疗技能)，若找不到则返回两个空列表。
         /// </summary>
         public static (IReadOnlyList<SkillSummary> DamageSkills, IReadOnlyList<SkillSummary> HealingSkills)
-            GetPlayerSkillsBySnapshotTime(DateTime snapshotStartTime, ulong uid)
+            GetPlayerSkillsBySnapshotTime(DateTime snapshotStartTime, long uid)
         {
             var snapshot = SessionHistory.FirstOrDefault(s => s.StartedAt == snapshotStartTime);
             if (snapshot != null && snapshot.Players.TryGetValue(uid, out var player))
@@ -1312,7 +1312,7 @@
         /// <summary>
         /// 获取或创建玩家累计器，并同步基础信息（昵称/战力/职业以最近一次为准）。
         /// </summary>
-        private static PlayerAcc GetOrCreate(ulong uid, string nickname, int combatPower, string profession, string? subProfession = null)
+        private static PlayerAcc GetOrCreate(long uid, string nickname, int combatPower, string profession, string? subProfession = null)
         {
             if (!_players.TryGetValue(uid, out var p))
             {
@@ -1391,7 +1391,7 @@
         /// 将内部技能统计转为快照中的技能汇总项（含DPS、命中均值、暴击/幸运率等）。
         /// - Realtime 字段快照中不赋值（保持 0）。
         /// </summary>
-        private static SkillSummary ToSkillSummary(ulong skillId, StatAcc s, TimeSpan duration)
+        private static SkillSummary ToSkillSummary(long skillId, StatAcc s, TimeSpan duration)
         {
             var meta = SkillBook.Get(skillId);
             return new SkillSummary
@@ -1428,7 +1428,7 @@
         /// </summary>
         private sealed class PlayerAcc
         {
-            public ulong Uid { get; }
+            public long Uid { get; }
             public string Nickname { get; set; } = "未知";
             public int CombatPower { get; set; }
             public string Profession { get; set; } = "未知";
@@ -1437,19 +1437,19 @@
             public StatAcc Healing { get; } = new();
             public ulong TakenDamage { get; set; }
 
-            public Dictionary<ulong, StatAcc> DamageSkills { get; } = new();
-            public Dictionary<ulong, StatAcc> HealingSkills { get; } = new();
-            public Dictionary<ulong, StatAcc> TakenSkills { get; } = new();
+            public Dictionary<long, StatAcc> DamageSkills { get; } = new();
+            public Dictionary<long, StatAcc> HealingSkills { get; } = new();
+            public Dictionary<long, StatAcc> TakenSkills { get; } = new();
 
             // —— 新增：实时总DPS（聚合）
             public double RealtimeDpsDamage { get; set; }
             public double RealtimeDpsHealing { get; set; }
 
-            public PlayerAcc(ulong uid) => Uid = uid;
+            public PlayerAcc(long uid) => Uid = uid;
 
             // ★ 新增：可选的细分维度
-            public Dictionary<ulong, Dictionary<string, StatAcc>> DamageSkillsByElement { get; } = new();
-            public Dictionary<ulong, Dictionary<ulong, StatAcc>> HealingSkillsByTarget { get; } = new();
+            public Dictionary<long, Dictionary<string, StatAcc>> DamageSkillsByElement { get; } = new();
+            public Dictionary<long, Dictionary<ulong, StatAcc>> HealingSkillsByTarget { get; } = new();
 
 
         }
@@ -1494,17 +1494,17 @@
         public TimeSpan Duration { get; init; }           // 持续时长
         public ulong TeamTotalDamage { get; init; }       // 队伍总伤害
         public ulong TeamTotalHealing { get; init; }      // 队伍总治疗
-        public Dictionary<ulong, SnapshotPlayer> Players { get; init; } = new(); // 逐玩家详情
+        public Dictionary<long, SnapshotPlayer> Players { get; init; } = new(); // 逐玩家详情
         public ulong TeamTotalTakenDamage { get; init; }  // ★ 队伍总承伤
 
         // ★ 新增：会话快照里的 NPC 数据
-        public Dictionary<ulong, FullSessionNpc> Npcs { get; init; } = new();
+        public Dictionary<long, FullSessionNpc> Npcs { get; init; } = new();
     }
 
     /// <summary>全程快照里的 NPC 视图（不分技能）。</summary>
     public sealed class FullSessionNpc
     {
-        public ulong NpcId { get; init; }
+        public long NpcId { get; init; }
         public string Name { get; init; } = "未知NPC";
         public ulong TotalTaken { get; init; }
         public double TakenPerSec { get; init; }
@@ -1512,6 +1512,6 @@
         public ulong MinSingleHit { get; init; }
 
         // Top 攻击者（只放最关键的字段；需要更多可自行扩展）
-        public List<(ulong Uid, string Nickname, ulong DamageToNpc, double NpcOnlyDps)> TopAttackers { get; init; } = new();
+        public List<(long Uid, string Nickname, ulong DamageToNpc, double NpcOnlyDps)> TopAttackers { get; init; } = new();
     }
 }

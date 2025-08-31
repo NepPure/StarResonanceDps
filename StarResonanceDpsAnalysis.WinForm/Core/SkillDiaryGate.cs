@@ -22,7 +22,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core
         }
 
         // 只按 (玩家, 技能ID) 合并，不处理变体
-        private static readonly ConcurrentDictionary<(ulong Uid, ulong SkillId, bool Treat), PendingEntry> _pending = new();
+        private static readonly ConcurrentDictionary<(long Uid, long SkillId, bool Treat), PendingEntry> _pending = new();
 
         // 窗口阈值（ms）：窗口内只累计，不输出；出现 >WindowMs 的间隔才“自然断开”
         private const int WindowMs = 700;
@@ -37,7 +37,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core
         /// 返回 (shouldWrite, countToOutput, damageToOutput) 表示是否需要将“上一段”写出。
         /// </summary>
         public static (bool shouldWrite, int countToOutput, ulong damageToOutput, int critToOutput, int luckyToOutput)
-      Register(ulong uid, ulong skillId, ulong damage, bool isCrit, bool isLucky, bool treat)
+      Register(long uid, long skillId, ulong damage, bool isCrit, bool isLucky, bool treat)
         {
             long now = Stopwatch.GetTimestamp();
             long windowTicks = (long)(WindowMs * TicksPerMs);
@@ -111,7 +111,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core
         /// <param name="iscrit">是否暴击</param>
         /// <param name="isLucky">是否幸运</param>
         /// <param name="treat">是否疗伤</param>
-        public static void OnHit(ulong uid, ulong skillId, ulong damage, bool iscrit, bool isLucky, bool treat = false)
+        public static void OnHit(long uid, long skillId, ulong damage, bool iscrit, bool isLucky, bool treat = false)
         {
             // 1) 只处理本人的
             if (uid != AppConfig.Uid) return;
@@ -170,7 +170,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core
         /// 定期冲刷：把“超过 WindowMs 没继续”的段落写出（避免一直等不到下一击）。
         /// 建议在你的 1s 定时器里调用。
         /// </summary>
-        public static IEnumerable<(ulong Uid, ulong SkillId, int Count, ulong Damage)>
+        public static IEnumerable<(long Uid, long SkillId, int Count, ulong Damage)>
             DrainStalePending()
         {
             long now = Stopwatch.GetTimestamp();
@@ -197,7 +197,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core
         /// 清场/结束战斗时调用：把所有仍在窗口里的段落一次性吐出（然后再由调用方写入日记）。
         /// 返回后，这些段落会被清零，但不会删除字典项；如需彻底清空，请再调用 Reset()。
         /// </summary>
-        public static IEnumerable<(ulong Uid, ulong SkillId, int Count, ulong Damage)>
+        public static IEnumerable<(long Uid, long SkillId, int Count, ulong Damage)>
             DrainAllPending()
         {
             foreach (var kv in _pending)

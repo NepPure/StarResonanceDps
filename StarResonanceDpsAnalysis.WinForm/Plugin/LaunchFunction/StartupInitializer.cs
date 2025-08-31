@@ -23,7 +23,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction
             if (AppConfig.GetConfigExists())
             {
                 AppConfig.NickName = AppConfig.GetValue("UserConfig", "NickName", "未知昵称");
-                AppConfig.Uid = (ulong)AppConfig.GetValue("UserConfig", "Uid", "0").ToInt();
+                AppConfig.Uid = AppConfig.GetValue("UserConfig", "Uid", "0").ToInt();
                 AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知职业");
                 AppConfig.CombatPower = AppConfig.GetValue("UserConfig", "CombatPower", "0").ToInt();
                 StatisticData._manager.SetNickname(AppConfig.Uid, AppConfig.NickName);
@@ -48,7 +48,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction
             // 1) 先用 int 键的表（已经解析过字符串）
             foreach (var kv in EmbeddedSkillConfig.AllByInt)
             {
-                var id = (ulong)kv.Key;
+                var id = (long)kv.Key;
                 var def = kv.Value;
 
                 // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
@@ -68,7 +68,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction
             // 2) 有些 ID 可能超出 int 或不在 AllByInt，可以再兜底遍历字符串键
             foreach (var kv in EmbeddedSkillConfig.AllByString)
             {
-                if (ulong.TryParse(kv.Key, out var id))
+                if (kv.Key.TryToInt64(out var id))
                 {
                     // 如果 int 表已覆盖，这里会覆盖同名；没关系，等价
                     var def = kv.Value;

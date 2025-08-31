@@ -79,7 +79,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             foreach (var item in rows)
             {
-                ulong uid = item.Uid;
+                var uid = item.Uid;
                 string nickName = item.Nickname;
                 int totalDeathCount = item.Deaths;
                 // 查找是否已有该玩家

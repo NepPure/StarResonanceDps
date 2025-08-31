@@ -13,7 +13,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         private readonly System.Windows.Forms.Timer _refreshTimer;
         private FlowLayoutPanel _flow;
         private readonly List<SkillRotationData> _history = new();
-        private readonly Dictionary<ulong, DateTime> _lastUsage = new();
+        private readonly Dictionary<long, DateTime> _lastUsage = new();
 
         // Ô­Ê¼¿¨Æ¬³ß´ç
         private const int BASE_CARD_WIDTH = 120;
@@ -27,7 +27,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private const int PAD_L = 8, PAD_T = 5, PAD_R = 8, PAD_B = 5;
 
-        private ulong _uid;
+        private long _uid;
 
         public SkillCardStripForm()
         {
@@ -324,7 +324,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private class SkillRotationData
         {
-            public ulong SkillId { get; set; }
+            public long SkillId { get; set; }
             public string SkillName { get; set; } = string.Empty;
             public DateTime UseTime { get; set; }
             public int SequenceNumber { get; set; }

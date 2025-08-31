@@ -265,7 +265,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 var skillChartPanel = _tabControl.Pages[1].Controls[0] as SystemPanel;
                 UpdatePlayerSelector();
                 var selectedPlayer = _playerSelector.SelectedValue as PlayerSelectorItem;
-                ulong playerId = selectedPlayer?.Uid ?? 0;
+                var playerId = selectedPlayer?.Uid ?? 0;
                 _skillPieChart = ChartVisualizationService.CreateSkillDamagePieChart(playerId);
                 skillChartPanel.Controls.Add(_skillPieChart);
 
@@ -513,7 +513,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
     /// </summary>
     public class PlayerSelectorItem
     {
-        public ulong Uid { get; set; }
+        public long Uid { get; set; }
         public string DisplayName { get; set; } = "";
 
         public override string ToString()

@@ -118,13 +118,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
     {
         #region 数据存储
         // ===== 将历史按数据源分离：Current 与 FullRecord 各自一份 =====
-        private static readonly Dictionary<ulong, List<(DateTime Time, double Dps)>> _dpsHistoryCurrent = new();
-        private static readonly Dictionary<ulong, List<(DateTime Time, double Hps)>> _hpsHistoryCurrent = new();
-        private static readonly Dictionary<ulong, List<(DateTime Time, double TakenDps)>> _takenDpsHistoryCurrent = new();
+        private static readonly Dictionary<long, List<(DateTime Time, double Dps)>> _dpsHistoryCurrent = new();
+        private static readonly Dictionary<long, List<(DateTime Time, double Hps)>> _hpsHistoryCurrent = new();
+        private static readonly Dictionary<long, List<(DateTime Time, double TakenDps)>> _takenDpsHistoryCurrent = new();
 
-        private static readonly Dictionary<ulong, List<(DateTime Time, double Dps)>> _dpsHistoryFull = new();
-        private static readonly Dictionary<ulong, List<(DateTime Time, double Hps)>> _hpsHistoryFull = new();
-        private static readonly Dictionary<ulong, List<(DateTime Time, double TakenDps)>> _takenDpsHistoryFull = new();
+        private static readonly Dictionary<long, List<(DateTime Time, double Dps)>> _dpsHistoryFull = new();
+        private static readonly Dictionary<long, List<(DateTime Time, double Hps)>> _hpsHistoryFull = new();
+        private static readonly Dictionary<long, List<(DateTime Time, double TakenDps)>> _takenDpsHistoryFull = new();
 
         private static DateTime? _currentCombatStartTime;
         private static DateTime? _fullCombatStartTime;
@@ -150,9 +150,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         private static bool _wasInCombat = false;
 
         // ===== 全程即时速率计算：使用“差分”获得实时值（避免使用累计平均） =====
-        private static readonly Dictionary<ulong, (ulong Total, DateTime Ts)> _fullLastDamage = new();
-        private static readonly Dictionary<ulong, (ulong Total, DateTime Ts)> _fullLastHealing = new();
-        private static readonly Dictionary<ulong, (ulong Total, DateTime Ts)> _fullLastTaken = new();
+        private static readonly Dictionary<long, (ulong Total, DateTime Ts)> _fullLastDamage = new();
+        private static readonly Dictionary<long, (ulong Total, DateTime Ts)> _fullLastHealing = new();
+        private static readonly Dictionary<long, (ulong Total, DateTime Ts)> _fullLastTaken = new();
         #endregion
 
         #region 数据更新
@@ -173,7 +173,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         }
 
         // 内部：向指定历史集合添加一个数据点（保留最大点数）
-        private static void AddDataPoint<T>(Dictionary<ulong, List<(DateTime, T)>> history, ulong playerId, T value)
+        private static void AddDataPoint<T>(Dictionary<long, List<(DateTime, T)>> history, long playerId, T value)
         {
             var now = DateTime.Now;
 
@@ -192,19 +192,19 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         }
 
         // === 当前战斗：添加数据点，并在首次出现正值时设定起始时间 ===
-        public static void AddDpsDataPointCurrent(ulong playerId, double dps)
+        public static void AddDpsDataPointCurrent(long playerId, double dps)
         {
             if (_currentCombatStartTime is null && dps > 0)
                 _currentCombatStartTime = DateTime.Now;
             AddDataPoint(_dpsHistoryCurrent, playerId, dps);
         }
-        public static void AddHpsDataPointCurrent(ulong playerId, double hps)
+        public static void AddHpsDataPointCurrent(long playerId, double hps)
         {
             if (_currentCombatStartTime is null && hps > 0)
                 _currentCombatStartTime = DateTime.Now;
             AddDataPoint(_hpsHistoryCurrent, playerId, hps);
         }
-        public static void AddTakenDpsDataPointCurrent(ulong playerId, double takenDps)
+        public static void AddTakenDpsDataPointCurrent(long playerId, double takenDps)
         {
             if (_currentCombatStartTime is null && takenDps > 0)
                 _currentCombatStartTime = DateTime.Now;
@@ -212,19 +212,19 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         }
 
         // === 全程：添加数据点，并在首次出现正值时设定起始时间 ===
-        public static void AddDpsDataPointFull(ulong playerId, double dps)
+        public static void AddDpsDataPointFull(long playerId, double dps)
         {
             if (_fullCombatStartTime is null && dps > 0)
                 _fullCombatStartTime = DateTime.Now;
             AddDataPoint(_dpsHistoryFull, playerId, dps);
         }
-        public static void AddHpsDataPointFull(ulong playerId, double hps)
+        public static void AddHpsDataPointFull(long playerId, double hps)
         {
             if (_fullCombatStartTime is null && hps > 0)
                 _fullCombatStartTime = DateTime.Now;
             AddDataPoint(_hpsHistoryFull, playerId, hps);
         }
-        public static void AddTakenDpsDataPointFull(ulong playerId, double takenDps)
+        public static void AddTakenDpsDataPointFull(long playerId, double takenDps)
         {
             if (_fullCombatStartTime is null && takenDps > 0)
                 _fullCombatStartTime = DateTime.Now;
@@ -328,8 +328,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
 
         private static void CheckAndAddZeroValues()
         {
-            HashSet<ulong> activeCurrent = StatisticData._manager.GetPlayersWithCombatData().Select(p => p.Uid).ToHashSet();
-            HashSet<ulong> activeFull = FullRecord.GetPlayersWithTotals(includeZero: false).Select(p => p.Uid).ToHashSet();
+            HashSet<long> activeCurrent = StatisticData._manager.GetPlayersWithCombatData().Select(p => p.Uid).ToHashSet();
+            HashSet<long> activeFull = FullRecord.GetPlayersWithTotals(includeZero: false).Select(p => p.Uid).ToHashSet();
 
             var now = DateTime.Now;
 
@@ -343,8 +343,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             CheckHistoryForZeroValues(_takenDpsHistoryFull, activeFull, now, (id, _) => AddTakenDpsDataPointFull(id, 0));
         }
 
-        private static void CheckHistoryForZeroValues<T>(Dictionary<ulong, List<(DateTime Time, T Value)>> history,
-            HashSet<ulong> activePlayerIds, DateTime now, Action<ulong, T> addZeroValue)
+        private static void CheckHistoryForZeroValues<T>(Dictionary<long, List<(DateTime Time, T Value)>> history,
+            HashSet<long> activePlayerIds, DateTime now, Action<long, T> addZeroValue)
             where T : struct, IComparable<T>
         {
             var zero = default(T);
@@ -454,7 +454,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// <summary>
         /// 创建 DPS 趋势折线图（默认使用全局 DataSource）
         /// </summary>
-        public static FlatLineChart CreateDpsTrendChart(int width = 800, int height = 400, ulong? specificPlayerId = null)
+        public static FlatLineChart CreateDpsTrendChart(int width = 800, int height = 400, long? specificPlayerId = null)
         {
             var chart = CreateChart<FlatLineChart>(new Size(width, height));
 
@@ -470,7 +470,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// <summary>
         /// 为指定数据源创建 DPS 曲线图（Current / FullRecord）。
         /// </summary>
-        public static FlatLineChart CreateDpsTrendChartForSource(ChartDataSource source, int width = 800, int height = 400, ulong? specificPlayerId = null)
+        public static FlatLineChart CreateDpsTrendChartForSource(ChartDataSource source, int width = 800, int height = 400, long? specificPlayerId = null)
         {
             var chart = CreateChart<FlatLineChart>(new Size(width, height));
             RegisterChart(chart);
@@ -482,7 +482,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// <summary>
         /// ??????????????????FlatPieChart??
         /// </summary>
-        public static FlatPieChart CreateSkillDamagePieChart(ulong playerId, int width = 400, int height = 400)
+        public static FlatPieChart CreateSkillDamagePieChart(long playerId, int width = 400, int height = 400)
         {
             var chart = CreateChart<FlatPieChart>(new Size(width, height));
             RefreshSkillDamagePieChart(chart, playerId); // 初始刷新
@@ -525,13 +525,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// <summary>
         /// 刷新 DPS 趋势图数据，支持单人/多人以及不同数据类型（默认使用全局 DataSource）
         /// </summary>
-        public static void RefreshDpsTrendChart(FlatLineChart chart, ulong? specificPlayerId = null, ChartDataType dataType = ChartDataType.Damage)
+        public static void RefreshDpsTrendChart(FlatLineChart chart, long? specificPlayerId = null, ChartDataType dataType = ChartDataType.Damage)
             => RefreshDpsTrendChart(chart, specificPlayerId, dataType, DataSource);
 
         /// <summary>
         /// 按指定数据源刷新曲线（Current/FullRecord）。
         /// </summary>
-        public static void RefreshDpsTrendChart(FlatLineChart chart, ulong? specificPlayerId, ChartDataType dataType, ChartDataSource source)
+        public static void RefreshDpsTrendChart(FlatLineChart chart, long? specificPlayerId, ChartDataType dataType, ChartDataSource source)
         {
             // 记录图表状态
             var timeScale = chart.GetTimeScale();
@@ -541,7 +541,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             chart.ClearSeries();
 
             // 选择对应历史
-            Dictionary<ulong, List<(DateTime Time, double Value)>> historyData;
+            Dictionary<long, List<(DateTime Time, double Value)>> historyData;
             DateTime? startTs;
             if (source == ChartDataSource.FullRecord)
             {
@@ -591,8 +591,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             }
         }
 
-        private static void RefreshSinglePlayerChart(FlatLineChart chart, Dictionary<ulong, List<(DateTime Time, double Value)>> historyData,
-            ulong playerId, DateTime startTime)
+        private static void RefreshSinglePlayerChart(FlatLineChart chart, Dictionary<long, List<(DateTime Time, double Value)>> historyData,
+            long playerId, DateTime startTime)
         {
             if (historyData.TryGetValue(playerId, out var playerHistory) && playerHistory.Count > 0)
             {
@@ -609,7 +609,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             }
         }
 
-        private static void RefreshMultiPlayerChart(FlatLineChart chart, Dictionary<ulong, List<(DateTime Time, double Value)>> historyData,
+        private static void RefreshMultiPlayerChart(FlatLineChart chart, Dictionary<long, List<(DateTime Time, double Value)>> historyData,
             DateTime startTime)
         {
             foreach (var (playerId, history) in historyData.OrderBy(x => x.Key))
@@ -630,7 +630,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             )).ToList();
         }
 
-        public static void RefreshSkillDamagePieChart(FlatPieChart chart, ulong playerId, ChartDataType dataType = ChartDataType.Damage)
+        public static void RefreshSkillDamagePieChart(FlatPieChart chart, long playerId, ChartDataType dataType = ChartDataType.Damage)
         {
             chart.ClearData();
 

@@ -241,7 +241,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                 if (vData.CharBase.FightPoint != 0)
                 {
                     DataStorage.CurrentPlayerInfo.CombatPower = vData.CharBase.FightPoint;
-                    DataStorage.SetPlayerFightPoint(playerUid, vData.CharBase.FightPoint);
+                    DataStorage.SetPlayerCombatPower(playerUid, vData.CharBase.FightPoint);
                 }
             }
 
@@ -281,14 +281,14 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                 switch (fieldIndex)
                 {
                     // 名字和战力
-                    case 2: 
+                    case 2:
                         if (!DoesStreamHaveIdentifier(br)) break;
                         fieldIndex = br.ReadUInt32();
                         _ = br.ReadInt32();
                         switch (fieldIndex)
                         {
                             // 名字
-                            case 5: 
+                            case 5:
                                 var playerName = StreamReadString(br);
                                 if (!string.IsNullOrEmpty(playerName))
                                 {
@@ -298,13 +298,13 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                                 break;
 
                             // 战力
-                            case 35: 
+                            case 35:
                                 var fightPoint = (int)br.ReadUInt32();
                                 _ = br.ReadInt32();
                                 if (fightPoint != 0)
                                 {
                                     DataStorage.CurrentPlayerInfo.CombatPower = fightPoint;
-                                    DataStorage.SetPlayerFightPoint(playerUid, fightPoint);
+                                    DataStorage.SetPlayerCombatPower(playerUid, fightPoint);
                                 }
                                 break;
 
@@ -312,14 +312,14 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                         break;
 
                     // HP
-                    case 16: 
+                    case 16:
                         if (!DoesStreamHaveIdentifier(br)) break;
                         fieldIndex = br.ReadUInt32();
                         _ = br.ReadInt32();
                         switch (fieldIndex)
                         {
                             // 当前血量
-                            case 1: 
+                            case 1:
                                 var curHp = (int)br.ReadUInt32();
                                 DataStorage.CurrentPlayerInfo.HP = curHp;
                                 DataStorage.SetPlayerHP(playerUid, curHp);
@@ -336,7 +336,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                         break;
 
                     // 职业
-                    case 61: 
+                    case 61:
                         if (!DoesStreamHaveIdentifier(br)) break;
                         fieldIndex = br.ReadUInt32();
                         _ = br.ReadInt32();
@@ -462,9 +462,6 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                 var isAttackerPlayer = attackerRaw.IsUuidPlayerRaw();
                 var attackerUuid = attackerRaw.ShiftRight16();
 
-                // 尝试创新新玩家的战斗日志
-                DataStorage.TestCreateBattleLogByUID(attackerUuid);
-
                 //// 这个判断里的 info 也没用到啊?
                 //// 检查是否缺少基本信息，如果缺少则尝试补充
                 //if (isAttackerPlayer && attackerUuid != 0)
@@ -502,7 +499,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                 int damageSource = (int)(d.HasDamageSource ? d.DamageSource : 0);
 
                 (var id, var ticks) = IDGenerator.Next();
-                DataStorage.AddBattleLog(attackerUuid, new() 
+                DataStorage.AddBattleLog(new()
                 {
                     PacketID = id,
                     TimeTicks = ticks,
@@ -521,37 +518,6 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                     IsDead = isDead,
                 });
 
-                //// 区分目标是否是玩家
-                //if (isTargetPlayer)
-                //{
-                //    if (isHeal)
-                //    {
-                //        // 计算玩家HPS
-                //        // StatisticData._manager.AddHealing(isAttackerPlayer ? attackerUuid : 0, (ulong)skillId, damageElementStr, hpLessen, isCrit, isLucky, isCauseLucky, targetUuid);
-
-                //    }
-                //    else
-                //    {
-                //        // 计算玩家抗伤
-                //        // StatisticData._manager.AddTakenDamage(targetUuid, (ulong)skillId, damage, damageSource, isMiss, isDead, isCrit, isLucky, hpLessen);
-                //    }
-                //}
-                //else
-                //{
-                //    if (!isHeal && isAttackerPlayer)
-                //    {
-                //        // 计算玩家DPS
-                //        // StatisticData._manager.AddDamage(attackerUuid, (ulong)skillId, damageElementStr, damage, isCrit, isLucky, isCauseLucky, hpLessen);
-                //    }
-                //    ////if (AppConfig.NpcsTakeDamage)
-                //    ////{
-
-                //    // 计算NPC抗伤
-                //    // StatisticData._npcManager.AddNpcTakenDamage(targetUuid, attackerUuid, skillId, damage, isCrit, isLucky, hpLessen, isMiss, isDead);
-
-
-                //    ////}
-                //}
             }
         }
 
@@ -590,7 +556,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                         DataStorage.SetPlayerProfessionID(playerUid, reader.ReadInt32());
                         break;
                     case (int)AttrType.AttrFightPoint:
-                        DataStorage.SetPlayerFightPoint(playerUid, reader.ReadInt32());
+                        DataStorage.SetPlayerCombatPower(playerUid, reader.ReadInt32());
                         break;
                     case (int)AttrType.AttrLevel:
                         DataStorage.SetPlayerLevel(playerUid, reader.ReadInt32());

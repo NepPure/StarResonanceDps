@@ -46,40 +46,28 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
             get => _dataDict.Values.ToList();
             set
             {
-                lock (_lock)
+                // 清除所有项目
+                if (value == null || value.Count == 0)
                 {
-                    if (value == null || value.Count == 0)
-                    {
-                        _dataDict.Clear();
-                        _animatingInfoBuffer.Clear(); // 同步清空动画缓存，避免残影
-                        _selectedIndex = null;        // 清空选择状态
-                        SelectionChanged?.Invoke(this, -1, null);
-                        Invalidate();
-                        return;
-                    }
-
-                    // 预先构建目标 ID 集，避免 O(n^2)
-                    var targetIds = value
-                        .Where(item => item != null && item.ID >= 0)
-                        .Select(item => item.ID)
-                        .ToHashSet();
-
-                    // 移除不存在的项
-                    foreach (var key in _dataDict.Keys.ToList())
-                    {
-                        if (!targetIds.Contains(key))
-                            _dataDict.Remove(key);
-                    }
-
-                    // 更新或新增项（后者覆盖同 ID）
-                    foreach (var item in value)
-                    {
-                        if (item == null || item.ID < 0) continue;
-                        _dataDict[item.ID] = item;
-                    }
-
-                    Invalidate();
+                    _dataDict.Clear();
+                    return;
                 }
+
+                // 移除不存在的项
+                foreach (var key in _dataDict.Keys.ToList())
+                {
+                    if (!value.Exists(e => e.ID == key))
+                        _dataDict.Remove(key);
+                }
+
+                // 更新或新增项（后者覆盖同 ID）
+                foreach (var item in value)
+                {
+                    if (item == null || item.ID < 0) continue;
+                    _dataDict[item.ID] = item;
+                }
+
+                Invalidate();
             }
         }
 

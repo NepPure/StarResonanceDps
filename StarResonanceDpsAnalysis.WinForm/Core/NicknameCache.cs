@@ -15,7 +15,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core
 
     public sealed class UserProfile
     {
-        public ulong Uid { get; set; }
+        public long Uid { get; set; }
         public string Nickname { get; set; } = "";
         public string Profession { get; set; } = "";
         public long Power { get; set; }
@@ -236,7 +236,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Core
         public bool UpsertIfChanged(UserProfile incoming, bool caseInsensitiveName = false, bool trimName = true)
         {
             // 1) 校验：Uid 为 0 视为无效；ulong 不可为 null
-            if (incoming is null || incoming.Uid == 0UL)
+            if (incoming is null || incoming.Uid == 0L)
                 return false;
 
             var key = incoming.Uid.ToString(); // 仍用 string 作为字典键，便于 JSON 序列化

@@ -1,22 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace StarResonanceDpsAnalysis.Core.Extends.System
 {
-    public static class Int64Extends
+    public static class DoubleExtends
     {
         private static string[] CompactSuffixes { get; } = [string.Empty, "K", "M", "B", "T", "Q"];
         private static string[] ChineseUnits { get; } = [string.Empty, "万", "亿", "万亿", "千万亿"];
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static long ShiftRight16(this long value)
-        {
-            return value >> 16;
-        }
 
         /// <summary>
         /// 转换为英文简写 (K / M / B / T ...)
@@ -24,12 +17,12 @@ namespace StarResonanceDpsAnalysis.Core.Extends.System
         /// <param name="number">原始数值</param>
         /// <param name="digits">保留小数位数</param>
         /// <returns>如 1200 -> "1.2K"</returns>
-        public static string ToCompactString(this long number, int digits = 2)
+        public static string ToCompactString(this double number, int digits = 2)
         {
             if (number < 1000) return number.ToString($"F{digits}");
 
             var index = 0;
-            double value = number;
+            var value = number;
 
             while (value >= 1000 && index < CompactSuffixes.Length - 1)
             {
@@ -46,12 +39,12 @@ namespace StarResonanceDpsAnalysis.Core.Extends.System
         /// <param name="number">原始数值</param>
         /// <param name="digits">保留小数位数</param>
         /// <returns>如 120000 -> "12万"</returns>
-        public static string ToChineseUnitString(this long number, int digits = 2)
+        public static string ToChineseUnitString(this double number, int digits = 2)
         {
             if (number < 10000) return number.ToString($"F{digits}");
 
             var index = 0;
-            double value = number;
+            var value = number;
 
             while (value >= 10000 && index < ChineseUnits.Length - 1)
             {

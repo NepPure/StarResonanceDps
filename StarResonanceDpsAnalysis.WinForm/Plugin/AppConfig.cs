@@ -261,7 +261,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
 
         private static string? _nickName = null;
         private static string? _profession = null;
-        private static ulong? _uid = null;//用户UID
+        private static long? _uid = null;//用户UID
         private static int? _combatPower = null;//战斗力
         public static int? _combatTimeClearDelaySeconds;//战斗计时清除延迟
         public static int _clearPicture = 1;//是否过图清空记录
@@ -358,14 +358,14 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// <summary>
         /// UID
         /// </summary>
-        public static ulong Uid
+        public static long Uid
         {
             get
             {
                 if (!_uid.HasValue)
                 {
                     var raw = GetValue("SetUp", "Uid", "0");
-                    if (!ulong.TryParse(raw, out var pared)) pared = 0UL;
+                    if (!long.TryParse(raw, out var pared)) pared = 0L;
 
                     _uid = pared;
                 }

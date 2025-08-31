@@ -10,6 +10,7 @@ using AntdUI;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.Core.Analyze;
+using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
@@ -46,7 +47,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             {
                 AppConfig.ClearPicture = AppConfig.GetValue("UserConfig", "ClearPicture", "1").ToInt();
                 AppConfig.NickName = AppConfig.GetValue("UserConfig", "NickName", "未知");
-                AppConfig.Uid = (ulong)AppConfig.GetValue("UserConfig", "Uid", "0").ToInt();
+                AppConfig.Uid = AppConfig.GetValue("UserConfig", "Uid", "0").ToInt64();
                 AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知");
                 AppConfig.CombatPower = AppConfig.GetValue("UserConfig", "CombatPower", "0").ToInt();
 
@@ -62,7 +63,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     RequestActiveViewRefresh();
                 }
 
-                SortedProgressBarStatic = this.sortedProgressBarList1; // # 关键：这里绑定实例
+                SortedProgressBarStatic = this.sortedProgressBarList_MainList; // # 关键：这里绑定实例
                 return;
             }
         }
@@ -268,8 +269,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             StatisticData._manager.ClearAll();
             SkillTableDatas.SkillTable.Clear();
-            label1.Text = $"";
-            label2.Text = $"";
+            label_CurrentOrder.Text = $"";
+            label_CurrentDps.Text = $"";
             try
             {
                 lock (_dataLock)
@@ -278,17 +279,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     DictList.Clear();
                     list.Clear();
                     userRenderContent.Clear();
-                    // UI 组件缓存清空（注意切回 UI 线程）
-                    var ctrl = SortedProgressBarStatic;
-                    // ListClear() — 清空 UI
-                    if (ctrl != null && !ctrl.IsDisposed)
-                    {
-                        if (ctrl.InvokeRequired)
-                            ctrl.BeginInvoke(() => ctrl.Data = new List<ProgressBarData>());
-                        else
-                            ctrl.Data = new List<ProgressBarData>();
-                    }
 
+                    // 通知数据处理器标记新阶段
+                    DataStorage.MarkNewBattleSection();
                 }
             }
             finally
@@ -307,28 +300,28 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         {
             // # 启动与初始化事件：界面样式与渲染设置（仅 UI 外观，不涉及数据）
             // ======= 单个进度条（textProgressBar1）的外观设置 =======
-            sortedProgressBarList1.OrderImageOffset = new RenderContent.ContentOffset { X = 6, Y = 0 };
-            sortedProgressBarList1.OrderImageRenderSize = new Size(22, 22);
-            sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 32, Y = 0 };
-            sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}.";
-            sortedProgressBarList1.OrderImages = [HandledAssets.皇冠];
+            sortedProgressBarList_MainList.OrderImageOffset = new RenderContent.ContentOffset { X = 6, Y = 0 };
+            sortedProgressBarList_MainList.OrderImageRenderSize = new Size(22, 22);
+            sortedProgressBarList_MainList.OrderOffset = new RenderContent.ContentOffset { X = 32, Y = 0 };
+            sortedProgressBarList_MainList.OrderCallback = (i) => $"{i:d2}.";
+            sortedProgressBarList_MainList.OrderImages = [HandledAssets.皇冠];
 
 
             if (Config.IsLight)
             {
-                sortedProgressBarList1.OrderColor = Color.Black;
+                sortedProgressBarList_MainList.OrderColor = Color.Black;
             }
             else
             {
-                sortedProgressBarList1.OrderColor = Color.White;
+                sortedProgressBarList_MainList.OrderColor = Color.White;
             }
 
-            sortedProgressBarList1.OrderFont = AppConfig.SaoFont;
+            sortedProgressBarList_MainList.OrderFont = AppConfig.SaoFont;
 
             // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
-            sortedProgressBarList1.ProgressBarHeight = AppConfig.ProgressBarHeight;  // 每行高度
-            sortedProgressBarList1.AnimationDuration = 1000; // 动画时长（毫秒）
-            sortedProgressBarList1.AnimationQuality = Quality.Low; // 动画品质（你项目里的枚举）
+            sortedProgressBarList_MainList.ProgressBarHeight = AppConfig.ProgressBarHeight;  // 每行高度
+            sortedProgressBarList_MainList.AnimationDuration = 1000; // 动画时长（毫秒）
+            sortedProgressBarList_MainList.AnimationQuality = Quality.Low; // 动画品质（你项目里的枚举）
             //sortedProgressBarList1.OrderImages =
             //[
             //    (Bitmap)HandledAssets.皇冠,
@@ -339,7 +332,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         // 当前是否停留在“NPC 攻击者榜”详情
         private volatile bool _npcDetailMode = false;
         // 详情里正在查看的 NPC Id
-        private ulong _npcFocusId = 0;
+        private long _npcFocusId = 0;
 
         /// <summary>
         /// 实例化 SortedProgressBarList 控件
@@ -547,10 +540,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             if (uiList.Count == 0)
             {
-                if (sortedProgressBarList1.InvokeRequired)
-                    sortedProgressBarList1.BeginInvoke(() => sortedProgressBarList1.Data = new List<ProgressBarData>());
+                if (sortedProgressBarList_MainList.InvokeRequired)
+                    sortedProgressBarList_MainList.BeginInvoke(() => sortedProgressBarList_MainList.Data = new List<ProgressBarData>());
                 else
-                    sortedProgressBarList1.Data = new List<ProgressBarData>();
+                    sortedProgressBarList_MainList.Data = new List<ProgressBarData>();
                 return;
             }
 
@@ -636,8 +629,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
                     if (p.Uid == (long)AppConfig.Uid)
                     {
-                        label1.Text = $" [{i + 1}]";
-                        label2.Text = $"{totalFmt} ({perSec})";
+                        label_CurrentOrder.Text = $" [{i + 1}]";
+                        label_CurrentDps.Text = $"{totalFmt} ({perSec})";
                     }
 
                     // 复用旧的 ProgressBarData，避免 UI 抖动；没有则新建
@@ -675,10 +668,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 // RefreshDpsTable(...) — 锁内最终绑定
                 void Bind()
                 {
-                    sortedProgressBarList1.Data = list; // list 永不为 null
+                    sortedProgressBarList_MainList.Data = list; // list 永不为 null
                 }
 
-                if (sortedProgressBarList1.InvokeRequired) sortedProgressBarList1.BeginInvoke((Action)Bind);
+                if (sortedProgressBarList_MainList.InvokeRequired) sortedProgressBarList_MainList.BeginInvoke((Action)Bind);
                 else Bind();
             }
         }
@@ -697,10 +690,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // 2) 空列表则清空 UI
             if (uiList.Count == 0)
             {
-                if (sortedProgressBarList1.InvokeRequired)
-                    sortedProgressBarList1.BeginInvoke(() => sortedProgressBarList1.Data = new List<ProgressBarData>());
+                if (sortedProgressBarList_MainList.InvokeRequired)
+                    sortedProgressBarList_MainList.BeginInvoke(() => sortedProgressBarList_MainList.Data = new List<ProgressBarData>());
                 else
-                    sortedProgressBarList1.Data = new List<ProgressBarData>();
+                    sortedProgressBarList_MainList.Data = new List<ProgressBarData>();
                 return;
             }
 
@@ -781,15 +774,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
                 list = next;
 
-                void Bind() => sortedProgressBarList1.Data = list;
-                if (sortedProgressBarList1.InvokeRequired) sortedProgressBarList1.BeginInvoke(Bind);
+                void Bind() => sortedProgressBarList_MainList.Data = list;
+                if (sortedProgressBarList_MainList.InvokeRequired) sortedProgressBarList_MainList.BeginInvoke(Bind);
                 else Bind();
             }
         }
 
 
         /// <summary>刷新：某个NPC的攻击者排名（全程 FullRecord）</summary>
-        public void RefreshNpcAttackers(ulong npcId)
+        public void RefreshNpcAttackers(long npcId)
         {
             if (Interlocked.CompareExchange(ref _isClearing, 0, 0) == 1) return;
 
@@ -799,10 +792,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             if (uiList.Count == 0)
             {
-                if (sortedProgressBarList1.InvokeRequired)
-                    sortedProgressBarList1.BeginInvoke(() => sortedProgressBarList1.Data = new List<ProgressBarData>());
+                if (sortedProgressBarList_MainList.InvokeRequired)
+                    sortedProgressBarList_MainList.BeginInvoke(() => sortedProgressBarList_MainList.Data = new List<ProgressBarData>());
                 else
-                    sortedProgressBarList1.Data = new List<ProgressBarData>();
+                    sortedProgressBarList_MainList.Data = new List<ProgressBarData>();
                 return;
             }
 
@@ -881,8 +874,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
                 list = next;
 
-                void Bind() => sortedProgressBarList1.Data = list;
-                if (sortedProgressBarList1.InvokeRequired) sortedProgressBarList1.BeginInvoke((Action)Bind);
+                void Bind() => sortedProgressBarList_MainList.Data = list;
+                if (sortedProgressBarList_MainList.InvokeRequired) sortedProgressBarList_MainList.BeginInvoke((Action)Bind);
                 else Bind();
             }
         }
@@ -920,7 +913,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             return list.OrderByDescending(r => r.TotalTaken).ToList();
         }
         /// <summary>构建：对指定NPC的攻击者排名（当前 Current）</summary>
-        private List<NpcAttackerRow> BuildNpcAttackerRows_Current(ulong npcId, int topN = 20)
+        private List<NpcAttackerRow> BuildNpcAttackerRows_Current(long npcId, int topN = 20)
         {
             // 先刷新一下实时窗口，保证 Realtime 值与 ActiveSeconds 更贴近当前
             StatisticData._npcManager.UpdateAllRealtime();
@@ -1065,7 +1058,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         }
 
         /// <summary>构建：对指定NPC的攻击者排名（全程 FullRecord）</summary>
-        private List<NpcAttackerRow> BuildNpcAttackerRows_FullRecord(ulong npcId, int topN = 20)
+        private List<NpcAttackerRow> BuildNpcAttackerRows_FullRecord(long npcId, int topN = 20)
         {
             var top = FullRecord.GetNpcTopAttackers(npcId, topN);
             if (top == null || top.Count == 0) return new();
@@ -1074,7 +1067,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // 将 FullRecord 返回项映射到 UI 行
             var rows = top.Select(t => new NpcAttackerRow
             {
-                Uid = (long)t.Uid,
+                Uid = t.Uid,
                 Nickname = t.Nickname,
                 CombatPower = t.CombatPower,
                 Profession = t.Profession,

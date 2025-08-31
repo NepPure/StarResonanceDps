@@ -12,6 +12,7 @@ namespace StarResonanceDpsAnalysis.Core.Data.Models
         public long? UID { get; internal set; }
         public string? Name { get; internal set; }
         public int? ProfessionID { get; internal set; }
+        public string? SubProfessionName { get; internal set; }
         public int? CombatPower { get; internal set; }
         public int? Level { get; internal set; }
         public int? RankLevel { get; internal set; }

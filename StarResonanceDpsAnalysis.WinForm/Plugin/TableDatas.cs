@@ -25,7 +25,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
     public class DpsTable : NotifyProperty
     {
         // —— DPS 相关私有字段（只在类内部使用） ——
-        private ulong uid;                // 玩家唯一ID
+        private long uid;                // 玩家唯一ID
         private string nickName;           // 玩家昵称
         private string profession;         // 职业
         private int combatPower;           // 战力
@@ -56,7 +56,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// 初始化所有统计字段的值（UI 初次绑定时使用）
         /// </summary>
         public DpsTable(
-            ulong uid,
+            long uid,
             string nickname,
             ulong takenDamage,
             ulong totalHealing,
@@ -112,7 +112,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         // —— 属性封装（支持 UI 绑定通知） ——
 
         /// <summary>玩家唯一ID</summary>
-        public ulong Uid
+        public long Uid
         {
             get => uid;
             set
@@ -428,7 +428,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
     public class SkillData : NotifyProperty
     {
         #region 字段（私有存储）
-        private ulong skillId;    // 技能ID
+        private long skillId;    // 技能ID
         private string name;       // 技能名称
         private string icon;       // 技能图标（文件路径或URL）
         private CellText damage;      // 技能总伤害
@@ -443,7 +443,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         #endregion
 
         #region 构造函数
-        public SkillData(ulong skillId, string name, string icon, ulong damage, int hitCount, string critRate, double share, double avgPerHit, double totalDps)
+        public SkillData(long skillId, string name, string icon, ulong damage, int hitCount, string critRate, double share, double avgPerHit, double totalDps)
         {
             SkillId = skillId;
             Name = name;
@@ -464,7 +464,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
 
         // —— 技能基础信息 —— 
 
-        public ulong SkillId
+        public long SkillId
         {
             get => skillId;
             set
@@ -830,19 +830,19 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
     public class DeathStatisticsTable : NotifyProperty
     {
         #region 字段（私有存储）
-        private ulong uid;
+        private long uid;
         private string nickName;       // 玩家昵称
         private int totalDeathCount;     // 死亡次数
         #endregion
 
         #region 构造函数
-        public DeathStatisticsTable(ulong uid, string nickName,int totalDeathCount)
+        public DeathStatisticsTable(long uid, string nickName,int totalDeathCount)
         {
             Uid = uid;
             NickName = nickName;
             TotalDeathCount =totalDeathCount;
         }
-        public ulong Uid
+        public long Uid
         {
             get => uid;
             set

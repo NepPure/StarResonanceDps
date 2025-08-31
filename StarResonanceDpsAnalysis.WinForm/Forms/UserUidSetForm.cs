@@ -61,7 +61,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
 
                 // 确保AppConfig的全局属性与界面同步
-                AppConfig.Uid = (ulong)inputNumber1.Value;
+                AppConfig.Uid = (long)inputNumber1.Value;
                 AppConfig.NickName = input2.Text;
             }
             catch (Exception ex)
@@ -107,7 +107,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// </summary>
         private void DisplayCurrentUserInfo()
         {
-            ulong currentUid = (ulong)inputNumber1.Value;
+            var currentUid = (long)inputNumber1.Value;
             if (currentUid > 0)
             {
                 var (nickname, combatPower, profession) = StatisticData._manager.GetPlayerBasicInfo(currentUid);
@@ -132,9 +132,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             }
 
             // 从界面获取当前输入的值
-            ulong newUid = (ulong)inputNumber1.Value;
+            var newUid = (long)inputNumber1.Value;
             string newNickname = input2.Text.Trim();
-            string profession = select1.SelectedValue.ToString().Trim();
+            string profession = select1.SelectedValue?.ToString()?.Trim() ?? string.Empty;
 
             // 获取原始配置值用于比较
             string oldUidStr = AppConfig.GetValue("UserConfig", "Uid", "0");
@@ -142,7 +142,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             string oldProfession = AppConfig.GetValue("UserConfig", "Profession", "未知职业");
 
 
-            bool uidChanged = !ulong.TryParse(oldUidStr, out ulong oldUid) || oldUid != newUid;
+            bool uidChanged = !long.TryParse(oldUidStr, out long oldUid) || oldUid != newUid;
             bool nicknameChanged = oldNickname != newNickname;
             bool professionChanged = oldProfession != profession;
 

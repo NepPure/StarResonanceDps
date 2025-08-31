@@ -31,10 +31,10 @@ namespace StarResonanceDpsAnalysis.WinForm
 
            // 根据主屏分辨率设置 AntdUI 全局 DPI 缩放，使 1080p=1.0，2K≈1.33，4K=2.0
            // float dpiScale = GetPrimaryResolutionScale();
-            AppConfig.dpi = AntdUI.Config.Dpi;
+            AppConfig.dpi = Config.Dpi;
 
        
-            AntdUI.Config.TextRenderingHighQuality = true;
+            Config.TextRenderingHighQuality = true;
 
             
 
@@ -44,9 +44,11 @@ namespace StarResonanceDpsAnalysis.WinForm
 
             ApplicationConfiguration.Initialize();
             FormManager.dpsStatistics = new DpsStatisticsForm();
-           Application.Run(FormManager.dpsStatistics);
+            Application.Run(FormManager.dpsStatistics);
 
             //Application.Run(new ModuleCalculationForm());
+
+            //Application.Run(new TestForm());
         }
 
         private static float GetPrimaryResolutionScale()

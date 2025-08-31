@@ -119,6 +119,58 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             button2.Click += (s, e) =>
             {
+                var data = new List<ProgressBarData>();
+                for (int i = 0; i < 10; i++)
+                {
+                    data.Add(new ProgressBarData 
+                    {
+                        ID = i,
+                        ProgressBarCornerRadius = 5,
+                        ProgressBarColor = Color.FromArgb(0xF5, 0xEB, 0xAE),
+                        ProgressBarValue = rd.NextDouble(),
+                        ContentList =
+                        [
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Image,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                Offset = new RenderContent.ContentOffset { X = 48, Y = 0 },
+                                Image = images[rd.Next(images.Count)],
+                                ImageRenderSize = new Size(32, 32)
+                            },
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleLeft,
+                                Offset = new RenderContent.ContentOffset { X = 90, Y = 0 },
+                                Text = $"{RandomName()}({id:d5})",
+                                ForeColor = Color.Black,
+                                Font = new Font("Microsoft YaHei UI", 24f, FontStyle.Regular, GraphicsUnit.Pixel),
+                            },
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleRight,
+                                Offset = new RenderContent.ContentOffset { X = -90, Y = 4 },
+                                Text = $"3.0万(1.4w)",
+                                ForeColor = Color.Black,
+                                Font = new Font("Microsoft YaHei UI", 16f, FontStyle.Regular, GraphicsUnit.Pixel),
+                            },
+                            new RenderContent
+                            {
+                                Type = RenderContent.ContentType.Text,
+                                Align = RenderContent.ContentAlign.MiddleRight,
+                                Offset = new RenderContent.ContentOffset { X = 0, Y = 0 },
+                                Text = $"{numericUpDown2.Value:f2}%",
+                                ForeColor = Color.Black,
+                                Font = new Font("黑体", 24f, FontStyle.Regular, GraphicsUnit.Pixel),
+                            },
+                        ],
+                    });
+                }
+                sortedProgressBarList1.Data = data;
+                return;
+
                 if (numericUpDown1.Value == numericUpDown2.Value && numericUpDown2.Value == -1)
                 {
                     data.Clear();

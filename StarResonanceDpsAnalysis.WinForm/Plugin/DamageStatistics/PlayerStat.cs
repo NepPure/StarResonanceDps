@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Timers;
 using System.Xml.Linq;
 
+using StarResonanceDpsAnalysis.Core.Extends.Data;
 using StarResonanceDpsAnalysis.WinForm.Core;
 using StarResonanceDpsAnalysis.WinForm.Forms;
 
@@ -322,7 +323,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
     public sealed class SkillMeta
     {
         /// <summary>技能 ID。</summary>
-        public ulong Id { get; init; }
+        public long Id { get; init; }
 
         /// <summary>技能名称（可从资源/协议注入）。</summary>
         public string Name { get; init; } = "未知技能";
@@ -355,7 +356,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
     /// </summary>
     public static class SkillBook
     {
-        private static readonly Dictionary<ulong, SkillMeta> _metas = new();
+        private static readonly Dictionary<long, SkillMeta> _metas = new();
 
         /// <summary>
         /// 整条更新/写入一个技能的元数据。
@@ -368,7 +369,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// </summary>
         /// <param name="id">技能 ID。</param>
         /// <param name="name">技能名称。</param>
-        public static void SetName(ulong id, string name)
+        public static void SetName(long id, string name)
         {
             if (_metas.TryGetValue(id, out var m))
                 _metas[id] = new SkillMeta
@@ -389,7 +390,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// </summary>
         /// <param name="id">技能 ID。</param>
         /// <returns>若缓存中不存在，返回 Name="技能[id]" 的占位对象。</returns>
-        public static SkillMeta Get(ulong id) =>
+        public static SkillMeta Get(long id) =>
             _metas.TryGetValue(id, out var m) ? m : new SkillMeta { Id = id, Name = $"技能[{id}]" };
 
         /// <summary>
@@ -398,7 +399,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="id">技能 ID。</param>
         /// <param name="meta">输出参数：若命中缓存，则为对应元数据。</param>
         /// <returns>是否命中缓存。</returns>
-        public static bool TryGet(ulong id, out SkillMeta meta) => _metas.TryGetValue(id, out meta);
+        public static bool TryGet(long id, out SkillMeta meta) => _metas.TryGetValue(id, out meta);
     }
 
     // ------------------------------------------------------------
@@ -412,7 +413,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
     public sealed class SkillSummary
     {
         /// <summary>技能ID（唯一标识技能，可用于数据库关联）。</summary>
-        public ulong SkillId { get; init; }
+        public long SkillId { get; init; }
 
         /// <summary>技能名称（默认值为“未知技能”）。</summary>
         public string SkillName { get; init; } = "未知技能";
@@ -463,7 +464,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
     public sealed class TeamSkillSummary
     {
         /// <summary>技能 ID。</summary>
-        public ulong SkillId { get; init; }
+        public long SkillId { get; init; }
 
         /// <summary>技能名称。</summary>
         public string SkillName { get; init; } = "未知技能";
@@ -491,7 +492,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         #region 基本信息
 
         /// <summary>玩家唯一 UID。</summary>
-        public ulong Uid { get; }
+        public long Uid { get; }
 
         /// <summary>玩家昵称。</summary>
         public string Nickname { get; set; } = "未知";
@@ -521,26 +522,26 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         public ulong TakenDamage { get; private set; }
 
         /// <summary>按技能分组的伤害/治疗统计（key=技能ID）。</summary>
-        public Dictionary<ulong, StatisticData> SkillUsage { get; } = new();
+        public Dictionary<long, StatisticData> SkillUsage { get; } = new();
 
         /// <summary>
         /// 按技能分组的伤害/治疗统计（key=技能ID）（按元素分组）
         /// </summary>
 
-        public Dictionary<ulong, Dictionary<string, StatisticData>> SkillUsageByElement = new();
+        public Dictionary<long, Dictionary<string, StatisticData>> SkillUsageByElement = new();
 
         /// <summary>
         /// 按技能分组的治疗统计（key=技能ID）（按目标分组）
         /// </summary>
-        public Dictionary<ulong, Dictionary<ulong, StatisticData>> HealingBySkillTarget = new();
+        public Dictionary<long, Dictionary<ulong, StatisticData>> HealingBySkillTarget = new();
 
 
 
         /// <summary>按技能分组的承伤统计（key=技能ID）。</summary>
-        public Dictionary<ulong, StatisticData> TakenDamageBySkill { get; } = new();
+        public Dictionary<long, StatisticData> TakenDamageBySkill { get; } = new();
 
         /// <summary>按技能分组的治疗统计（key=技能ID）。</summary>
-        public Dictionary<ulong, StatisticData> HealingBySkill { get; } = new();
+        public Dictionary<long, StatisticData> HealingBySkill { get; } = new();
 
         /// <summary>玩家/怪物承伤统计（聚合，非按技能）。</summary>
         public StatisticData TakenStats { get; } = new();
@@ -553,7 +554,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// 使用玩家 UID 构造实例。
         /// </summary>
         /// <param name="uid">玩家唯一标识。</param>
-        public PlayerData(ulong uid) => Uid = uid;
+        public PlayerData(long uid) => Uid = uid;
 
         #endregion
 
@@ -568,7 +569,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="isLucky">是否幸运。</param>
         /// <param name="hpLessen">扣血值（可选）。通常伤害时与 damage 一致，承伤场景更有意义。</param>
         public void AddDamage(
-            ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0,
+            long skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0,
             string? damageElement = null, bool isCauseLucky = false)
         {
             DamageStats.AddRecord(damage, isCrit, isLucky, hpLessen, isCauseLucky);
@@ -581,7 +582,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             stat.AddRecord(damage, isCrit, isLucky, hpLessen, isCauseLucky);
             if (string.IsNullOrEmpty(SubProfession))
             {
-                var sp = Common.GetSubProfessionBySkillId(skillId);
+                var sp = skillId.GetSubProfessionBySkillId();
                 if (!string.IsNullOrEmpty(sp)) SubProfession = sp;
             }
 
@@ -600,7 +601,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
         public void AddHealing(
-            ulong skillId, ulong healing, bool isCrit, bool isLucky,
+            long skillId, ulong healing, bool isCrit, bool isLucky,
             string? damageElement = null, bool isCauseLucky = false, ulong targetUuid = 0)
         {
             HealingStats.AddRecord(healing, isCrit, isLucky, 0, isCauseLucky);
@@ -611,10 +612,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
                 HealingBySkill[skillId] = stat;
             }
             stat.AddRecord(healing, isCrit, isLucky, 0, isCauseLucky);
-            string subProfession = Common.GetSubProfessionBySkillId(skillId);
+            string subProfession = skillId.GetSubProfessionBySkillId();
             if (string.IsNullOrEmpty(SubProfession))
             {
-                var sp = Common.GetSubProfessionBySkillId(skillId);
+                var sp = skillId.GetSubProfessionBySkillId();
                 if (!string.IsNullOrEmpty(sp)) SubProfession = sp;
             }
 
@@ -639,7 +640,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="isMiss">是否未命中。</param>
         /// <param name="isDead">是否死亡。</param>
         public void AddTakenDamage(
-            ulong skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0,
+            long skillId, ulong damage, bool isCrit, bool isLucky, ulong hpLessen = 0,
             int damageSource = 0, bool isMiss = false, bool isDead = false)
         {
             if (!TakenDamageBySkill.TryGetValue(skillId, out var stat))
@@ -768,7 +769,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             Core.SkillType? filterType = Core.SkillType.Damage)
         {
             // 1) 选择数据源
-            IEnumerable<KeyValuePair<ulong, StatisticData>> source;
+            IEnumerable<KeyValuePair<long, StatisticData>> source;
             if (filterType == Core.SkillType.Damage)
                 source = SkillUsage;                  // 按技能统计的伤害
             else if (filterType == Core.SkillType.Heal)
@@ -828,14 +829,14 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="topN">Top N 技能数量。</param>
         /// <param name="includeOthers">是否包含“其他”汇总。</param>
         /// <returns>元组列表：(SkillId, SkillName, Realtime, Percent)。</returns>
-        public List<(ulong SkillId, string SkillName, ulong Realtime, int Percent)> GetSkillDamageShareRealtime(int topN = 10, bool includeOthers = true)
+        public List<(long SkillId, string SkillName, ulong Realtime, int Percent)> GetSkillDamageShareRealtime(int topN = 10, bool includeOthers = true)
         {
-            if (SkillUsage.Count == 0) return new List<(ulong, string, ulong, int)>();
+            if (SkillUsage.Count == 0) return new List<(long, string, ulong, int)>();
 
             // 分母：实时窗口内的伤害
             ulong denom = 0;
             foreach (var kv in SkillUsage) denom += kv.Value.RealtimeValue;
-            if (denom == 0) return new List<(ulong, string, ulong, int)>();
+            if (denom == 0) return new List<(long, string, ulong, int)>();
 
             var top = SkillUsage
                 .Select(kv => new { kv.Key, Val = kv.Value.RealtimeValue })
@@ -846,7 +847,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             ulong chosenSum = 0;
             foreach (var c in chosen) chosenSum += c.Val;
 
-            var result = new List<(ulong, string, ulong, int)>(chosen.Count + 1);
+            var result = new List<(long, string, ulong, int)>(chosen.Count + 1);
             foreach (var c in chosen)
             {
                 double r = (double)c.Val / denom;
@@ -888,7 +889,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="topN">Top N 技能数量。</param>
         /// <param name="includeOthers">是否追加“其他”。</param>
         /// <returns>(SkillId, SkillName, Total, Percent) 列表。</returns>
-        public List<(ulong SkillId, string SkillName, ulong Total, int Percent)>
+        public List<(long SkillId, string SkillName, ulong Total, int Percent)>
             GetSkillDamageShareTotal(int topN = 10, bool includeOthers = true)
         {
             if (SkillUsage.Count == 0) return new();
@@ -909,7 +910,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             foreach (var c in chosen) chosenSum += c.Val;
 
             // 3) 组装结果（百分比四舍五入为整数）
-            var result = new List<(ulong SkillId, string SkillName, ulong Total, int Percent)>(chosen.Count + 1);
+            var result = new List<(long SkillId, string SkillName, ulong Total, int Percent)>(chosen.Count + 1);
             foreach (var c in chosen)
             {
                 double r = (double)c.Val / denom;
@@ -991,7 +992,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// </summary>
         /// <param name="skillId">技能ID。</param>
         /// <returns>存在则返回 <see cref="SkillSummary"/>；否则返回 null。</returns>
-        public SkillSummary? GetTakenDamageDetail(ulong skillId)
+        public SkillSummary? GetTakenDamageDetail(long skillId)
         {
             // 没有该技能的承伤记录
             if (!TakenDamageBySkill.TryGetValue(skillId, out var stat))
@@ -1048,16 +1049,16 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         public IReadOnlyList<BattleSnapshot> History => _history;
 
         /// <summary>UID → 玩家数据。</summary>
-        private readonly Dictionary<ulong, PlayerData> _players = new();
+        private readonly Dictionary<long, PlayerData> _players = new();
 
         /// <summary>UID → 昵称（外部同步缓存）。</summary>
-        private static readonly ConcurrentDictionary<ulong, string> _nicknameRequestedUids = new();
+        private static readonly ConcurrentDictionary<long, string> _nicknameRequestedUids = new();
 
         /// <summary>UID → 战力（外部同步缓存）。</summary>
-        private static readonly ConcurrentDictionary<ulong, int> _combatPowerByUid = new();
+        private static readonly ConcurrentDictionary<long, int> _combatPowerByUid = new();
 
         /// <summary>UID → 职业（外部同步缓存）。</summary>
-        private static readonly ConcurrentDictionary<ulong, string> _professionByUid = new();
+        private static readonly ConcurrentDictionary<long, string> _professionByUid = new();
 
 
         /// <summary>整场战斗开始时间（第一次出现战斗事件时赋值）。</summary>
@@ -1092,7 +1093,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         #endregion
 
         // 放在 PlayerDataManager 类内部任意位置（方法区）
-        private void UpsertCacheProfile(ulong uid) // ★ 新增
+        private void UpsertCacheProfile(long uid) // ★ 新增
         {
             // 统一从 PlayerData 拿最新三件套，保证写入完整字段（避免把未知覆盖成默认值）
             var p = GetOrCreate(uid);
@@ -1252,7 +1253,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// </summary>
         /// <param name="uid">玩家 UID。</param>
         /// <returns><see cref="PlayerData"/> 实例。</returns>
-        public PlayerData GetOrCreate(ulong uid)
+        public PlayerData GetOrCreate(long uid)
         {
             lock (_playersLock)
             {
@@ -1307,7 +1308,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="uid">玩家 UID。</param>
         /// <param name="key">属性键。</param>
         /// <param name="value">属性值。</param>
-        public void SetAttrKV(ulong uid, string key, object value)
+        public void SetAttrKV(long uid, string key, object value)
         {
             GetOrCreate(uid).SetAttrKV(key, value);
         }
@@ -1318,7 +1319,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="uid">玩家 UID。</param>
         /// <param name="key">属性键。</param>
         /// <returns>属性值或 null。</returns>
-        public object? GetAttrKV(ulong uid, string key)
+        public object? GetAttrKV(long uid, string key)
         {
             return GetOrCreate(uid).GetAttrKV(key);
         }
@@ -1377,7 +1378,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="isLucky">是否幸运。</param>
         ///   /// <param name="damageSource">伤害类型</param>
         /// <param name="hpLessen">HP 扣减值（可选）。</param>
-        public void AddDamage(ulong uid, ulong skillId, string damageElement, ulong damage, bool isCrit, bool isLucky, bool isCauseLucky, ulong hpLessen = 0)
+        public void AddDamage(long uid, long skillId, string damageElement, ulong damage, bool isCrit, bool isLucky, bool isCauseLucky, ulong hpLessen = 0)
         {
             MarkCombatActivity();
 
@@ -1404,7 +1405,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="hpFull">HP 补满值（可选）。</param>
         /// <param name="damageSource">治疗类型</param>
         /// <param name="targetUuid">被治疗的ID（可选）。</param>
-        public void AddHealing(ulong uid, ulong skillId, string damageElement, ulong healing, bool isCrit, bool isLucky, bool isCauseLucky, ulong targetUuid)
+        public void AddHealing(long uid, long skillId, string damageElement, ulong healing, bool isCrit, bool isLucky, bool isCauseLucky, ulong targetUuid)
         {
             if (!_combatStart.HasValue || _combatEnd.HasValue)
                 return;
@@ -1433,7 +1434,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="damageSource">伤害类型</param>
         /// <param name="isMiss">是否闪避。</param>
         /// <param name="isDead">是否死亡。</param>
-        public void AddTakenDamage(ulong uid, ulong skillId, ulong damage,int damageSource, bool isMiss,bool isDead, bool isCrit, bool isLucky, ulong hpLessen = 0)
+        public void AddTakenDamage(long uid, long skillId, ulong damage,int damageSource, bool isMiss,bool isDead, bool isCrit, bool isLucky, ulong hpLessen = 0)
         {
             MarkCombatActivity();
             GetOrCreate(uid).AddTakenDamage(
@@ -1444,7 +1445,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <summary>设置玩家职业（缓存 + 实例）。</summary>
         /// <param name="uid">玩家 UID。</param>
         /// <param name="profession">职业名。</param>
-        public void SetProfession(ulong uid, string profession)
+        public void SetProfession(long uid, string profession)
         {
             _professionByUid[uid] = profession;
             GetOrCreate(uid).SetProfession(profession);
@@ -1455,7 +1456,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <summary>设置玩家战力（缓存 + 实例）。</summary>
         /// <param name="uid">玩家 UID。</param>
         /// <param name="combatPower">战力值。</param>
-        public void SetCombatPower(ulong uid, int combatPower)
+        public void SetCombatPower(long uid, int combatPower)
         {
             _combatPowerByUid[uid] = combatPower;
             GetOrCreate(uid).CombatPower = combatPower;
@@ -1465,7 +1466,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <summary>设置玩家昵称（缓存 + 实例）。</summary>
         /// <param name="uid">玩家 UID。</param>
         /// <param name="nickname">昵称。</param>
-        public void SetNickname(ulong uid, string nickname)
+        public void SetNickname(long uid, string nickname)
         {
             _nicknameRequestedUids[uid] = nickname;
             GetOrCreate(uid).Nickname = nickname;
@@ -1556,7 +1557,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         }
 
         /// <summary>获取所有玩家 UID。</summary>
-        public IEnumerable<ulong> GetAllUids()
+        public IEnumerable<long> GetAllUids()
         {
             lock (_playersLock) { return _players.Keys.ToArray(); }
         }
@@ -1571,7 +1572,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             PlayerData[] players;
             lock (_playersLock) { players = _players.Values.ToArray(); }
 
-            var agg = new Dictionary<ulong, (ulong total, int count)>();
+            var agg = new Dictionary<long, (ulong total, int count)>();
             foreach (var p in players)
             {
                 // 技能字典也拍快照
@@ -1605,7 +1606,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="filterType">技能类型过滤（默认 Damage）。</param>
         /// <returns><see cref="SkillSummary"/> 列表。</returns>
         public List<SkillSummary> GetPlayerSkillSummaries(
-            ulong uid,
+            long uid,
             int? topN = null,
             bool orderByTotalDesc = true,
             Core.SkillType? filterType = Core.SkillType.Damage)
@@ -1622,8 +1623,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="topN">Top N 技能。</param>
         /// <param name="includeOthers">是否包含“其他”。</param>
         /// <returns>占比数据 (SkillId, SkillName, Realtime, Percent)。</returns>
-        public List<(ulong SkillId, string SkillName, ulong Realtime, int Percent)>
-            GetPlayerSkillShareRealtime(ulong uid, int topN = 10, bool includeOthers = true)
+        public List<(long SkillId, string SkillName, ulong Realtime, int Percent)>
+            GetPlayerSkillShareRealtime(long uid, int topN = 10, bool includeOthers = true)
         {
             var p = GetOrCreate(uid);
             return p.GetSkillDamageShareRealtime(topN, includeOthers);
@@ -1636,7 +1637,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="uid">玩家 UID。</param>
         /// <param name="skillId">技能 ID。</param>
         /// <returns>存在则返回 <see cref="SkillSummary"/>；不存在返回 null。</returns>
-        public SkillSummary? GetPlayerSkillDetail(ulong uid, ulong skillId)
+        public SkillSummary? GetPlayerSkillDetail(long uid, long skillId)
         {
             var p = GetOrCreate(uid);
             if (!p.SkillUsage.TryGetValue(skillId, out var stat))
@@ -1669,13 +1670,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="includeOthers">是否包含“其他”。</param>
         /// <returns>(SkillId, SkillName, Total, Percent) 列表。</returns>
         // 2025-08-19 修改：同理，团队整场占比
-        public List<(ulong SkillId, string SkillName, ulong Total, int Percent)>
+        public List<(long SkillId, string SkillName, ulong Total, int Percent)>
             GetTeamSkillDamageShareTotal(int topN = 10, bool includeOthers = true)
         {
             PlayerData[] players;
             lock (_playersLock) { players = _players.Values.ToArray(); }
 
-            var agg = new Dictionary<ulong, ulong>();
+            var agg = new Dictionary<long, ulong>();
             foreach (var p in players)
             {
                 foreach (var kv in p.SkillUsage.ToArray())
@@ -1695,7 +1696,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
 
             ulong chosenSum = 0; foreach (var c in top) chosenSum += c.Val;
 
-            var result = new List<(ulong, string, ulong, int)>(top.Count + 1);
+            var result = new List<(long, string, ulong, int)>(top.Count + 1);
             foreach (var c in top)
             {
                 int pcent = (int)Math.Round((double)c.Val / denom * 100.0);
@@ -1716,7 +1717,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// </summary>
         /// <param name="uid">玩家 UID。</param>
         /// <returns>(Nickname, CombatPower, Profession) 三元组。</returns>
-        public (string Nickname, int CombatPower, string Profession) GetPlayerBasicInfo(ulong uid)
+        public (string Nickname, int CombatPower, string Profession) GetPlayerBasicInfo(long uid)
         {
             // 先查已创建的 PlayerData
             // 对 _players 的访问统一加锁
@@ -1741,13 +1742,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// </summary>
         /// <param name="uid">玩家 UID。</param>
         /// <returns>包含伤害/治疗/承伤/瞬时/极值等的聚合元组。</returns>
-        public (ulong Uid, string Nickname, int CombatPower, string Profession,
+        public (long Uid, string Nickname, int CombatPower, string Profession,
         ulong TotalDamage, double CritRate, double LuckyRate,
         ulong MaxSingleHit, ulong MinSingleHit,
         ulong RealtimeDps, ulong RealtimeDpsMax,
         double TotalDps, ulong TotalHealing, double TotalHps,
         ulong TakenDamage, DateTime? LastRecordTime)
-        GetPlayerFullStats(ulong uid)
+        GetPlayerFullStats(long uid)
         {
             if (!_players.TryGetValue(uid, out var p))
                 return (uid, "未知", 0, "未知", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, null);
@@ -1790,7 +1791,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// </summary>
         /// <param name="uid">玩家 UID。</param>
         /// <returns>玩家总承伤（<see cref="PlayerData.TakenDamage"/>）。</returns>
-        public ulong GetPlayerTakenDamageTotal(ulong uid)
+        public ulong GetPlayerTakenDamageTotal(long uid)
             => GetOrCreate(uid).TakenDamage;
 
         /// <summary>
@@ -1807,7 +1808,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             ulong MaxSingleHit,
             ulong MinSingleHit,
             DateTime? LastTime
-        ) GetPlayerTakenOverview(ulong uid)
+        ) GetPlayerTakenOverview(long uid)
         {
             var p = GetOrCreate(uid);
 
@@ -1833,7 +1834,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="topN">Top N 技能（可选；null 或 &lt;=0 表示全部）。</param>
         /// <param name="orderByTotalDesc">是否按承伤总量降序。</param>
         /// <returns><see cref="SkillSummary"/> 列表。</returns>
-        public List<SkillSummary> GetPlayerTakenDamageSummaries(ulong uid, int? topN = null, bool orderByTotalDesc = true)
+        public List<SkillSummary> GetPlayerTakenDamageSummaries(long uid, int? topN = null, bool orderByTotalDesc = true)
         {
             var p = GetOrCreate(uid);
             return p.GetTakenDamageSummaries(topN, orderByTotalDesc);
@@ -1846,7 +1847,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="uid">玩家 UID。</param>
         /// <param name="skillId">技能 ID。</param>
         /// <returns>存在则返回 <see cref="SkillSummary"/>；否则返回 null。</returns>
-        public SkillSummary? GetPlayerTakenDamageDetail(ulong uid, ulong skillId)
+        public SkillSummary? GetPlayerTakenDamageDetail(long uid, long skillId)
         {
             var p = GetOrCreate(uid);
             return p.GetTakenDamageDetail(skillId);
@@ -1883,7 +1884,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             var label = $"结束时间：{endedAt:HH:mm:ss}";
 
             ulong teamDmg = 0, teamHeal = 0, teamTaken = 0;
-            var snapPlayers = new Dictionary<ulong, SnapshotPlayer>(players.Length);
+            var snapPlayers = new Dictionary<long, SnapshotPlayer>(players.Length);
 
             foreach (var p in players)
             {
@@ -1980,7 +1981,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         public sealed class NpcData
         {
             /// <summary>NPC 唯一ID（可用怪物实体ID或模板ID，按你的采集口径）。</summary>
-            public ulong NpcId { get; }
+            public long NpcId { get; }
 
             /// <summary>NPC 名称（可选）。</summary>
             public string Name { get; private set; } = "未知NPC";
@@ -1992,9 +1993,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             /// 攻击者UID -> 该玩家对该NPC造成的聚合统计（不分技能）。
             /// 仅用于“对NPC伤害排名”。
             /// </summary>
-            public Dictionary<ulong, StatisticData> DamageByPlayer { get; } = new();
+            public Dictionary<long, StatisticData> DamageByPlayer { get; } = new();
 
-            public NpcData(ulong npcId, string? name = null)
+            public NpcData(long npcId, string? name = null)
             {
                 NpcId = npcId;
                 if (!string.IsNullOrWhiteSpace(name))
@@ -2017,7 +2018,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             /// 不区分技能，只累计到攻击者与 NPC 承伤聚合。
             /// </summary>
             public void AddTakenFrom(
-                ulong attackerUid,
+                long attackerUid,
                 ulong damage,
                 bool isCrit,
                 bool isLucky,
@@ -2046,7 +2047,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
   
             }
 
-            private StatisticData GetOrCreate(ulong uid)
+            private StatisticData GetOrCreate(long uid)
             {
                 if (!DamageByPlayer.TryGetValue(uid, out var stat))
                 {
@@ -2082,7 +2083,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         public sealed class NpcManager
         {
             private readonly object _lock = new();
-            private readonly Dictionary<ulong, NpcData> _npcs = new();
+            private readonly Dictionary<long, NpcData> _npcs = new();
 
             /// <summary>玩家数据管理器（用于拿昵称/战力/职业/秒伤）。</summary>
             public PlayerDataManager Players { get; }
@@ -2093,7 +2094,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             }
 
             /// <summary>获取或创建 NPC。</summary>
-            public NpcData GetOrCreate(ulong npcId, string? name = null)
+            public NpcData GetOrCreate(long npcId, string? name = null)
             {
                 lock (_lock)
                 {
@@ -2111,23 +2112,23 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             }
 
             /// <summary>设置 NPC 名称（可选）。</summary>
-            public void SetNpcName(ulong npcId, string name)
+            public void SetNpcName(long npcId, string name)
             {
                 GetOrCreate(npcId).SetName(name);
                 FullRecord.SetNpcName(npcId,name);
             }
             // 1) 列出所有出现过的 NPCId（当前战斗）
-            public IReadOnlyList<ulong> GetAllNpcIds()
+            public IReadOnlyList<long> GetAllNpcIds()
             {
                 lock (_lock)
                 {
-                    if (_npcs.Count == 0) return Array.Empty<ulong>();
+                    if (_npcs.Count == 0) return Array.Empty<long>();
                     return _npcs.Keys.ToList();
                 }
             }
 
             // 2) 取 NPC 名称（当前战斗）
-            public string GetNpcName(ulong npcId)
+            public string GetNpcName(long npcId)
             {
                 lock (_lock)
                 {
@@ -2136,14 +2137,14 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             }
 
             // 3) 当前战斗里该 NPC 的“承伤PS”= Total / ActiveSeconds（由 StatisticData 维护）
-            public double GetNpcTakenPerSecond(ulong npcId)
+            public double GetNpcTakenPerSecond(long npcId)
             {
                 var n = GetOrCreate(npcId);
                 return n.TakenStats.GetTotalPerSecond();
             }
 
             // 4) 当前战斗里“某玩家对该 NPC 的专属DPS”= Total / ActiveSeconds（只看该 NPC 维度）
-            public double GetPlayerNpcOnlyDps(ulong npcId, ulong uid)
+            public double GetPlayerNpcOnlyDps(long npcId, long uid)
             {
                 var n = GetOrCreate(npcId);
                 if (!n.DamageByPlayer.TryGetValue(uid, out var s)) return 0;
@@ -2154,8 +2155,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             /// 建议：同时仍调用 Players.AddDamage(...) 以维持玩家侧总DPS与技能数据。
             /// </summary>
             public void AddNpcTakenDamage(
-                ulong npcId,
-                ulong attackerUid,
+                long npcId,
+                long attackerUid,
                 long skillId,
                 ulong damage,
                 bool isCrit,
@@ -2189,7 +2190,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             /// <summary>
             /// 清空指定 NPC 的统计。
             /// </summary>
-            public void ResetNpc(ulong npcId)
+            public void ResetNpc(long npcId)
             {
                 lock (_lock)
                 {
@@ -2224,7 +2225,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
                 ulong MaxSingleHit,
                 ulong MinSingleHit,
                 DateTime? LastTime
-            ) GetNpcOverview(ulong npcId)
+            ) GetNpcOverview(long npcId)
             {
                 var npc = GetOrCreate(npcId);
                 var s = npc.TakenStats;
@@ -2245,8 +2246,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             /// <param name="npcId">NPC ID。</param>
             /// <param name="topN">前 N 名（默认 20）。</param>
             /// <returns>列表：(Uid, Nickname, CombatPower, Profession, DamageToNpc, TotalDps)</returns>
-            public List<(ulong Uid, string Nickname, int CombatPower, string Profession, ulong DamageToNpc, double TotalDps)>
-                GetNpcTopAttackers(ulong npcId, int topN = 20)
+            public List<(long Uid, string Nickname, int CombatPower, string Profession, ulong DamageToNpc, double TotalDps)>
+                GetNpcTopAttackers(long npcId, int topN = 20)
             {
                 var npc = GetOrCreate(npcId);
 
@@ -2283,7 +2284,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
             /// </summary>
             /// <returns>(Total, Realtime, RealtimeMax, AvgPerHit, MaxHit, MinHit)</returns>
             public (ulong Total, ulong Realtime, ulong RealtimeMax, double AvgPerHit, ulong MaxHit, ulong MinHit)
-                GetPlayerVsNpcStats(ulong npcId, ulong uid)
+                GetPlayerVsNpcStats(long npcId, long uid)
             {
                 var npc = GetOrCreate(npcId);
                 if (!npc.DamageByPlayer.TryGetValue(uid, out var s))
@@ -2329,7 +2330,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         public ulong TeamTotalHealing { get; init; }
 
         /// <summary>UID -> 玩家快照字典。</summary>
-        public Dictionary<ulong, SnapshotPlayer> Players { get; init; } = new();
+        public Dictionary<long, SnapshotPlayer> Players { get; init; } = new();
 
         /// <summary>全队总承伤。</summary>
         public ulong TeamTotalTakenDamage { get; init; }   // ★ 新增
@@ -2342,7 +2343,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
     public sealed class SnapshotPlayer
     {
         /// <summary>玩家 UID。</summary>
-        public ulong Uid { get; init; }
+        public long Uid { get; init; }
 
         /// <summary>昵称。</summary>
         public string Nickname { get; init; } = "未知";

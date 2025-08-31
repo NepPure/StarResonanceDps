@@ -221,8 +221,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
 
                 _animatingInfoBuffer[i] = info;
             }
+
             foreach (var data in _dataDict)
             {
+                // 如果新增数据, 则动画出现
                 if (!_animatingInfoBuffer.Any(e => e.ID == data.Key))
                 {
                     _animatingInfoBuffer.Add(new SortAnimatingInfo
@@ -238,7 +240,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
                 }
             }
 
-            // 这里会删除ToIndex = -1, TODO
             var tmpIndex = 0;
             _animatingInfoBuffer = [.. _animatingInfoBuffer
                 .OrderByDescending(e => e.Data.ProgressBarValue)
@@ -247,6 +248,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
                     if (e.ToIndex == -1) return e;
 
                     e.ToIndex = tmpIndex++;
+                    e.Data = _dataDict[e.ID];
                     return e;
                 })];
 

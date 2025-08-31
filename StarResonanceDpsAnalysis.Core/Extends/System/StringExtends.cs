@@ -31,6 +31,33 @@ namespace StarResonanceDpsAnalysis.Core.Extends.System
 
         #endregion
 
+        #region ToLong()
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ToInt64Ex(this string? str)
+        {
+            return Convert.ToInt64(str);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ToInt64(this string? str, long def = 0)
+        {
+            if (TryToInt64(str, out var result))
+            {
+                return result;
+            }
+
+            return def;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryToInt64(this string? str, out long result)
+        {
+            return long.TryParse(str, out result);
+        }
+
+        #endregion
+
         #region ToDouble()
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
