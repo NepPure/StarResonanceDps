@@ -281,7 +281,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     userRenderContent.Clear();
 
                     // 通知数据处理器标记新阶段
-                    DataStorage.MarkNewBattleSection();
+                    DataStorage.ClearDpsData();
                 }
             }
             finally

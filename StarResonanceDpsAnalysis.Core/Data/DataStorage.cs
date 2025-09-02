@@ -5,7 +5,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-
+using StarResonanceDpsAnalysis.Core.Analyze;
+using StarResonanceDpsAnalysis.Core.Analyze.Models;
 using StarResonanceDpsAnalysis.Core.Data.Models;
 
 namespace StarResonanceDpsAnalysis.Core.Data
@@ -31,27 +32,43 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <summary>
         /// 战斗日志列表
         /// </summary>
-        private static List<BattleLog> BattleLogs { get; } = new(262144);
+        private static List<BattleLog> FullBattleLogs { get; } = new(262144);
         /// <summary>
         /// 只读战斗日志列表
         /// </summary>
-        public static IReadOnlyList<BattleLog> ReadOnlyBattleLogs { get => BattleLogs.AsReadOnly(); }
+        public static IReadOnlyList<BattleLog> ReadOnlyFullBattleLogs { get => FullBattleLogs.AsReadOnly(); }
         /// <summary>
-        /// 玩家战斗日志列表字典 (Key: UID)
+        /// 分段战斗日志列表
         /// </summary>
-        private static Dictionary<long, List<BattleLog>> PlayerBattleLogs { get; } = [];
+        private static List<BattleLog> SectionedBattleLogs { get; } = new(16384);
         /// <summary>
-        /// 只读玩家战斗日志列表字典 (Key: UID)
+        /// 只读分段战斗日志列表
         /// </summary>
-        public static ReadOnlyDictionary<long, List<BattleLog>> ReadOnlyPlayerBattleLogs { get => PlayerBattleLogs.AsReadOnly(); }
+        public static IReadOnlyList<BattleLog> ReadOnlySectionedBattleLogs { get => SectionedBattleLogs.AsReadOnly(); }
         /// <summary>
-        /// 战斗日志分段列表
+        /// 全程玩家战斗日志列表字典 (Key: UID)
         /// </summary>
-        private static List<BattleLogSection> BattleLogSections { get; } = [];
+        private static Dictionary<long, List<BattleLog>> FullPlayerBattleLogs { get; } = [];
         /// <summary>
-        /// 只读战斗日志分段列表
+        /// 只读全程玩家战斗日志列表字典 (Key: UID)
         /// </summary>
-        public static IReadOnlyList<BattleLogSection> ReadOnlyBattleLogSections { get => BattleLogSections.AsReadOnly(); }
+        public static ReadOnlyDictionary<long, List<BattleLog>> ReadOnlyFullPlayerBattleLogs { get => FullPlayerBattleLogs.AsReadOnly(); }
+        /// <summary>
+        /// 上次保存全程战斗日志的时间戳 (Ticks)
+        /// </summary>
+        private static long PrevFullBattleLogSavedTicks { get; set; } = 0;
+        /// <summary>
+        /// 全程战斗日志保存间隔时间 (默认: 10分钟)
+        /// </summary>
+        public static TimeSpan FullBattleLogSaveTime { get; set; } = TimeSpan.FromMinutes(10);
+        /// <summary>
+        /// 分段玩家战斗日志列表字典 (Key: UID)
+        /// </summary>
+        private static Dictionary<long, List<BattleLog>> SectionedPlayerBattleLogs { get; } = [];
+        /// <summary>
+        /// 只读分段玩家战斗日志列表字典 (Key: UID)
+        /// </summary>
+        public static ReadOnlyDictionary<long, List<BattleLog>> ReadOnlySectionedPlayerBattleLogs { get => SectionedPlayerBattleLogs.AsReadOnly(); }
         /// <summary>
         /// 战斗日志分段超时时间 (默认: 5000ms)
         /// </summary>
@@ -63,6 +80,10 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 设置为 true 后将在下一次添加战斗日志时, 强制创建一个新的分段之后重置为 false
         /// </remarks>
         private static bool ForceNewBattleSection { get; set; } = false;
+        /// <summary>
+        /// 日志保存路径 (默认: 当前目录下的 Logs 文件夹)
+        /// </summary>
+        public static DirectoryInfo LogsSavePath { get; set; } = new DirectoryInfo(Path.Combine(Environment.CurrentDirectory, "Logs"));
 
         /// <summary>
         /// 全程玩家DPS字典 (Key: UID)
@@ -91,7 +112,8 @@ namespace StarResonanceDpsAnalysis.Core.Data
 
         public delegate void PlayerInfoUpdatedEventHandler(PlayerInfo info);
         public delegate void BattleLogNewSectionCreatedEventHandler();
-        public delegate void BattleLogUpdatedEventHandler(BattleLog battleLog);
+        public delegate void BattleLogCreatedEventHandler(BattleLog battleLog);
+        public delegate void DpsDataUpdatedEventHandler();
         public delegate void DataUpdatedEventHandler();
 
         /// <summary>
@@ -105,7 +127,11 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <summary>
         /// 战斗日志更新事件
         /// </summary>
-        public static event BattleLogUpdatedEventHandler? BattleLogUpdated;
+        public static event BattleLogCreatedEventHandler? BattleLogCreated;
+        /// <summary>
+        /// DPS数据更新事件
+        /// </summary>
+        public static event DpsDataUpdatedEventHandler? DpsDataUpdated;
         /// <summary>
         /// 数据更新事件 (玩家信息或战斗日志更新时触发)
         /// </summary>
@@ -266,10 +292,10 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// </remarks>
         internal static bool TestCreateBattleLogAndDpsDataByUID(long uid)
         {
-            var battleLogFlag = PlayerBattleLogs.ContainsKey(uid);
+            var battleLogFlag = FullPlayerBattleLogs.ContainsKey(uid);
             if (!battleLogFlag)
             {
-                PlayerBattleLogs[uid] = new(16384);
+                FullPlayerBattleLogs[uid] = new(16384);
             }
 
             var sectionedDpsDataFlag = SectionedDpsDatas.TryGetValue(uid, out var sectionedDpsData);
@@ -298,22 +324,34 @@ namespace StarResonanceDpsAnalysis.Core.Data
         internal static void AddBattleLog(BattleLog log)
         {
             var tt = new TimeSpan(log.TimeTicks);
-            var sectionFlag = BattleLogs.Count == 0;
+            var sectionFlag = FullBattleLogs.Count == 0;
             if (!sectionFlag)
             {
                 // 如果超时或强制创建新战斗阶段时, 关闭上一分段, 最后创建新分段
-                var prevTt = new TimeSpan(BattleLogs[^1].TimeTicks);
+                var prevTt = new TimeSpan(FullBattleLogs[^1].TimeTicks);
                 if (tt - prevTt > SectionTimeout || ForceNewBattleSection)
                 {
-                    CloseBattleSection();
+                    SaveAndStartNewBattleSection();
 
                     sectionFlag = true;
 
                     ForceNewBattleSection = false;
                 }
+
+                prevTt = new TimeSpan(PrevFullBattleLogSavedTicks);
+                if (tt - prevTt > FullBattleLogSaveTime)
+                {
+                    if (FullBattleLogs.Count > 10000)
+                    {
+                        SaveAndClearFullBattleLogs();
+                    }
+
+                    PrevFullBattleLogSavedTicks = log.TimeTicks;
+                }
             }
 
-            BattleLogs.Add(log);
+            FullBattleLogs.Add(log);
+            SectionedBattleLogs.Add(log);
 
             if (log.IsTargetPlayer)
             {
@@ -326,15 +364,14 @@ namespace StarResonanceDpsAnalysis.Core.Data
                     data.StartLoggedTick ??= log.TimeTicks;
                     data.TotalHeal += log.Value;
                     data.LastLoggedTick = log.TimeTicks;
-                    SectionedDpsDatas[log.AttackerUuid] = data;
 
                     data = FullDpsData[log.AttackerUuid];
                     data.StartLoggedTick ??= log.TimeTicks;
                     data.TotalHeal += log.Value;
                     data.LastLoggedTick = log.TimeTicks;
-                    FullDpsData[log.AttackerUuid] = data;
 
-                    PlayerBattleLogs[log.AttackerUuid].Add(log);
+                    FullPlayerBattleLogs[log.AttackerUuid].Add(log);
+                    SectionedPlayerBattleLogs[log.AttackerUuid].Add(log);
                 }
                 else
                 {
@@ -345,15 +382,14 @@ namespace StarResonanceDpsAnalysis.Core.Data
                     data.StartLoggedTick ??= log.TimeTicks;
                     data.TotalTakenDamage += log.Value;
                     data.LastLoggedTick = log.TimeTicks;
-                    SectionedDpsDatas[log.TargetUuid] = data;
 
                     data = FullDpsData[log.TargetUuid];
                     data.StartLoggedTick ??= log.TimeTicks;
                     data.TotalTakenDamage += log.Value;
                     data.LastLoggedTick = log.TimeTicks;
-                    FullDpsData[log.TargetUuid] = data;
 
-                    PlayerBattleLogs[log.TargetUuid].Add(log);
+                    FullPlayerBattleLogs[log.TargetUuid].Add(log);
+                    SectionedPlayerBattleLogs[log.TargetUuid].Add(log);
                 }
             }
             else
@@ -367,15 +403,14 @@ namespace StarResonanceDpsAnalysis.Core.Data
                     data.StartLoggedTick ??= log.TimeTicks;
                     data.TotalAttackDamage += log.Value;
                     data.LastLoggedTick = log.TimeTicks;
-                    SectionedDpsDatas[log.AttackerUuid] = data;
 
                     data = FullDpsData[log.AttackerUuid];
                     data.StartLoggedTick ??= log.TimeTicks;
                     data.TotalAttackDamage += log.Value;
                     data.LastLoggedTick = log.TimeTicks;
-                    FullDpsData[log.AttackerUuid] = data;
 
-                    PlayerBattleLogs[log.AttackerUuid].Add(log);
+                    FullPlayerBattleLogs[log.AttackerUuid].Add(log);
+                    SectionedPlayerBattleLogs[log.AttackerUuid].Add(log);
                 }
 
                 // 提升局部, 统一局部变量名
@@ -388,63 +423,133 @@ namespace StarResonanceDpsAnalysis.Core.Data
                     data.TotalTakenDamage += log.Value;
                     data.LastLoggedTick = log.TimeTicks;
                     data.IsNpcData = true;
-                    SectionedDpsDatas[log.TargetUuid] = data;
 
                     data = FullDpsData[log.TargetUuid];
                     data.StartLoggedTick ??= log.TimeTicks;
                     data.TotalTakenDamage += log.Value;
                     data.LastLoggedTick = log.TimeTicks;
-                    FullDpsData[log.TargetUuid] = data;
                     data.IsNpcData = true;
-                    PlayerBattleLogs[log.TargetUuid].Add(log);
+
+                    FullPlayerBattleLogs[log.TargetUuid].Add(log);
+                    SectionedPlayerBattleLogs[log.TargetUuid].Add(log);
                 }
             }
 
             if (sectionFlag)
             {
-                StartNewBattleSection();
-
                 BattleLogNewSectionCreated?.Invoke();
             }
 
-            BattleLogUpdated?.Invoke(log);
+            BattleLogCreated?.Invoke(log);
+            DpsDataUpdated?.Invoke();
             DataUpdated?.Invoke();
-        }
-
-        /// <summary>
-        /// 关闭当前战斗日志分段
-        /// </summary>
-        private static void CloseBattleSection()
-        {
-            var lastSection = BattleLogSections.Last();
-            lastSection.EndIndex = BattleLogs.Count - 1;
-            BattleLogSections[^1] = lastSection;
         }
 
         /// <summary>
         /// 开始新的战斗日志分段
         /// </summary>
-        private static void StartNewBattleSection()
+        private static void SaveAndStartNewBattleSection()
         {
-            BattleLogSections.Add(new() { StartIndex = BattleLogs.Count - 1 });
+            var playerDic = BuildPlayerDicFromBattleLog(SectionedBattleLogs);
+
+            PlayerInfoFileData[] playerInfos = [.. playerDic.Values];
+            BattleLogFileData[] battleLogs = [.. SectionedBattleLogs];
+
+            SectionedBattleLogs.Clear();
+            SectionedPlayerBattleLogs.Clear();
+
+            Task.Run(() =>
+            {
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Sectioned logs exporting...");
+
+                BattleLogWriter.WriteToFile(Path.Combine(LogsSavePath.FullName, "Sectioned"), new()
+                {
+                    FileVersion = LogsFileVersion.V3_0_0,
+                    LogsType = LogsType.Sectioned,
+                    PlayerInfos = playerInfos,
+                    BattleLogs = battleLogs
+                });
+
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Sectioned logs exported.");
+            });
+        }
+
+        /// <summary>
+        /// 保存全程战斗日志
+        /// </summary>
+        public static void SaveAndClearFullBattleLogs()
+        {
+            var playerDic = BuildPlayerDicFromBattleLog(FullBattleLogs);
+
+            PlayerInfoFileData[] playerInfos = [.. playerDic.Values];
+            BattleLogFileData[] battleLogs = [.. FullBattleLogs];
+
+            FullBattleLogs.Clear();
+            FullPlayerBattleLogs.Clear();
+            SectionedBattleLogs.Clear();
+            SectionedPlayerBattleLogs.Clear();
+
+            Task.Run(() =>
+            {
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Full logs exporting...");
+
+                BattleLogWriter.WriteToFile(Path.Combine(LogsSavePath.FullName, "Entire"), new() 
+                {
+                    FileVersion = LogsFileVersion.V3_0_0,
+                    LogsType = LogsType.Entire,
+                    PlayerInfos = playerInfos,
+                    BattleLogs = battleLogs
+                });
+
+                Console.WriteLine($"[{DateTime.Now:HH:mm:ss.fff}] Full logs exported.");
+            });
+        }
+
+        /// <summary>
+        /// 通过战斗日志构建玩家信息字典
+        /// </summary>
+        /// <param name="battleLogs">战斗日志</param>
+        /// <returns></returns>
+        private static Dictionary<long, PlayerInfoFileData> BuildPlayerDicFromBattleLog(List<BattleLog> battleLogs)
+        {
+            var playerDic = new Dictionary<long, PlayerInfoFileData>();
+            foreach (var log in battleLogs)
+            {
+                if (!playerDic.ContainsKey(log.AttackerUuid) && PlayerInfoDatas.TryGetValue(log.AttackerUuid, out var attackerPlayerInfo))
+                {
+                    playerDic.Add(log.AttackerUuid, attackerPlayerInfo);
+                }
+                if (!playerDic.ContainsKey(log.TargetUuid) && PlayerInfoDatas.TryGetValue(log.TargetUuid, out var targetPlayerInfo))
+                {
+                    playerDic.Add(log.TargetUuid, targetPlayerInfo);
+                }
+            }
+
+            return playerDic;
         }
 
         /// <summary>
         /// 清除所有DPS数据 (包括全程和阶段性)
         /// </summary>
-        public static void ClearAllDpsData()
+        public static void ClearCachingAllDpsData()
         {
             SectionedDpsDatas.Clear();
             FullDpsData.Clear();
+
+            DpsDataUpdated?.Invoke();
+            DataUpdated?.Invoke();
         }
 
         /// <summary>
         /// 标记新的战斗日志分段 (清空阶段性Dps数据)
         /// </summary>
-        public static void MarkNewBattleSection()
+        public static void ClearDpsData()
         {
             ForceNewBattleSection = true;
             SectionedDpsDatas.Clear();
+
+            DpsDataUpdated?.Invoke();
+            DataUpdated?.Invoke();
         }
 
         /// <summary>
@@ -453,6 +558,8 @@ namespace StarResonanceDpsAnalysis.Core.Data
         public static void ClearCurrentPlayerInfo()
         {
             CurrentPlayerInfo = new();
+
+            DataUpdated?.Invoke();
         }
 
         /// <summary>
@@ -461,15 +568,19 @@ namespace StarResonanceDpsAnalysis.Core.Data
         public static void ClearPlayerInfos()
         {
             PlayerInfoDatas.Clear();
+
+            DataUpdated?.Invoke();
         }
 
         /// <summary>
         /// 清除所有数据 (包括缓存历史)
         /// </summary>
-        public static void ClearAllData()
+        public static void ClearAllPlayerInfos()
         {
-            ClearCurrentPlayerInfo();
-            ClearPlayerInfos();
+            CurrentPlayerInfo = new();
+            PlayerInfoDatas.Clear();
+
+            DataUpdated?.Invoke();
         }
 
     }
