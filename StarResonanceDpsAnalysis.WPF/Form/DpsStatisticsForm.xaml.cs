@@ -22,6 +22,9 @@ namespace StarResonanceDpsAnalysis.WPF.Form
         public DpsStatisticsForm()
         {
             InitializeComponent();
+
+            RightButton.FontFamily = new FontFamily("iconfont");
+
             // 捕获整个窗口上的左键按下（包括已处理的事件）
             AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler((s, e) =>
             {
@@ -29,9 +32,8 @@ namespace StarResonanceDpsAnalysis.WPF.Form
             }), /*handledEventsToo:*/ true);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void RightButton_Click(object sender, RoutedEventArgs e)
         {
-
         }
     }
 }

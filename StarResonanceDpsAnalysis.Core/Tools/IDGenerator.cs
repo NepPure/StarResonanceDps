@@ -15,14 +15,14 @@ namespace StarResonanceDpsAnalysis.Core.Tools
         private static int Increment { get; set; } = 0;
         private static Stopwatch Timer { get; } = Stopwatch.StartNew();
 
-        public static (long id, long ticks) Next() 
+        public static (long id, long timeTicks) Next() 
         {
             var ticks = Timer.ElapsedTicks;
             try
             {
                 Increment = ticks == PrevTicks ? Increment + 1 : 0;
 
-                return (ticks * 100 + Increment, ticks);
+                return (ticks * 100 + Increment, StartTicks + ticks);
             }
             finally
             {

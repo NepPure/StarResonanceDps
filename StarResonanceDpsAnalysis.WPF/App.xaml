@@ -4,6 +4,10 @@
              xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF"
              StartupUri="Form/DpsStatisticsForm.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Style/ButtonStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -8,17 +8,17 @@ namespace StarResonanceDpsAnalysis.Core.Data.Models
 {
     public class PlayerInfo
     {
-        public long UUID { get; internal set; }
-        public long? UID { get; internal set; }
-        public string? Name { get; internal set; }
-        public int? ProfessionID { get; internal set; }
-        public string? SubProfessionName { get; internal set; }
-        public int? CombatPower { get; internal set; }
-        public int? Level { get; internal set; }
-        public int? RankLevel { get; internal set; }
-        public int? Critical { get; internal set; }
-        public int? Lucky { get; internal set; }
-        public long? MaxHP { get; internal set; }
-        public long? HP { get; internal set; }
+        public long UUID { get;  set; }
+        public long? UID { get;  set; }
+        public string? Name { get;  set; }
+        public int? ProfessionID { get;  set; }
+        public string? SubProfessionName { get;  set; }
+        public int? CombatPower { get;  set; }
+        public int? Level { get;  set; }
+        public int? RankLevel { get;  set; }
+        public int? Critical { get;  set; }
+        public int? Lucky { get;  set; }
+        public long? MaxHP { get;  set; }
+        public long? HP { get;  set; }
     }
 }

@@ -84,10 +84,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
 
             SetStyle(); // 设置/应用本窗体的个性化样式（定义在同类/局部类的其他部分）
 
-            // TODO: 此处的 4 个事件是临时测试用, 后续需要规范注册事件并实现功能
+            // TODO: 此处的 5 个事件是临时测试用, 后续需要规范注册事件并实现功能
             DataStorage.PlayerInfoUpdated += playerInfo =>
             {
-                //Console.WriteLine($"PlayerInfo Updated: {playerInfo.Name}({playerInfo.UID})");
+                Console.WriteLine($"PlayerInfo Updated: {playerInfo.Name}({playerInfo.UID})");
             };
 
             DataStorage.BattleLogNewSectionCreated += () =>
@@ -95,8 +95,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
                 Console.WriteLine($"New Battle Section Created.");
             };
 
+            DataStorage.BattleLogCreated += battleLog =>
+            {
+                Console.WriteLine($"New BattleLog Created: {battleLog.AttackerUuid}({battleLog.SkillID})=>{battleLog.TargetUuid} ! {battleLog.Value}");
+            };
+
             var renderListDict = new Dictionary<long, List<RenderContent>>();
-            DataStorage.BattleLogUpdated += battleLog =>
+            DataStorage.DpsDataUpdated += () =>
             {
                 // 此函数仅做测试用, 正式使用时需标准化 => 封装函数并在事件中调用
 
@@ -143,8 +148,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
                     }).ToList();
 
                 sortedProgressBarList_MainList.Data = progressBarDataList;
-
-                //Console.WriteLine($"BattleLog Updated({DataStorage.ReadOnlyBattleLogs.Count}): {battleLog.AttackerUuid}→{battleLog.TargetUuid}: {battleLog.SkillID}({battleLog.Value})");
             };
 
             DataStorage.DataUpdated += () =>
