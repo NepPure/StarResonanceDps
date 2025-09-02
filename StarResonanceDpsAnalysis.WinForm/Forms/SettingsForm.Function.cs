@@ -30,11 +30,11 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 Console.WriteLine("未找到可用网卡");
             }
 
-            input1.Text = AppConfig.MouseThroughKey.ToString();
-            input2.Text = AppConfig.FormTransparencyKey.ToString();
-            input3.Text = AppConfig.WindowToggleKey.ToString();
-            input4.Text = AppConfig.ClearDataKey.ToString();
-            input5.Text = AppConfig.ClearHistoryKey.ToString();
+            input1.Text = AppConfig.MouseThroughKey.KeysToString();
+            input2.Text = AppConfig.FormTransparencyKey.KeysToString();
+            input3.Text = AppConfig.WindowToggleKey.KeysToString();
+            input4.Text = AppConfig.ClearDataKey.KeysToString();
+            input5.Text = AppConfig.ClearHistoryKey.KeysToString();
         }
 
 
