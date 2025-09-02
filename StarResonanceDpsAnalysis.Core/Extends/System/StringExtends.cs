@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace StarResonanceDpsAnalysis.Core.Extends.System
 {
@@ -80,6 +81,21 @@ namespace StarResonanceDpsAnalysis.Core.Extends.System
         public static bool TryToDouble(this string? str, out double result)
         {
             return double.TryParse(str, out result);
+        }
+
+        #endregion
+
+        #region GetBytes()
+
+        public static byte[] GetBytes(this string? str, Encoding? encoding = null)
+        {
+            if (str == null)
+            {
+                return [];
+            }
+            encoding ??= Encoding.UTF8;
+
+            return encoding.GetBytes(str);
         }
 
         #endregion

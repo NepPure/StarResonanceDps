@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace StarResonanceDpsAnalysis.Core.Data.Models
 {
-    public struct DpsData
+    public class DpsData
     {
         public long UID { get; internal set; }
         public long LastLoggedTick { get; internal set; }
@@ -14,7 +14,7 @@ namespace StarResonanceDpsAnalysis.Core.Data.Models
         public long TotalTakenDamage { get; internal set; }
         public long TotalHeal { get; internal set; }
         public long? StartLoggedTick { get; internal set; }
-        public bool IsNpcData { get; internal set; }
+        public bool IsNpcData { get; internal set; } = false;
 
     }
 }

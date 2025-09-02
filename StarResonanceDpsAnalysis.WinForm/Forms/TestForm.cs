@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using StarResonanceDpsAnalysis.Assets;
+using StarResonanceDpsAnalysis.Core.Analyze;
+using StarResonanceDpsAnalysis.Core.Analyze.Models;
+using StarResonanceDpsAnalysis.Core.Data.Models;
+using StarResonanceDpsAnalysis.Core.Tools;
 using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
@@ -228,7 +232,17 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void button2_Click(object sender, EventArgs e)
         {
+            var id = 8900L;
+            var ticks = 638923753650224636;
 
+            BattleLogWriter.WriteToFile(Path.Combine(Environment.CurrentDirectory, "Logs"), new() 
+            {
+                FileVersion = LogsFileVersion.V3_0_0,
+                PlayerInfos = [ new PlayerInfo { UID = 123, Name = "惊奇猫猫盒" }, new PlayerInfo { UID = 234, Name = "露詩" } ],
+                BattleLogs = [ new BattleLog { PacketID = id, TimeTicks = ticks, SkillID = 0, AttackerUuid = 123, TargetUuid = 234, Value = 999 } ]
+            });
+
+            var data = BattleLogReader.ReadFile(Path.Combine(Environment.CurrentDirectory, "Logs", "Logs_2025_09_02_02_02_45_2025_09_02_02_02_45.srlogs"));
         }
 
         private void button3_Click(object sender, EventArgs e)
