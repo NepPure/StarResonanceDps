@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using StarResonanceDpsAnalysis.Core.Analyze;
+using StarResonanceDpsAnalysis.Core.Analyze.Models;
 using StarResonanceDpsAnalysis.Core.Data.Models;
 
 namespace StarResonanceDpsAnalysis.Core.Data
@@ -24,7 +25,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// </summary>
         public List<BattleLog> BattleLogs
         {
-            get 
+            get
             {
                 lock (this)
                 {
@@ -32,7 +33,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
                         return [];
                     if (State == RunningState.Running)
                         throw new InvalidOperationException("Cannot access BattleLogs while recorder is running.");
-                    return _battleLogs; 
+                    return _battleLogs;
                 }
             }
         }
@@ -41,14 +42,14 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 启动战斗日志录制器
         /// </summary>
         /// <exception cref="InvalidOperationException">录制器不能在已启动或已停止状态再次启动</exception>
-        public void Start() 
+        public void Start()
         {
             lock (this)
             {
                 if (State != RunningState.Standby)
                     throw new InvalidOperationException("Recorder is already started or stopped.");
 
-                DataStorage.BattleLogCreated += OnBattleLogCreated; 
+                DataStorage.BattleLogCreated += OnBattleLogCreated;
             }
         }
 
@@ -60,7 +61,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         {
             lock (this)
             {
-                _battleLogs.Add(battleLog); 
+                _battleLogs.Add(battleLog);
             }
         }
 
@@ -69,7 +70,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// </summary>
         /// <returns>战斗日志列表</returns>
         /// <exception cref="InvalidOperationException">录制器不能在还未启动时关闭</exception>
-        public List<BattleLog> Stop()
+        public BattleLogRecorder Stop()
         {
             lock (this)
             {
@@ -80,8 +81,47 @@ namespace StarResonanceDpsAnalysis.Core.Data
 
                 State = RunningState.Stopped;
 
-                return BattleLogs; 
+                return this;
             }
+        }
+
+        /// <summary>
+        /// 将战斗日志保存到指定路径
+        /// </summary>
+        /// <param name="path"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void Save(string path)
+        {
+            if (State != RunningState.Stopped)
+                throw new InvalidOperationException("Recorder must be stopped before saving.");
+
+            var playerDict = DataStorage.BuildPlayerDicFromBattleLog(BattleLogs);
+
+            BattleLogWriter.WriteToFile(path, new()
+            {
+                FileVersion = LogsFileVersion.V3_0_0,
+                PlayerInfos = [.. playerDict.Values],
+                BattleLogs = [.. BattleLogs]
+            });
+        }
+
+        /// <summary>
+        /// 将战斗日志异步保存到指定路径
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public async Task SaveAsync(string path) 
+        {
+            await Task.Run(() => Save(path));
+        }
+
+        /// <summary>
+        /// 将战斗日志异步保存到指定路径 (不等待完成)
+        /// </summary>
+        /// <param name="path"></param>
+        public void TaskSave(string path)
+        {
+            Task.Run(() => Save(path));
         }
 
         /// <summary>
