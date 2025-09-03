@@ -52,15 +52,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void input1_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        private void input1_VerifyKey(object sender, InputVerifyKeyboardEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete)
+            if (e.KeyData == Keys.Delete)
             {
                 input1.Text = string.Empty;
                 return;
             }
-            input1.Text = e.KeyCode.ToString();
-            AppConfig.MouseThroughKey = e.KeyCode;
+            input1.Text = e.KeyData.KeysToString();
+            AppConfig.MouseThroughKey = e.KeyData;
         }
 
         /// <summary>
@@ -68,15 +68,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void input2_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        private void input2_VerifyKey(object sender, InputVerifyKeyboardEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete)
+            if (e.KeyData == Keys.Delete)
             {
                 input2.Text = string.Empty;
                 return;
             }
-            input2.Text = e.KeyCode.ToString();
-            AppConfig.FormTransparencyKey = e.KeyCode;
+            input2.Text = e.KeyData.KeysToString();
+            AppConfig.FormTransparencyKey = e.KeyData;
         }
 
         /// <summary>
@@ -84,15 +84,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void input3_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        private void input3_VerifyKey(object sender, InputVerifyKeyboardEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete)
+            if (e.KeyData == Keys.Delete)
             {
                 input3.Text = string.Empty;
                 return;
             }
-            input3.Text = e.KeyCode.ToString();
-            AppConfig.WindowToggleKey = e.KeyCode;
+            input3.Text = e.KeyData.KeysToString();
+            AppConfig.WindowToggleKey = e.KeyData;
         }
 
         /// <summary>
@@ -100,15 +100,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void input4_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        private void input4_VerifyKey(object sender, InputVerifyKeyboardEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete)
+            if (e.KeyData == Keys.Delete)
             {
                 input4.Text = string.Empty;
                 return;
             }
-            input4.Text = e.KeyCode.ToString();
-            AppConfig.ClearDataKey = e.KeyCode;
+            input4.Text = e.KeyData.KeysToString();
+            AppConfig.ClearDataKey = e.KeyData;
         }
 
         /// <summary>
@@ -116,15 +116,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void input5_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        private void input5_VerifyKey(object sender, InputVerifyKeyboardEventArgs e)
         {
-            if (e.KeyCode == Keys.Delete)
+            if (e.KeyData == Keys.Delete)
             {
                 input5.Text = string.Empty;
                 return;
             }
-            input5.Text = e.KeyCode.ToString();
-            AppConfig.ClearHistoryKey = e.KeyCode;
+            input5.Text = e.KeyData.KeysToString();
+            AppConfig.ClearHistoryKey = e.KeyData;
         }
 
         private void InterfaceComboBox_SelectedIndexChanged(object sender, IntEventArgs e)
