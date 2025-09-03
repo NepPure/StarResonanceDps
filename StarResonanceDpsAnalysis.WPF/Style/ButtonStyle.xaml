@@ -28,11 +28,15 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Effect">
                     <Setter.Value>
-                        <DropShadowEffect Color="Black" BlurRadius="8" ShadowDepth="0" Opacity="0.5"/>
+                        <DropShadowEffect Color="#000000"
+                              BlurRadius="4"
+                              ShadowDepth="0"
+                              Opacity="0.28"/>
                     </Setter.Value>
                 </Setter>
                 <Setter Property="Cursor" Value="Hand"/>
             </Trigger>
+
             <Trigger Property="IsPressed" Value="True">
                 <Setter Property="RenderTransform">
                     <Setter.Value>

@@ -518,11 +518,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
                 if (_mouseThroughKey == null)
                 {
                     var value = GetValue("SetKey", "MouseThroughKey", ((int)Keys.F6).ToString()).ToInt();
-                    if (!Enum.IsDefined(typeof(Keys), value))
-                    {
-                        value = (int)Keys.F6;
-                    }
-                    _mouseThroughKey = (Keys)value;
+                    _mouseThroughKey = value.IntToKeys(Keys.F6);
                 }
                 return _mouseThroughKey.Value;
             }
@@ -544,11 +540,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
                 if (_formTransparencyKey == null)
                 {
                     var value = GetValue("SetKey", "FormTransparencyKey", ((int)Keys.F7).ToString()).ToInt();
-                    if (!Enum.IsDefined(typeof(Keys), value))
-                    {
-                        value = (int)Keys.F7;
-                    }
-                    _formTransparencyKey = (Keys)value;
+                    _formTransparencyKey = value.IntToKeys(Keys.F7);
                 }
                 return _formTransparencyKey.Value;
             }
@@ -570,11 +562,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
                 if (_windowToggleKey == null)
                 {
                     var value = GetValue("SetKey", "WindowToggleKey", ((int)Keys.F8).ToString()).ToInt();
-                    if (!Enum.IsDefined(typeof(Keys), value))
-                    {
-                        value = (int)Keys.F8;
-                    }
-                    _windowToggleKey = (Keys)value;
+                    _windowToggleKey = value.IntToKeys(Keys.F8);
                 }
                 return _windowToggleKey.Value;
             }
@@ -596,11 +584,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
                 if (_clearDataKey == null)
                 {
                     var value = GetValue("SetKey", "ClearDataKey", ((int)Keys.F9).ToString()).ToInt();
-                    if (!Enum.IsDefined(typeof(Keys), value))
-                    {
-                        value = (int)Keys.F9;
-                    }
-                    _clearDataKey = (Keys)value;
+                    _clearDataKey = value.IntToKeys(Keys.F9);
                 }
                 return _clearDataKey.Value;
             }
@@ -622,11 +606,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
                 if (_clearHistoryKey == null)
                 {
                     var value = GetValue("SetKey", "ClearHistoryKey", ((int)Keys.F10).ToString()).ToInt();
-                    if (!Enum.IsDefined(typeof(Keys), value))
-                    {
-                        value = (int)Keys.F10;
-                    }
-                    _clearHistoryKey = (Keys)value;
+                    _clearHistoryKey = value.IntToKeys(Keys.F10);
                 }
                 return _clearHistoryKey.Value;
             }

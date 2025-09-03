@@ -13,6 +13,8 @@ namespace StarResonanceDpsAnalysis.Assets
     {
         #region AlimamaShuHeiTi
         private const string ALIMAMASHUHEITI_FONT_KEY = "阿里妈妈数黑体";
+        public static FontFamily AliMaMaShuHeiTi()
+            => FontLoader.LoadFontFamilyFromBytesAndCache(ALIMAMASHUHEITI_FONT_KEY, Resources.AlimamaShuHeiTi);
         public static Font AliMaMaShuHeiTi(float fontSize = 9, FontStyle fontStyle = FontStyle.Regular)
             => FontLoader.LoadFontFromBytesAndCache(ALIMAMASHUHEITI_FONT_KEY, Resources.AlimamaShuHeiTi, fontSize, fontStyle);
         #endregion
@@ -113,14 +115,26 @@ namespace StarResonanceDpsAnalysis.Assets
         }
         #endregion
 
+        #region IconFont
+        private const string ICON_FONT_KEY = "IconFont";
+        public static FontFamily IconFont()
+            => FontLoader.LoadFontFamilyFromBytesAndCache(ICON_FONT_KEY, Resources.IconFont);
+        public static Font IconFont(float fontSize = 9, FontStyle fontStyle = FontStyle.Regular)
+            => FontLoader.LoadFontFromBytesAndCache(ICON_FONT_KEY, Resources.IconFont, fontSize, fontStyle);
+        #endregion
+
         #region HarmonyOS_Sans
         private const string HARMONY_OS_SANS_FONT_KEY = "HarmonyOS Sans SC";
+        public static FontFamily HarmonyOS_Sans()
+            => FontLoader.LoadFontFamilyFromBytesAndCache(HARMONY_OS_SANS_FONT_KEY, Resources.HarmonyOS_Sans);
         public static Font HarmonyOS_Sans(float fontSize = 9, FontStyle fontStyle = FontStyle.Regular)
             => FontLoader.LoadFontFromBytesAndCache(HARMONY_OS_SANS_FONT_KEY, Resources.HarmonyOS_Sans, fontSize, fontStyle);
         #endregion
 
         #region HarmonyOS_Sans_SC_Bold
         private const string HARMONU_OS_SANS_SC_BOLD_FONT_KEY = "HarmonyOS Sans SC";
+        public static FontFamily HarmonyOS_Sans_Bold()
+            => FontLoader.LoadFontFamilyFromBytesAndCache(HARMONU_OS_SANS_SC_BOLD_FONT_KEY, Resources.HarmonyOS_Sans_SC_Bold);
         public static Font HarmonyOS_Sans_Bold(float fontSize = 9, FontStyle fontStyle = FontStyle.Bold)
             => FontLoader.LoadFontFromBytesAndCache(HARMONU_OS_SANS_SC_BOLD_FONT_KEY, Resources.HarmonyOS_Sans_SC_Bold, fontSize, fontStyle);
         #endregion
@@ -267,6 +281,8 @@ namespace StarResonanceDpsAnalysis.Assets
 
         #region SAOWelcomeTT
         private const string SAO_WELCOME_TT_FONT_KEY = "SAO Welcome TT";
+        public static FontFamily SAOWelcomeTT()
+            => FontLoader.LoadFontFamilyFromBytesAndCache(SAO_WELCOME_TT_FONT_KEY, Resources.SAOWelcomeTT);
         public static Font SAOWelcomeTT(float fontSize = 9, FontStyle fontStyle = FontStyle.Regular)
             => FontLoader.LoadFontFromBytesAndCache(SAO_WELCOME_TT_FONT_KEY, Resources.SAOWelcomeTT, fontSize, fontStyle);
         #endregion

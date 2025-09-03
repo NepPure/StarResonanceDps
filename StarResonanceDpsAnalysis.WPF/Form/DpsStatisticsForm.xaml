@@ -19,8 +19,19 @@
                            FontFamily="HarmonyOS Sans SC" HorizontalAlignment="Left" Width="50" Text="当前伤害"/>
 
             </Border>
-            <Button x:Name="RightButton" Content="" HorizontalAlignment="Left" Height="18" Margin="71,5,0,0"
-                    VerticalAlignment="Top" Width="17" Click="RightButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White"/>
+            <Button x:Name="RightButton" Style="{StaticResource IconButtonStyle}"  Content="" HorizontalAlignment="Left" Height="16" Margin="68,6,0,0"
+                    VerticalAlignment="Top" Width="18" Click="RightButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="15"/>
+            <Button x:Name="LeftButton" Style="{StaticResource IconButtonStyle}"  Content="" HorizontalAlignment="Left" Height="16" Margin="1,6,0,0"
+                VerticalAlignment="Top" Width="18" Click="LeftButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="15"/>
+            <Button x:Name="SetButton" Style="{StaticResource IconButtonStyle}" Content="&#xE600;" HorizontalAlignment="Left" Height="16" Margin="269,6,0,0"
+                VerticalAlignment="Top" Width="18" Click="SetButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="15">
+            </Button>
+            <Button x:Name="SwitchButton" Style="{StaticResource IconButtonStyle}"  Content="" HorizontalAlignment="Left" Height="16"
+            VerticalAlignment="Top" Width="18" Click="SwitchButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="12" Margin="91,6,0,0"/>
+            <Button x:Name="RefreshButton" Style="{StaticResource IconButtonStyle}" Content="" HorizontalAlignment="Left" Height="16" Margin="246,6,0,0"
+                VerticalAlignment="Top" Width="18" Click="RefreshButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="15"/>
+            <Button x:Name="PullButton" Style="{StaticResource IconButtonStyle}" Content="" HorizontalAlignment="Left" Height="16" Margin="295,6,0,0"
+                VerticalAlignment="Top" Width="18" Click="RefreshButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="15"/>
 
 
         </Grid>
