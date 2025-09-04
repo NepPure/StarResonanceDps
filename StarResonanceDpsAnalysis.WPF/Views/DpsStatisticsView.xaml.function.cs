@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StarResonanceDpsAnalysis.WPF.Form
+namespace StarResonanceDpsAnalysis.WPF.Views
 {
-    public partial class DpsStatisticsForm
+    public partial class DpsStatisticsView
     {
 
     }

@@ -12,14 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace StarResonanceDpsAnalysis.WPF.Form
+namespace StarResonanceDpsAnalysis.WPF.Views
 {
     /// <summary>
     /// SettingForm.xaml 的交互逻辑
     /// </summary>
-    public partial class SettingsWindow : Window
+    public partial class SettingsView : Window
     {
-        public SettingsWindow()
+        public SettingsView()
         {
             InitializeComponent();
         }

@@ -10,41 +10,75 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using StarResonanceDpsAnalysis.WPF.Controls;
 
-namespace StarResonanceDpsAnalysis.WPF.Form
+namespace StarResonanceDpsAnalysis.WPF.Views
 {
     /// <summary>
     /// DpsStatisticsForm.xaml 的交互逻辑
     /// </summary>
-    public partial class DpsStatisticsForm : Window
+    public partial class DpsStatisticsView : Window
     {
-       
-        public DpsStatisticsForm()
+
+        public static readonly DependencyProperty MinimizeProperty =
+            DependencyProperty.Register(
+                nameof(Minimize),
+                typeof(bool),
+                typeof(DpsStatisticsView),
+                new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
+        public bool Minimize
+        {
+            get { return (bool)GetValue(MinimizeProperty); }
+            set { SetValue(MinimizeProperty, value); }
+        }
+
+
+        public DpsStatisticsView()
         {
             InitializeComponent();
-
-
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-
-
             if (e.ButtonState == MouseButtonState.Pressed)
                 DragMove();
         }
+        private int metricIndex = 0; // 0: 伤害, 1: 治疗, 2: 承伤
+        private bool isFull = false; // 是否全程显示
 
-        private void RightButton_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("测试");
-        }
+        private static readonly string[] names = { "伤害", "治疗", "承伤" };
 
         private void LeftButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("测试");
+            if (metricIndex == 0)
+                metricIndex = 2;
+            else metricIndex--;
+            UpdateLabel();
         }
+
+
+        private void RightButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (metricIndex == 2) 
+                metricIndex = 0; // <-- 这里原来写成了 if (metricIndex == 0) metricIndex = 1，导致越界
+            else metricIndex++;
+            UpdateLabel();
+        }
+
+        private void SwitchButton_Click(object sender, RoutedEventArgs e)
+        {
+            isFull = !isFull;
+            UpdateLabel();
+        }
+        private void UpdateLabel()
+        {
+            StatisticTypeLabel.Text = (isFull ? "全程" : "当前") + names[metricIndex];
+        }
+
 
         private void SetButton_Click(object sender, RoutedEventArgs e)
         {
@@ -65,10 +99,7 @@ namespace StarResonanceDpsAnalysis.WPF.Form
             cm.IsOpen = !cm.IsOpen;
         }
 
-        private void SwitchButton_Click(object sender, RoutedEventArgs e)
-        {
 
-        }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
@@ -77,7 +108,62 @@ namespace StarResonanceDpsAnalysis.WPF.Form
 
         private void PullButton_Click(object sender, RoutedEventArgs e)
         {
+            Minimize = !Minimize;
 
+            var sb = new Storyboard { FillBehavior = FillBehavior.HoldEnd };
+            var duration = new Duration(TimeSpan.FromMilliseconds(300));
+            var easingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut };
+            var rootHeightDA = new DoubleAnimation
+            {
+                From = Root.ActualHeight,
+                To = Minimize ? 25 : Height - 20,
+                Duration = duration,
+                EasingFunction = easingFunction,
+            };
+            rootHeightDA.Completed += (_, _) =>
+            {
+                if (!Minimize)
+                {
+                    Root.Height = double.NaN;
+                    Root.VerticalAlignment = VerticalAlignment.Stretch;
+                }
+            };
+            Storyboard.SetTarget(rootHeightDA, Root);
+            Storyboard.SetTargetProperty(rootHeightDA, new PropertyPath(HeightProperty));
+            sb.Children.Add(rootHeightDA);
+
+            var footerOpacityDA = new DoubleAnimation
+            {
+                To = Minimize ? 0 : 1,
+                Duration = duration,
+                EasingFunction = easingFunction,
+            };
+            Storyboard.SetTarget(footerOpacityDA, ContentBorder);
+            Storyboard.SetTargetProperty(footerOpacityDA, new PropertyPath(OpacityProperty));
+            sb.Children.Add(footerOpacityDA);
+
+            var pullButtonTransformDA = new DoubleAnimation
+            {
+                To = Minimize ? 180 : 0,
+                Duration = duration,
+                EasingFunction = easingFunction
+            };
+            Storyboard.SetTarget(pullButtonTransformDA, PullButton);
+            Storyboard.SetTargetProperty(pullButtonTransformDA, new PropertyPath("(UIElement.RenderTransform).(TransformGroup.Children)[2].(RotateTransform.Angle)"));
+            sb.Children.Add(pullButtonTransformDA);
+
+            if (Minimize)
+            {
+                Root.VerticalAlignment = VerticalAlignment.Top;
+            }
+
+            //if (PullButton.RenderTransform is not RotateTransform rt)
+            //{
+            //    rt = new RotateTransform(0);
+            //    PullButton.RenderTransform = rt;
+            //}
+
+            sb.Begin();
         }
 
         /// <summary>

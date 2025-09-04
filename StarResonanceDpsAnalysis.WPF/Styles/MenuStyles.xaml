@@ -62,8 +62,39 @@
 
     <!-- ===== ContextMenu 外壳：圆角 + 投影 ===== -->
     <Style x:Key="ModernContextMenu" TargetType="ContextMenu">
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Opened">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                         From="0" To="1"
+                                         Duration="0:0:0.2"/>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From ="0" To="1"
+                                         Duration="0:0:0.2"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="Closed">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                         From="1" To="0"
+                                         Duration="0:0:0.2"/>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From ="1" To="0"
+                                         Duration="0:0:0.2"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
         <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="HasDropShadow" Value="False"/>
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <ScaleTransform ScaleX="1" ScaleY="0"/>
+            </Setter.Value>
+        </Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ContextMenu">
