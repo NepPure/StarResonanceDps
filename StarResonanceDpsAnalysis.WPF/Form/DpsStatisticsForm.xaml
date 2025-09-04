@@ -8,14 +8,14 @@
         xmlns:wc="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         mc:Ignorable="d"
         Title="DpsStatisticsForm"
-        Height="319" Width="318"
+        Height="359" Width="318"
         WindowStyle="None"
         WindowStartupLocation="CenterScreen"
         Background="Transparent" 
         AllowsTransparency="True"
         ResizeMode="CanResize" Foreground="{x:Null}">
     <!-- 关键：必须不透明色，避免白条 -->
-    
+
     <!-- WindowChrome: 开启可拉伸边界 -->
     <wc:WindowChrome.WindowChrome>
         <wc:WindowChrome CaptionHeight="0"
@@ -28,7 +28,7 @@
         <!-- 半透明/圆角交给内部 Border -->
         <Border CornerRadius="6"
             Background="#7F191919"
-            SnapsToDevicePixels="True" Margin="3">
+            SnapsToDevicePixels="True" Margin="3,3,3,3">
             <Border.Effect>
                 <DropShadowEffect Color="#99000000"
                               BlurRadius="5"
@@ -43,7 +43,7 @@
                 <TextBlock Margin="19,0,0,0"
    VerticalAlignment="Center"
    Foreground="White"
-   FontFamily="HarmonyOS Sans SC"
+   FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
    Text="当前伤害" HorizontalAlignment="Left" Width="51"/>
                 <!--左侧按钮-->
                 <Button x:Name="LeftButton"
@@ -57,7 +57,7 @@ Click="LeftButton_Click"
 Background="{x:Null}"
 BorderBrush="{x:Null}"
 Foreground="White"
-FontFamily="iconfont"
+FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
 FontSize="15"/>
                 <!--右侧按钮-->
                 <Button x:Name="RightButton"
@@ -71,7 +71,7 @@ Click="RightButton_Click"
 Background="{x:Null}"
 BorderBrush="{x:Null}"
 Foreground="White"
-FontFamily="iconfont"
+FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
 FontSize="15"/>
                 <!--切换按钮-->
                 <Button x:Name="SwitchButton"
@@ -85,7 +85,7 @@ Click="SwitchButton_Click"
 Background="{x:Null}"
 BorderBrush="{x:Null}"
 Foreground="White"
-FontFamily="iconfont"
+FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
 FontSize="12"/>
                 <!--刷新按钮-->
                 <Button x:Name="RefreshButton"
@@ -96,19 +96,19 @@ Click="RefreshButton_Click"
 Background="{x:Null}"
 BorderBrush="{x:Null}"
 Foreground="White"
-FontFamily="iconfont"
+FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
 FontSize="15" HorizontalAlignment="Right" Width="18"/>
                 <!--设置按钮-->
                 <Button x:Name="SetButton"
                 Style="{StaticResource IconButtonStyle}"
                 Content="&#xE600;"
-                Margin="263,5,31,5"
+                Margin="0,5,31,5"
                 Click="SetButton_Click"
                 Background="{x:Null}"
                 BorderBrush="{x:Null}"
                 Foreground="White"
-                FontFamily="iconfont"
-                FontSize="15">
+                FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
+                FontSize="15" HorizontalAlignment="Right" Width="18">
 
                     <Button.ContextMenu>
                         <ContextMenu Style="{StaticResource ModernContextMenu}">
@@ -117,29 +117,26 @@ FontSize="15" HorizontalAlignment="Right" Width="18"/>
                                 <Style TargetType="MenuItem" BasedOn="{StaticResource ModernMenuItem}"/>
                             </ContextMenu.Resources>
 
-                            <!--记录设置-->
+
                             <MenuItem  Style="{StaticResource CheckableMenuItem}" Header="统计BOSS" IsCheckable="True" IsChecked="False" />
                             <MenuItem  Header="个人模式"/>
+                            <!--记录设置-->
                             <MenuItem Header="记录设置"  ItemContainerStyle="{StaticResource CheckableMenuItem}">
                                 <MenuItem Header="记录每一次"   Click="RecordSettingsMenuItem_Click"/>
                                 <MenuItem Header="不记录1分钟以下"  Click="RecordSettingsMenuItem_Click"/>
                                 <MenuItem Header="不记录2分钟以下"  Click="RecordSettingsMenuItem_Click"/>
                             </MenuItem>
-
-                            <MenuItem x:Name="miHistory" Header="历史记录" />
-                            <MenuItem Header="测伤模式" ItemContainerStyle="{StaticResource CheckableMenuItem}">
-                                <MenuItem Header="短轴测伤(3分)" IsCheckable="True" Click="AxisMenuItem_Click"/>
-                                <MenuItem Header="长轴测伤(5分)" IsCheckable="True" Click="AxisMenuItem_Click"/>
-                            </MenuItem>
+                            <!--历史记录-->
+                            <MenuItem x:Name="miHistory" ItemContainerStyle="{StaticResource CheckableMenuItem}" Header="历史记录" />
                             <!--打桩模式-->
-                                <MenuItem Header="打桩模式"  ItemContainerStyle="{StaticResource CheckableMenuItem}">
+                            <MenuItem Header="打桩模式"  ItemContainerStyle="{StaticResource CheckableMenuItem}">
                                 <MenuItem Header="个人打桩 " IsCheckable="True"  Click="PilingMenuItem_Click"/>
                                 <MenuItem Header="协会打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
                                 <MenuItem Header="极限打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
                             </MenuItem>
                             <MenuItem Header="技能日记"/>
                             <Separator/>
-                            <MenuItem Header="退出"/>
+                            <MenuItem Header="退出" Click="ExitButton_Click"/>
                         </ContextMenu>
                     </Button.ContextMenu>
 
@@ -153,10 +150,28 @@ FontSize="15" HorizontalAlignment="Right" Width="18"/>
                 Background="{x:Null}"
                 BorderBrush="{x:Null}"
                 Foreground="White"
-                FontFamily="iconfont"
+                FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
                 FontSize="15" HorizontalAlignment="Right" Width="18"/>
             </Grid>
         </Border>
+
+        <Border x:Name="ContentBorder"  Background="#CCBABABA"  VerticalAlignment="Bottom" CornerRadius="0,0,6,6" Height="25"  SnapsToDevicePixels="True" Margin="3,294,3,0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <Grid>
+                <TextBlock Margin="6,0,0,0"
+Foreground="White"
+FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
+Text="[1]" HorizontalAlignment="Left" Width="28" Height="16" VerticalAlignment="Center"/>
+                <TextBlock Margin="32,0,0,0"
+Foreground="White"
+FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
+Text="00:00" HorizontalAlignment="Left" Width="53" Height="16" VerticalAlignment="Center"/>
+                <TextBlock
+Foreground="White"
+FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
+Text="2.24万 DPS"     TextAlignment="Right" Margin="0,0,4,0" Height="16" VerticalAlignment="Center" HorizontalAlignment="Right" Width="118"/>
+            </Grid>
+        </Border>
+
     </Grid>
 
 </Window>

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -19,12 +20,14 @@ namespace StarResonanceDpsAnalysis.WPF.Form
     /// </summary>
     public partial class DpsStatisticsForm : Window
     {
+       
         public DpsStatisticsForm()
         {
             InitializeComponent();
 
 
         }
+
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
 
@@ -45,7 +48,21 @@ namespace StarResonanceDpsAnalysis.WPF.Form
 
         private void SetButton_Click(object sender, RoutedEventArgs e)
         {
+            var btn = (Button)sender;
+            var cm = btn.ContextMenu;
+            if (cm == null) return;
 
+            // 保证 DataContext（如果菜单里有绑定）
+            cm.DataContext = btn.DataContext;
+
+            // 控制弹出位置
+            cm.PlacementTarget = btn;
+            cm.Placement = PlacementMode.Right; // 或 MousePoint / Right / Left / Top
+            cm.HorizontalOffset = 0;
+            cm.VerticalOffset = 0;
+
+            // 打开（可切换）
+            cm.IsOpen = !cm.IsOpen;
         }
 
         private void SwitchButton_Click(object sender, RoutedEventArgs e)
@@ -134,6 +151,11 @@ namespace StarResonanceDpsAnalysis.WPF.Form
             }
 
             e.Handled = true;
+        }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }
