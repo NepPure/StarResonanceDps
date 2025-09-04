@@ -15,6 +15,7 @@
         AllowsTransparency="True"
         ResizeMode="CanResize" Foreground="{x:Null}">
     <!-- 关键：必须不透明色，避免白条 -->
+    
     <!-- WindowChrome: 开启可拉伸边界 -->
     <wc:WindowChrome.WindowChrome>
         <wc:WindowChrome CaptionHeight="0"
