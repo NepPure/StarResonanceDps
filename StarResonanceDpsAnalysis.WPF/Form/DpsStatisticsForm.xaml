@@ -1,40 +1,122 @@
 ﻿<Window x:Class="StarResonanceDpsAnalysis.WPF.Form.DpsStatisticsForm"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Form" xmlns:svgc="https://github.com/dotnetprojects/SVGImage"
-        mc:Ignorable="d" AllowsTransparency="True"
-        Title="DpsStatisticsForm" Height="405" Width="319" WindowStyle="None"  Background="Transparent" Foreground="{x:Null}">
-    <Border CornerRadius="3" Background="#661F1F1F">
-        <Grid>
-            <Border Background="#CCBABABA" 
-                    Height="28" VerticalAlignment="Top"
-                    CornerRadius="3,3,0,0">
-                <TextBlock
-                           Margin="19,0,0,0"
-                           VerticalAlignment="Center"
-                           Foreground="White"
-                           FontFamily="HarmonyOS Sans SC" HorizontalAlignment="Left" Width="50" Text="当前伤害"/>
+        xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Form"
+        xmlns:svgc="https://github.com/dotnetprojects/SVGImage"
+        xmlns:wc="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        mc:Ignorable="d"
+        Title="DpsStatisticsForm"
+        Height="319" Width="318"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        Background="Transparent" 
+        AllowsTransparency="True"
+        ResizeMode="CanResize" Foreground="{x:Null}">
+    <!-- 关键：必须不透明色，避免白条 -->
+    <!-- WindowChrome: 开启可拉伸边界 -->
+    <wc:WindowChrome.WindowChrome>
+        <wc:WindowChrome CaptionHeight="0"
+                         ResizeBorderThickness="6"
+                         GlassFrameThickness="0"
+                         UseAeroCaptionButtons="False"/>
+    </wc:WindowChrome.WindowChrome>
+    <Grid>
 
-            </Border>
-            <Button x:Name="RightButton" Style="{StaticResource IconButtonStyle}"  Content="" HorizontalAlignment="Left" Height="16" Margin="68,6,0,0"
-                    VerticalAlignment="Top" Width="18" Click="RightButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="15"/>
-            <Button x:Name="LeftButton" Style="{StaticResource IconButtonStyle}"  Content="" HorizontalAlignment="Left" Height="16" Margin="1,6,0,0"
-                VerticalAlignment="Top" Width="18" Click="LeftButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="15"/>
-            <Button x:Name="SetButton" Style="{StaticResource IconButtonStyle}" Content="&#xE600;" HorizontalAlignment="Left" Height="16" Margin="269,6,0,0"
-                VerticalAlignment="Top" Width="18" Click="SetButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="15">
-            </Button>
-            <Button x:Name="SwitchButton" Style="{StaticResource IconButtonStyle}"  Content="" HorizontalAlignment="Left" Height="16"
-            VerticalAlignment="Top" Width="18" Click="SwitchButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="12" Margin="91,6,0,0"/>
-            <Button x:Name="RefreshButton" Style="{StaticResource IconButtonStyle}" Content="" HorizontalAlignment="Left" Height="16" Margin="246,6,0,0"
-                VerticalAlignment="Top" Width="18" Click="RefreshButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="15"/>
-            <Button x:Name="PullButton" Style="{StaticResource IconButtonStyle}" Content="" HorizontalAlignment="Left" Height="16" Margin="295,6,0,0"
-                VerticalAlignment="Top" Width="18" Click="RefreshButton_Click" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="White" FontFamily="iconfont" FontSize="15"/>
+        <!-- 半透明/圆角交给内部 Border -->
+        <Border CornerRadius="6"
+            Background="#7F191919"
+            SnapsToDevicePixels="True" Margin="3">
+            <Border.Effect>
+                <DropShadowEffect Color="#99000000"
+                              BlurRadius="5"
+                              ShadowDepth="0"
+                              Opacity="0.6"/>
+            </Border.Effect>
 
 
-        </Grid>
-    </Border>
+        </Border>
+
+        <Border  Background="#CCBABABA"  VerticalAlignment="Top" CornerRadius="6,6,0,0" Height="26"  SnapsToDevicePixels="True" Margin="3" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+            <!-- 顶部栏,Grid 一般不设置属性 -->
+            <Grid>
+                <TextBlock Margin="19,0,0,0"
+   VerticalAlignment="Center"
+   Foreground="White"
+   FontFamily="HarmonyOS Sans SC"
+   Text="当前伤害" HorizontalAlignment="Left" Width="51"/>
+                <Button x:Name="LeftButton"
+Style="{StaticResource IconButtonStyle}"
+Content=""
+Width="18" Height="16"
+Margin="1,6,0,0"
+HorizontalAlignment="Left"
+VerticalAlignment="Top"
+Click="LeftButton_Click"
+Background="{x:Null}"
+BorderBrush="{x:Null}"
+Foreground="White"
+FontFamily="iconfont"
+FontSize="15"/>
+                <Button x:Name="RightButton"
+Style="{StaticResource IconButtonStyle}"
+Content=""
+Width="18" Height="16"
+Margin="68,6,0,0"
+HorizontalAlignment="Left"
+VerticalAlignment="Top"
+Click="RightButton_Click"
+Background="{x:Null}"
+BorderBrush="{x:Null}"
+Foreground="White"
+FontFamily="iconfont"
+FontSize="15"/>
+                <Button x:Name="SwitchButton"
+Style="{StaticResource IconButtonStyle}"
+Content=""
+Width="18" Height="16"
+Margin="86,0,0,0"
+HorizontalAlignment="Left"
+VerticalAlignment="Center"
+Click="SwitchButton_Click"
+Background="{x:Null}"
+BorderBrush="{x:Null}"
+Foreground="White"
+FontFamily="iconfont"
+FontSize="12"/>
+                <Button x:Name="RefreshButton"
+Style="{StaticResource IconButtonStyle}"
+Content=""
+Margin="0,5,55,5"
+Click="RefreshButton_Click"
+Background="{x:Null}"
+BorderBrush="{x:Null}"
+Foreground="White"
+FontFamily="iconfont"
+FontSize="15" HorizontalAlignment="Right" Width="18"/>
+                <Button x:Name="SetButton"
+Style="{StaticResource IconButtonStyle}"
+Content="&#xE600;"
+Margin="0,5,32,5"
+Click="SetButton_Click"
+Background="{x:Null}"
+BorderBrush="{x:Null}"
+Foreground="White"
+FontFamily="iconfont"
+FontSize="15" HorizontalAlignment="Right" Width="18"/>
+                <Button x:Name="PullButton"
+                Style="{StaticResource IconButtonStyle}"
+                Content="" 
+                Margin="0,5,6,5"
+                Click="PullButton_Click"
+                Background="{x:Null}"
+                BorderBrush="{x:Null}"
+                Foreground="White"
+                FontFamily="iconfont"
+                FontSize="15" HorizontalAlignment="Right" Width="18"/>
+            </Grid>
+        </Border>
+    </Grid>
 
 </Window>

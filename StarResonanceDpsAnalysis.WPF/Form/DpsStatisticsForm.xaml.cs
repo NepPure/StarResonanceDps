@@ -24,11 +24,13 @@ namespace StarResonanceDpsAnalysis.WPF.Form
             InitializeComponent();
 
 
-            // 捕获整个窗口上的左键按下（包括已处理的事件）
-            AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler((s, e) =>
-            {
-                if (e.ButtonState == MouseButtonState.Pressed) DragMove();
-            }), /*handledEventsToo:*/ true);
+        }
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+
+            if (e.ButtonState == MouseButtonState.Pressed)
+                DragMove();
         }
 
         private void RightButton_Click(object sender, RoutedEventArgs e)
@@ -52,6 +54,11 @@ namespace StarResonanceDpsAnalysis.WPF.Form
         }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PullButton_Click(object sender, RoutedEventArgs e)
         {
 
         }
