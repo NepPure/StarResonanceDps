@@ -107,10 +107,5 @@ namespace StarResonanceDpsAnalysis.WPF.Form
             me.IsChecked = true; // 保证当前为选中
             e.Handled = true;
         }
-
-        private void PullButton_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }
