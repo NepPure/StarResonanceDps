@@ -13,13 +13,25 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace StarResonanceDpsAnalysis.WPF
+namespace StarResonanceDpsAnalysis.WPF.Controls
 {
     /// <summary>
     /// Header.xaml 的交互逻辑
     /// </summary>
     public partial class Header : UserControl
     {
+        public static readonly DependencyProperty TitleProperty =
+            DependencyProperty.Register(
+                nameof(Title),
+                typeof(string),
+                typeof(Header),
+                new FrameworkPropertyMetadata("Header", FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+        public string Title
+        {
+            get { return (string)GetValue(TitleProperty); }
+            set { SetValue(TitleProperty, value); }
+        }
+
         public Header()
         {
             InitializeComponent();

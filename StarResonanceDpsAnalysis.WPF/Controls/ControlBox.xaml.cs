@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -22,13 +23,7 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
     /// </summary>
     public partial class ControlBox : UserControl
     {
-        public static readonly DependencyProperty DefaultButtonWidth =
-            DependencyProperty.Register(
-                nameof(BUTTON_WIDTH),
-                typeof(double),
-                typeof(ControlBox),
-                new FrameworkPropertyMetadata(BUTTON_WIDTH, FrameworkPropertyMetadataOptions.None));
-        private const double BUTTON_WIDTH = 50;
+        public const double BUTTON_WIDTH = 50;
 
         public static readonly DependencyProperty UseMinimizeButtonProperty =
             DependencyProperty.Register(
@@ -74,6 +69,33 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
                     null,
                     (_, _) => double.NaN));
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            var window = Window.GetWindow(this);
+            if (window == null)
+            {
+                return;
+            }
+
+            window.WindowState = WindowState.Minimized;
+        }
+
+        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            var window = Window.GetWindow(this);
+            if (window == null)
+            {
+                return;
+            }
+
+            window.WindowState = window.WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            Window.GetWindow(this)?.Close();
         }
     }
 }

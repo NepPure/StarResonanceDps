@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="StarResonanceDpsAnalysis.WPF.Header"
+﻿<UserControl x:Class="StarResonanceDpsAnalysis.WPF.Controls.Header"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF"
+             xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="30" d:DesignWidth="400">
     <UserControl.Resources>
@@ -21,11 +21,13 @@
         <Style x:Key="HeaderTitle" TargetType="TextBlock">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/#SAO Welcome TT"/>
+            <Setter Property="FontSize" Value="16"/>
         </Style>
     </UserControl.Resources>
     <Border Style="{StaticResource HeaderBorder}">
         <Grid>
-            <TextBlock x:Name="Title" Style="{StaticResource HeaderTitle}" Text="Header"/>
+            <TextBlock Style="{StaticResource HeaderTitle}" Text="{Binding Title, RelativeSource={RelativeSource AncestorType=local:Header}}"/>
         </Grid>
     </Border>
 </UserControl>

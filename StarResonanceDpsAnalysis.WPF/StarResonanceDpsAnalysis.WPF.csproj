@@ -37,4 +37,10 @@
       <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.function',''))</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\DpsStatisticsView.xaml.function.cs">
+      <DependentUpon>DpsStatisticsView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>

@@ -12,26 +12,89 @@
 
         <Style x:Key="ButtonBase" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="Width" Value="{x:Static local:ControlBox.DefaultButtonWidth}"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
         </Style>
 
-        <Style x:Key="MinimizeButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
-            <Setter Property="Background" Value="Blue"/>
-            <Setter Property="Margin" Value="0,0,100,0"/>
+        <Style x:Key="NMM_ButtonBase" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                            To="{StaticResource NMM_HoverColor}"
+                                            Duration="0:0:0.3"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                            To="Transparent"
+                                            Duration="0:0:0.3"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
         </Style>
 
-        <Style x:Key="MaximizeButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
-            <Setter Property="Background" Value="Green"/>
-            <Setter Property="Margin" Value="0,0,50,0"/>
+        <Style x:Key="MinimizeButton" TargetType="Button" BasedOn="{StaticResource NMM_ButtonBase}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="Blue"/>
+                    <!--<SolidColorBrush Color="Transparent"/>-->
+                </Setter.Value>
+            </Setter>
+
+            <EventSetter Event="Click" Handler="MinimizeButton_Click"/>
+        </Style>
+
+        <Style x:Key="MaximizeButton" TargetType="Button" BasedOn="{StaticResource NMM_ButtonBase}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="Green"/>
+                    <!--<SolidColorBrush Color="Transparent"/>-->
+                </Setter.Value>
+            </Setter>
+
+            <EventSetter Event="Click" Handler="MaximizeButton_Click"/>
         </Style>
 
         <Style x:Key="CloseButton" TargetType="Button" BasedOn="{StaticResource ButtonBase}">
+            <EventSetter Event="Click" Handler="CloseButton_Click"/>
         </Style>
 
         <Style x:Key="CloseBorder" TargetType="Border">
-            <Setter Property="Width" Value="50"/>
-            <Setter Property="Background" Value="Red"/>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                            To="{StaticResource Close_HoverColor}"
+                                            Duration="0:0:0.3"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                                            To="Transparent"
+                                            Duration="0:0:0.3"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="Red"/>
+                    <!--<SolidColorBrush Color="Transparent"/>-->
+                </Setter.Value>
+            </Setter>
             <Setter Property="CornerRadius">
                 <Setter.Value>
                     <CornerRadius TopLeft="0"
@@ -44,9 +107,15 @@
 
     <Border>
         <Grid>
-            <Button x:Name="MinimizeButton" Style="{StaticResource MinimizeButton}" Margin="0,0,100,0"></Button>
-            <Button x:Name="MaximizeButton" Style="{StaticResource MaximizeButton}" Margin="0,0,50,0"></Button>
-            <Button x:Name="CloseButton" Style="{StaticResource CloseButton}" Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="MinimizeButton" Grid.Column="0" Style="{StaticResource MinimizeButton}"></Button>
+            <Button x:Name="MaximizeButton" Grid.Column="1" Style="{StaticResource MaximizeButton}"></Button>
+            <Button x:Name="CloseButton" Grid.Column="2" Style="{StaticResource CloseButton}">
                 <Border Style="{StaticResource CloseBorder}"/>
             </Button>
         </Grid>
