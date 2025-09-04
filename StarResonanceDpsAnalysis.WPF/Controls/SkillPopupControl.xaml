@@ -37,7 +37,7 @@
                                     <TextBlock FontSize="14" FontWeight="Bold" Foreground="{StaticResource AccentYellow}"
                                                Text="{Binding SkillName}" TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Margin="0,4,0,0" Foreground="White">
-                                        <Run Text="总伤害: "/>
+                                        <Run Text="总伤害: "/> 
                                         <Run Text="{Binding TotalDamage}" FontWeight="Bold"/>
                                     </TextBlock>
                                     <TextBlock Margin="0,4,0,0">

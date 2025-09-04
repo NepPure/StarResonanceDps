@@ -120,7 +120,8 @@
                     <TextBlock x:Name="StatisticTypeLabel" Style="{StaticResource StatisticTypeText}" Grid.ColumnSpan="2" Margin="19,0,0,0"/>
                     <!--左侧按钮-->
                     <Button x:Name="LeftButton"
-                            Style="{StaticResource StatisticLRButton}"
+                            Style="{StaticResource StatisticLRButton}" 
+                            Margin="1,6,0,0"
                             Content=""
                             Click="LeftButton_Click" VerticalAlignment="Center"/>
                     <!--右侧按钮-->
@@ -153,7 +154,51 @@
                         Click="RefreshButton_Click"/>
                         <!-- Popup 承载自定义 UserControl -->
                         <!--鼠标经过 显示测试-->
+                        <Popup x:Name="SkillPopup"
+               Placement="MousePoint"
+               AllowsTransparency="True"
+               StaysOpen="True">
+                            <Border Background="#CC000000"
+                    CornerRadius="8"
+                    Padding="10">
+                                <StackPanel>
+                                    <!-- 顶部标题 -->
+                                    <TextBlock Text="惊奇猫猫盒"
+                               Foreground="White"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Margin="0,0,0,6"/>
 
+                                    <!-- 技能列表 -->
+                                    <ItemsControl x:Name="SkillList">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="0,8,0,0">
+                                                    <!-- 技能名 -->
+                                                    <TextBlock Text="{Binding SkillName}" 
+                                               Foreground="Gold"
+                                               FontWeight="Bold"/>
+                                                    <!-- 总伤害 -->
+                                                    <TextBlock>
+                                        <Run Text="总伤害：" Foreground="White"/>
+                                        <Run Text="{Binding TotalDamage}" Foreground="White"/>
+                                                    </TextBlock>
+                                                    <!-- 命中 / 暴击次数 / 平均伤害 -->
+                                                    <TextBlock>
+                                        <Run Text="命中：" Foreground="Orange"/>
+                                        <Run Text="{Binding HitCount}" Foreground="White"/>
+                                        <Run Text="    暴击次数：" Foreground="Orange"/>
+                                        <Run Text="{Binding CritCount}" Foreground="White"/>
+                                        <Run Text="    平均伤害：" Foreground="Orange"/>
+                                        <Run Text="{Binding AvgDamage}" Foreground="White"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
                     </Grid>
 
                     <!--设置按钮-->

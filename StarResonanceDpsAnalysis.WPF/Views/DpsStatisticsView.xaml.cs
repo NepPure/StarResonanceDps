@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,10 +37,27 @@ namespace StarResonanceDpsAnalysis.WPF.Views
             set { SetValue(MinimizeProperty, value); }
         }
 
-
+        public class SkillItem
+        {
+            public string SkillName { get; set; }
+            public string TotalDamage { get; set; }
+            public int HitCount { get; set; }
+            public int CritCount { get; set; }
+            public int AvgDamage { get; set; }
+        }
         public DpsStatisticsView()
         {
             InitializeComponent();
+            // 模拟技能数据
+            var skills = new List<SkillItem>
+        {
+            new SkillItem { SkillName = "技能A", TotalDamage = "939.1万", HitCount = 4, CritCount = 121, AvgDamage = 121 },
+            new SkillItem { SkillName = "技能B", TotalDamage = "88.6万", HitCount = 8, CritCount = 23,  AvgDamage = 11 },
+            new SkillItem { SkillName = "技能C", TotalDamage = "123.4万", HitCount = 3, CritCount = 45,  AvgDamage = 233 },
+        };
+
+            SkillList.ItemsSource = skills;
+
         }
 
         private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -103,6 +121,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
+            SkillPopup.IsOpen = true;
 
         }
 
