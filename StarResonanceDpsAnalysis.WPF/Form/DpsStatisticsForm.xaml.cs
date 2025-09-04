@@ -108,9 +108,32 @@ namespace StarResonanceDpsAnalysis.WPF.Form
             e.Handled = true;
         }
 
-        private void PullButton_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 测伤模式
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AxisMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            var me = (MenuItem)sender;
+            var owner = ItemsControl.ItemsControlFromItemContainer(me);
 
+            if (me.IsChecked == true)
+            {
+                // 这次点击后变成 true：把其它都关掉
+                foreach (var obj in owner.Items)
+                {
+                    if (owner.ItemContainerGenerator.ContainerFromItem(obj) is MenuItem mi && !ReferenceEquals(mi, me))
+                        mi.IsChecked = false;
+                }
+                // me 已经是 true，不用再设
+            }
+            else
+            {
+                // 这次点击后变成 false：允许“全不选”，什么也不做
+            }
+
+            e.Handled = true;
         }
     }
 }
