@@ -24,11 +24,13 @@ namespace StarResonanceDpsAnalysis.WPF.Form
             InitializeComponent();
 
 
-            // 捕获整个窗口上的左键按下（包括已处理的事件）
-            AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler((s, e) =>
-            {
-                if (e.ButtonState == MouseButtonState.Pressed) DragMove();
-            }), /*handledEventsToo:*/ true);
+        }
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+
+
+            if (e.ButtonState == MouseButtonState.Pressed)
+                DragMove();
         }
 
         private void RightButton_Click(object sender, RoutedEventArgs e)
@@ -52,6 +54,61 @@ namespace StarResonanceDpsAnalysis.WPF.Form
         }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void PullButton_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        /// <summary>
+        /// 打桩模式选择
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void PilingMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var me = (MenuItem)sender;
+            var owner = ItemsControl.ItemsControlFromItemContainer(me);
+
+            if (me.IsChecked == true)
+            {
+                // 这次点击后变成 true：把其它都关掉
+                foreach (var obj in owner.Items)
+                {
+                    if (owner.ItemContainerGenerator.ContainerFromItem(obj) is MenuItem mi && !ReferenceEquals(mi, me))
+                        mi.IsChecked = false;
+                }
+                // me 已经是 true，不用再设
+            }
+            else
+            {
+                // 这次点击后变成 false：允许“全不选”，什么也不做
+            }
+
+            e.Handled = true;
+        }
+        /// <summary>
+        /// 设置选择
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void RecordSettingsMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var me = (MenuItem)sender;
+            var owner = ItemsControl.ItemsControlFromItemContainer(me);
+            foreach (var obj in owner.Items)
+            {
+                if (owner.ItemContainerGenerator.ContainerFromItem(obj) is MenuItem mi && !ReferenceEquals(mi, me))
+                    mi.IsChecked = false;
+            }
+            me.IsChecked = true; // 保证当前为选中
+            e.Handled = true;
+        }
+
+        private void PullButton_Click(object sender, RoutedEventArgs e)
         {
 
         }

@@ -1,12 +1,17 @@
 ﻿<Application x:Class="StarResonanceDpsAnalysis.WPF.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF"
              StartupUri="Form/DpsStatisticsForm.xaml">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Style/ButtonStyle.xaml"/>
+
+                <!-- 先合并按钮样式 -->
+                <ResourceDictionary Source="Style/ButtonStyle.xaml" />
+
+                <!-- 再合并菜单样式（若有同名键，后者会覆盖前者）-->
+                <ResourceDictionary Source="Style/MenuStyles.xaml" />
+
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
