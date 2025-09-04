@@ -243,5 +243,15 @@ namespace StarResonanceDpsAnalysis.WPF.Views
         {
             Close();
         }
+
+        private void RefreshButton_MouseEnter(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void RefreshButton_MouseLeave(object sender, MouseEventArgs e)
+        {
+
+        }
     }
 }

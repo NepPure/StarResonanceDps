@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
         xmlns:svgc="https://github.com/dotnetprojects/SVGImage"
-        xmlns:wc="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:controls="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls" 
+
+        xmlns:wc="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
         mc:Ignorable="d"
         Title="DpsStatisticsForm"
         Height="359" Width="320"
@@ -139,11 +141,21 @@
                             Click="SwitchButton_Click"/>
 
                     <!--刷新按钮-->
-                    <Button x:Name="RefreshButton"
-                            Style="{StaticResource StatisticFuncButton}"
-                            Margin="0,5,50,5"
-                            Content=""
-                            Click="RefreshButton_Click" Width="18"/>
+                    <Grid>
+                        <!-- 你的按钮（触发器） -->
+                        <Button x:Name="RefreshButton"
+                        Style="{StaticResource StatisticFuncButton}"
+                        Margin="0,5,50,5"
+                        Content=""
+                        Width="18"
+                        MouseEnter="RefreshButton_MouseEnter"
+                        MouseLeave ="RefreshButton_MouseLeave"
+                        Click="RefreshButton_Click"/>
+                        <!-- Popup 承载自定义 UserControl -->
+                        <!--鼠标经过 显示测试-->
+
+                    </Grid>
+
                     <!--设置按钮-->
                     <Button x:Name="SetButton"
                             Style="{StaticResource StatisticFuncButton}"
