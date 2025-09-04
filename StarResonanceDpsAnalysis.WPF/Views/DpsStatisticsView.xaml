@@ -120,7 +120,8 @@
                     <TextBlock x:Name="StatisticTypeLabel" Style="{StaticResource StatisticTypeText}" Grid.ColumnSpan="2" Margin="19,0,0,0"/>
                     <!--左侧按钮-->
                     <Button x:Name="LeftButton"
-                            Style="{StaticResource StatisticLRButton}"
+                            Style="{StaticResource StatisticLRButton}" 
+                            Margin="1,6,0,0"
                             Content=""
                             Click="LeftButton_Click" VerticalAlignment="Center"/>
                     <!--右侧按钮-->
