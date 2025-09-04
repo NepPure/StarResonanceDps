@@ -11,10 +11,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Fonts\iconfont.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StarResonanceDpsAnalysis.Assets\StarResonanceDpsAnalysis.Assets.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- 把任意 *.function.cs 折叠到去掉 .function 后的同名 .xaml 下 -->
     <Compile Update="**/*.xaml.function.cs">
       <!-- %(Filename) 不带扩展名 -->
       <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.function',''))</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Fonts\iconfont.ttf" />
   </ItemGroup>
 </Project>
