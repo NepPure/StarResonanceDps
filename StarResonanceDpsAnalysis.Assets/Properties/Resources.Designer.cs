@@ -218,6 +218,16 @@ namespace StarResonanceDpsAnalysis.Assets.Properties {
         /// <summary>
         ///   查找 System.Byte[] 类型的本地化资源。
         /// </summary>
+        internal static byte[] IconFont {
+            get {
+                object obj = ResourceManager.GetObject("IconFont", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Byte[] 类型的本地化资源。
+        /// </summary>
         internal static byte[] left_hover {
             get {
                 object obj = ResourceManager.GetObject("left_hover", resourceCulture);
