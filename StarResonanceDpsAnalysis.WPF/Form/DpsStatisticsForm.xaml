@@ -43,7 +43,7 @@
                 <TextBlock Margin="19,0,0,0"
    VerticalAlignment="Center"
    Foreground="White"
-   FontFamily="HarmonyOS Sans SC"
+   FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
    Text="当前伤害" HorizontalAlignment="Left" Width="51"/>
                 <!--左侧按钮-->
                 <Button x:Name="LeftButton"
@@ -57,7 +57,7 @@ Click="LeftButton_Click"
 Background="{x:Null}"
 BorderBrush="{x:Null}"
 Foreground="White"
-FontFamily="iconfont"
+FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
 FontSize="15"/>
                 <!--右侧按钮-->
                 <Button x:Name="RightButton"
@@ -71,7 +71,7 @@ Click="RightButton_Click"
 Background="{x:Null}"
 BorderBrush="{x:Null}"
 Foreground="White"
-FontFamily="iconfont"
+FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
 FontSize="15"/>
                 <!--切换按钮-->
                 <Button x:Name="SwitchButton"
@@ -85,7 +85,7 @@ Click="SwitchButton_Click"
 Background="{x:Null}"
 BorderBrush="{x:Null}"
 Foreground="White"
-FontFamily="iconfont"
+FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
 FontSize="12"/>
                 <!--刷新按钮-->
                 <Button x:Name="RefreshButton"
@@ -96,7 +96,7 @@ Click="RefreshButton_Click"
 Background="{x:Null}"
 BorderBrush="{x:Null}"
 Foreground="White"
-FontFamily="iconfont"
+FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
 FontSize="15" HorizontalAlignment="Right" Width="18"/>
                 <!--设置按钮-->
                 <Button x:Name="SetButton"
@@ -107,7 +107,7 @@ FontSize="15" HorizontalAlignment="Right" Width="18"/>
                 Background="{x:Null}"
                 BorderBrush="{x:Null}"
                 Foreground="White"
-                FontFamily="iconfont"
+                FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
                 FontSize="15">
 
                     <Button.ContextMenu>
@@ -132,7 +132,7 @@ FontSize="15" HorizontalAlignment="Right" Width="18"/>
                                 <MenuItem Header="长轴测伤(5分)" IsCheckable="True" Click="AxisMenuItem_Click"/>
                             </MenuItem>
                             <!--打桩模式-->
-                                <MenuItem Header="打桩模式"  ItemContainerStyle="{StaticResource CheckableMenuItem}">
+                            <MenuItem Header="打桩模式"  ItemContainerStyle="{StaticResource CheckableMenuItem}">
                                 <MenuItem Header="个人打桩 " IsCheckable="True"  Click="PilingMenuItem_Click"/>
                                 <MenuItem Header="协会打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
                                 <MenuItem Header="极限打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
@@ -153,7 +153,7 @@ FontSize="15" HorizontalAlignment="Right" Width="18"/>
                 Background="{x:Null}"
                 BorderBrush="{x:Null}"
                 Foreground="White"
-                FontFamily="iconfont"
+                FontFamily="pack://application:,,,/Assets/Fonts/#iconfont"
                 FontSize="15" HorizontalAlignment="Right" Width="18"/>
             </Grid>
         </Border>
