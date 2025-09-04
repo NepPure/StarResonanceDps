@@ -11,11 +11,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Fonts\AlimamaShuHeiTi-Bold.ttf" />
+    <None Remove="Assets\Fonts\HarmonyOS_Sans_SC_Bold.ttf" />
+    <None Remove="Assets\Fonts\HarmonyOS_Sans_SC_Regular.ttf" />
     <None Remove="Assets\Fonts\iconfont.ttf" />
+    <None Remove="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\StarResonanceDpsAnalysis.Assets\StarResonanceDpsAnalysis.Assets.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Fonts\AlimamaShuHeiTi-Bold.ttf" />
+    <Resource Include="Assets\Fonts\HarmonyOS_Sans_SC_Bold.ttf" />
+    <Resource Include="Assets\Fonts\HarmonyOS_Sans_SC_Regular.ttf" />
+    <Resource Include="Assets\Fonts\iconfont.ttf" />
+    <Resource Include="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,9 +36,5 @@
       <!-- %(Filename) 不带扩展名 -->
       <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.function',''))</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Assets\Fonts\iconfont.ttf" />
   </ItemGroup>
 </Project>
