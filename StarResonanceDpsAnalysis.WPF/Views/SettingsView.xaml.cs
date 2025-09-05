@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,20 @@ namespace StarResonanceDpsAnalysis.WPF.Views
         public SettingsView()
         {
             InitializeComponent();
+
+            Task.Run(async () =>
+            {
+                var rd = new Random();
+                while (true)
+                {
+                    Test.Dispatcher.Invoke(() =>
+                    {
+                        Test.Value = rd.NextDouble();
+                    });
+
+                    await Task.Delay(1000);
+                }
+            });
         }
     }
 }

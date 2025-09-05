@@ -16,6 +16,7 @@
     <None Remove="Assets\Fonts\HarmonyOS_Sans_SC_Regular.ttf" />
     <None Remove="Assets\Fonts\iconfont.ttf" />
     <None Remove="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
+    <None Remove="Assets\Images\Crown.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +29,7 @@
     <Resource Include="Assets\Fonts\HarmonyOS_Sans_SC_Regular.ttf" />
     <Resource Include="Assets\Fonts\iconfont.ttf" />
     <Resource Include="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
+    <Resource Include="Assets\Images\Crown.png" />
   </ItemGroup>
 
   <ItemGroup>
