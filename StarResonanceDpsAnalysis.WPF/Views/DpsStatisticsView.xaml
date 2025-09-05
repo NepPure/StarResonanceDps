@@ -219,6 +219,8 @@
 
 
                                 <MenuItem  Style="{StaticResource CheckableMenuItem}" Header="统计BOSS" IsCheckable="True" IsChecked="False" />
+                                <MenuItem  Style="{StaticResource CheckableMenuItem}"  Header="显示总伤" IsCheckable="True" IsChecked="False"/>
+
                                 <MenuItem  Header="个人模式"/>
                                 <!--记录设置-->
                                 <MenuItem Header="记录设置"  ItemContainerStyle="{StaticResource CheckableMenuItem}">
@@ -234,7 +236,9 @@
                                     <MenuItem Header="协会打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
                                     <MenuItem Header="极限打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
                                 </MenuItem>
+                             
                                 <MenuItem Header="技能日记"/>
+                               
                                 <Separator/>
                                 <MenuItem Header="退出" Click="ExitButton_Click"/>
                             </ContextMenu>
@@ -277,6 +281,150 @@
                                TextAlignment="Right"
                                Width="118"
                                Text="2.24万 DPS"/>
+                </Grid>
+            </Border>
+            <Border Style="{StaticResource TitleBar}" Margin="7,8,8,0">
+                <!-- 顶部栏,Grid 一般不设置属性 -->
+                <Grid>
+
+                    <!--统计类型标注-->
+                    <TextBlock x:Name="StatisticTypeLabel1" Style="{StaticResource StatisticTypeText}" Grid.ColumnSpan="2" Margin="19,0,0,0"/>
+                    <!--左侧按钮-->
+                    <Button x:Name="LeftButton1"
+                        Style="{StaticResource StatisticLRButton}" 
+                        Margin="2,0,0,0"
+                        Content="&#xE689;"
+                        Click="LeftButton_Click" VerticalAlignment="Center"/>
+                    <!--右侧按钮-->
+                    <Button x:Name="RightButton1"
+                        Style="{StaticResource StatisticLRButton}"
+                        Margin="70,0,0,0"
+                        Content="&#xE688;"
+                        Click="RightButton_Click" VerticalAlignment="Center"/>
+                    <!--切换按钮-->
+                    <Button x:Name="SwitchButton1"
+                        Style="{StaticResource StatisticSwitchButton}"
+                        Margin="90,0,0,0"
+                        Content="&#xE607;"
+                        ToolTip="切换为：全程 / 当前"
+                        ToolTipService.InitialShowDelay="200"   
+                        ToolTipService.ShowDuration="3000"
+                        ToolTipService.Placement="Mouse" 
+                        Click="SwitchButton_Click"/>
+
+                    <!--刷新按钮-->
+                    <Grid>
+                        <!-- Popup 承载自定义 UserControl -->
+                        <!-- 你的按钮（触发器） -->
+                        <Button x:Name="RefreshButton1"
+                            Style="{StaticResource StatisticFuncButton}"
+                            Margin="0,5,50,5"
+                            Content="&#xE644;"
+                            Width="18"
+                            MouseEnter="RefreshButton_MouseEnter"
+                            MouseLeave ="RefreshButton_MouseLeave"
+                            Click="RefreshButton_Click"/>
+                        <!--鼠标经过 显示测试到时放进度条上-->
+                        <Popup x:Name="SkillPopup1"
+                            Placement="MousePoint"
+                            AllowsTransparency="True"
+                            StaysOpen="True">
+                            <Border Background="#CC000000"
+                                CornerRadius="8"
+                                Padding="10">
+                                <StackPanel>
+                                    <!-- 顶部标题 -->
+                                    <TextBlock Text="惊奇猫猫盒"
+                                        Style="{StaticResource FooterTextContent}"
+                                               
+                                        Foreground="White"
+                                        FontSize="12"
+                                        FontWeight="Regular"
+                                        Margin="0,0,0,6"/>
+
+                                    <!-- 技能列表 -->
+                                    <ItemsControl x:Name="SkillList1" >
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Margin="0,8,0,0">
+                                                    <!-- 技能名 -->
+                                                    <TextBlock Text="{Binding SkillName}" 
+                                                        Style="{StaticResource FooterTextContent}"
+                                                        Foreground="Gold"
+                                                        FontWeight="Bold"/>
+                                                    <!-- 总伤害 -->
+                                                    <TextBlock    Style="{StaticResource FooterTextContent}"><Run Text="总伤害：" Foreground="White"  /><Run Text=" "/><Run Text="{Binding TotalDamage}" Foreground="White"  /></TextBlock>
+                                                    <!-- 命中 / 暴击次数 / 平均伤害 -->
+                                                    <TextBlock    Style="{StaticResource FooterTextContent}"><Run Text="命中：" Foreground="Orange"/><Run Text=" "/><Run Text="{Binding HitCount}" Foreground="White"/><Run Text=" "/><Run Text="    暴击次数：" Foreground="Orange"/><Run Text=" "/><Run Text="{Binding CritCount}" Foreground="White"/><Run Text=" "/><Run Text="    平均伤害：" Foreground="Orange"/><Run Text=" "/><Run Text="{Binding AvgDamage}" Foreground="White"/></TextBlock>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </Grid>
+
+                    <!--设置按钮-->
+                    <Button x:Name="SetButton1"
+                        Style="{StaticResource StatisticFuncButton}"
+                        Margin="0,5,27,5"
+                        Content="&#xE600;"
+                        Click="SetButton_Click" Width="18">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <!-- 只给 MenuItem 应用样式，Separator 不受影响 -->
+                                <ContextMenu.Resources>
+                                    <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource ModernMenuItem}"/>
+                                </ContextMenu.Resources>
+
+
+                                <ContextMenu.Style>
+                                    <StaticResource ResourceKey="ModernContextMenu"/>
+                                </ContextMenu.Style>
+
+
+                                <MenuItem  Style="{StaticResource CheckableMenuItem}" Header="统计BOSS" IsCheckable="True" IsChecked="False" />
+                                <MenuItem  Style="{StaticResource CheckableMenuItem}" Header="显示总伤" IsCheckable="True" IsChecked="False" />
+
+                                <MenuItem  Header="个人模式"/>
+                                <!--记录设置-->
+                                <MenuItem Header="记录设置"  ItemContainerStyle="{StaticResource CheckableMenuItem}">
+                                    <MenuItem Header="记录每一次"   Click="RecordSettingsMenuItem_Click"/>
+                                    <MenuItem Header="不记录1分钟以下"  Click="RecordSettingsMenuItem_Click"/>
+                                    <MenuItem Header="不记录2分钟以下"  Click="RecordSettingsMenuItem_Click"/>
+                                </MenuItem>
+                                <!--历史记录-->
+                                <MenuItem x:Name="miHistory1" ItemContainerStyle="{StaticResource CheckableMenuItem}" Header="历史记录" />
+                                <!--打桩模式-->
+                                <MenuItem Header="打桩模式"  ItemContainerStyle="{StaticResource CheckableMenuItem}">
+                                    <MenuItem Header="个人打桩 " IsCheckable="True"  Click="PilingMenuItem_Click"/>
+                                    <MenuItem Header="协会打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
+                                    <MenuItem Header="极限打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
+                                </MenuItem>
+                                <MenuItem Header="技能日记"/>
+                                <MenuItem Header="死亡统计"/>
+                                <Separator/>
+                                <MenuItem Header="退出" Click="ExitButton_Click"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+
+                    </Button>
+                    <!--隐藏按钮-->
+                    <Button x:Name="PullButton1"
+                        Style="{StaticResource StatisticFuncButton}"
+                        Margin="0,5,4,5"
+                        Content="&#xE601;" 
+                        Click="PullButton_Click" RenderTransformOrigin="0.5,0.5" Width="18">
+                        <Button.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform Angle="0"/>
+                                <TranslateTransform/>
+                            </TransformGroup>
+                        </Button.RenderTransform>
+                    </Button>
                 </Grid>
             </Border>
 

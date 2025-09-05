@@ -1,5 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0-windows</TargetFramework>
@@ -25,7 +24,7 @@
             <CopyToOutputDirectory Condition="'$(Configuration)'!='Release'">PreserveNewest</CopyToOutputDirectory>
         </Content>
         <Content Include="appsettings.json">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
     <ItemGroup>
@@ -51,18 +50,7 @@
         <Resource Include="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
     </ItemGroup>
 
-    <!-- <ItemGroup> -->
-    <!--   ~1~ 把任意 *.function.cs 折叠到去掉 .function 后的同名 .xaml 下 @1@ -->
-    <!--   <Compile Update="**/*.xaml.function.cs"> -->
-    <!--     ~1~ %(Filename) 不带扩展名 @1@ -->
-    <!--     <DependentUpon>$([System.String]::Copy('%(Filename)').Replace('.function',''))</DependentUpon> -->
-    <!--   </Compile> -->
-    <!-- </ItemGroup> -->
-
     <ItemGroup>
-        <Compile Update="Views\DpsStatisticsView.xaml.function.cs">
-            <DependentUpon>DpsStatisticsView.xaml</DependentUpon>
-        </Compile>
+        <Folder Include="Theme\" />
     </ItemGroup>
-
 </Project>
