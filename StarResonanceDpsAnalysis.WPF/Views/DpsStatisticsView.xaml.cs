@@ -37,26 +37,11 @@ namespace StarResonanceDpsAnalysis.WPF.Views
             set { SetValue(MinimizeProperty, value); }
         }
 
-        public class SkillItem
-        {
-            public string SkillName { get; set; }
-            public string TotalDamage { get; set; }
-            public int HitCount { get; set; }
-            public int CritCount { get; set; }
-            public int AvgDamage { get; set; }
-        }
+
         public DpsStatisticsView()
         {
             InitializeComponent();
-            // 模拟技能数据
-            var skills = new List<SkillItem>
-        {
-            new SkillItem { SkillName = "技能A", TotalDamage = "939.1万", HitCount = 4, CritCount = 121, AvgDamage = 121 },
-            new SkillItem { SkillName = "技能B", TotalDamage = "88.6万", HitCount = 8, CritCount = 23,  AvgDamage = 11 },
-            new SkillItem { SkillName = "技能C", TotalDamage = "123.4万", HitCount = 3, CritCount = 45,  AvgDamage = 233 },
-        };
 
-            SkillList.ItemsSource = skills;
 
         }
 
@@ -81,7 +66,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
 
         private void RightButton_Click(object sender, RoutedEventArgs e)
         {
-            if (metricIndex == 2) 
+            if (metricIndex == 2)
                 metricIndex = 0; // <-- 这里原来写成了 if (metricIndex == 0) metricIndex = 1，导致越界
             else metricIndex++;
             UpdateLabel();
@@ -121,7 +106,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
-            SkillPopup.IsOpen = true;
+
 
         }
 
@@ -265,12 +250,23 @@ namespace StarResonanceDpsAnalysis.WPF.Views
 
         private void RefreshButton_MouseEnter(object sender, MouseEventArgs e)
         {
+            // 模拟技能数据
+            var skills = new List<SkillItem>
+            {
+                new SkillItem { SkillName = "技能A", TotalDamage = "939.1万", HitCount = 4, CritCount = 121, AvgDamage = 121 },
+                new SkillItem { SkillName = "技能B", TotalDamage = "88.6万", HitCount = 8, CritCount = 23,  AvgDamage = 11 },
+                new SkillItem { SkillName = "技能C", TotalDamage = "123.4万", HitCount = 3, CritCount = 45,  AvgDamage = 233 },
+            };
 
+            SkillList.ItemsSource = skills;
+            SkillPopup.IsOpen = true;
         }
 
         private void RefreshButton_MouseLeave(object sender, MouseEventArgs e)
         {
 
+            SkillList.ItemsSource = null;
+            SkillPopup.IsOpen = false;
         }
     }
 }

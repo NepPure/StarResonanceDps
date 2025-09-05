@@ -153,7 +153,7 @@
                         MouseLeave ="RefreshButton_MouseLeave"
                         Click="RefreshButton_Click"/>
                         <!-- Popup 承载自定义 UserControl -->
-                        <!--鼠标经过 显示测试-->
+                        <!--鼠标经过 显示测试到时放进度条上-->
                         <Popup x:Name="SkillPopup"
                Placement="MousePoint"
                AllowsTransparency="True"
@@ -164,27 +164,30 @@
                                 <StackPanel>
                                     <!-- 顶部标题 -->
                                     <TextBlock Text="惊奇猫猫盒"
+                                               Style="{StaticResource FooterTextContent}"
+                                               
                                Foreground="White"
-                               FontSize="16"
-                               FontWeight="Bold"
+                               FontSize="12"
+                               FontWeight="Regular"
                                Margin="0,0,0,6"/>
 
                                     <!-- 技能列表 -->
-                                    <ItemsControl x:Name="SkillList">
+                                    <ItemsControl x:Name="SkillList" >
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel Margin="0,8,0,0">
                                                     <!-- 技能名 -->
                                                     <TextBlock Text="{Binding SkillName}" 
+                                                                  Style="{StaticResource FooterTextContent}"
                                                Foreground="Gold"
                                                FontWeight="Bold"/>
                                                     <!-- 总伤害 -->
-                                                    <TextBlock>
-                                        <Run Text="总伤害：" Foreground="White"/>
-                                        <Run Text="{Binding TotalDamage}" Foreground="White"/>
+                                                    <TextBlock    Style="{StaticResource FooterTextContent}">
+                                        <Run Text="总伤害：" Foreground="White"  />
+                                        <Run Text="{Binding TotalDamage}" Foreground="White"  />
                                                     </TextBlock>
                                                     <!-- 命中 / 暴击次数 / 平均伤害 -->
-                                                    <TextBlock>
+                                                    <TextBlock    Style="{StaticResource FooterTextContent}">
                                         <Run Text="命中：" Foreground="Orange"/>
                                         <Run Text="{Binding HitCount}" Foreground="White"/>
                                         <Run Text="    暴击次数：" Foreground="Orange"/>
