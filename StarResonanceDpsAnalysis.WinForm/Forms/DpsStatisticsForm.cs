@@ -107,6 +107,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms // 定义命名空间：窗体�
 
                 var dpsList = DataStorage.ReadOnlySectionedDpsDataList;
 
+                if (dpsList.Count == 0) 
+                {
+                    sortedProgressBarList_MainList.Data = [];
+                    return;
+                }
+
                 // 正式使用时, 需要在此处判断当前类型(DPS/HPS/承伤)(全程/阶段)
                 var maxValue = dpsList.Max(e => e.TotalAttackDamage);
                 var sumValue = dpsList.Sum(e => e.TotalAttackDamage);

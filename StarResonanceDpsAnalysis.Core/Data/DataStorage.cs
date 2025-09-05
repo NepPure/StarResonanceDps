@@ -337,7 +337,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
 
                 // 提升局部, 统一局部变量名
                 {
-                    (var fullData, var sectionedData) = SetLogInfos(log.AttackerUuid, log);
+                    (var fullData, var sectionedData) = SetLogInfos(log.TargetUuid, log);
 
                     fullData.TotalTakenDamage += log.Value;
                     fullData.IsNpcData = true;
@@ -382,8 +382,8 @@ namespace StarResonanceDpsAnalysis.Core.Data
             sectionedSkillDic.CritTimes += log.IsCritical ? 1 : 0;
             sectionedSkillDic.LuckyTimes += log.IsLucky ? 1 : 0;
 
-            FullDpsData[log.AttackerUuid].BattleLogs.Add(log);
-            SectionedDpsDatas[log.AttackerUuid].BattleLogs.Add(log);
+            FullDpsData[uid].BattleLogs.Add(log);
+            SectionedDpsDatas[uid].BattleLogs.Add(log);
 
             return (fullData, sectionedData);
         }

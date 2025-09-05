@@ -46,28 +46,31 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
             get => _dataDict.Values.ToList();
             set
             {
-                // 清除所有项目
-                if (value == null || value.Count == 0)
+                lock (_lock)
                 {
-                    _dataDict.Clear();
-                    return;
-                }
+                    // 清除所有项目
+                    if (value == null || value.Count == 0)
+                    {
+                        _dataDict.Clear();
+                        return;
+                    }
 
-                // 移除不存在的项
-                foreach (var key in _dataDict.Keys.ToList())
-                {
-                    if (!value.Exists(e => e.ID == key))
-                        _dataDict.Remove(key);
-                }
+                    // 移除不存在的项
+                    foreach (var key in _dataDict.Keys.ToList())
+                    {
+                        if (!value.Exists(e => e.ID == key))
+                            _dataDict.Remove(key);
+                    }
 
-                // 更新或新增项（后者覆盖同 ID）
-                foreach (var item in value)
-                {
-                    if (item == null || item.ID < 0) continue;
-                    _dataDict[item.ID] = item;
-                }
+                    // 更新或新增项（后者覆盖同 ID）
+                    foreach (var item in value)
+                    {
+                        if (item == null || item.ID < 0) continue;
+                        _dataDict[item.ID] = item;
+                    }
 
-                Invalidate();
+                    Invalidate();
+                }
             }
         }
 
