@@ -4,16 +4,23 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
+        xmlns:ctrl="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls"
         mc:Ignorable="d"
         Title="SettingForm" Height="780" Width="620" Padding="5"
         Style="{StaticResource TransparentWindow}">
     <Window.Resources>
         <Style x:Key="MainBackground" TargetType="Grid">
-            
+
+        </Style>
+
+        <Style x:Key="Header" TargetType="ctrl:Header">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Height" Value="30"/>
         </Style>
     </Window.Resources>
     <Border Style="{StaticResource ShadowWindowBorder}" Background="#EFEFEF">
         <Grid>
+            <ctrl:Header Style="{StaticResource Header}" Title="Setting"/>
         </Grid>
     </Border>
 </Window>

@@ -176,12 +176,6 @@ namespace StarResonanceDpsAnalysis.WPF.Views
                 Root.VerticalAlignment = VerticalAlignment.Top;
             }
 
-            //if (PullButton.RenderTransform is not RotateTransform rt)
-            //{
-            //    rt = new RotateTransform(0);
-            //    PullButton.RenderTransform = rt;
-            //}
-
             sb.Begin();
         }
 
