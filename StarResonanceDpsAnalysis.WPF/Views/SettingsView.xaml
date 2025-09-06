@@ -40,7 +40,7 @@
                 </ctrl:CustomizeProgressBar.Slot>
             </ctrl:CustomizeProgressBar>
 
-            <ctrl:SortedProgressBarList x:Name="ProgressBarList" Margin="0,100,0,10" ProgressBarMargin="3,3,3,3">
+            <ctrl:SortedProgressBarList x:Name="ProgressBarList" Margin="0,100,0,10"  ProgressBarMargin="3,3,3,3">
                 <ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
                     <DataTemplate>
                         <Grid>
