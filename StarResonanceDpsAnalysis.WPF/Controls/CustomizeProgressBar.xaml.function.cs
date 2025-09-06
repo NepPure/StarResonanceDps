@@ -13,8 +13,6 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
     {
         private void UpdateProgressBarAnimation() 
         {
-            Debug.WriteLine($"[{DateTime.Now:T}] To: {ActualWidth * Value}");
-
             ProgressBarBox.BeginAnimation(WidthProperty, new DoubleAnimation
             {
                 To = ActualWidth * Value,
