@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using StarResonanceDpsAnalysis.WPF.Themes.SystemThemes;
 using StarResonanceDpsAnalysis.WPF.ViewModels;
 
 namespace StarResonanceDpsAnalysis.WPF
@@ -17,8 +18,9 @@ namespace StarResonanceDpsAnalysis.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow(MainViewModel viewModel)
+        public MainWindow(MainViewModel viewModel, SystemThemeWatcher watcher)
         {
+            watcher.Watch(this);
             InitializeComponent();
             DataContext = viewModel;
         }

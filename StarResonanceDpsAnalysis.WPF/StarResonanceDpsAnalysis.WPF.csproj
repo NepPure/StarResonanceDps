@@ -49,8 +49,4 @@
         <Resource Include="Assets\Fonts\iconfont.ttf" />
         <Resource Include="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Theme\" />
-    </ItemGroup>
 </Project>

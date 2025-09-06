@@ -1,3 +1,5 @@
-﻿namespace StarResonanceDpsAnalysis.WPF.ViewModels;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-public abstract class BaseViewModel;
+namespace StarResonanceDpsAnalysis.WPF.ViewModels;
+
+public abstract class BaseViewModel: ObservableObject;
