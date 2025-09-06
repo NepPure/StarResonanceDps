@@ -23,28 +23,40 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
     {
         private readonly Dictionary<long, ProgressBarData> _dataDict = [];
 
-        public static readonly DependencyProperty SlotDataTemplateProperty =
+        public static readonly DependencyProperty ProgressBarSlotDataTemplateProperty =
             DependencyProperty.Register(
-                nameof(SlotDataTemplate),
+                nameof(ProgressBarSlotDataTemplate),
                 typeof(DataTemplate),
-                typeof(CustomizeProgressBar),
+                typeof(SortedProgressBarList),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));
-        public DataTemplate SlotDataTemplate
+        public DataTemplate ProgressBarSlotDataTemplate
         {
-            get { return (DataTemplate)GetValue(SlotDataTemplateProperty); }
-            set { SetValue(SlotDataTemplateProperty, value); }
+            get { return (DataTemplate)GetValue(ProgressBarSlotDataTemplateProperty); }
+            set { SetValue(ProgressBarSlotDataTemplateProperty, value); }
         }
 
         public static readonly DependencyProperty ProgressBarHeightProperty =
             DependencyProperty.Register(
                 nameof(ProgressBarHeight),
                 typeof(double),
-                typeof(CustomizeProgressBar),
-                new FrameworkPropertyMetadata(20, FrameworkPropertyMetadataOptions.None));
+                typeof(SortedProgressBarList),
+                new FrameworkPropertyMetadata(20d, FrameworkPropertyMetadataOptions.None));
         public double ProgressBarHeight
         {
             get { return (double)GetValue(ProgressBarHeightProperty); }
             set { SetValue(ProgressBarHeightProperty, value); }
+        }
+
+        public static readonly DependencyProperty ProgressBarMarginProperty =
+            DependencyProperty.Register(
+                nameof(ProgressBarMargin),
+                typeof(Thickness),
+                typeof(SortedProgressBarList),
+                new FrameworkPropertyMetadata(new Thickness(3), FrameworkPropertyMetadataOptions.None));
+        public Thickness ProgressBarMargin
+        {
+            get { return (Thickness)GetValue(ProgressBarMarginProperty); }
+            set { SetValue(ProgressBarMarginProperty, value); }
         }
 
         /// <summary>

@@ -7,26 +7,19 @@
         <UseWPF>true</UseWPF>
         <Platforms>AnyCPU;x64;x86</Platforms>
         <Version>3.0.0</Version>
+        <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
     </PropertyGroup>
-
-    <ItemGroup>
-        <None Remove="appsettings.Development.json" />
-        <None Remove="appsettings.json" />
-        <None Remove="Assets\Fonts\AlimamaShuHeiTi-Bold.ttf" />
-        <None Remove="Assets\Fonts\HarmonyOS_Sans_SC_Bold.ttf" />
-        <None Remove="Assets\Fonts\HarmonyOS_Sans_SC_Regular.ttf" />
-        <None Remove="Assets\Fonts\iconfont.ttf" />
-        <None Remove="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
-    </ItemGroup>
 
     <ItemGroup>
         <Content Include="appsettings.Development.json">
             <CopyToOutputDirectory Condition="'$(Configuration)'!='Release'">PreserveNewest</CopyToOutputDirectory>
         </Content>
+      
         <Content Include="appsettings.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
+  
     <ItemGroup>
         <ApplicationDefinition Remove="App.xaml" />
         <Page Include="App.xaml" />
@@ -40,6 +33,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\StarResonanceDpsAnalysis.Assets\StarResonanceDpsAnalysis.Assets.csproj" />
+        <ProjectReference Include="..\StarResonanceDpsAnalysis.Core\StarResonanceDpsAnalysis.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -50,7 +44,4 @@
         <Resource Include="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
     </ItemGroup>
 
-    <ItemGroup>
-        <Folder Include="Theme\" />
-    </ItemGroup>
 </Project>
