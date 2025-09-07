@@ -1,24 +1,23 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- 可被替换的资源（像 CSS 变量） -->
+    <!--  可被替换的资源（像 CSS 变量）  -->
     <FontFamily x:Key="IconButtonFontFamily">Segoe UI Symbol</FontFamily>
-    <sys:Double x:Key="IconButtonFontSize" xmlns:sys="clr-namespace:System;assembly=mscorlib">14</sys:Double>
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=mscorlib" x:Key="IconButtonFontSize">14</sys:Double>
 
-    <!-- 图标按钮样式（去掉焦点虚线 + 悬停阴影） -->
+    <!--  图标按钮样式（去掉焦点虚线 + 悬停阴影）  -->
     <Style x:Key="IconButtonStyle" TargetType="Button">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="{x:Null}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="FontFamily" Value="{DynamicResource IconButtonFontFamily}"/>
-        <Setter Property="FontSize" Value="{DynamicResource IconButtonFontSize}"/>
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{x:Null}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="FontFamily" Value="{DynamicResource IconButtonFontFamily}" />
+        <Setter Property="FontSize" Value="{DynamicResource IconButtonFontSize}" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{TemplateBinding Background}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -28,27 +27,28 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Effect">
                     <Setter.Value>
-                        <DropShadowEffect Color="#000000"
-                              BlurRadius="4"
-                              ShadowDepth="0"
-                              Opacity="0.28"/>
+                        <DropShadowEffect
+                            BlurRadius="4"
+                            Opacity="0.28"
+                            ShadowDepth="0"
+                            Color="#000000" />
                     </Setter.Value>
                 </Setter>
-                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Cursor" Value="Hand" />
             </Trigger>
 
             <Trigger Property="IsPressed" Value="True">
                 <Setter Property="RenderTransform">
                     <Setter.Value>
-                        <ScaleTransform ScaleX="0.96" ScaleY="0.96"/>
+                        <ScaleTransform ScaleX="0.96" ScaleY="0.96" />
                     </Setter.Value>
                 </Setter>
-                <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <!-- 可以定义隐式样式（如果想默认所有 Button 都应用） -->
+    <!--  可以定义隐式样式（如果想默认所有 Button 都应用）  -->
     <!-- <Style TargetType="Button" BasedOn="{StaticResource IconButtonStyle}" /> -->
 
 </ResourceDictionary>
