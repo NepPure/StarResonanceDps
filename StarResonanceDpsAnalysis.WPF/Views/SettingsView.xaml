@@ -22,7 +22,7 @@
         <Grid>
             <ctrl:Header Style="{StaticResource Header}" Title="Setting"/>
 
-            <ctrl:CustomizeProgressBar x:Name="Test" Height="40" CornerRadius="5">
+            <ctrl:CustomizeProgressBar x:Name="Test" Height="40" CornerRadius="5" Margin="0,40,0,0" VerticalAlignment="Top">
                 <ctrl:CustomizeProgressBar.Slot>
                     <Grid>
                         <Image Source="pack://application:,,,/Assets/Images/Crown.png" 
@@ -39,6 +39,16 @@
                     </Grid>
                 </ctrl:CustomizeProgressBar.Slot>
             </ctrl:CustomizeProgressBar>
+
+            <ctrl:SortedProgressBarList x:Name="ProgressBarList" Margin="0,100,0,10"  ProgressBarMargin="3,3,3,3">
+                <ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <TextBlock Text="{Binding Name}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
+            </ctrl:SortedProgressBarList>
         </Grid>
     </Border>
 </Window>

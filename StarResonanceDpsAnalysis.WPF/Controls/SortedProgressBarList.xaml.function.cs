@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+
+using StarResonanceDpsAnalysis.Core.Extends.System.Windows;
 
 namespace StarResonanceDpsAnalysis.WPF.Controls
 {
@@ -28,11 +32,52 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
                 return;
             }
 
+            _animating = true;
+            Debug.WriteLine($"Ainmation Start");
+
             _prevIdOrder = [.. _animatingInfoBuffer.Select(e => e.ID)];
 
-            foreach (var item in _animatingInfoBuffer) 
+            var hasAnimation = false;
+            foreach (var item in _animatingInfoBuffer)
             {
-                // TODO
+                if (item.FromIndex == item.ToIndex) continue;
+
+                var progressBar = item.UIElement;
+                var mta = new ThicknessAnimation
+                {
+                    To = new Thickness
+                    {
+                        Top = (ProgressBarHeight + ProgressBarMargin.Top + ProgressBarMargin.Bottom) * item.ToIndex,
+                        Bottom = 0,
+                        Left = 0,
+                        Right = 0
+                    },
+                    Duration = TimeSpan.FromMilliseconds(300),
+                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+                };
+                var mtaClock = mta.CreateClock();
+                mtaClock.Completed += (s, e) =>
+                {
+                    if (item.ToIndex == -1)
+                    {
+                        ProgressBarListBox.Children.Remove(progressBar);
+                    }
+                    lock (_dataLock)
+                    {
+                        _animating = false;
+                        Debug.WriteLine($"Ainmation End");
+
+                        UpdateAnimation();
+                    }
+                };
+                progressBar.ApplyAnimationClock(MarginProperty, mtaClock);
+
+                hasAnimation = true;
+            }
+
+            if (!hasAnimation)
+            {
+                _animating = false;
             }
         }
 
@@ -71,16 +116,27 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
                 // 如果新增数据, 则动画出现
                 if (!_animatingInfoBuffer.Any(e => e.ID == data.Key))
                 {
-                    var tmplate = SlotDataTemplate.LoadContent() as FrameworkElement;
-                    tmplate!.DataContext = data.Value.Data;
-                    ProgressBarListBox.Children.Add(tmplate);
+                    var template = ProgressBarSlotDataTemplate.LoadContent() as FrameworkElement;
+                    template!.DataContext = data.Value.Data;
+
+                    var progressBarMargin = new Thickness(0, ProgressBarListBox.ActualHeight, 0, 0).Add(ProgressBarMargin);
+                    var progressBar = new CustomizeProgressBar
+                    {
+                        VerticalAlignment = VerticalAlignment.Top,
+                        Height = ProgressBarHeight,
+                        Value = data.Value.ProgressBarValue,
+                        Slot = template
+                    };
+
+                    ProgressBarListBox.Children.Add(progressBar);
 
                     _animatingInfoBuffer.Add(new SortAnimatingInfo
                     {
                         ID = data.Key,
                         FromIndex = -1,
                         ToIndex = 0,
-                        Data = data.Value
+                        Data = data.Value,
+                        UIElement = progressBar
                     });
 
                     // 记录有变更
@@ -96,7 +152,12 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
                     if (e.ToIndex == -1) return e;
 
                     e.ToIndex = tmpIndex++;
-                    e.Data = _dataDict[e.ID];
+
+                    var ele = (CustomizeProgressBar)e.UIElement;
+                    var data = _dataDict[e.ID];
+                    ((FrameworkElement)ele.Slot).DataContext = data.Data;
+                    ele.Value = data.ProgressBarValue;
+                    e.Data = data;
                     return e;
                 })];
 
@@ -119,6 +180,8 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
             public long ID { get; set; }
             public int FromIndex { get; set; }
             public int ToIndex { get; set; }
+
+            public FrameworkElement UIElement { get; set; }
             public ProgressBarData Data { get; set; }
         }
     }

@@ -15,6 +15,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using StarResonanceDpsAnalysis.WPF.Controls;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace StarResonanceDpsAnalysis.WPF.Views
 {
@@ -42,6 +43,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
         {
             InitializeComponent();
 
+            InitDemoProgressBars();
 
         }
 

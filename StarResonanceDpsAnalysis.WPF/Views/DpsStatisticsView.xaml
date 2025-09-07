@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
         xmlns:svgc="https://github.com/dotnetprojects/SVGImage"
-        xmlns:controls="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls" 
+        xmlns:ctrl="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls"
 
         xmlns:wc="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
         mc:Ignorable="d"
@@ -110,7 +110,60 @@
     <!-- 半透明/圆角交给内部 Border -->
     <Border x:Name="Root" Style="{StaticResource ShadowWindowBorder}" 
             Background="#99191919">
+
         <Grid Margin="-7,-8,-8,-8">
+            <ctrl:SortedProgressBarList x:Name="ProgressBarList" Margin="7,33,7.7,31" ProgressBarMargin="3,3,3,3">
+                <ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            
+                            <!-- 名次 -->
+                            <TextBlock Text="{Binding Name}"
+                   FontFamily="pack://application:,,,/Assets/Fonts/#SAO Welcome TT"
+                   FontSize="18"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   Margin="10,0,0,0"
+                   Foreground="White"
+                   Panel.ZIndex="999"
+                   IsHitTestVisible="False"/>
+
+                            <!-- 职业图标 -->
+                            <Image Source="{Binding Icon}"
+               Margin="38,2,0,1"
+               HorizontalAlignment="Left"
+               Width="11"
+               Panel.ZIndex="999"
+               IsHitTestVisible="False"/>
+
+                            <!-- 昵称 -->
+                            <TextBlock Text="{Binding Nickname}"
+                   FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans S C"
+                   FontWeight="Bold" FontSize="12"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   Margin="55,3,0,0"
+                   Foreground="White"
+                   Panel.ZIndex="999"
+                   IsHitTestVisible="False"/>
+
+                            <!-- 数值 -->
+                            <TextBlock Text="{Binding ValueText}"
+                   FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans S C"
+                   FontWeight="Bold" FontSize="12"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center"
+                   Margin="0,3,8,0"
+                   Foreground="White"
+                   Panel.ZIndex="999"
+                   IsHitTestVisible="False"/>
+                        </Grid>
+                    </DataTemplate>
+                </ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
+            </ctrl:SortedProgressBarList>
+
+
+
 
             <Border Style="{StaticResource TitleBar}" Margin="7,8,8,0">
                 <!-- 顶部栏,Grid 一般不设置属性 -->
@@ -236,9 +289,9 @@
                                     <MenuItem Header="协会打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
                                     <MenuItem Header="极限打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
                                 </MenuItem>
-                             
+
                                 <MenuItem Header="技能日记"/>
-                               
+
                                 <Separator/>
                                 <MenuItem Header="退出" Click="ExitButton_Click"/>
                             </ContextMenu>
@@ -284,7 +337,7 @@
                 </Grid>
             </Border>
             <Border Style="{StaticResource TitleBar}" Margin="7,8,8,0">
-                <!-- 顶部栏,Grid 一般不设置属性 -->
+                <!-- 底部栏,Grid 一般不设置属性 -->
                 <Grid>
 
                     <!--统计类型标注-->

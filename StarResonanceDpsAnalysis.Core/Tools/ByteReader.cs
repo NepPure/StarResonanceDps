@@ -1,4 +1,6 @@
-﻿namespace StarResonanceDpsAnalysis.Core.Tools
+﻿using System.IO;
+
+namespace StarResonanceDpsAnalysis.Core.Tools
 {
     public sealed class ByteReader
     {
