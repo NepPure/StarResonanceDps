@@ -4,13 +4,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
-        xmlns:svgc="https://github.com/dotnetprojects/SVGImage"
         xmlns:ctrl="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls"
+        xmlns:converter="clr-namespace:StarResonanceDpsAnalysis.WPF.Converter"
+        xmlns:svgc="https://github.com/dotnetprojects/SVGImage"
 
         xmlns:wc="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
         mc:Ignorable="d"
         Title="DpsStatisticsForm"
         Height="359" Width="320"
+        MinHeight="31" MinWidth="300"
         Style="{StaticResource TransparentWindow}"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize">
@@ -18,7 +20,7 @@
         <Style x:Key="TitleBar" TargetType="Border">
             <Setter Property="Background" Value="#CCBABABA"/>
             <Setter Property="VerticalAlignment" Value="Top"/>
-            <Setter Property="Height" Value="26"/>
+            <Setter Property="Height" Value="25"/>
             <Setter Property="Panel.ZIndex" Value="1"/>
             <Setter Property="CornerRadius">
                 <Setter.Value>
@@ -76,10 +78,17 @@
             <Setter Property="FontSize" Value="15"/>
         </Style>
 
+        <Style x:Key="SPBList" TargetType="ctrl:SortedProgressBarList">
+            <Setter Property="Margin" Value="0,25,0,25"/>
+            <Setter Property="ProgressBarMargin" Value="4,4,4,0"/>
+        </Style>
+
+        <converter:LessThanToBoolConverter x:Key="LessThanToBoolConverter" />
         <Style x:Key="FooterContentBorder" TargetType="Border">
             <Setter Property="Background" Value="#CCBABABA"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Height" Value="25"/>
+            <Setter Property="Opacity" Value="1" />
             <Setter Property="CornerRadius">
                 <Setter.Value>
                     <CornerRadius TopLeft="0" TopRight="0"
@@ -89,6 +98,33 @@
             </Setter>
 
             <EventSetter Event="MouseLeftButtonDown" Handler="TitleBar_MouseLeftButtonDown"/>
+
+            <Style.Triggers>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <Binding RelativeSource="{RelativeSource AncestorType=local:DpsStatisticsView}"
+                                 Path="ActualHeight"
+                                 Converter="{StaticResource LessThanToBoolConverter}"
+                                 ConverterParameter="56"/>
+                    </DataTrigger.Binding>
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 To="0" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 To="1" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="FooterTextContent" TargetType="TextBlock">
@@ -108,64 +144,11 @@
     </wc:WindowChrome.WindowChrome>
 
     <!-- 半透明/圆角交给内部 Border -->
-    <Border x:Name="Root" Style="{StaticResource ShadowWindowBorder}" 
+    <Border Style="{StaticResource ShadowWindowBorder}" 
             Background="#99191919">
-
-        <Grid Margin="-7,-8,-8,-8">
-            <ctrl:SortedProgressBarList x:Name="ProgressBarList" Margin="7,33,7.7,31" ProgressBarMargin="3,3,3,3">
-                <ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            
-                            <!-- 名次 -->
-                            <TextBlock Text="{Binding Name}"
-                   FontFamily="pack://application:,,,/Assets/Fonts/#SAO Welcome TT"
-                   FontSize="18"
-                   HorizontalAlignment="Left"
-                   VerticalAlignment="Center"
-                   Margin="10,0,0,0"
-                   Foreground="White"
-                   Panel.ZIndex="999"
-                   IsHitTestVisible="False"/>
-
-                            <!-- 职业图标 -->
-                            <Image Source="{Binding Icon}"
-               Margin="38,2,0,1"
-               HorizontalAlignment="Left"
-               Width="11"
-               Panel.ZIndex="999"
-               IsHitTestVisible="False"/>
-
-                            <!-- 昵称 -->
-                            <TextBlock Text="{Binding Nickname}"
-                   FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans S C"
-                   FontWeight="Bold" FontSize="12"
-                   HorizontalAlignment="Left"
-                   VerticalAlignment="Center"
-                   Margin="55,3,0,0"
-                   Foreground="White"
-                   Panel.ZIndex="999"
-                   IsHitTestVisible="False"/>
-
-                            <!-- 数值 -->
-                            <TextBlock Text="{Binding ValueText}"
-                   FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans S C"
-                   FontWeight="Bold" FontSize="12"
-                   HorizontalAlignment="Right"
-                   VerticalAlignment="Center"
-                   Margin="0,3,8,0"
-                   Foreground="White"
-                   Panel.ZIndex="999"
-                   IsHitTestVisible="False"/>
-                        </Grid>
-                    </DataTemplate>
-                </ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
-            </ctrl:SortedProgressBarList>
-
-
-
-
-            <Border Style="{StaticResource TitleBar}" Margin="7,8,8,0">
+        <Grid>
+            
+            <Border Style="{StaticResource TitleBar}">
                 <!-- 顶部栏,Grid 一般不设置属性 -->
                 <Grid>
 
@@ -316,7 +299,59 @@
                 </Grid>
             </Border>
 
-            <Border x:Name="ContentBorder" Style="{StaticResource FooterContentBorder}" Margin="7,0,8,8">
+            <ctrl:SortedProgressBarList x:Name="ProgressBarList" 
+                                        Style="{StaticResource SPBList}">
+                <ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
+                    <DataTemplate>
+                        <Grid>
+
+                            <!-- 名次 -->
+                            <TextBlock Text="{Binding OrderText}"
+       FontFamily="pack://application:,,,/Assets/Fonts/#SAO Welcome TT"
+       FontSize="18"
+       HorizontalAlignment="Left"
+       VerticalAlignment="Center"
+       Margin="10,0,0,0"
+       Foreground="White"
+       Panel.ZIndex="999"
+       IsHitTestVisible="False"/>
+
+                            <!-- 职业图标 -->
+                            <Image Source="{Binding Icon}"
+   Margin="38,2,0,1"
+   HorizontalAlignment="Left"
+   Width="11"
+   Panel.ZIndex="999"
+   IsHitTestVisible="False"/>
+
+                            <!-- 昵称 -->
+                            <TextBlock Text="{Binding Nickname}"
+       FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
+       FontWeight="Bold" FontSize="12"
+       HorizontalAlignment="Left"
+       VerticalAlignment="Center"
+       Margin="55,3,0,0"
+       Foreground="White"
+       Panel.ZIndex="999"
+       IsHitTestVisible="False"/>
+
+                            <!-- 数值 -->
+                            <TextBlock Text="{Binding ValueText}"
+       FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
+       FontWeight="Bold" FontSize="12"
+       HorizontalAlignment="Right"
+       VerticalAlignment="Center"
+       Margin="0,3,8,0"
+       Foreground="White"
+       Panel.ZIndex="999"
+       IsHitTestVisible="False"/>
+                        </Grid>
+                    </DataTemplate>
+                </ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
+            </ctrl:SortedProgressBarList>
+
+
+            <Border x:Name="ContentBorder" Style="{StaticResource FooterContentBorder}">
                 <Grid>
                     <TextBlock Style="{StaticResource FooterTextContent}" 
                                Margin="6,0,0,0"
@@ -334,150 +369,6 @@
                                TextAlignment="Right"
                                Width="118"
                                Text="2.24万 DPS"/>
-                </Grid>
-            </Border>
-            <Border Style="{StaticResource TitleBar}" Margin="7,8,8,0">
-                <!-- 底部栏,Grid 一般不设置属性 -->
-                <Grid>
-
-                    <!--统计类型标注-->
-                    <TextBlock x:Name="StatisticTypeLabel1" Style="{StaticResource StatisticTypeText}" Grid.ColumnSpan="2" Margin="19,0,0,0"/>
-                    <!--左侧按钮-->
-                    <Button x:Name="LeftButton1"
-                        Style="{StaticResource StatisticLRButton}" 
-                        Margin="2,0,0,0"
-                        Content="&#xE689;"
-                        Click="LeftButton_Click" VerticalAlignment="Center"/>
-                    <!--右侧按钮-->
-                    <Button x:Name="RightButton1"
-                        Style="{StaticResource StatisticLRButton}"
-                        Margin="70,0,0,0"
-                        Content="&#xE688;"
-                        Click="RightButton_Click" VerticalAlignment="Center"/>
-                    <!--切换按钮-->
-                    <Button x:Name="SwitchButton1"
-                        Style="{StaticResource StatisticSwitchButton}"
-                        Margin="90,0,0,0"
-                        Content="&#xE607;"
-                        ToolTip="切换为：全程 / 当前"
-                        ToolTipService.InitialShowDelay="200"   
-                        ToolTipService.ShowDuration="3000"
-                        ToolTipService.Placement="Mouse" 
-                        Click="SwitchButton_Click"/>
-
-                    <!--刷新按钮-->
-                    <Grid>
-                        <!-- Popup 承载自定义 UserControl -->
-                        <!-- 你的按钮（触发器） -->
-                        <Button x:Name="RefreshButton1"
-                            Style="{StaticResource StatisticFuncButton}"
-                            Margin="0,5,50,5"
-                            Content="&#xE644;"
-                            Width="18"
-                            MouseEnter="RefreshButton_MouseEnter"
-                            MouseLeave ="RefreshButton_MouseLeave"
-                            Click="RefreshButton_Click"/>
-                        <!--鼠标经过 显示测试到时放进度条上-->
-                        <Popup x:Name="SkillPopup1"
-                            Placement="MousePoint"
-                            AllowsTransparency="True"
-                            StaysOpen="True">
-                            <Border Background="#CC000000"
-                                CornerRadius="8"
-                                Padding="10">
-                                <StackPanel>
-                                    <!-- 顶部标题 -->
-                                    <TextBlock Text="惊奇猫猫盒"
-                                        Style="{StaticResource FooterTextContent}"
-                                               
-                                        Foreground="White"
-                                        FontSize="12"
-                                        FontWeight="Regular"
-                                        Margin="0,0,0,6"/>
-
-                                    <!-- 技能列表 -->
-                                    <ItemsControl x:Name="SkillList1" >
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Margin="0,8,0,0">
-                                                    <!-- 技能名 -->
-                                                    <TextBlock Text="{Binding SkillName}" 
-                                                        Style="{StaticResource FooterTextContent}"
-                                                        Foreground="Gold"
-                                                        FontWeight="Bold"/>
-                                                    <!-- 总伤害 -->
-                                                    <TextBlock    Style="{StaticResource FooterTextContent}"><Run Text="总伤害：" Foreground="White"  /><Run Text=" "/><Run Text="{Binding TotalDamage}" Foreground="White"  /></TextBlock>
-                                                    <!-- 命中 / 暴击次数 / 平均伤害 -->
-                                                    <TextBlock    Style="{StaticResource FooterTextContent}"><Run Text="命中：" Foreground="Orange"/><Run Text=" "/><Run Text="{Binding HitCount}" Foreground="White"/><Run Text=" "/><Run Text="    暴击次数：" Foreground="Orange"/><Run Text=" "/><Run Text="{Binding CritCount}" Foreground="White"/><Run Text=" "/><Run Text="    平均伤害：" Foreground="Orange"/><Run Text=" "/><Run Text="{Binding AvgDamage}" Foreground="White"/></TextBlock>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </Border>
-                        </Popup>
-                    </Grid>
-
-                    <!--设置按钮-->
-                    <Button x:Name="SetButton1"
-                        Style="{StaticResource StatisticFuncButton}"
-                        Margin="0,5,27,5"
-                        Content="&#xE600;"
-                        Click="SetButton_Click" Width="18">
-                        <Button.ContextMenu>
-                            <ContextMenu>
-                                <!-- 只给 MenuItem 应用样式，Separator 不受影响 -->
-                                <ContextMenu.Resources>
-                                    <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource ModernMenuItem}"/>
-                                </ContextMenu.Resources>
-
-
-                                <ContextMenu.Style>
-                                    <StaticResource ResourceKey="ModernContextMenu"/>
-                                </ContextMenu.Style>
-
-
-                                <MenuItem  Style="{StaticResource CheckableMenuItem}" Header="统计BOSS" IsCheckable="True" IsChecked="False" />
-                                <MenuItem  Style="{StaticResource CheckableMenuItem}" Header="显示总伤" IsCheckable="True" IsChecked="False" />
-
-                                <MenuItem  Header="个人模式"/>
-                                <!--记录设置-->
-                                <MenuItem Header="记录设置"  ItemContainerStyle="{StaticResource CheckableMenuItem}">
-                                    <MenuItem Header="记录每一次"   Click="RecordSettingsMenuItem_Click"/>
-                                    <MenuItem Header="不记录1分钟以下"  Click="RecordSettingsMenuItem_Click"/>
-                                    <MenuItem Header="不记录2分钟以下"  Click="RecordSettingsMenuItem_Click"/>
-                                </MenuItem>
-                                <!--历史记录-->
-                                <MenuItem x:Name="miHistory1" ItemContainerStyle="{StaticResource CheckableMenuItem}" Header="历史记录" />
-                                <!--打桩模式-->
-                                <MenuItem Header="打桩模式"  ItemContainerStyle="{StaticResource CheckableMenuItem}">
-                                    <MenuItem Header="个人打桩 " IsCheckable="True"  Click="PilingMenuItem_Click"/>
-                                    <MenuItem Header="协会打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
-                                    <MenuItem Header="极限打桩" IsCheckable="True"  Click="PilingMenuItem_Click"/>
-                                </MenuItem>
-                                <MenuItem Header="技能日记"/>
-                                <MenuItem Header="死亡统计"/>
-                                <Separator/>
-                                <MenuItem Header="退出" Click="ExitButton_Click"/>
-                            </ContextMenu>
-                        </Button.ContextMenu>
-
-                    </Button>
-                    <!--隐藏按钮-->
-                    <Button x:Name="PullButton1"
-                        Style="{StaticResource StatisticFuncButton}"
-                        Margin="0,5,4,5"
-                        Content="&#xE601;" 
-                        Click="PullButton_Click" RenderTransformOrigin="0.5,0.5" Width="18">
-                        <Button.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform/>
-                                <SkewTransform/>
-                                <RotateTransform Angle="0"/>
-                                <TranslateTransform/>
-                            </TransformGroup>
-                        </Button.RenderTransform>
-                    </Button>
                 </Grid>
             </Border>
 

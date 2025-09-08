@@ -24,6 +24,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
     /// </summary>
     public partial class DpsStatisticsView : Window
     {
+        private double _beforePilingHeight = 0;
 
         public static readonly DependencyProperty MinimizeProperty =
             DependencyProperty.Register(
@@ -55,22 +56,18 @@ namespace StarResonanceDpsAnalysis.WPF.Views
         private int metricIndex = 0; // 0: 伤害, 1: 治疗, 2: 承伤
         private bool isFull = false; // 是否全程显示
 
-        private static readonly string[] names = { "伤害", "治疗", "承伤" };
+        private static readonly string[] names = ["伤害", "治疗", "承伤"];
 
         private void LeftButton_Click(object sender, RoutedEventArgs e)
         {
-            if (metricIndex == 0)
-                metricIndex = 2;
-            else metricIndex--;
+            metricIndex = (metricIndex - 1 + 3) % 3;
             UpdateLabel();
         }
 
 
         private void RightButton_Click(object sender, RoutedEventArgs e)
         {
-            if (metricIndex == 2)
-                metricIndex = 0; // <-- 这里原来写成了 if (metricIndex == 0) metricIndex = 1，导致越界
-            else metricIndex++;
+            metricIndex = ++metricIndex % 3;
             UpdateLabel();
         }
 
@@ -116,37 +113,24 @@ namespace StarResonanceDpsAnalysis.WPF.Views
         {
             Minimize = !Minimize;
 
+            if (Minimize)
+            {
+                _beforePilingHeight = ActualHeight;
+            }
+
             var sb = new Storyboard { FillBehavior = FillBehavior.HoldEnd };
             var duration = new Duration(TimeSpan.FromMilliseconds(300));
             var easingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut };
-            var rootHeightDA = new DoubleAnimation
+            var heightDA = new DoubleAnimation
             {
-                From = Root.ActualHeight,
-                To = Minimize ? 25 : Height - 20,
+                From = ActualHeight,
+                To = Minimize ? 25 : _beforePilingHeight,
                 Duration = duration,
                 EasingFunction = easingFunction,
             };
-            rootHeightDA.Completed += (_, _) =>
-            {
-                if (!Minimize)
-                {
-                    Root.Height = double.NaN;
-                    Root.VerticalAlignment = VerticalAlignment.Stretch;
-                }
-            };
-            Storyboard.SetTarget(rootHeightDA, Root);
-            Storyboard.SetTargetProperty(rootHeightDA, new PropertyPath(HeightProperty));
-            sb.Children.Add(rootHeightDA);
-
-            var footerOpacityDA = new DoubleAnimation
-            {
-                To = Minimize ? 0 : 1,
-                Duration = duration,
-                EasingFunction = easingFunction,
-            };
-            Storyboard.SetTarget(footerOpacityDA, ContentBorder);
-            Storyboard.SetTargetProperty(footerOpacityDA, new PropertyPath(OpacityProperty));
-            sb.Children.Add(footerOpacityDA);
+            Storyboard.SetTarget(heightDA, this);
+            Storyboard.SetTargetProperty(heightDA, new PropertyPath(HeightProperty));
+            sb.Children.Add(heightDA);
 
             var pullButtonTransformDA = new DoubleAnimation
             {
@@ -157,11 +141,6 @@ namespace StarResonanceDpsAnalysis.WPF.Views
             Storyboard.SetTarget(pullButtonTransformDA, PullButton);
             Storyboard.SetTargetProperty(pullButtonTransformDA, new PropertyPath("(UIElement.RenderTransform).(TransformGroup.Children)[2].(RotateTransform.Angle)"));
             sb.Children.Add(pullButtonTransformDA);
-
-            if (Minimize)
-            {
-                Root.VerticalAlignment = VerticalAlignment.Top;
-            }
 
             sb.Begin();
         }

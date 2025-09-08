@@ -1,12 +1,16 @@
-﻿using StarResonanceDpsAnalysis.WPF.Controls;
+﻿using StarResonanceDpsAnalysis.Core.Extends.System;
+using StarResonanceDpsAnalysis.WPF.Controls;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Color = System.Windows.Media.Color;
 
@@ -16,27 +20,101 @@ namespace StarResonanceDpsAnalysis.WPF.Views
     {
         public class SkillItem
         {
-            public string SkillName { get; set; }
-            public string TotalDamage { get; set; }
+            public string SkillName { get; set; } = string.Empty;
+            public string TotalDamage { get; set; } = string.Empty;
             public int HitCount { get; set; }
             public int CritCount { get; set; }
             public int AvgDamage { get; set; }
         }
 
         // 用于 DataTemplate 绑定的数据载体（挂到 ProgressBarData.Data 上）
-        public class PlayerSlot
+        public class PlayerSlot : IOrderingData
         {
-            public string Name { get; set; }        // 序号或排名显示，例如 "01."
-            public string Nickname { get; set; }    // “惊奇猫猫盒-狼弓(23207)”
-            public string Profession { get; set; }  // 职业（用于颜色映射）
-            public string Icon { get; set; }        // 图标 pack:// 路径
-            public string ValueText { get; set; }   // 右侧数值，例如 "2.24万(4603.4)"
+            private int _order;
+            public override int Order
+            {
+                get => _order;
+                set
+                {
+                    if (_order == value) return;
+                    _order = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Order));
+                    OnPropertyChanged(nameof(OrderText));
+                }
+            }
+            public string OrderText => $"{Order:00}.";
+
+            private string _name = string.Empty;
+            public string Name
+            {
+                get => _name;
+                set
+                {
+                    if (_name == value) return;
+                    _name = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Name));
+                }
+            }
+
+            private string _nickname = string.Empty;
+            public string Nickname 
+            {
+                get => _nickname;
+                set
+                {
+                    if (_nickname == value) return;
+                    _nickname = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Nickname));
+                }
+            }
+
+            private string _profession = string.Empty;
+            public string Profession 
+            { 
+                get => _profession;
+                set
+                {
+                    if (_profession == value) return;
+                    _profession = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Profession));
+                }
+            }
+
+            private BitmapImage? _icon;
+            public BitmapImage? Icon 
+            { 
+                get => _icon;
+                set
+                {
+                    if (_icon == value) return;
+                    _icon = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(_icon));
+                }
+            }
+
+            private string _valueText = string.Empty;
+            public string ValueText 
+            {
+                get => _valueText;
+                set
+                {
+                    if (_valueText == value) return;
+                    _valueText = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(_valueText));
+                }
+            }
         }
 
-        private readonly Random _rd = new Random();
+        private readonly Random _rd = new();
         private readonly long[] _totals = new long[6]; // 6位玩家示例
-        private readonly List<ProgressBarData> _slots = new();
-        private DispatcherTimer _timer;
+        private readonly List<ProgressBarData> _slots = [];
+        private DispatcherTimer _timer = null!;
 
         private void InitDemoProgressBars()
         {
@@ -44,28 +122,28 @@ namespace StarResonanceDpsAnalysis.WPF.Views
             var professionBrush = new Dictionary<string, Color>
             {
                 ["弓手"] = Color.FromRgb(66, 133, 244), // 蓝
-                ["战士"] =Color.FromRgb(234, 67, 53), // 红
+                ["战士"] = Color.FromRgb(234, 67, 53), // 红
                 ["法师"] = Color.FromRgb(155, 81, 224), // 紫
                 ["牧师"] = Color.FromRgb(15, 157, 88), // 绿
                 ["刺客"] = Color.FromRgb(244, 180, 0), // 金
-                ["骑士"] =Color.FromRgb(95, 99, 104), // 灰
+                ["骑士"] = Color.FromRgb(95, 99, 104), // 灰
             };
 
             // 2) 造几位玩家（随便举例，图标请换成你项目里存在的）
-            var players = new (string Nick, string Profession, string Icon)[]
+            var players = new (string Nick, string Profession, string IconPath)[]
             {
-        ("惊奇猫猫盒-狼弓(23207)", "弓手", "/Assets/Images/神射手.png"),
-        ("无双重剑-测试(19876)",  "战士", "/Assets/Images/巨刃守护者.png"),
-        ("奥术回响-测试(20111)",  "法师", "/Assets/Images/雷影剑士.png"),
-        ("圣光之约-测试(18770)",  "牧师", "/Assets/Images/灵魂乐手.png"),
-        ("影袭-测试(20990)",      "刺客", "/Assets/Images/森语者.png"),
-        ("圣盾壁垒-测试(17654)",  "骑士", "/Assets/Images/神盾骑士.png"),
+                ("惊奇猫猫盒-狼弓(23207)", "弓手", "pack://application:,,,/Assets/Images/Profession_SSS.png"),
+                ("无双重剑-测试(19876)",  "战士", "pack://application:,,,/Assets/Images/Profession_LYJS.png"),
+                ("奥术回响-测试(20111)",  "法师", "pack://application:,,,/Assets/Images/Profession_BMDS.png"),
+                ("圣光之约-测试(18770)",  "牧师", "pack://application:,,,/Assets/Images/Profession_LHYS.png"),
+                ("影袭-测试(20990)",      "刺客", "pack://application:,,,/Assets/Images/Profession_QLQS.png"),
+                ("圣盾壁垒-测试(17654)",  "骑士", "pack://application:,,,/Assets/Images/Profession_SDQS.png"),
             };
 
             _slots.Clear();
             for (int i = 0; i < players.Length; i++)
             {
-                var (nick, prof, icon) = players[i];
+                var (nick, prof, iconPath) = players[i];
 
                 // 初始化一点基础值，避免全部为0
                 _totals[i] = _rd.Next(2_000, 8_000);
@@ -75,7 +153,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
                     Name = $"{i + 1:00}.",   // 01. 02. ...
                     Nickname = nick,
                     Profession = prof,
-                    Icon = icon,
+                    Icon = new BitmapImage(new Uri(iconPath, UriKind.Absolute)),
                     ValueText = "24.81万(2456.0)"
                 };
                 var color = professionBrush.TryGetValue(prof, out var c) ? c : Colors.SteelBlue;
@@ -121,7 +199,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
 
                 // 右侧文本：总伤(每秒)
                 var approxPerSec = ratio * 10000 * (0.4 + 0.4 * _rd.NextDouble());
-                var valueText = $"{FormatWan(total)}({approxPerSec:0.0})";
+                var valueText = $"{total.ToChineseUnitString()}({approxPerSec:0.0})";
 
                 // 更新 Data 里的文本（绑定会刷新）
                 if (bar.Data is PlayerSlot p)
@@ -148,13 +226,6 @@ namespace StarResonanceDpsAnalysis.WPF.Views
             // 把排序后的列表重新赋值（若控件 Data 是 IEnumerable，并允许替换）
             // 如果你的控件支持就地更新而不需要替换，也可以直接 ProgressBarList.Data = _slots;
             ProgressBarList.Data = ordered;
-        }
-
-        // 小工具：格式化万（示例：22400 -> 2.24万）
-        private static string FormatWan(long n)
-        {
-            if (n >= 10_000) return $"{(n / 10000.0):0.##}万";
-            return n.ToString();
         }
     }
 }

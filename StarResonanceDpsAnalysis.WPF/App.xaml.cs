@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StarResonanceDpsAnalysis.WPF.Themes;
 using StarResonanceDpsAnalysis.WPF.ViewModels;
+using StarResonanceDpsAnalysis.WPF.Views;
 
 namespace StarResonanceDpsAnalysis.WPF;
 
@@ -21,10 +22,9 @@ public partial class App : Application
         // 创建主机
         using var host = CreateHostBuilder(args).Build();
         _logger = host.Services.GetService<ILogger<App>>();
+
         App app = new();
         app.InitializeComponent();
-        app.MainWindow = host.Services.GetRequiredService<MainWindow>();
-        app.MainWindow.Visibility = Visibility.Visible;
         app.Run();
     }
 
@@ -46,6 +46,9 @@ public partial class App : Application
                 {
                     services.AddTransient<MainViewModel>();
                     services.AddTransient<MainWindow>();
+                    // TODO: 不确定这样做对不对, 暂且先这样
+                    services.AddTransient<DpsStatisticsViewModel>();
+                    services.AddTransient<DpsStatisticsView>();
                     services.AddThemes();
                     // 注册主线程调度器
                     services.AddSingleton(_ => Current.Dispatcher);

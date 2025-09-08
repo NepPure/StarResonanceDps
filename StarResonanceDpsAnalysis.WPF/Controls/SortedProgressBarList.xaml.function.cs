@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -47,10 +49,10 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
                 {
                     To = new Thickness
                     {
-                        Top = (ProgressBarHeight + ProgressBarMargin.Top + ProgressBarMargin.Bottom) * item.ToIndex,
+                        Top = ProgressBarMargin.Top + (ProgressBarHeight + ProgressBarMargin.Top + ProgressBarMargin.Bottom) * item.ToIndex,
                         Bottom = 0,
-                        Left = 0,
-                        Right = 0
+                        Left = ProgressBarMargin.Left,
+                        Right = ProgressBarMargin.Right
                     },
                     Duration = TimeSpan.FromMilliseconds(300),
                     EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
@@ -147,18 +149,24 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
             var tmpIndex = 0;
             _animatingInfoBuffer = [.. _animatingInfoBuffer
                 .OrderByDescending(e => e.Data.ProgressBarValue)
-                .Select(e =>
+                .Select(info =>
                 {
-                    if (e.ToIndex == -1) return e;
+                    if (info.ToIndex == -1) return info;
 
-                    e.ToIndex = tmpIndex++;
+                    info.ToIndex = tmpIndex++;
 
-                    var ele = (CustomizeProgressBar)e.UIElement;
-                    var data = _dataDict[e.ID];
-                    ((FrameworkElement)ele.Slot).DataContext = data.Data;
-                    ele.Value = data.ProgressBarValue;
-                    e.Data = data;
-                    return e;
+                    var ele = (CustomizeProgressBar)info.UIElement;
+                    var pbData = _dataDict[info.ID];
+
+                    if (pbData.Data != null)
+                    {
+                        pbData.Data.Order = info.ToIndex + 1;
+                    }
+
+                    ((FrameworkElement)ele.Slot).DataContext = pbData.Data;
+                    ele.Value = pbData.ProgressBarValue;
+                    info.Data = pbData;
+                    return info;
                 })];
 
             return result || CompareOrder();
@@ -192,6 +200,15 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
         public double ProgressBarValue { get; set; }
         public SolidColorBrush ProgressBarBrush { get; set; } = new SolidColorBrush(Color.FromRgb(0x56, 0x9C, 0xD6));
         public double ProgressBarCornerRadius { get; set; }
-        public object? Data { get; set; }
+        public IOrderingData? Data { get; set; }
+    }
+
+    public abstract class IOrderingData : INotifyPropertyChanged
+    {
+        public abstract int Order { get; set; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -62,7 +62,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
                             ProgressBarBrush = new SolidColorBrush(Color.FromRgb(0, 0, 255)),
                             ProgressBarCornerRadius = 5,
                             ProgressBarValue = v,
-                            Data = new { Name = $"{i.ToString().PadLeft(2, '0')}: {Math.Round(v, 2)}" },
+                            Data = new Data() { Order = 0 },
                         });
                     }
                     ProgressBarList.Dispatcher.Invoke(() =>
@@ -73,6 +73,24 @@ namespace StarResonanceDpsAnalysis.WPF.Views
                     await Task.Delay(100);
                 }
             });
+        }
+
+        public class Data : IOrderingData
+        {
+            private int _order;
+            public override int Order
+            { 
+                get => _order;
+                set
+                {
+                    if (_order == value) return;
+                    _order = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(Order));
+                }
+            }
+            public double Value { get; set; }
+            public string Name => $"{Order.ToString().PadLeft(2, '0')}: {Math.Round(Value, 2)}";
         }
     }
 }
