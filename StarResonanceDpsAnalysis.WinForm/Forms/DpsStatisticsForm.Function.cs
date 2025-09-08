@@ -10,6 +10,7 @@ using AntdUI;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.Core.Analyze;
+using StarResonanceDpsAnalysis.Core.Analyze.Exceptions;
 using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.WinForm.Control;
@@ -39,6 +40,18 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         // #   * [UI 刷新事件] RefreshDpsTable / BuildUiRows
         // #   * [线程安全与状态] _dataLock / _isClearing / IsCaptureStarted / SelectedDevice
 
+        private void SetDefaultFontFromResources()
+        {
+            pageHeader_MainHeader.Font = AppConfig.SaoFont;
+            pageHeader_MainHeader.SubFont = AppConfig.ContentFont;
+            label_CurrentDps.Font = label_CurrentOrder.Font = AppConfig.ContentFont;
+
+            button_TotalDamage.Font = AppConfig.BoldHarmonyFont;
+            button_TotalTreatment.Font = AppConfig.BoldHarmonyFont;
+            button_AlwaysInjured.Font = AppConfig.BoldHarmonyFont;
+            button_NpcTakeDamage.Font = AppConfig.BoldHarmonyFont;
+        }
+
         #region 加载 网卡 启动设备/初始化 统计数据/ 启动 抓包/停止抓包/清空数据/ 关闭 事件
         private void InitTableColumnsConfigAtFirstRun()
         {
@@ -51,20 +64,11 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知");
                 AppConfig.CombatPower = AppConfig.GetValue("UserConfig", "CombatPower", "0").ToInt();
 
-                // 写入本地统计缓存（用于 UI 初始显示）
-                StatisticData._manager.SetNickname(AppConfig.Uid, AppConfig.NickName);
-                StatisticData._manager.SetProfession(AppConfig.Uid, AppConfig.Profession);
-                StatisticData._manager.SetCombatPower(AppConfig.Uid, AppConfig.CombatPower);
-
                 if (AppConfig.Uid != 0)
                 {
-
                     // 回填完成后按当前视图刷新（避免依赖后续抓包）
                     RequestActiveViewRefresh();
                 }
-
-                SortedProgressBarStatic = this.sortedProgressBarList_MainList; // # 关键：这里绑定实例
-                return;
             }
         }
 
@@ -81,7 +85,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// <summary>
         /// 启动时加载网卡设备
         /// </summary>
-        public void LoadNetworkDevices()
+        private void LoadNetworkDevices()
         {
             // # 启动与初始化事件：应用启动阶段加载网络设备列表，依据配置选择默认网卡
             Console.WriteLine("应用程序启动时加载网卡...");
@@ -104,6 +108,102 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 }
                 FormManager.settingsForm.LoadDevices(); // # 设置窗体：填充设备列表
             }
+        }
+
+        /// <summary>
+        /// 读取用户缓存
+        /// </summary>
+        private void LoadPlayerCache()
+        {
+            try
+            {
+                DataStorage.LoadPlayerInfoToFile();
+            }
+            catch (FileNotFoundException)
+            {
+                // 没有缓存
+            }
+            catch (DataTamperedException)
+            {
+                FormGui.Modal(this, "用户缓存错误", "用户缓存被篡改，或文件损坏。为软件正常运行，将清空用户缓存。");
+
+                DataStorage.ClearAllPlayerInfos();
+                DataStorage.SavePlayerInfoToFile();
+            }
+        }
+
+        /// <summary>
+        /// 软件开启后读取技能列表
+        /// </summary>
+        private void LoadFromEmbeddedSkillConfig()
+        {
+            // 1) 先用 int 键的表（已经解析过字符串）
+            foreach (var kv in EmbeddedSkillConfig.AllByInt)
+            {
+                var id = (long)kv.Key;
+                var def = kv.Value;
+
+                // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
+                // 这里用的是整条更新（SetOrUpdate），如果该技能 ID 已存在则覆盖，不存在则添加
+                SkillBook.SetOrUpdate(new SkillMeta
+                {
+                    Id = id,                         // 技能 ID（唯一标识一个技能）
+                    Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
+                                                     //School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
+                                                     //Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
+                                                     // Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
+                });
+
+
+            }
+
+            // 2) 有些 ID 可能超出 int 或不在 AllByInt，可以再兜底遍历字符串键
+            foreach (var kv in EmbeddedSkillConfig.AllByString)
+            {
+                if (kv.Key.TryToInt64(out var id))
+                {
+                    // 如果 int 表已覆盖，这里会覆盖同名；没关系，等价
+                    var def = kv.Value;
+                    // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
+                    // 这里用的是整条更新（SetOrUpdate），如果该技能 ID 已存在则覆盖，不存在则添加
+                    SkillBook.SetOrUpdate(new SkillMeta
+                    {
+                        Id = id,                         // 技能 ID（唯一标识一个技能）
+                        Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
+                        //School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
+                        //Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
+                        //Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
+                    });
+
+                }
+            }
+
+            // MonsterNameResolver.Initialize(AppConfig.MonsterNames);//初始化怪物ID与名称的映射关系
+
+
+
+            // 你也可以在这里写日志：加载了多少条技能
+            // Console.WriteLine($"SkillBook loaded {EmbeddedSkillConfig.AllByInt.Count} + {EmbeddedSkillConfig.AllByString.Count} entries.");
+        }
+
+        public void SetStyle()
+        {
+            // # 启动与初始化事件：界面样式与渲染设置（仅 UI 外观，不涉及数据）
+            // ======= 单个进度条（textProgressBar1）的外观设置 =======
+            sortedProgressBarList_MainList.OrderImageOffset = new RenderContent.ContentOffset { X = 6, Y = 0 };
+            sortedProgressBarList_MainList.OrderImageRenderSize = new Size(22, 22);
+            sortedProgressBarList_MainList.OrderOffset = new RenderContent.ContentOffset { X = 32, Y = 0 };
+            sortedProgressBarList_MainList.OrderCallback = (i) => $"{i:d2}.";
+            sortedProgressBarList_MainList.OrderImages = [HandledAssets.皇冠];
+
+
+            sortedProgressBarList_MainList.OrderColor =
+                Config.IsLight ? Color.Black : Color.White;
+
+            sortedProgressBarList_MainList.OrderFont = AppConfig.SaoFont;
+
+            // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
+            sortedProgressBarList_MainList.ProgressBarHeight = AppConfig.ProgressBarHeight;  // 每行高度
         }
 
         /// <summary>
@@ -227,9 +327,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             // 清空解析/重组状态
             PacketAnalyzer.ResetCaptureState();
-
-            // # 步骤 7：更新 UI 上的网卡设置提示
-            StartupInitializer.RefreshNetworkCardSettingTip();
         }
 
         #region HandleClearData() 响应清空数据
@@ -296,48 +393,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         #endregion
 
 
-        public void SetStyle()
-        {
-            // # 启动与初始化事件：界面样式与渲染设置（仅 UI 外观，不涉及数据）
-            // ======= 单个进度条（textProgressBar1）的外观设置 =======
-            sortedProgressBarList_MainList.OrderImageOffset = new RenderContent.ContentOffset { X = 6, Y = 0 };
-            sortedProgressBarList_MainList.OrderImageRenderSize = new Size(22, 22);
-            sortedProgressBarList_MainList.OrderOffset = new RenderContent.ContentOffset { X = 32, Y = 0 };
-            sortedProgressBarList_MainList.OrderCallback = (i) => $"{i:d2}.";
-            sortedProgressBarList_MainList.OrderImages = [HandledAssets.皇冠];
-
-
-            if (Config.IsLight)
-            {
-                sortedProgressBarList_MainList.OrderColor = Color.Black;
-            }
-            else
-            {
-                sortedProgressBarList_MainList.OrderColor = Color.White;
-            }
-
-            sortedProgressBarList_MainList.OrderFont = AppConfig.SaoFont;
-
-            // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
-            sortedProgressBarList_MainList.ProgressBarHeight = AppConfig.ProgressBarHeight;  // 每行高度
-            sortedProgressBarList_MainList.AnimationDuration = 1000; // 动画时长（毫秒）
-            sortedProgressBarList_MainList.AnimationQuality = Quality.Low; // 动画品质（你项目里的枚举）
-            //sortedProgressBarList1.OrderImages =
-            //[
-            //    (Bitmap)HandledAssets.皇冠,
-            //                (Bitmap)HandledAssets.皇冠白
-            //];
-        }
-
-        // 当前是否停留在“NPC 攻击者榜”详情
-        private volatile bool _npcDetailMode = false;
-        // 详情里正在查看的 NPC Id
-        private long _npcFocusId = 0;
-
-        /// <summary>
-        /// 实例化 SortedProgressBarList 控件
-        /// </summary>
-        public static SortedProgressBarList? SortedProgressBarStatic { get; private set; }
 
         /// <summary>
         /// 用户战斗数据字典
@@ -483,7 +538,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 {
                     1 => MetricType.Healing,
                     2 => MetricType.Taken,
-                    3 => MetricType.NpcTaken,   // ★
+                    3 => MetricType.NpcTaken,
 
                     _ => MetricType.Damage
                 };

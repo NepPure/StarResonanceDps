@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using StarResonanceDpsAnalysis.Core.Analyze;
 using StarResonanceDpsAnalysis.Core.Analyze.Models;
 using StarResonanceDpsAnalysis.Core.Data.Models;
@@ -16,6 +18,10 @@ namespace StarResonanceDpsAnalysis.Core.Data
     /// </summary>
     public static class DataStorage
     {
+        /// <summary>
+        /// 当前玩家UUID
+        /// </summary>
+        internal static long CurrentPlayerUUID { get; set; }
         /// <summary>
         /// 当前玩家信息
         /// </summary>
@@ -100,9 +106,61 @@ namespace StarResonanceDpsAnalysis.Core.Data
         public static event DataUpdatedEventHandler? DataUpdated;
 
         /// <summary>
+        /// 从文件加载缓存玩家信息
+        /// </summary>
+        /// <param name="relativeFilePath"></param>
+        public static void LoadPlayerInfoToFile(string? filePath = null)
+        {
+            filePath ??= string.Empty;
+
+            var playerInfoCaches = PlayerInfoCacheReader.ReadFile(filePath);
+
+            foreach (var playerInfoCache in playerInfoCaches.PlayerInfos)
+            {
+                if (!PlayerInfoDatas.TryGetValue(playerInfoCache.UID, out var playerInfo))
+                {
+                    playerInfo = new();
+                }
+
+                playerInfo.UID = playerInfoCache.UID;
+                playerInfo.ProfessionID ??= playerInfoCache.ProfessionID;
+                playerInfo.CombatPower ??= playerInfoCache.CombatPower;
+                playerInfo.Critical ??= playerInfoCache.Critical;
+                playerInfo.Lucky ??= playerInfoCache.Lucky;
+                playerInfo.MaxHP ??= playerInfoCache.MaxHP;
+
+                if (string.IsNullOrEmpty(playerInfo.Name))
+                {
+                    playerInfo.Name = playerInfoCache.Name;
+                }
+                if (string.IsNullOrEmpty(playerInfo.SubProfessionName))
+                {
+                    playerInfo.SubProfessionName = playerInfoCache.SubProfessionName;
+                }
+
+                PlayerInfoDatas[playerInfo.UID] = playerInfo;
+            }
+        }
+
+        /// <summary>
+        /// 保存缓存玩家信息到文件
+        /// </summary>
+        /// <param name="relativeFilePath"></param>
+        public static void SavePlayerInfoToFile(string? filePath = null) 
+        {
+            filePath ??= string.Empty;
+
+            LoadPlayerInfoToFile(filePath);
+
+
+            var list = PlayerInfoDatas.Values.ToList();
+            PlayerInfoCacheWriter.WriteToFile(filePath, [..list]);
+        }
+
+        /// <summary>
         /// 检查或创建玩家信息
         /// </summary>
-        /// <param name="uid"UID></param>
+        /// <param name="uid"></param>
         /// <returns>是否已经存在; 是: true, 否: false</returns>
         /// <remarks>
         /// 如果传入的 UID 已存在, 则不会进行任何操作;

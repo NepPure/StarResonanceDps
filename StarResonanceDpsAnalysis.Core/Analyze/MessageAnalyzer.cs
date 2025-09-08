@@ -261,7 +261,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         {
             try
             {
-                if (DataStorage.CurrentPlayerInfo.UUID == 0) return;
+                if (DataStorage.CurrentPlayerUUID == 0) return;
                 var dirty = SyncContainerDirtyData.Parser.ParseFrom(payloadBuffer);
                 if (dirty?.VData?.BufferS == null || dirty.VData.BufferS.Length == 0) return;
 
@@ -274,7 +274,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                 var fieldIndex = br.ReadUInt32();
                 _ = br.ReadInt32();
 
-                var playerUid = DataStorage.CurrentPlayerInfo.UUID.ShiftRight16();
+                var playerUid = DataStorage.CurrentPlayerUUID.ShiftRight16();
 
                 DataStorage.TestCreatePlayerInfoByUID(playerUid);
 
@@ -397,9 +397,9 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             var syncToMeDeltaInfo = SyncToMeDeltaInfo.Parser.ParseFrom(payloadBuffer);
             var aoiSyncToMeDelta = syncToMeDeltaInfo.DeltaInfo;
             var uuid = aoiSyncToMeDelta.Uuid;
-            if (uuid != 0 && DataStorage.CurrentPlayerInfo.UUID != uuid)
+            if (uuid != 0 && DataStorage.CurrentPlayerUUID != uuid)
             {
-                DataStorage.CurrentPlayerInfo.UUID = uuid;
+                DataStorage.CurrentPlayerUUID = uuid;
             }
 
             var aoiSyncDelta = aoiSyncToMeDelta.BaseDelta;

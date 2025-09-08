@@ -8,8 +8,7 @@ namespace StarResonanceDpsAnalysis.Core.Data.Models
 {
     public class PlayerInfo
     {
-        public long UUID { get;  set; }
-        public long? UID { get;  set; }
+        public long UID { get;  set; }
         public string? Name { get;  set; }
         public int? ProfessionID { get;  set; }
         public string? SubProfessionName { get;  set; }

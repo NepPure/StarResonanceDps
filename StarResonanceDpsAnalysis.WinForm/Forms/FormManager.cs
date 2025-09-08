@@ -13,31 +13,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         public static string AppVersion { get => $"v{Application.ProductVersion.Split('+')[0]}"; }
 
 
-        public static SkillDiary skillDiary;//
-
-
-
-        public static SkillDetailForm skillDetailForm;//技能详情窗体
-
         public static SettingsForm settingsForm;//设置窗体
 
         public static DpsStatisticsForm dpsStatistics;//DPS统计窗体
 
         public static UserUidSetForm userUidSetForm;//用户Uid设置窗体
 
-        public static RankingsForm rankingsForm;//排行榜窗体
-
         public static MainForm mainForm;//主窗口
-
-        public static SkillRotationMonitorForm skillRotationMonitorForm;//技能循环监控窗体
-
-        public static HistoricalBattlesForm historicalBattlesForm;//历史战绩窗体
-
-        public static DeathStatisticsForm deathStatisticsForm;//死亡统计窗体
-
-        public static SkillReferenceForm skillReferenceForm;//技能参考窗体
-
-        public static ModuleCalculationForm moduleCalculationForm;//模块计算窗体
 
         /// <summary>
         /// 统一设置透明度
@@ -45,26 +27,20 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// <param name="opacity"></param>
         public static void FullFormTransparency(double opacity)
         {
-
-            foreach (var form in new Form[]
+            var forms = new Form[]
             {
-                skillDiary,
-                skillDetailForm,
                 settingsForm,
                 dpsStatistics,
-                userUidSetForm,
-                rankingsForm,
-                skillRotationMonitorForm
-            })
+                userUidSetForm
+            };
+            foreach (var form in forms)
             {
                 try
                 {
-                    if (form != null)
-                        form.Opacity = opacity;
+                    if (form != null) form.Opacity = opacity;
                 }
                 catch (Exception)
                 { }
-              
             }
         }
 

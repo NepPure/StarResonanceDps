@@ -339,51 +339,51 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void table_DpsDetailDataTable_CellClick(object sender, TableClickEventArgs e)
         {
-            if (e.ColumnIndex <= 0) return;
+            //if (e.ColumnIndex <= 0) return;
 
-            // —— 行索引安全校验（AntdUI 表通常是 0-based，这里不再减 1）——
-            int idx = e.RowIndex - 1;
-            if (idx < 0 || idx >= DpsTableDatas.DpsTable.Count) return;
+            //// —— 行索引安全校验（AntdUI 表通常是 0-based，这里不再减 1）——
+            //int idx = e.RowIndex - 1;
+            //if (idx < 0 || idx >= DpsTableDatas.DpsTable.Count) return;
 
-            var row = DpsTableDatas.DpsTable[idx];
-            var uid = row.Uid;
-            string nick = row.NickName;
-            int power = row.CombatPower;
-            string prof = row.Profession;
+            //var row = DpsTableDatas.DpsTable[idx];
+            //var uid = row.Uid;
+            //string nick = row.NickName;
+            //int power = row.CombatPower;
+            //string prof = row.Profession;
 
-            // —— 详情窗体准备 —— 
-            if (FormManager.skillDetailForm == null || FormManager.skillDetailForm.IsDisposed)
-                FormManager.skillDetailForm = new SkillDetailForm();
+            //// —— 详情窗体准备 —— 
+            //if (FormManager.skillDetailForm == null || FormManager.skillDetailForm.IsDisposed)
+            //    FormManager.skillDetailForm = new SkillDetailForm();
 
-            var f = FormManager.skillDetailForm;
-            f.Uid = uid;
-            f.Nickname = nick;
-            f.Power = power;
-            f.Profession = prof;
+            //var f = FormManager.skillDetailForm;
+            //f.Uid = uid;
+            //f.Nickname = nick;
+            //f.Power = power;
+            //f.Profession = prof;
 
-            // —— 快照上下文 + 时间 —— 
-            f.ContextType = DetailContextType.Snapshot;
-            f.SnapshotStartTime = GetSelectedSnapshotStartTime();
-            if (f.SnapshotStartTime is null)
-            {
-                // 可留着调试
-                // MessageBox.Show("未能取得快照时间（下拉未选中？）");
-                return;
-            }
+            //// —— 快照上下文 + 时间 —— 
+            //f.ContextType = DetailContextType.Snapshot;
+            //f.SnapshotStartTime = GetSelectedSnapshotStartTime();
+            //if (f.SnapshotStartTime is null)
+            //{
+            //    // 可留着调试
+            //    // MessageBox.Show("未能取得快照时间（下拉未选中？）");
+            //    return;
+            //}
 
-            // 顶部玩家信息
-            f.GetPlayerInfo(nick, power, prof);
+            //// 顶部玩家信息
+            //f.GetPlayerInfo(nick, power, prof);
 
-            // （可选）调试：看快照技能数量是否为 0，快速定位“取不到技能” vs “UI 没渲染”
-            /*
-            var counts = StarResonanceDpsAnalysis.Plugin.DamageStatistics.FullRecord
-                         .GetPlayerSkillsBySnapshotTimeEx(f.SnapshotStartTime.Value, uid);
-            MessageBox.Show($"Snapshot Skills → D:{counts.DamageSkills.Count} H:{counts.HealingSkills.Count} T:{counts.TakenSkills.Count}");
-            */
+            //// （可选）调试：看快照技能数量是否为 0，快速定位“取不到技能” vs “UI 没渲染”
+            ///*
+            //var counts = StarResonanceDpsAnalysis.Plugin.DamageStatistics.FullRecord
+            //             .GetPlayerSkillsBySnapshotTimeEx(f.SnapshotStartTime.Value, uid);
+            //MessageBox.Show($"Snapshot Skills → D:{counts.DamageSkills.Count} H:{counts.HealingSkills.Count} T:{counts.TakenSkills.Count}");
+            //*/
 
-            // 刷新并显示
-            f.SelectDataType();   // 这里应当会走 snapshot 分支：UpdateSkillTable_Snapshot(...)
-            if (!f.Visible) f.Show(); else f.Activate();
+            //// 刷新并显示
+            //f.SelectDataType();   // 这里应当会走 snapshot 分支：UpdateSkillTable_Snapshot(...)
+            //if (!f.Visible) f.Show(); else f.Activate();
         }
 
         private DateTime? GetSelectedSnapshotStartTime()

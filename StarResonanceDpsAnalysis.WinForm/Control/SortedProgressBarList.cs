@@ -12,12 +12,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     public partial class SortedProgressBarList : UserControl
     {
-        public delegate void SelectionChanedEventHandler(SortedProgressBarList sender, int index, ProgressBarData? data);
-        public event SelectionChanedEventHandler? SelectionChanged;
-
         private readonly Dictionary<long, ProgressBarData> _dataDict = [];
-        private int _animationDuration = 300;
-        private Quality _animationQuality = Quality.Medium;
         private int _progressBarHeight = 20;
         private Padding _progressBarPadding = new(3, 3, 3, 3);
         private RenderContent.ContentAlign _orderAlign = RenderContent.ContentAlign.MiddleLeft;
@@ -32,8 +27,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
         private float _scrollOffsetY = 0;
         private int _scrollBarWidth = 8;
         private int _scrollBarPadding = 1;
-        private int? _selectedIndex = null;
-        private Color _seletedItemColor = Color.FromArgb(0x56, 0x9C, 0xD6);
         private bool _isMouseDownInScrollBar = false;
         private Point? _prevMousePoint = null;
         private RectangleF _scrollBarRect = new(0, 0, 0, 0);
@@ -43,7 +36,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
         /// </summary>
         public List<ProgressBarData>? Data
         {
-            get => _dataDict.Values.ToList();
+            get => [.. _dataDict.Values];
             set
             {
                 lock (_lock)
@@ -70,62 +63,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
                     }
 
                     Invalidate();
-                }
-            }
-        }
-
-        /// <summary>
-        /// 排序动画的持续时间
-        /// </summary>
-        [Browsable(true)]
-        [Category("外观")]
-        [Description("排序动画的持续时间")]
-        [DefaultValue(300)]
-        public int AnimationDuration
-        {
-            get => _animationDuration;
-            set => _animationDuration = value;
-        }
-
-        /// <summary>
-        /// 动画质量
-        /// </summary>
-        /// <remarks>
-        /// Quality.VeryLow        =  10FPS; 贝塞尔精确段数 = 5
-        /// Quality.Low            =  20FPS; 贝塞尔精确段数 = 7
-        /// Quality.Medium         =  30FPS; 贝塞尔精确段数 = 13
-        /// Quality.High           =  60FPS; 贝塞尔精确段数 = 25
-        /// Quality.VeryHigh       = 120FPS; 贝塞尔精确段数 = 49
-        /// Quality.Extreme        = 160FPS; 贝塞尔精确段数 = 499
-        /// Quality.AlmostAccurate = 999FPS; 贝塞尔精确段数 = 2499
-        /// </remarks>
-        [Browsable(true)]
-        [Category("外观")]
-        [Description(@"""
-            动画质量
-            Quality.VeryLow        =  10FPS; 贝塞尔精确段数 = 5
-            Quality.Low            =  20FPS; 贝塞尔精确段数 = 7
-            Quality.Medium         =  30FPS; 贝塞尔精确段数 = 13
-            Quality.High           =  60FPS; 贝塞尔精确段数 = 25
-            Quality.VeryHigh       = 120FPS; 贝塞尔精确段数 = 49
-            Quality.Extreme        = 160FPS; 贝塞尔精确段数 = 499
-            Quality.AlmostAccurate = 999FPS; 贝塞尔精确段数 = 2499
-            """)]
-        [DefaultValue(Quality.Low)]
-        public Quality AnimationQuality
-        {
-            get => _animationQuality;
-            set
-            {
-                if (_animationQuality != value)
-                {
-                    var flag = _animationFpsQuality.TryGetValue(value, out var fps);
-                    if (!flag)
-                    {
-                        throw new ArgumentException($"Invalid animation quality: {value}");
-                    }
-                    _animationPeriodicTimer.Period = TimeSpan.FromMilliseconds(1000d / fps);
-                    _animationQuality = value;
                 }
             }
         }
@@ -267,11 +204,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
             get => _scrollOffsetY;
             set
             {
-                value = Math.Max(0, Math.Min(_animatingInfoBuffer.Count * ProgressBarHeight - Height, value));
+                value = Math.Max(0, Math.Min(_infoBuffer.Count * ProgressBarHeight - Height, value));
 
                 if (_scrollOffsetY != value)
                 {
                     _scrollOffsetY = value;
+
                     Invalidate();
                 }
             }
@@ -292,6 +230,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
                 if (_scrollBarWidth != value)
                 {
                     _scrollBarWidth = value;
+
                     Invalidate();
                 }
             }
@@ -312,45 +251,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
                 if (_scrollBarPadding != value)
                 {
                     _scrollBarPadding = value;
+
                     Invalidate();
                 }
             }
         }
 
-        /// <summary>
-        /// 已选择的进度条项目索引
-        /// </summary>
-        [Browsable(true)]
-        [Category("外观")]
-        [Description("已选择的进度条项目索引")]
-        [DefaultValue(null)]
-        public int? SelectedIndex
-        {
-            get => _selectedIndex;
-            set => _selectedIndex = value;
-        }
-
-        /// <summary>
-        /// 已选择的进度条项目外框颜色
-        /// </summary>
-        [Browsable(true)]
-        [Category("外观")]
-        [Description("已选择的进度条项目外框颜色")]
-        public Color SeletedItemColor
-        {
-            get => _seletedItemColor;
-            set => _seletedItemColor = value;
-        }
-
         public SortedProgressBarList()
         {
             InitializeComponent();
-
-            _animationPeriodicTimer = new PeriodicTimer(TimeSpan.FromMilliseconds(1000d / _animationFpsQuality[Quality.Medium]));
-            _moveAnimationCubicBezier = new CubicBezier(0.65f, 0f, 0.35f, 1f, AnimationQuality);
-            _fadeAnimationCubicBezier = new CubicBezier(0.3f, 0.45f, 0.25f, 1f, AnimationQuality);
-
-            InitAnimation();
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -363,51 +272,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
             base.OnMouseWheel(e);
 
             ScrollOffsetY -= e.Delta;
-        }
 
-        protected override void OnHandleDestroyed(EventArgs e)
-        {
-            base.OnHandleDestroyed(e);
-
-            _animationCancellation?.Cancel();
-            _animationPeriodicTimer?.Dispose();
-        }
-
-        private void SortedProgressBarList_MouseClick(object sender, MouseEventArgs e)
-        {
-            // 边界判断
-            if (e.Location.X < Padding.Left || e.Location.X > Width - Padding.Right - ScrollBarWidth)
-            {
-                _selectedIndex = null;
-                SelectionChanged?.Invoke(this, -1, null);
-                return;
-            }
-
-            var locationY = e.Location.Y + ScrollOffsetY;
-
-            var index = (int)(locationY / ProgressBarHeight);
-            if (index < 0 || index >= _animatingInfoBuffer.Count)
-            {
-                _selectedIndex = null;
-                SelectionChanged?.Invoke(this, -1, null);
-                return;
-            }
-
-            var progressBar = _animatingInfoBuffer[index].Data;
-            var offsetY = locationY % ProgressBarHeight;
-
-            if (e.Location.X < Padding.Left + progressBar.ProgressBarPadding.Left ||
-                e.Location.X > Width - Padding.Right - progressBar.ProgressBarPadding.Right ||
-                offsetY < progressBar.ProgressBarPadding.Top ||
-                offsetY > ProgressBarHeight - progressBar.ProgressBarPadding.Bottom)
-            {
-                _selectedIndex = null;
-                SelectionChanged?.Invoke(this, -1, null);
-                return;
-            }
-
-            _selectedIndex = index;
-            SelectionChanged?.Invoke(this, index, progressBar);
+            Invalidate();
         }
 
         private void SortedProgressBarList_MouseDown(object sender, MouseEventArgs e)
@@ -438,7 +304,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
 
                 var offsetY = e.Location.Y - _prevMousePoint.Value.Y;
 
-                ScrollOffsetY += offsetY * (1f * _animatingInfoBuffer.Count * ProgressBarHeight / Height);
+                ScrollOffsetY += offsetY * (1f * _infoBuffer.Count * ProgressBarHeight / Height);
             }
             finally
             {

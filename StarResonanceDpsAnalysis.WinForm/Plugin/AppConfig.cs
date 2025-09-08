@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
-
+using AntdUI;
 using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
@@ -27,29 +27,26 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
     {
         public static UserLocalCache cache = new();
 
-
-        public static float dpi;
-
         public static int ProgressBarHeight
         {
             get
             {
                 int height = 50;
-                switch (dpi)
+                switch (Config.Dpi)
                 {
-                    case 1:
+                    case 1F:
                         height = 35;
                         break;
-                    case (float)1.25:
+                    case 1.25F:
                         height = 45;
                         break;
-                    case (float)1.5:
+                    case 1.5F:
                         height = 45;
                         break;
-                    case (float)1.75:
+                    case 1.75F:
                         height = 45;
                         break;
-                    case 2:
+                    case 2F:
                         height = 45;
                         break;
 
@@ -64,7 +61,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             get
             {
                 int x = 64;
-                if (dpi == 1)
+                if (Config.Dpi == 1F)
                 {
                     x = 55;
                 }
@@ -78,29 +75,25 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             get
             {
                 int x = ProgressBarProportion.X - 50;
-                switch (dpi)
+                switch (Config.Dpi)
                 {
-                    case 1:
+                    case 1F:
                         x = -35;
                         break;
-                    case (float)1.25:
+                    case 1.25F:
                         x = -40;
                         break;
-                    case (float)1.5:
+                    case 1.5F:
                         x = ProgressBarProportion.X - 45;
                         break;
-                    case (float)1.75:
+                    case 1.75F:
                         x = ProgressBarProportion.X - 55;
                         break;
                     case 2:
                         x = ProgressBarProportion.X - 60;
                         break;
                 }
-                if (dpi == 1)
-                {
 
-                }
-                // if (SomeFlag) y = 10; // 需要更多条件时继续写
                 return new RenderContent.ContentOffset { X = x, Y = 0 };
             }
         }

@@ -10,6 +10,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Control.GDI
 
     public class RenderContent
     {
+        private static readonly Font _defaultFont = SystemFonts.DefaultFont;
         /// <summary>
         /// 内容类型
         /// </summary>
@@ -43,7 +44,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Control.GDI
         /// <summary>
         /// 文本字体
         /// </summary>
-        public Font Font { get; set; } = SystemFonts.DefaultFont;
+        public Font Font { get; set; } = _defaultFont;
 
         /// <summary>
         /// 图片内容

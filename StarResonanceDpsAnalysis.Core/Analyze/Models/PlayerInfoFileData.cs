@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
+using Newtonsoft.Json;
 using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 
@@ -12,14 +13,23 @@ namespace StarResonanceDpsAnalysis.Core.Analyze.Models
 {
     public class PlayerInfoFileData
     {
-        public long? UID { get; internal set; }
+        [JsonProperty("u")]
+        public long UID { get; internal set; }
+        [JsonProperty("n")]
         public string? Name { get; internal set; }
+        [JsonProperty("p")]
         public int? ProfessionID { get; internal set; }
+        [JsonProperty("s")]
         public string? SubProfessionName { get; internal set; }
+        [JsonProperty("c")]
         public int? CombatPower { get; internal set; }
+        [JsonProperty("cr")]
         public int? Critical { get; internal set; }
+        [JsonProperty("l")]
         public int? Lucky { get; internal set; }
+        [JsonProperty("m")]
         public long? MaxHP { get; internal set; }
+        [JsonProperty("h")]
         public byte[] Hash { get; internal set; } = [];
 
         private static byte[] CreateMD5(PlayerInfoFileData data) =>

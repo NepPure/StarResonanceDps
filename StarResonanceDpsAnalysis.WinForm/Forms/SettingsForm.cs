@@ -138,17 +138,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             AppConfig.NetworkCard = InterfaceComboBox.SelectedIndex;
 
-            // 通知MainForm更新网卡设置提示
-            try
-            {
-                // var mainForm = Application.OpenForms.OfType<MainForm>().FirstOrDefault();
-                StartupInitializer.RefreshNetworkCardSettingTip();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"更新MainForm网卡设置提示时出错: {ex.Message}");
-            }
-
             var result = AppMessageBox.ShowMessage("""
                     您已更改网卡设置。
 

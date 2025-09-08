@@ -39,8 +39,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         {
             InitializeComponent();
 
-            sortedProgressBarList1.AnimationDuration = 1000;
-            sortedProgressBarList1.AnimationQuality = Quality.High;
             sortedProgressBarList1.ProgressBarHeight = 50;
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 45, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
@@ -173,34 +171,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     });
                 }
                 sortedProgressBarList1.Data = data;
-                return;
-
-                if (numericUpDown1.Value == numericUpDown2.Value && numericUpDown2.Value == -1)
-                {
-                    data.Clear();
-                    sortedProgressBarList1.Data = data;
-                    return;
-                }
-
-                if (numericUpDown1.Value < 0) return;
-
-                var index = data.FindIndex(e => e.ID == (int)numericUpDown1.Value);
-                if (index < 0) return;
-
-                data.RemoveAt(index);
-
-                sortedProgressBarList1.Data = data;
-            };
-
-            sortedProgressBarList1.SelectionChanged += (s, i, d) =>
-            {
-                if (i < 0 || d == null)
-                {
-                    Console.WriteLine("Nothing Clicked.");
-                    return;
-                }
-
-                Console.WriteLine($"ProgressBar Clicked: ID={d.ID}, Index={i}");
             };
         }
 
