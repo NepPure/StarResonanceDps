@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 using StarResonanceDpsAnalysis.WPF.Controls;
+using StarResonanceDpsAnalysis.WPF.ViewModels;
 
 namespace StarResonanceDpsAnalysis.WPF.Views
 {
@@ -75,20 +76,8 @@ namespace StarResonanceDpsAnalysis.WPF.Views
             });
         }
 
-        public class Data : IOrderingData
+        public class Data : OrderingDataViewModel
         {
-            private int _order;
-            public override int Order
-            { 
-                get => _order;
-                set
-                {
-                    if (_order == value) return;
-                    _order = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(Order));
-                }
-            }
             public double Value { get; set; }
             public string Name => $"{Order.ToString().PadLeft(2, '0')}: {Math.Round(Value, 2)}";
         }
