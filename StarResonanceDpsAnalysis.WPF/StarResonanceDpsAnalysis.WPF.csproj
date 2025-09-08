@@ -43,5 +43,4 @@
         <Resource Include="Assets\Fonts\iconfont.ttf" />
         <Resource Include="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
     </ItemGroup>
-
 </Project>

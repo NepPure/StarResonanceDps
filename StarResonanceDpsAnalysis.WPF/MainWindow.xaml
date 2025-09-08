@@ -12,11 +12,21 @@
     d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
     mc:Ignorable="d">
     <Grid>
-        <Button
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Command="{Binding Debug.CallDebugWindowCommand}">
-            Test
-        </Button>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+            <ComboBox
+                ItemsSource="{Binding AvailableThemes}"
+                SelectedIndex="0"
+                SelectedItem="{Binding Theme}" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" HorizontalAlignment="Left">
+            <TextBlock Style="{StaticResource TestTextBlockStyle}">asdf</TextBlock>
+            <Button Command="{Binding Debug.CallDebugWindowCommand}">
+                Test
+            </Button>
+        </StackPanel>
     </Grid>
 </Window>
