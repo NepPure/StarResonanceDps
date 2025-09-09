@@ -7,15 +7,15 @@ using System.Windows.Forms;
 using AntdUI;
 using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.Core.Data;
+using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.Core.Extends.Data;
 using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
+using StarResonanceDpsAnalysis.WinForm.Extends;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 
 using Button = AntdUI.Button;
-using StarResonanceDpsAnalysis.WinForm.Extends;
-using StarResonanceDpsAnalysis.Core.Data.Models;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {

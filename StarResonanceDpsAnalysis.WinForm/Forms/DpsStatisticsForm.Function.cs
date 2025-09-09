@@ -13,14 +13,10 @@ using StarResonanceDpsAnalysis.Core.Analyze;
 using StarResonanceDpsAnalysis.Core.Analyze.Exceptions;
 using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Extends.System;
-using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 using StarResonanceDpsAnalysis.WinForm.Core;
-using StarResonanceDpsAnalysis.WinForm.Effects;
-using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {

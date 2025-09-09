@@ -7,8 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
-using StarResonanceDpsAnalysis.WinForm.Effects;
-using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
 
 using static StarResonanceDpsAnalysis.WinForm.Control.GDI.RenderContent;
 

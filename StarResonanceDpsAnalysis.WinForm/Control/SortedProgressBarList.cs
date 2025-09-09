@@ -4,9 +4,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
-using StarResonanceDpsAnalysis.WinForm.Effects;
-using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
 
 namespace StarResonanceDpsAnalysis.WinForm.Control
 {
