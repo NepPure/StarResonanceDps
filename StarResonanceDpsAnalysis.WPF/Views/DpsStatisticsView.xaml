@@ -9,10 +9,15 @@
     xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
+    xmlns:viewModels="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
     Title="DpsStatisticsForm"
-    Width="320" Height="359"
-    MinWidth="300" MinHeight="31"
-    WindowStartupLocation="CenterScreen"
+    Width="320"
+    Height="359"
+    MinWidth="300"
+    MinHeight="31"
+    d:DataContext="{d:DesignInstance Type=viewModels:DpsStatisticsDesignTimeViewModel,
+                                     IsDesignTimeCreatable=True}"
     ResizeMode="CanResize"
     Style="{StaticResource TransparentWindow}"
     d:DataContext="{d:DesignInstance Type=vm:DpsStatisticsViewModel,
@@ -210,9 +215,29 @@
                                     <MenuItem Header="个人模式" />
                                     <!--  记录设置  -->
                                     <MenuItem Header="记录设置" ItemContainerStyle="{StaticResource CheckableMenuItem}">
-                                        <MenuItem Click="RecordSettingsMenuItem_Click" Header="记录每一次" />
-                                        <MenuItem Click="RecordSettingsMenuItem_Click" Header="不记录1分钟以下" />
-                                        <MenuItem Click="RecordSettingsMenuItem_Click" Header="不记录2分钟以下" />
+                                        <!-- pass a parameter (literal) to the command -->
+                                        <MenuItem IsChecked="{Binding Options.MinimalDurationInSeconds}"
+                                                  Command="{Binding Options.SetMinimalDurationCommand}"
+                                                  Header="记录每一次">
+                                            <MenuItem.CommandParameter>
+                                                <system:Int32>-1</system:Int32>
+                                            </MenuItem.CommandParameter>
+                                        </MenuItem>
+                                        <MenuItem IsChecked="{Binding Options.MinimalDurationInSeconds}" 
+                                            Command="{Binding Options.SetMinimalDurationCommand}"
+                                                  Header="不记录1分钟以下">
+                                            <MenuItem.CommandParameter>
+                                                <system:Int32>60</system:Int32>
+                                            </MenuItem.CommandParameter>
+                                        </MenuItem>
+                                        <!-- Click="RecordSettingsMenuItem_Click" -->
+                                        <MenuItem IsChecked="{Binding Options.MinimalDurationInSeconds}"
+                                        Command="{Binding Options.SetMinimalDurationCommand}"
+                                                  Header="不记录2分钟以下">
+                                            <MenuItem.CommandParameter>
+                                                <system:Int32>120</system:Int32>
+                                            </MenuItem.CommandParameter>
+                                        </MenuItem>
                                     </MenuItem>
                                     <!--  历史记录  -->
                                     <MenuItem

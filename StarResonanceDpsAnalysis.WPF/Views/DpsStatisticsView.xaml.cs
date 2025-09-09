@@ -120,26 +120,7 @@ public partial class DpsStatisticsView : Window
     }
 
     /// <summary>
-    /// 设置选择
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void RecordSettingsMenuItem_Click(object sender, RoutedEventArgs e)
-    {
-        var me = (MenuItem)sender;
-        var owner = ItemsControl.ItemsControlFromItemContainer(me);
-        foreach (var obj in owner.Items)
-        {
-            if (owner.ItemContainerGenerator.ContainerFromItem(obj) is MenuItem mi && !ReferenceEquals(mi, me))
-                mi.IsChecked = false;
-        }
-
-        me.IsChecked = true; // 保证当前为选中
-        e.Handled = true;
-    }
-
-    /// <summary>
-    /// 测伤模式
+    ///     测伤模式
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>

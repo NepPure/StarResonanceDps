@@ -12,6 +12,17 @@ using StarResonanceDpsAnalysis.WPF.Models;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 
+public partial class DpsStatisticsOptions : BaseViewModel
+{
+    [ObservableProperty] private int _minimalDurationInSeconds;
+
+    [RelayCommand]
+    private void SetMinimalDuration(int duration)
+    {
+        MinimalDurationInSeconds = duration;
+    }
+}
+
 public partial class DpsStatisticsViewModel : BaseViewModel
 {
     private readonly IApplicationController _appController;
@@ -20,10 +31,12 @@ public partial class DpsStatisticsViewModel : BaseViewModel
 
     [ObservableProperty] private DateTime _battleDuration;
     [ObservableProperty] private ScopeTime _scopeTime = ScopeTime.Current;
+    [ObservableProperty] private bool _showContextMenu;
     [ObservableProperty] private bool _showSkillListPopup;
+
+    [ObservableProperty] private List<SkillItem>? _skillList;
     [ObservableProperty] private ObservableCollection<ProgressBarData> _slots = [];
     [ObservableProperty] private StatisticType _statisticIndex;
-    [ObservableProperty] private bool _showContextMenu;
 
     private DispatcherTimer _timer = null!;
 
@@ -35,6 +48,8 @@ public partial class DpsStatisticsViewModel : BaseViewModel
 
         InitDemoProgressBars();
     }
+
+    public DpsStatisticsOptions Options { get; } = new();
 
     [Conditional("DEBUG")]
     private void InitDemoProgressBars()
@@ -166,8 +181,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         throw new NotImplementedException();
     }
 
-    [ObservableProperty] private List<SkillItem>? _skillList;
-
     [RelayCommand]
     private void RefreshButtonMouseEntered()
     {
@@ -201,7 +214,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         _appController.Shutdown();
     }
 
-
     public class SkillItem
     {
         public string SkillName { get; set; } = string.Empty;
@@ -211,3 +223,4 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         public int AvgDamage { get; set; }
     }
 }
+public sealed class DpsStatisticsDesignTimeViewModel() : DpsStatisticsViewModel(null!);
