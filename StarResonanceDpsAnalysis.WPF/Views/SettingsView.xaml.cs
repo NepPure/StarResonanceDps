@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -47,7 +48,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
 
                 while (true)
                 {
-                    var data = new List<ProgressBarData>();
+                    var data = new ObservableCollection<ProgressBarData>();
                     for (var i = 0; i < 10; ++i)
                     {
                         arrs[i] += rd.Next(10, 20);
@@ -60,8 +61,6 @@ namespace StarResonanceDpsAnalysis.WPF.Views
                         data.Add(new()
                         {
                             ID = i,
-                            ProgressBarBrush = new SolidColorBrush(Color.FromRgb(0, 0, 255)),
-                            ProgressBarCornerRadius = 5,
                             ProgressBarValue = v,
                             Data = new Data() { Order = 0 },
                         });

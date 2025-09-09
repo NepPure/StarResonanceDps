@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using StarResonanceDpsAnalysis.WPF.ViewModels;
 
 namespace StarResonanceDpsAnalysis.WPF.Views;
 
@@ -18,17 +19,13 @@ public partial class DpsStatisticsView : Window
             typeof(DpsStatisticsView),
             new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-    private static readonly string[] Names = ["伤害", "治疗", "承伤"];
     private double _beforePilingHeight;
     private bool _isFull; // 是否全程显示
-    private int _metricIndex; // 0: 伤害, 1: 治疗, 2: 承伤
 
-
-    public DpsStatisticsView()
+    public DpsStatisticsView(DpsStatisticsViewModel vm)
     {
         InitializeComponent();
-
-        InitDemoProgressBars();
+        DataContext = vm;
     }
 
     public bool Minimize
@@ -43,28 +40,9 @@ public partial class DpsStatisticsView : Window
             DragMove();
     }
 
-    private void LeftButton_Click(object sender, RoutedEventArgs e)
-    {
-        _metricIndex = (_metricIndex - 1 + 3) % 3;
-        UpdateLabel();
-    }
-
-
-    private void RightButton_Click(object sender, RoutedEventArgs e)
-    {
-        _metricIndex = ++_metricIndex % 3;
-        UpdateLabel();
-    }
-
     private void SwitchButton_Click(object sender, RoutedEventArgs e)
     {
         _isFull = !_isFull;
-        UpdateLabel();
-    }
-
-    private void UpdateLabel()
-    {
-        StatisticTypeLabel.Text = (_isFull ? "全程" : "当前") + Names[_metricIndex];
     }
 
 
@@ -206,7 +184,7 @@ public partial class DpsStatisticsView : Window
     private void RefreshButton_MouseEnter(object sender, MouseEventArgs e)
     {
         // 模拟技能数据
-        var skills = new List<SkillItem>
+        var skills = new List<DpsStatisticsViewModel.SkillItem>
         {
             new() { SkillName = "技能A", TotalDamage = "939.1万", HitCount = 4, CritCount = 121, AvgDamage = 121 },
             new() { SkillName = "技能B", TotalDamage = "88.6万", HitCount = 8, CritCount = 23, AvgDamage = 11 },
