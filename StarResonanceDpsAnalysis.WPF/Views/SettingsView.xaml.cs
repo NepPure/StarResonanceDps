@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 using StarResonanceDpsAnalysis.WPF.Controls;
+using StarResonanceDpsAnalysis.WPF.ViewModels;
 
 namespace StarResonanceDpsAnalysis.WPF.Views
 {
@@ -46,7 +48,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
 
                 while (true)
                 {
-                    var data = new List<ProgressBarData>();
+                    var data = new ObservableCollection<ProgressBarData>();
                     for (var i = 0; i < 10; ++i)
                     {
                         arrs[i] += rd.Next(10, 20);
@@ -59,8 +61,6 @@ namespace StarResonanceDpsAnalysis.WPF.Views
                         data.Add(new()
                         {
                             ID = i,
-                            ProgressBarBrush = new SolidColorBrush(Color.FromRgb(0, 0, 255)),
-                            ProgressBarCornerRadius = 5,
                             ProgressBarValue = v,
                             Data = new Data() { Order = 0 },
                         });
@@ -75,20 +75,8 @@ namespace StarResonanceDpsAnalysis.WPF.Views
             });
         }
 
-        public class Data : IOrderingData
+        public class Data : OrderingDataViewModel
         {
-            private int _order;
-            public override int Order
-            { 
-                get => _order;
-                set
-                {
-                    if (_order == value) return;
-                    _order = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(Order));
-                }
-            }
             public double Value { get; set; }
             public string Name => $"{Order.ToString().PadLeft(2, '0')}: {Math.Round(Value, 2)}";
         }

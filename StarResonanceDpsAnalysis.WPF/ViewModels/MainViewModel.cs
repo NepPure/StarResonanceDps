@@ -5,7 +5,7 @@ using StarResonanceDpsAnalysis.WPF.Views;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 
-public partial class MainViewModel(ApplicationThemeManager themeManager) : BaseViewModel
+public partial class MainViewModel(ApplicationThemeManager themeManager, DpsStatisticsView dpsStatisticsView) : BaseViewModel
 {
     public partial class DebugFunctions
     {
@@ -15,6 +15,7 @@ public partial class MainViewModel(ApplicationThemeManager themeManager) : BaseV
             var debugWindow = new DebugView();
             debugWindow.Show();
         }
+
     }
 
     public DebugFunctions Debug { get; } = new();
@@ -25,5 +26,10 @@ public partial class MainViewModel(ApplicationThemeManager themeManager) : BaseV
     partial void OnThemeChanged(ApplicationTheme value)
     {
         themeManager.Apply(value);
+    }
+    [RelayCommand]
+    private void CallDpsStatisticsView()
+    {
+        dpsStatisticsView.Show();
     }
 }

@@ -29,6 +29,7 @@
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.8" />
+        <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     </ItemGroup>
 
     <ItemGroup>
@@ -43,14 +44,14 @@
     <Resource Include="Assets\Fonts\iconfont.ttf" />
     <Resource Include="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
     <Resource Include="Assets\Images\Crown.png" />
-    <Resource Include="Assets\Images\Profession_BMDS.png" />
-    <Resource Include="Assets\Images\Profession_JRSHZ.png" />
-    <Resource Include="Assets\Images\Profession_SYZ.png" />
-    <Resource Include="Assets\Images\Profession_LHYS.png" />
-    <Resource Include="Assets\Images\Profession_SSS.png" />
-    <Resource Include="Assets\Images\Profession_SDQS.png" />
-    <Resource Include="Assets\Images\Profession_LYJS.png" />
-    <Resource Include="Assets\Images\Profession_QLQS.png" />
+    <Resource Include="Assets\Images\Classes_FrostMage.png" />
+    <Resource Include="Assets\Images\Classes_HeavyGuardian.png" />
+    <Resource Include="Assets\Images\Classes_VerdantOracle.png" />
+    <Resource Include="Assets\Images\Classes_Stormblade.png" />
+    <Resource Include="Assets\Images\Classes_Marksman.png" />
+    <Resource Include="Assets\Images\Classes_ShieldKnight.png" />
+    <Resource Include="Assets\Images\Classes_SoulMusician.png" />
+    <Resource Include="Assets\Images\Classes_WIndKnight.png" />
   </ItemGroup>
 
 </Project>
