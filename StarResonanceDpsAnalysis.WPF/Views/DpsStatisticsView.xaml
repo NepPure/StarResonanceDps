@@ -380,7 +380,9 @@
                                         </MenuItem>
                                     </MenuItem>
                                     <!--  历史记录  -->
-                                    <MenuItem Header="历史记录" ItemContainerStyle="{StaticResource CheckableMenuItem}" />
+                                    <MenuItem
+                                        Header="历史记录"
+                                        ItemContainerStyle="{StaticResource CheckableMenuItem}" />
                                     <!--  打桩模式  -->
                                     <MenuItem Header="打桩模式" ItemContainerStyle="{StaticResource CheckableMenuItem}">
                                         <MenuItem

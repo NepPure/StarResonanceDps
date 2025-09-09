@@ -540,6 +540,12 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         _appController.Shutdown();
     }
 
+    [RelayCommand]
+    private void Shutdown()
+    {
+        _appController.Shutdown();
+    }
+
     public class SkillItem
     {
         public string SkillName { get; set; } = string.Empty;
