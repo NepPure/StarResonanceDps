@@ -45,6 +45,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
                     if (value == null || value.Count == 0)
                     {
                         _dataDict.Clear();
+
+                        Invalidate();
+
                         return;
                     }
 

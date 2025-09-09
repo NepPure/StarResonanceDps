@@ -101,27 +101,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
 
         private void Resort()
         {
-            // 已经经过消失动画的, 移除
-            var removeCount = _infoBuffer.RemoveAll(a => a.ToIndex == -1);
-
-            // 更新ToIndex
-            for (var i = 0; i < _infoBuffer.Count; ++i)
-            {
-                var info = _infoBuffer[i];
-                info.FromIndex = info.ToIndex;
-
-                // 如果数据已经不存在, 则动画消失
-                if (!_dataDict.ContainsKey(info.ID))
-                {
-                    info.ToIndex = -1;
-                }
-
-                _infoBuffer[i] = info;
-            }
+            // 移除不存在的渲染项
+            _infoBuffer.RemoveAll(info => !_dataDict.ContainsKey(info.ID));
 
             foreach (var data in _dataDict)
             {
-                // 如果新增数据, 则动画出现
+                // 添加新增数据
                 if (!_infoBuffer.Any(e => e.ID == data.Key))
                 {
                     _infoBuffer.Add(new SortAnimatingInfo
@@ -134,13 +119,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
                 }
             }
 
+            // 重新排序, 并更新ToIndex
             var tmpIndex = 0;
             _infoBuffer = [.. _infoBuffer
                 .OrderByDescending(e => e.Data.ProgressBarValue)
                 .Select(e =>
                 {
-                    if (e.ToIndex == -1) return e;
-
+                    e.FromIndex = e.ToIndex;
                     e.ToIndex = tmpIndex++;
                     e.Data = _dataDict[e.ID];
                     return e;

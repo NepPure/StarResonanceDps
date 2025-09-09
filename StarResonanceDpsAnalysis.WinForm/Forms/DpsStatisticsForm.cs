@@ -22,7 +22,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class DpsStatisticsForm : BorderlessForm
     {
-        private readonly Dictionary<long, List<RenderContent>> _renderListDict = [];
         public DpsStatisticsForm()
         {
             InitializeComponent();
@@ -53,6 +52,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             LoadFromEmbeddedSkillConfig(); // 从内置资源读取并加载技能数据（元数据/图标/映射）
 
             SetStyle(); // 设置/应用本窗体的个性化样式（定义在同类/局部类的其他部分）
+
+            // 开始监听服务器变更事件
+            DataStorage.ServerChanged += DataStorage_ServerChanged;
 
             // 开始监听DPS更新事件
             DataStorage.DpsDataUpdated += DataStorage_DpsDataUpdated;
@@ -102,6 +104,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         #endregion
 
+        private void DataStorage_ServerChanged(string currentServer, string prevServer)
+        {
+            DataStorage.ClearDpsData();
+        }
+
+        private readonly Dictionary<long, List<RenderContent>> _renderListDict = [];
         private void DataStorage_DpsDataUpdated()
         {
             var dpsList = DataStorage.ReadOnlySectionedDpsDataList;
@@ -132,13 +140,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     if (!_renderListDict.TryGetValue(e.UID, out var renderContent))
                     {
                         var profBmp = imgDict.TryGetValue(professionName, out var bmp) ? bmp : imgDict["未知"];
-                        renderContent =
-                        [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = AppConfig.ProgressBarImage, Image = profBmp, ImageRenderSize = AppConfig.ProgressBarImageSize },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = AppConfig.ProgressBarNmae, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarHarm, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarProportion, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
-                        ];
+                        renderContent = BuildNewRenderContent(profBmp);
                         _renderListDict[e.UID] = renderContent;
                     }
 
@@ -157,6 +159,16 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 }).ToList();
 
             sortedProgressBarList_MainList.Data = progressBarDataList;
+        }
+
+        private List<RenderContent> BuildNewRenderContent(Bitmap professionBmp)
+        {
+            return [
+                new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = AppConfig.ProgressBarImage, Image = professionBmp, ImageRenderSize = AppConfig.ProgressBarImageSize },
+                new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = AppConfig.ProgressBarNmae, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
+                new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarHarm, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
+                new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarProportion, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
+            ];
         }
 
         private Color GetProfessionColor(int professionID)

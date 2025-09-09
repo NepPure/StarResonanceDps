@@ -83,6 +83,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         public delegate void BattleLogCreatedEventHandler(BattleLog battleLog);
         public delegate void DpsDataUpdatedEventHandler();
         public delegate void DataUpdatedEventHandler();
+        public delegate void ServerChangedEventHandler(string currentServer, string prevServer);
 
         /// <summary>
         /// 玩家信息更新事件
@@ -104,6 +105,10 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 数据更新事件 (玩家信息或战斗日志更新时触发)
         /// </summary>
         public static event DataUpdatedEventHandler? DataUpdated;
+        /// <summary>
+        /// 服务器变更事件 (地图变更)
+        /// </summary>
+        public static event ServerChangedEventHandler? ServerChanged;
 
         /// <summary>
         /// 从文件加载缓存玩家信息
@@ -111,7 +116,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <param name="relativeFilePath"></param>
         public static void LoadPlayerInfoToFile(string? filePath = null)
         {
-            filePath ??= string.Empty;
+            filePath ??= Environment.CurrentDirectory;
 
             var playerInfoCaches = PlayerInfoCacheReader.ReadFile(filePath);
 
@@ -148,10 +153,16 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <param name="relativeFilePath"></param>
         public static void SavePlayerInfoToFile(string? filePath = null) 
         {
-            filePath ??= string.Empty;
+            filePath ??= Environment.CurrentDirectory;
 
-            LoadPlayerInfoToFile(filePath);
-
+            try
+            {
+                LoadPlayerInfoToFile(filePath);
+            }
+            catch (Exception)
+            {
+                // 无缓存或缓存篡改直接无视重新保存新文件
+            }
 
             var list = PlayerInfoDatas.Values.ToList();
             PlayerInfoCacheWriter.WriteToFile(filePath, [..list]);
@@ -522,6 +533,11 @@ namespace StarResonanceDpsAnalysis.Core.Data
             PlayerInfoDatas.Clear();
 
             DataUpdated?.Invoke();
+        }
+
+        internal static void InvokeServerChangedEvent(string currentServer, string prevServer)
+        {
+            ServerChanged?.Invoke(currentServer, prevServer);
         }
 
     }

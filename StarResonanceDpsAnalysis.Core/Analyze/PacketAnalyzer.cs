@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 
 using PacketDotNet;
 using SharpPcap;
+using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 
 namespace StarResonanceDpsAnalysis.Core.Analyze
@@ -233,11 +234,14 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                                 {
                                     if (CurrentServer != srcServer)
                                     {
+                                        DataStorage.InvokeServerChangedEvent(srcServer, CurrentServer);
+
                                         CurrentServer = srcServer;
+
                                         ClearTcpCache();
+
                                         TcpNextSeq = tcpPacket.SequenceNumber + (uint)payload.Length;
-                                        // TODO: Reset 全程统计数据
-                                        // FullRecord.Reset();//全程统计数据清空
+
                                         Console.WriteLine($"Got Scene Server Address by Login Return Packet: {srcServer}");
                                     }
                                 }
