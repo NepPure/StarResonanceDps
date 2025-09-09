@@ -25,6 +25,8 @@ public partial class App : Application
 
         App app = new();
         app.InitializeComponent();
+        app.MainWindow = host.Services.GetRequiredService<MainWindow>();
+        app.MainWindow.Visibility = Visibility.Visible;
         app.Run();
     }
 
@@ -46,7 +48,6 @@ public partial class App : Application
                 {
                     services.AddTransient<MainViewModel>();
                     services.AddTransient<MainWindow>();
-                    // TODO: 不确定这样做对不对, 暂且先这样
                     services.AddTransient<DpsStatisticsViewModel>();
                     services.AddTransient<DpsStatisticsView>();
                     services.AddThemes();
