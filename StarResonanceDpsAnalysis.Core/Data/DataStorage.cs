@@ -114,11 +114,9 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 从文件加载缓存玩家信息
         /// </summary>
         /// <param name="relativeFilePath"></param>
-        public static void LoadPlayerInfoToFile(string? filePath = null)
+        public static void LoadPlayerInfoToFile()
         {
-            filePath ??= Environment.CurrentDirectory;
-
-            var playerInfoCaches = PlayerInfoCacheReader.ReadFile(filePath);
+            var playerInfoCaches = PlayerInfoCacheReader.ReadFile();
 
             foreach (var playerInfoCache in playerInfoCaches.PlayerInfos)
             {
@@ -151,13 +149,11 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 保存缓存玩家信息到文件
         /// </summary>
         /// <param name="relativeFilePath"></param>
-        public static void SavePlayerInfoToFile(string? filePath = null) 
+        public static void SavePlayerInfoToFile() 
         {
-            filePath ??= Environment.CurrentDirectory;
-
             try
             {
-                LoadPlayerInfoToFile(filePath);
+                LoadPlayerInfoToFile();
             }
             catch (Exception)
             {
@@ -165,7 +161,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
             }
 
             var list = PlayerInfoDatas.Values.ToList();
-            PlayerInfoCacheWriter.WriteToFile(filePath, [..list]);
+            PlayerInfoCacheWriter.WriteToFile([..list]);
         }
 
         /// <summary>
@@ -363,7 +359,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
             if (LastBattleLog != null)
             {
                 // 如果超时或强制创建新战斗阶段时, 关闭上一分段, 最后创建新分段
-                var prevTt = new TimeSpan(LastBattleLog!.TimeTicks);
+                var prevTt = new TimeSpan(LastBattleLog!.Value.TimeTicks);
                 if (tt - prevTt > SectionTimeout || ForceNewBattleSection)
                 {
                     ClearDpsData();
@@ -451,8 +447,8 @@ namespace StarResonanceDpsAnalysis.Core.Data
             sectionedSkillDic.CritTimes += log.IsCritical ? 1 : 0;
             sectionedSkillDic.LuckyTimes += log.IsLucky ? 1 : 0;
 
-            FullDpsData[uid].BattleLogs.Add(log);
-            SectionedDpsDatas[uid].BattleLogs.Add(log);
+            //FullDpsData[uid].BattleLogs.Add(log);
+            //SectionedDpsDatas[uid].BattleLogs.Add(log);
 
             return (fullData, sectionedData);
         }

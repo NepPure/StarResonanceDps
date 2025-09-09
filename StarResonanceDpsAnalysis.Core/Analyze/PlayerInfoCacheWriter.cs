@@ -12,11 +12,10 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
 {
     public class PlayerInfoCacheWriter
     {
-        private string SavePath { get; set; }
         private PlayerInfoCacheFileV3_0_0 PlayerInfoCacheFile { get; set; }
 
-        private PlayerInfoCacheWriter(string path, IEnumerable<PlayerInfoFileData> playerInfos)
-            : this(path, new PlayerInfoCacheFileV3_0_0()
+        private PlayerInfoCacheWriter(IEnumerable<PlayerInfoFileData> playerInfos)
+            : this(new PlayerInfoCacheFileV3_0_0()
             {
                 FileVersion = PlayerInfoCacheFileVersion.V3_0_0,
                 PlayerInfos = [.. playerInfos]
@@ -24,9 +23,8 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         {
         }
 
-        private PlayerInfoCacheWriter(string path, PlayerInfoCacheFileV3_0_0 playerInfoCacheFile)
+        private PlayerInfoCacheWriter(PlayerInfoCacheFileV3_0_0 playerInfoCacheFile)
         {
-            SavePath = path;
             PlayerInfoCacheFile = playerInfoCacheFile;
         }
 
@@ -34,12 +32,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         {
             // 修改此函数时, 请注意同时修改 PlayerInfoCacheReader
 
-            if (!Directory.Exists(SavePath))
-            {
-                Directory.CreateDirectory(SavePath);
-            }
-
-            var filePath = Path.Combine(SavePath, "PlayerInfoCache.dat");
+            var filePath = Path.Combine(Environment.CurrentDirectory, "PlayerInfoCache.dat");
 
             using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, FileOptions.WriteThrough);
             using var bw = new BsonDataWriter(fs);
@@ -52,26 +45,26 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             await Task.Run(WriteToFile);
         }
 
-        public static void WriteToFile(string path, PlayerInfoCacheFileV3_0_0 playerInfoCacheFile)
+        public static void WriteToFile(PlayerInfoCacheFileV3_0_0 playerInfoCacheFile)
         {
-            var writer = new PlayerInfoCacheWriter(path, playerInfoCacheFile);
+            var writer = new PlayerInfoCacheWriter(playerInfoCacheFile);
             writer.WriteToFile();
         }
 
-        public static void WriteToFile(string path, IEnumerable<PlayerInfoFileData> playerInfos)
+        public static void WriteToFile(IEnumerable<PlayerInfoFileData> playerInfos)
         {
-            var writer = new PlayerInfoCacheWriter(path, playerInfos);
+            var writer = new PlayerInfoCacheWriter(playerInfos);
             writer.WriteToFile();
         }
 
-        public static async Task WriteToFileAsync(string path, PlayerInfoCacheFileV3_0_0 playerInfoCacheFile)
+        public static async Task WriteToFileAsync(PlayerInfoCacheFileV3_0_0 playerInfoCacheFile)
         {
-            await Task.Run(() => WriteToFile(path, playerInfoCacheFile));
+            await Task.Run(() => WriteToFile(playerInfoCacheFile));
         }
 
-        public static async Task WriteToFileAsync(string path, IEnumerable<PlayerInfoFileData> playerInfoCacheFile)
+        public static async Task WriteToFileAsync(IEnumerable<PlayerInfoFileData> playerInfoCacheFile)
         {
-            await Task.Run(() => WriteToFile(path, playerInfoCacheFile));
+            await Task.Run(() => WriteToFile(playerInfoCacheFile));
         }
     }
 }

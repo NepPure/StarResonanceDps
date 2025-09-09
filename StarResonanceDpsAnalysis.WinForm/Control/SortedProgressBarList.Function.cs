@@ -24,7 +24,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
 
         private readonly SolidBrush _scrollBarBrush = new(Color.FromArgb(0xB2, 0xB2, 0xB2));
 
-        private List<SortAnimatingInfo> _infoBuffer = [];
+        private List<SortingInfo> _infoBuffer = new(128);
 
         public void Redraw(PaintEventArgs e, bool needResort = true)
         {
@@ -42,13 +42,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
                 foreach (var data in _infoBuffer)
                 {
                     var outOfHeightIndex = (Height / ProgressBarHeight) + 1;
-                    var fromIndex = data.FromIndex == -1
-                        ? outOfHeightIndex
-                        : data.FromIndex;
-                    var toIndex = data.ToIndex == -1
-                        ? outOfHeightIndex
-                        : data.ToIndex;
-                    var top = 1f * fromIndex * ProgressBarHeight - ScrollOffsetY;
+                    var top = (float)data.Order * ProgressBarHeight - ScrollOffsetY;
 
                     _progressBarPrivateData.OrderAlign = OrderAlign;
                     _progressBarPrivateData.OrderColor = OrderColor;
@@ -56,14 +50,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
                     _progressBarPrivateData.OrderOffset = OrderOffset;
                     _progressBarPrivateData.OrderImageAlign = OrderImageAlign;
                     _progressBarPrivateData.OrderImageOffset = OrderImageOffset;
+                    _progressBarPrivateData.OrderString = OrderCallback?.Invoke(data.Order + 1);
 
-                    _progressBarPrivateData.OrderString = OrderCallback == null
+                    _progressBarPrivateData.OrderImage = OrderImages == null || data.Order >= OrderImages.Count
                         ? null
-                        : OrderCallback(data.ToIndex + 1);
+                        : OrderImages[data.Order];
 
-                    _progressBarPrivateData.OrderImage = OrderImages == null || data.ToIndex < 0 || data.ToIndex >= OrderImages.Count
-                        ? null
-                        : OrderImages[data.ToIndex];
                     _progressBarPrivateData.OrderImageRenderSize =
                         _progressBarPrivateData.OrderImage != null && (OrderImageRenderSize.Width == 0 || OrderImageRenderSize.Height == 0)
                         ? _progressBarPrivateData.OrderImage.Size
@@ -107,29 +99,36 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
             foreach (var data in _dataDict)
             {
                 // 添加新增数据
-                if (!_infoBuffer.Any(e => e.ID == data.Key))
+                if (!ContainsId(_infoBuffer, data.Key))
                 {
-                    _infoBuffer.Add(new SortAnimatingInfo
+                    _infoBuffer.Add(new SortingInfo
                     {
                         ID = data.Key,
-                        FromIndex = -1,
-                        ToIndex = 0,
+                        Order = -1,
                         Data = data.Value
                     });
                 }
             }
 
-            // 重新排序, 并更新ToIndex
-            var tmpIndex = 0;
-            _infoBuffer = [.. _infoBuffer
-                .OrderByDescending(e => e.Data.ProgressBarValue)
-                .Select(e =>
-                {
-                    e.FromIndex = e.ToIndex;
-                    e.ToIndex = tmpIndex++;
-                    e.Data = _dataDict[e.ID];
-                    return e;
-                })];
+            _infoBuffer.Sort((a, b) => b.Data.ProgressBarValue.CompareTo(a.Data.ProgressBarValue));
+
+            // 重新排序, 并更新 Order
+            for (var i = 0; i < _infoBuffer.Count; ++i) 
+            {
+                var info = _infoBuffer[i];
+                info.Order = i;
+                info.Data = _dataDict[info.ID];
+                _infoBuffer[i] = info;
+            }
+        }
+
+        private bool ContainsId(List<SortingInfo> list, long id)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].ID == id) return true;
+            }
+            return false;
         }
 
         private void DrawProgressBar(Graphics g, ProgressBarData data, ProgressBarPrivateData privateData)
@@ -212,11 +211,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
             public Size OrderImageRenderSize { get; set; } = new Size(0, 0);
         }
 
-        private struct SortAnimatingInfo
+        private struct SortingInfo
         {
             public long ID { get; set; }
-            public int FromIndex { get; set; }
-            public int ToIndex { get; set; }
+            public int Order { get; set; }
             public ProgressBarData Data { get; set; }
         }
     }

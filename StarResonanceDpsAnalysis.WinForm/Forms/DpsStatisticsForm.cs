@@ -145,7 +145,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     }
 
                     renderContent[1].Text = $"{playerInfo?.Name}-{professionName}({e.UID})";
-                    renderContent[2].Text = $"{e.TotalAttackDamage.ToCompactString()} ({(e.TotalAttackDamage / new TimeSpan(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds).ToCompactString()})";
+                    renderContent[2].Text = $"{e.TotalAttackDamage.ToCompactString()} ({(e.TotalAttackDamage / Math.Max(1, new TimeSpan(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
                     renderContent[3].Text = $"{Math.Round(100d * e.TotalAttackDamage / sumValue, 0, MidpointRounding.AwayFromZero)}%";
 
                     return new ProgressBarData()

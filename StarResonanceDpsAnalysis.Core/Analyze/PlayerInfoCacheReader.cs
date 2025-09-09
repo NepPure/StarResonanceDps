@@ -18,9 +18,9 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             ContractResolver = new PrivateSetterContractResolver()
         });
 
-        public static PlayerInfoCacheFileV3_0_0 ReadFile(string filePath)
+        public static PlayerInfoCacheFileV3_0_0 ReadFile()
         {
-            var baseData = ReadFileBase(filePath, out var fs);
+            var baseData = ReadFileBase(out var fs);
             return baseData.FileVersion switch
             {
                 // 后续新版本写兼容层到 Versions 目录下, 并更新此函数的返回值到最新版本的 PlayerInfoCacheFile
@@ -30,8 +30,9 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
             };
         }
 
-        private static PlayerInfoCacheFileBase ReadFileBase(string filePath, out FileStream fs)
+        private static PlayerInfoCacheFileBase ReadFileBase(out FileStream fs)
         {
+            var filePath = Path.Combine(Environment.CurrentDirectory, "PlayerInfoCache.dat");
             if (!File.Exists(filePath))
             {
                 throw new FileNotFoundException("File not found.", filePath);

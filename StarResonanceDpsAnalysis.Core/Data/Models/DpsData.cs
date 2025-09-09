@@ -40,11 +40,11 @@ namespace StarResonanceDpsAnalysis.Core.Data.Models
         /// <summary>
         /// 战斗日志列表
         /// </summary>
-        internal List<BattleLog> BattleLogs { get; } = new(16384);
+        //internal List<BattleLog> BattleLogs { get; } = new(16384);
         /// <summary>
         /// 只读战斗日志列表
         /// </summary>
-        public IReadOnlyList<BattleLog> ReadOnlyBattleLogs { get => BattleLogs.AsReadOnly(); }
+        //public IReadOnlyList<BattleLog> ReadOnlyBattleLogs { get => BattleLogs.AsReadOnly(); }
         /// <summary>
         /// 技能统计数据字典
         /// </summary>
