@@ -12,35 +12,77 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         public const string APP_NAME = "别查我DPS";
         public static string AppVersion { get => $"v{Application.ProductVersion.Split('+')[0]}"; }
 
+        private static SettingsForm? _settingsForm = null;
+        private static DpsStatisticsForm? _dpsStatisticsForm = null;
+        private static UserUidSetForm? _userUidSetForm = null;
+        private static MainForm? _mainForm = null;
 
-        public static SettingsForm settingsForm;//设置窗体
+        public static SettingsForm SettingsForm
+        {
+            get
+            {
+                if (_settingsForm == null || _settingsForm.IsDisposed)
+                {
+                    _settingsForm = new();
+                }
 
-        public static DpsStatisticsForm dpsStatistics;//DPS统计窗体
+                return _settingsForm;
+            }
+        }
 
-        public static UserUidSetForm userUidSetForm;//用户Uid设置窗体
+        public static DpsStatisticsForm DpsStatistics 
+        {
+            get 
+            {
+                if (_dpsStatisticsForm == null || _dpsStatisticsForm.IsDisposed)
+                {
+                    _dpsStatisticsForm = new();
+                }
 
-        public static MainForm mainForm;//主窗口
+                return _dpsStatisticsForm;
+            }   
+        }
 
+        public static UserUidSetForm UserUidSetForm
+        {
+            get 
+            {
+                if (_userUidSetForm == null || _userUidSetForm.IsDisposed)
+                {
+                    _userUidSetForm = new();
+                }
+
+                return _userUidSetForm;
+            }
+        }
+
+        public static MainForm MainForm 
+        {
+            get 
+            {
+                if (_mainForm == null || _mainForm.IsDisposed)
+                {
+                    _mainForm = new();
+                }
+
+                return _mainForm;
+            }
+        }
+
+        private static Form[] TransparencyForms => [SettingsForm, DpsStatistics, UserUidSetForm];
         /// <summary>
         /// 统一设置透明度
         /// </summary>
         /// <param name="opacity"></param>
         public static void FullFormTransparency(double opacity)
         {
-            var forms = new Form[]
-            {
-                settingsForm,
-                dpsStatistics,
-                userUidSetForm
-            };
-            foreach (var form in forms)
+            foreach (var form in TransparencyForms)
             {
                 try
                 {
-                    if (form != null) form.Opacity = opacity;
+                    form.Opacity = opacity;
                 }
-                catch (Exception)
-                { }
+                catch (Exception) { }
             }
         }
 
@@ -49,9 +91,5 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         [DllImport("user32.dll")] public static extern bool ReleaseCapture();
         [DllImport("user32.dll")] public static extern IntPtr SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
 
-        #region 单次伤害/全程伤害
-        public static int currentIndex = 0;        // 当前类别：0伤害/1治疗/2承伤
-        public static bool showTotal = false;      // false=单次；true=全程
-        #endregion
     }
 }

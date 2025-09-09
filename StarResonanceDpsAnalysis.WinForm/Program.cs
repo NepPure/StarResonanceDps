@@ -24,8 +24,7 @@ namespace StarResonanceDpsAnalysis.WinForm
 
             ApplicationConfiguration.Initialize();
 
-            FormManager.dpsStatistics = new DpsStatisticsForm();
-            Application.Run(FormManager.dpsStatistics);
+            Application.Run(FormManager.DpsStatistics);
         }
     }
 }

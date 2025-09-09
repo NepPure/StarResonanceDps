@@ -130,28 +130,28 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
         /// </summary>
         private void SetupTrendChartRefreshCallback()
         {
-            if (_dpsTrendChart == null) return;
+            //if (_dpsTrendChart == null) return;
 
-            _dpsTrendChart.SetRefreshCallback(() =>
-            {
-                try
-                {
-                    var dataType = segmented1.SelectIndex switch
-                    {
-                        0 => ChartDataType.Damage,
-                        1 => ChartDataType.Healing,
-                        2 => ChartDataType.TakenDamage,
-                        _ => ChartDataType.Damage
-                    };
+            //_dpsTrendChart.SetRefreshCallback(() =>
+            //{
+            //    try
+            //    {
+            //        var dataType = segmented1.SelectIndex switch
+            //        {
+            //            0 => ChartDataType.Damage,
+            //            1 => ChartDataType.Healing,
+            //            2 => ChartDataType.TakenDamage,
+            //            _ => ChartDataType.Damage
+            //        };
 
-                    var source = FormManager.showTotal ? ChartDataSource.FullRecord : ChartDataSource.Current;
-                    ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType, source);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"图表刷新回调出错: {ex.Message}");
-                }
-            });
+            //        var source = FormManager.showTotal ? ChartDataSource.FullRecord : ChartDataSource.Current;
+            //        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType, source);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine($"图表刷新回调出错: {ex.Message}");
+            //    }
+            //});
         }
 
         /// <summary>
@@ -239,26 +239,26 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
         /// </summary>
         private void RefreshDpsTrendChart()
         {
-            if (_dpsTrendChart != null)
-            {
-                try
-                {
-                    var dataType = segmented1.SelectIndex switch
-                    {
-                        0 => ChartDataType.Damage,      // 伤害
-                        1 => ChartDataType.Healing,     // 治疗
-                        2 => ChartDataType.TakenDamage, // 承伤
-                        _ => ChartDataType.Damage       // 默认伤害
-                    };
+            //if (_dpsTrendChart != null)
+            //{
+            //    try
+            //    {
+            //        var dataType = segmented1.SelectIndex switch
+            //        {
+            //            0 => ChartDataType.Damage,      // 伤害
+            //            1 => ChartDataType.Healing,     // 治疗
+            //            2 => ChartDataType.TakenDamage, // 承伤
+            //            _ => ChartDataType.Damage       // 默认伤害
+            //        };
 
-                    var source = FormManager.showTotal ? ChartDataSource.FullRecord : ChartDataSource.Current;
-                    ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType, source);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"刷新DPS趋势图表时出错: {ex.Message}");
-                }
-            }
+            //        var source = FormManager.showTotal ? ChartDataSource.FullRecord : ChartDataSource.Current;
+            //        ChartVisualizationService.RefreshDpsTrendChart(_dpsTrendChart, Uid, dataType, source);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        Console.WriteLine($"刷新DPS趋势图表时出错: {ex.Message}");
+            //    }
+            //}
         }
 
         private bool _suspendUiUpdate = false;
@@ -331,36 +331,36 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
 
         private void select1_SelectedIndexChanged(object sender, IntEventArgs e)
         {
-            if (isSelect) return;
+            //if (isSelect) return;
 
-            // 1) 确定指标（segmented1: 0=伤害 1=治疗 2=承伤）
-            MetricType metric = segmented1.SelectIndex switch
-            {
-                1 => MetricType.Healing,
-                2 => MetricType.Taken,
-                _ => MetricType.Damage
-            };
+            //// 1) 确定指标（segmented1: 0=伤害 1=治疗 2=承伤）
+            //MetricType metric = segmented1.SelectIndex switch
+            //{
+            //    1 => MetricType.Healing,
+            //    2 => MetricType.Taken,
+            //    _ => MetricType.Damage
+            //};
 
-            // 2) 设置排序（统一返回 double，避免泛型不变性/类型不一致）
-            SkillOrderBySelector = e.Value switch
-            {
-                0 => s => s.Total,       // 总量
-                1 => s => s.TotalDps,    // 秒伤
-                2 => s => s.HitCount,    // 次数
-                3 => s => s.CritRate,    // 暴击率
-                _ => s => s.Total
-            };
+            //// 2) 设置排序（统一返回 double，避免泛型不变性/类型不一致）
+            //SkillOrderBySelector = e.Value switch
+            //{
+            //    0 => s => s.Total,       // 总量
+            //    1 => s => s.TotalDps,    // 秒伤
+            //    2 => s => s.HitCount,    // 次数
+            //    3 => s => s.CritRate,    // 暴击率
+            //    _ => s => s.Total
+            //};
 
-            // 3) 确定数据源（单次/全程）
-            SourceType source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
+            //// 3) 确定数据源（单次/全程）
+            //SourceType source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
 
-            // 4) 刷新技能表（内部会按 SkillOrderBySelector 排序）
-            UpdateSkillTable(Uid, source, metric);
+            //// 4) 刷新技能表（内部会按 SkillOrderBySelector 排序）
+            //UpdateSkillTable(Uid, source, metric);
 
-            // （可选）如果需要同时更新右侧图表：
-            try { RefreshDpsTrendChart(); } catch { /* 忽略绘图异常 */ }
-            UpdateSkillDistributionChart();
-            UpdateCritLuckyChart();
+            //// （可选）如果需要同时更新右侧图表：
+            //try { RefreshDpsTrendChart(); } catch { /* 忽略绘图异常 */ }
+            //UpdateSkillDistributionChart();
+            //UpdateCritLuckyChart();
         }
 
         private static readonly Dictionary<string, Image> _professionImages = new()

@@ -23,17 +23,16 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         public static void SetColorMode(AntdUI.BorderlessForm window, bool isLight)
         {
             if (window == null || window.IsDisposed) return;
+
             if (isLight)
             {
-                //亮色
                 Config.IsLight = true;
                 window.BackColor = Color.White;
                 window.ForeColor = Color.Black;
-
             }
             else
             {
-                Config.IsDark = true;// 设置为深色模式
+                Config.IsDark = true;
                 window.BackColor = Color.FromArgb(31, 31, 31);
                 window.ForeColor = Color.White;
             }

@@ -37,7 +37,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             input2.Text = AppConfig.FormTransparencyKey.KeysToString();
             input3.Text = AppConfig.WindowToggleKey.KeysToString();
             input4.Text = AppConfig.ClearDataKey.KeysToString();
-            input5.Text = AppConfig.ClearHistoryKey.KeysToString();
+            //input5.Text = AppConfig.ClearHistoryKey.KeysToString();
         }
 
 

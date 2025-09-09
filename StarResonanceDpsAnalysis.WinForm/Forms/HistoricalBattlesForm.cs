@@ -42,16 +42,16 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void HistoricalBattlesForm_Load(object sender, EventArgs e)
         {
-            FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色 // 根据配置设置窗体的颜色主题（明亮/深色）
+            //FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色 // 根据配置设置窗体的颜色主题（明亮/深色）
 
-            if (FormManager.showTotal)
-            {
-                ReadFullSessionTime();
-            }
-            else
-            {
-                ReadSnapshotTime();
-            }
+            //if (FormManager.showTotal)
+            //{
+            //    ReadFullSessionTime();
+            //}
+            //else
+            //{
+            //    ReadSnapshotTime();
+            //}
 
 
 

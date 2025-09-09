@@ -12,11 +12,10 @@ using StarResonanceDpsAnalysis.Core.Extends.Data;
 using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
-using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction;
 
 using Button = AntdUI.Button;
-using StarResonanceDpsAnalysis.Core.Analyze.Exceptions;
+using StarResonanceDpsAnalysis.WinForm.Extends;
+using StarResonanceDpsAnalysis.Core.Data.Models;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
@@ -70,28 +69,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         public void kbHook_OnKeyDownEvent(object? sender, KeyEventArgs e)
         {
-            if (e.KeyData == AppConfig.MouseThroughKey) { HandleMouseThrough(); }
-            //else if (e.KeyData == AppConfig.FormTransparencyKey) { HandleFormTransparency(); }
-            //else if (e.KeyData == AppConfig.WindowToggleKey) { }
-            else if (e.KeyData == AppConfig.ClearDataKey) { HandleClearData(); }
-            else if (e.KeyData == AppConfig.ClearHistoryKey)
+            if (e.KeyData == AppConfig.MouseThroughKey)
             {
-                StatisticData._manager.ClearSnapshots();//清空快照
-                FullRecord.ClearSessionHistory();//清空全程快照
-
+                HandleMouseThrough();
             }
-        }
-
-        private void HandleMouseThrough()
-        {
-            if (!MousePenetrationHelper.IsPenetrating(this.Handle))
+            else if (e.KeyData == AppConfig.ClearDataKey)
             {
-                // 方案 O：AppConfig.Transparency 现在表示“不透明度百分比”
-                MousePenetrationHelper.SetMousePenetrate(this, enable: true, opacityPercent: AppConfig.Transparency);
-            }
-            else
-            {
-                MousePenetrationHelper.SetMousePenetrate(this, enable: false);
+                HandleClearData();
             }
         }
 
@@ -106,13 +90,15 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void DataStorage_ServerChanged(string currentServer, string prevServer)
         {
-            DataStorage.ClearDpsData();
+            HandleClearData();
         }
 
         private readonly Dictionary<long, List<RenderContent>> _renderListDict = [];
         private void DataStorage_DpsDataUpdated()
         {
-            var dpsList = DataStorage.ReadOnlySectionedDpsDataList;
+            var dpsList = _isShowFullData
+                ? DataStorage.ReadOnlyFullDpsDataList
+                : DataStorage.ReadOnlySectionedDpsDataList;
 
             if (dpsList.Count == 0)
             {
@@ -120,16 +106,14 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 return;
             }
 
-            var dpsIEnum = dpsList.Where(e => !e.IsNpcData && e.TotalAttackDamage != 0);
+            var dpsIEnum = GetDefaultFilter(dpsList, _stasticsType);
             if (!dpsIEnum.Any())
             {
                 sortedProgressBarList_MainList.Data = [];
                 return;
             }
 
-            // 正式使用时, 需要在此处判断当前类型(DPS/HPS/承伤)(全程/阶段)
-            var maxValue = dpsIEnum.Max(e => e.TotalAttackDamage);
-            var sumValue = dpsIEnum.Sum(e => e.TotalAttackDamage);
+            (var maxValue, var sumValue) = GetMaxSumValueByType(dpsIEnum, _stasticsType);
 
             var progressBarDataList = dpsIEnum
                 .Select(e =>
@@ -139,26 +123,71 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
                     if (!_renderListDict.TryGetValue(e.UID, out var renderContent))
                     {
-                        var profBmp = imgDict.TryGetValue(professionName, out var bmp) ? bmp : imgDict["未知"];
+                        var profBmp = professionName.GetProfessionBitmap();
                         renderContent = BuildNewRenderContent(profBmp);
                         _renderListDict[e.UID] = renderContent;
                     }
 
+                    var value = GetValueByType(e, _stasticsType);
+
                     renderContent[1].Text = $"{playerInfo?.Name}-{professionName}({e.UID})";
-                    renderContent[2].Text = $"{e.TotalAttackDamage.ToCompactString()} ({(e.TotalAttackDamage / Math.Max(1, new TimeSpan(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
-                    renderContent[3].Text = $"{Math.Round(100d * e.TotalAttackDamage / sumValue, 0, MidpointRounding.AwayFromZero)}%";
+                    renderContent[2].Text = $"{value.ToCompactString()} ({(value / Math.Max(1, new TimeSpan(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
+                    renderContent[3].Text = $"{Math.Round(100d * value / sumValue, 0, MidpointRounding.AwayFromZero)}%";
 
                     return new ProgressBarData()
                     {
                         ID = e.UID,
                         ProgressBarColor = GetProfessionColor(playerInfo?.ProfessionID ?? 0),
                         ProgressBarCornerRadius = 3,
-                        ProgressBarValue = 1f * e.TotalAttackDamage / maxValue,
+                        ProgressBarValue = (float)value / maxValue,
                         ContentList = renderContent
                     };
                 }).ToList();
 
             sortedProgressBarList_MainList.Data = progressBarDataList;
+        }
+
+        /// <summary>
+        /// 获取每个统计类别的默认筛选器
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private IEnumerable<DpsData> GetDefaultFilter(IEnumerable<DpsData> list, int type)
+        {
+            return type switch
+            {
+                0 => list.Where(e => !e.IsNpcData && e.TotalAttackDamage != 0),
+                1 => list.Where(e => !e.IsNpcData && e.TotalHeal != 0),
+                2 => list.Where(e => !e.IsNpcData && e.TotalTakenDamage != 0),
+                3 => list.Where(e => e.IsNpcData && e.TotalTakenDamage != 0),
+
+                _ => list
+            };
+        }
+
+        private (long max, long sum) GetMaxSumValueByType(IEnumerable<DpsData> list, int type)
+        {
+            return type switch
+            {
+                0 => (list.Max(e => e.TotalAttackDamage), list.Sum(e => e.TotalAttackDamage)),
+                1 => (list.Max(e => e.TotalHeal), list.Sum(e => e.TotalHeal)),
+                2 or 3 => (list.Max(e => e.TotalTakenDamage), list.Sum(e => e.TotalTakenDamage)),
+                
+                _ => (long.MaxValue, long.MaxValue)
+            };
+        }
+
+        private long GetValueByType(DpsData data, int type) 
+        {
+            return type switch
+            {
+                0 => data.TotalAttackDamage,
+                1 => data.TotalHeal,
+                2 or 3 => data.TotalTakenDamage,
+
+                _ => long.MaxValue
+            };
         }
 
         private List<RenderContent> BuildNewRenderContent(Bitmap professionBmp)
@@ -173,11 +202,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private Color GetProfessionColor(int professionID)
         {
-            var map = Config.IsLight ? colorDict : blackColorDict;
-            var professionName = professionID.GetProfessionNameById();
-            var flag = map.TryGetValue(professionName, out var color);
-            if (flag) return color;
-            return map["未知"];
+            return professionID
+                .GetProfessionNameById()
+                .GetProfessionThemeColor(Config.IsLight);
         }
 
         // # 窗体加载事件：启动抓包
@@ -202,40 +229,45 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         #region 切换显示类型（支持单次/全程伤害） // 折叠：视图标签与切换逻辑
 
-
-        // # 头部标题文本刷新：依据 showTotal & currentIndex
-        private void UpdateHeaderText() // 根据当前模式与索引更新顶部标签文本
+        /// <summary>
+        /// 获取当前统计类型 (伤害 / 治疗 / 承伤 / NPC承伤)
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        private string StasticsTypeToName(int type)
         {
+            return type switch
+            {
+                0 => "伤害",
+                1 => "治疗",
+                2 => "承伤",
+                3 => "NPC承伤",
 
-            if (FormManager.showTotal)
-            {
-                pageHeader_MainHeader.SubText = FormManager.currentIndex switch
-                {
-                    1 => "全程治疗",
-                    2 => "全程承伤",
-                    3 => "全程 · NPC承伤",
-                    _ => "全程伤害"
-                };
-            }
-            else
-            {
-                pageHeader_MainHeader.SubText = FormManager.currentIndex switch
-                {
-                    1 => "当前治疗",
-                    2 => "当前承伤",
-                    3 => "当前 · NPC承伤",
-                    _ => "当前伤害"
-                };
-            }
+                _ => string.Empty
+            };
+        }
+
+        /// <summary>
+        /// 根据当前模式与索引更新顶部标签文本
+        /// </summary>
+        private void UpdateHeaderText()
+        {
+            pageHeader_MainHeader.SubText = $"{(_isShowFullData ? "全程" : "当前")} · {StasticsTypeToName(_stasticsType)}";
         }
 
 
 
-        // 单次/全程切换
+        /// <summary>
+        /// 单次 / 全程切换
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button_SwitchStatisticsMode_Click(object sender, EventArgs e) // 单次/全程切换按钮事件
         {
-            FormManager.showTotal = !FormManager.showTotal; // 取反：在单次与全程之间切换
-            UpdateHeaderText(); // 切换后刷新顶部文本
+            _isShowFullData = !_isShowFullData;
+
+            // 更新标题状态副文本
+            UpdateHeaderText();
         }
         #endregion
 
@@ -246,16 +278,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// <param name="e"></param>
         private void button_RefreshDps_Click(object sender, EventArgs e) // 清空按钮点击：触发清空逻辑
         {
-            // # 清空：触发 HandleClearData（停止图表刷新→清空数据→重置图表）
-            HandleClearData(); // 调用清空处理
+            HandleClearData();
         }
 
 
         // # 设置按钮 → 右键菜单
         private void button_Settings_Click(object sender, EventArgs e) // 设置按钮点击：弹出右键菜单
         {
-
-
             var menulist = new IContextMenuStripItem[] // 构建右键菜单项数组
             {
                 new ContextMenuStripItem("基础设置"){ IconSvg = HandledAssets.Set_Up }, // 一级菜单：基础设置
@@ -263,61 +292,44 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 new ContextMenuStripItem("退出"){ IconSvg = HandledAssets.Quit, }, // 一级菜单：退出
             };
 
-            AntdUI.ContextMenuStrip.open(this, it => // 打开右键菜单并处理点击回调（it 为被点击项）
+            AntdUI.ContextMenuStrip.open(this, it =>
             {
-                // 回调开始
-                // # 菜单点击回调：根据 Text 执行对应动作
-                switch (it.Text) // 分支根据菜单文本
+                // 根据 Text 执行对应动作
+                switch (it.Text)
                 {
-                    // switch 开始
-                    case "基础设置": // 点击“基础设置”
-                        OpenSettingsDialog(); // 打开设置面板
-                        break; // 跳出 switch
-                    case "主窗体": // 点击“主窗体”
-                        if (FormManager.mainForm == null || FormManager.mainForm.IsDisposed) // 若主窗体不存在或已释放
-                        {
-                            FormManager.mainForm = new MainForm(); // 创建主窗体
-                        }
-                        FormManager.mainForm.Show(); // 显示主窗体
-                        break; // 跳出 switch
-                    case "退出": // 点击“退出”
-                        System.Windows.Forms.Application.Exit(); // 结束应用程序
-                        break; // 跳出 switch
-                } // switch 结束
-            }, menulist); // 打开菜单并传入菜单项
+                    case "基础设置":
+                        // 打开设置面板
+                        OpenSettingsDialog();
+                        break;
+
+                    case "主窗体":
+                        FormManager.MainForm.Show();
+                        break;
+
+                    case "退出":
+                        Application.Exit();
+                        break;
+                }
+            }, menulist);
         }
 
         /// <summary>
         /// 打开基础设置面板
         /// </summary>
-        private void OpenSettingsDialog() // 打开基础设置窗体
+        private void OpenSettingsDialog()
         {
-            if (FormManager.settingsForm == null || FormManager.settingsForm.IsDisposed) // 若设置窗体不存在或已释放
-            {
-                FormManager.settingsForm = new SettingsForm(); // 创建设置窗体
-            }
-            FormManager.settingsForm.Show(); // 显示设置窗体（或置顶）
-
+            FormManager.SettingsForm.Show();
         }
 
-        // # 按钮提示气泡（置顶）
-        private void button_AlwaysOnTop_MouseEnter(object sender, EventArgs e) // 鼠标进入置顶按钮时显示提示
+        /// <summary>
+        /// 按钮提示气泡 (置顶)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button_AlwaysOnTop_MouseEnter(object sender, EventArgs e)
         {
-            ToolTip(button_AlwaysOnTop, "置顶窗口"); // 显示“置顶窗口”的气泡提示
-
-
-        }
-
-        // # 通用提示气泡工具
-        private void ToolTip(System.Windows.Forms.Control control, string text) // 通用封装：在指定控件上显示提示文本
-        {
-
-            var tooltip = new TooltipComponent() // 创建 Tooltip 组件实例
-            {
-                Font = new Font("HarmonyOS Sans SC", 8, FontStyle.Regular), // 设置提示文字字体
-                ArrowAlign = AntdUI.TAlign.TL // 设置箭头朝向/对齐方式
-            }; // 对象初始化器结束
-            tooltip.SetTip(control, text); // 在目标控件上显示指定文本提示
+            // 显示 "置顶窗口" 的气泡提示
+            ToolTip(button_AlwaysOnTop, "置顶窗口");
         }
 
         // # 按钮提示气泡（清空）
@@ -332,84 +344,67 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             ToolTip(button_SwitchStatisticsMode, "点击切换：单次统计/全程统"); // 显示切换提示（原文如此，保留）
         }
 
-        // 主题切换
+        /// <summary>
+        /// 主题切换
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DpsStatisticsForm_ForeColorChanged(object sender, EventArgs e)
         {
-            List<Button> buttonList = [button_TotalDamage, button_TotalTreatment, button_AlwaysInjured, button_NpcTakeDamage];
-
             if (Config.IsLight)
             {
-                sortedProgressBarList_MainList.BackColor = ColorTranslator.FromHtml("#F5F5F5");
-                AppConfig.colorText = Color.Black;
-                sortedProgressBarList_MainList.OrderColor = Color.Black;
-                panel_Footer.Back = ColorTranslator.FromHtml("#F5F5F5");
-                panel_ModeBox.Back = ColorTranslator.FromHtml("#F5F5F5");
-
-                button_TotalDamage.Icon = HandledAssets.伤害;
-                button_TotalTreatment.Icon = HandledAssets.治疗;
-                button_AlwaysInjured.Icon = HandledAssets.承伤;
-                button_NpcTakeDamage.Icon = HandledAssets.Npc;
-                Color colorWhite = Color.FromArgb(223, 223, 223);
-                foreach (var item in buttonList)
-                {
-                    item.DefaultBack = Color.FromArgb(247, 247, 247);
-                    if (item.Name == "TotalDamageButton" && FormManager.currentIndex == 0)
-                    {
-                        item.DefaultBack = colorWhite;
-                    }
-                    if (item.Name == "TotalTreatmentButton" && FormManager.currentIndex == 1)
-                    {
-                        item.DefaultBack = colorWhite;
-                    }
-                    if (item.Name == "AlwaysInjuredButton" && FormManager.currentIndex == 2)
-                    {
-                        item.DefaultBack = colorWhite;
-                    }
-                    if (item.Name == "NpcTakeDamageButton" && FormManager.currentIndex == 3)
-                    {
-                        item.DefaultBack = colorWhite;
-                    }
-
-                }
-
+                ChangeToLightTheme();
             }
             else
             {
-                sortedProgressBarList_MainList.BackColor = ColorTranslator.FromHtml("#252527");
-                panel_Footer.Back = ColorTranslator.FromHtml("#252527");
-                panel_ModeBox.Back = ColorTranslator.FromHtml("#252527");
-
-                AppConfig.colorText = Color.White;
-                sortedProgressBarList_MainList.OrderColor = Color.White;
-                button_TotalDamage.Icon = HandledAssets.伤害白色;
-                button_TotalTreatment.Icon = HandledAssets.治疗白色;
-                button_AlwaysInjured.Icon = HandledAssets.承伤白色;
-                button_NpcTakeDamage.Icon = HandledAssets.NpcWhite;
-                Color colorBack = Color.FromArgb(60, 60, 60);
-                foreach (var item in buttonList)
-                {
-                    item.DefaultBack = Color.FromArgb(27, 27, 27);
-                    if (item.Name == "TotalDamageButton" && FormManager.currentIndex == 0)
-                    {
-                        item.DefaultBack = colorBack;
-                    }
-                    if (item.Name == "TotalTreatmentButton" && FormManager.currentIndex == 1)
-                    {
-                        item.DefaultBack = colorBack;
-                    }
-                    if (item.Name == "AlwaysInjuredButton" && FormManager.currentIndex == 2)
-                    {
-                        item.DefaultBack = colorBack;
-                    }
-                    if (item.Name == "NpcTakeDamageButton" && FormManager.currentIndex == 3)
-                    {
-                        item.DefaultBack = colorBack;
-                    }
-
-                }
+                ChangeToDarkTheme();
             }
 
             SetSortedProgressBarListForeColor();
+        }
+
+        private List<Button> _stasticsTypeButtons => [button_TotalDamage, button_TotalTreatment, button_AlwaysInjured, button_NpcTakeDamage];
+        private void ChangeToLightTheme()
+        {
+            AppConfig.colorText = Color.Black;
+
+            sortedProgressBarList_MainList.BackColor = ColorTranslator.FromHtml("#F5F5F5");
+            sortedProgressBarList_MainList.OrderColor = Color.Black;
+
+            panel_Footer.Back = ColorTranslator.FromHtml("#F5F5F5");
+            panel_ModeBox.Back = ColorTranslator.FromHtml("#F5F5F5");
+
+            button_TotalDamage.Icon = HandledAssets.伤害;
+            button_TotalTreatment.Icon = HandledAssets.治疗;
+            button_AlwaysInjured.Icon = HandledAssets.承伤;
+            button_NpcTakeDamage.Icon = HandledAssets.Npc;
+
+            foreach (var item in _stasticsTypeButtons)
+            {
+                item.DefaultBack = Color.FromArgb(247, 247, 247);
+            }
+            _stasticsTypeButtons[_stasticsType].DefaultBack = Color.FromArgb(223, 223, 223);
+        }
+
+        private void ChangeToDarkTheme()
+        {
+            AppConfig.colorText = Color.White;
+            sortedProgressBarList_MainList.BackColor = ColorTranslator.FromHtml("#252527");
+            sortedProgressBarList_MainList.OrderColor = Color.White;
+
+            panel_Footer.Back = ColorTranslator.FromHtml("#252527");
+            panel_ModeBox.Back = ColorTranslator.FromHtml("#252527");
+
+            button_TotalDamage.Icon = HandledAssets.伤害白色;
+            button_TotalTreatment.Icon = HandledAssets.治疗白色;
+            button_AlwaysInjured.Icon = HandledAssets.承伤白色;
+            button_NpcTakeDamage.Icon = HandledAssets.NpcWhite;
+
+            foreach (var item in _stasticsTypeButtons)
+            {
+                item.DefaultBack = Color.FromArgb(27, 27, 27);
+            }
+            _stasticsTypeButtons[_stasticsType].DefaultBack = Color.FromArgb(60, 60, 60);
         }
 
         private void SetSortedProgressBarListForeColor()
@@ -424,7 +419,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
                     foreach (var content in data.ContentList)
                     {
-                        if (content.Type != Control.GDI.RenderContent.ContentType.Text) continue;
+                        if (content.Type != RenderContent.ContentType.Text) continue;
 
                         content.ForeColor = AppConfig.colorText;
                     }
@@ -458,14 +453,18 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void EnsureTopMost()
         {
-            TopMost = false;   // 先关再开，强制触发样式刷新
+            // 先关再开, 强制触发样式刷新
+            TopMost = false;
             TopMost = true;
+
             Activate();
             BringToFront();
-            button_AlwaysOnTop.Toggle = TopMost; // 同步你的按钮状态
+
+            // 同步按钮状态
+            button_AlwaysOnTop.Toggle = TopMost;
         }
 
-        private void button_NpcTakeDamage_Click(object sender, EventArgs e)
+        private void TypeButtons_Click(object sender, EventArgs e)
         {
             Button button = (Button)sender;
             List<Button> buttonList = [button_TotalDamage, button_TotalTreatment, button_AlwaysInjured, button_NpcTakeDamage];
@@ -478,28 +477,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     : Config.IsLight ? Color.FromArgb(247, 247, 247) : Color.FromArgb(27, 27, 27);
             }
 
-            switch (button.Name)
-            {
-                //总伤害
-                case "TotalDamageButton":
-                    FormManager.currentIndex = 0;
-                    break;
-                //总治疗
-                case "TotalTreatmentButton":
-                    FormManager.currentIndex = 1;
-                    break;
-                //总承伤
-                case "AlwaysInjuredButton":
-                    FormManager.currentIndex = 2;
-                    break;
-                //NPC承伤
-                case "NpcTakeDamageButton":
-                    FormManager.currentIndex = 3;
-                    break;
-            }
+            _stasticsType = button.Tag.ToInt();
 
-            UpdateHeaderText(); // 刷新顶部文本
-
+            // 刷新顶部文本
+            UpdateHeaderText();
+            // 刷新表单数据
+            DataStorage_DpsDataUpdated();
         }
 
         private void DpsStatisticsForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -512,14 +495,16 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void button_ThemeSwitch_Click(object sender, EventArgs e)
         {
-            AppConfig.IsLight = !AppConfig.IsLight; // # 状态翻转：明/暗
+            // # 状态翻转：明/暗
+            AppConfig.IsLight = !AppConfig.IsLight;
 
             button_ThemeSwitch.Toggle = !AppConfig.IsLight; // # UI同步：按钮切换状态
 
+            // 通知其他窗口更新主题
             FormGui.SetColorMode(this, AppConfig.IsLight);
-            FormGui.SetColorMode(FormManager.mainForm, AppConfig.IsLight);//设置窗体颜色
-            FormGui.SetColorMode(FormManager.settingsForm, AppConfig.IsLight);//设置窗体颜色
-            FormGui.SetColorMode(FormManager.dpsStatistics, AppConfig.IsLight);//设置窗体颜色
+            FormGui.SetColorMode(FormManager.MainForm, AppConfig.IsLight);
+            FormGui.SetColorMode(FormManager.SettingsForm, AppConfig.IsLight);
+            FormGui.SetColorMode(FormManager.DpsStatistics, AppConfig.IsLight);
         }
     }
 }

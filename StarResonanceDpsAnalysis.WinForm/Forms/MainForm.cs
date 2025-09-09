@@ -75,8 +75,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             FormGui.SetColorMode(this, AppConfig.IsLight);
 
-            FormGui.SetColorMode(FormManager.settingsForm, AppConfig.IsLight);//设置窗体颜色
-            FormGui.SetColorMode(FormManager.dpsStatistics, AppConfig.IsLight);//设置窗体颜色
+            FormGui.SetColorMode(FormManager.SettingsForm, AppConfig.IsLight);//设置窗体颜色
+            FormGui.SetColorMode(FormManager.DpsStatistics, AppConfig.IsLight);//设置窗体颜色
 
             // # 注意：部分窗体可能为 null 或已释放，SetColorMode 内部应做空值与IsDisposed判断方可安全调用
         }

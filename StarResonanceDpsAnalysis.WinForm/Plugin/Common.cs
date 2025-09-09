@@ -535,74 +535,76 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// </summary>
         public static async Task<bool> AddUserDps(BattleSnapshot snapshot)
         {
-            if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
+            throw new NotImplementedException("在 WinForm 项目中的该功能已下架不再使用");
 
-            // 1) 先从快照里找当前 UID
-            if (!snapshot.Players.TryGetValue(AppConfig.Uid, out var sp))
-            {
-                // 快照里没有该玩家，返回 null
-                return false;
-            }
+            //if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
 
-            // 2) 基本信息（全部来自快照，保证与快照一致）
-            string nickName = sp.Nickname;
-            string professional = sp.Profession;
-            int combatPower = sp.CombatPower;
-            var subProfession = sp.SubProfession;
-            // 3) 伤害/治疗汇总（快照）
-            ulong totalDamage = sp.TotalDamage;
+            //// 1) 先从快照里找当前 UID
+            //if (!snapshot.Players.TryGetValue(AppConfig.Uid, out var sp))
+            //{
+            //    // 快照里没有该玩家，返回 null
+            //    return false;
+            //}
 
-            // 4) 实时秒伤 / 暴击率 / 幸运率 / 分伤 / 单次最大（快照优先，若快照未包含则用运行时兜底）
-            var runtime = StatisticData._manager.GetOrCreate(AppConfig.Uid);
+            //// 2) 基本信息（全部来自快照，保证与快照一致）
+            //string nickName = sp.Nickname;
+            //string professional = sp.Profession;
+            //int combatPower = sp.CombatPower;
+            //var subProfession = sp.SubProfession;
+            //// 3) 伤害/治疗汇总（快照）
+            //ulong totalDamage = sp.TotalDamage;
 
-            double instantDps = sp.TotalDps;
+            //// 4) 实时秒伤 / 暴击率 / 幸运率 / 分伤 / 单次最大（快照优先，若快照未包含则用运行时兜底）
+            //var runtime = StatisticData._manager.GetOrCreate(AppConfig.Uid);
 
-            int critRate = sp.CritRate > 0 ? (int)sp.CritRate : (int)runtime.DamageStats.GetCritRate();
-            int luckyRate = sp.LuckyRate > 0 ? (int)sp.LuckyRate : (int)runtime.DamageStats.GetLuckyRate();
+            //double instantDps = sp.TotalDps;
 
-            double criticalDamage = sp.CriticalDamage > 0 ? sp.CriticalDamage : runtime.DamageStats.Critical;
-            double luckyDamage = sp.LuckyDamage > 0 ? sp.LuckyDamage : runtime.DamageStats.Lucky;
-            double critLuckyDamage = sp.CritLuckyDamage > 0 ? sp.CritLuckyDamage : runtime.DamageStats.CritLucky;
+            //int critRate = sp.CritRate > 0 ? (int)sp.CritRate : (int)runtime.DamageStats.GetCritRate();
+            //int luckyRate = sp.LuckyRate > 0 ? (int)sp.LuckyRate : (int)runtime.DamageStats.GetLuckyRate();
 
-            // 你原字段名是 maxInstantDps，但实际含义更像“单发最大命中”
-            double maxInstantDps = sp.MaxSingleHit > 0 ? sp.MaxSingleHit : runtime.DamageStats.MaxSingleHit;
+            //double criticalDamage = sp.CriticalDamage > 0 ? sp.CriticalDamage : runtime.DamageStats.Critical;
+            //double luckyDamage = sp.LuckyDamage > 0 ? sp.LuckyDamage : runtime.DamageStats.Lucky;
+            //double critLuckyDamage = sp.CritLuckyDamage > 0 ? sp.CritLuckyDamage : runtime.DamageStats.CritLucky;
 
-            // 5) 战斗时长（用快照 Duration 按你管理器的格式化规则）
-            string duration = snapshot.Duration.TotalHours >= 1
-                ? snapshot.Duration.ToString(@"hh\:mm\:ss")
-                : snapshot.Duration.ToString(@"mm\:ss");
+            //// 你原字段名是 maxInstantDps，但实际含义更像“单发最大命中”
+            //double maxInstantDps = sp.MaxSingleHit > 0 ? sp.MaxSingleHit : runtime.DamageStats.MaxSingleHit;
+
+            //// 5) 战斗时长（用快照 Duration 按你管理器的格式化规则）
+            //string duration = snapshot.Duration.TotalHours >= 1
+            //    ? snapshot.Duration.ToString(@"hh\:mm\:ss")
+            //    : snapshot.Duration.ToString(@"mm\:ss");
 
 
 
-            // 7) 技能列表（快照里的伤害技能汇总）
-            List<SkillSummary> kill = sp.DamageSkills ?? new List<SkillSummary>();
+            //// 7) 技能列表（快照里的伤害技能汇总）
+            //List<SkillSummary> kill = sp.DamageSkills ?? new List<SkillSummary>();
 
-            // 8) 组装并上报
-            string url = @$"{AppConfig.url}/add_user_dps";
-            var body = new
-            {
-                uid = AppConfig.Uid,
-                nickName,
-                professional,
-                combatPower,
-                instantDps,
-                totalDamage,
-                critRate,
-                luckyRate,
-                criticalDamage,
-                luckyDamage,
-                critLuckyDamage,
-                maxInstantDps,
-                battleTime = duration,
-                battleId = AppConfig.Uid,
-                kill,
-                subProfession
-            };
+            //// 8) 组装并上报
+            //string url = @$"{AppConfig.url}/add_user_dps";
+            //var body = new
+            //{
+            //    uid = AppConfig.Uid,
+            //    nickName,
+            //    professional,
+            //    combatPower,
+            //    instantDps,
+            //    totalDamage,
+            //    critRate,
+            //    luckyRate,
+            //    criticalDamage,
+            //    luckyDamage,
+            //    critLuckyDamage,
+            //    maxInstantDps,
+            //    battleTime = duration,
+            //    battleId = AppConfig.Uid,
+            //    kill,
+            //    subProfession
+            //};
 
-            var resp = await RequestPost(url, body);
-            var code = resp["code"];
+            //var resp = await RequestPost(url, body);
+            //var code = resp["code"];
 
-            return code != null && code.ToString() == "200";
+            //return code != null && code.ToString() == "200";
         }
 
 

@@ -215,8 +215,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         // 清空当前数据的快捷键，null 表示未设置
         private static Keys? _clearDataKey = null;
 
-        // 清空历史数据的快捷键，null 表示未设置
-        private static Keys? _clearHistoryKey = null;
         private static string? _damageDisplayType = null;
 
         /// <summary>
@@ -282,12 +280,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
                 _clearPicture = value;
             }
         }
-
-
-        public static bool NpcsTakeDamage = false;//NPC承伤
-        public static bool PilingMode = false;//打桩模式
-
-        public static string url = "https://api.jx3rec.com";//服务器地址
 
         public static int CombatTimeClearDelaySeconds
         {
@@ -585,28 +577,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             {
                 SetValue("SetKey", "ClearDataKey", ((int)value).ToString());
                 _clearDataKey = value;
-            }
-        }
-
-        /// <summary>
-        /// # 分类：热键 - 清空历史记录
-        /// 默认 F10。用于清除历史快照/历史榜单等更长期的数据。
-        /// </summary>
-        public static Keys ClearHistoryKey
-        {
-            get
-            {
-                if (_clearHistoryKey == null)
-                {
-                    var value = GetValue("SetKey", "ClearHistoryKey", ((int)Keys.F10).ToString()).ToInt();
-                    _clearHistoryKey = value.IntToKeys(Keys.F10);
-                }
-                return _clearHistoryKey.Value;
-            }
-            set
-            {
-                SetValue("SetKey", "ClearHistoryKey", ((int)value).ToString());
-                _clearHistoryKey = value;
             }
         }
 
