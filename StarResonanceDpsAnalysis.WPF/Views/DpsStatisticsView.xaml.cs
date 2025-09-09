@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using StarResonanceDpsAnalysis.WPF.ViewModels;
@@ -20,13 +19,13 @@ public partial class DpsStatisticsView : Window
             new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
     private double _beforePilingHeight;
-    private bool _isFull; // 是否全程显示
 
     public DpsStatisticsView(DpsStatisticsViewModel vm)
     {
         InitializeComponent();
         DataContext = vm;
     }
+
 
     public bool Minimize
     {
@@ -38,36 +37,6 @@ public partial class DpsStatisticsView : Window
     {
         if (e.ButtonState == MouseButtonState.Pressed)
             DragMove();
-    }
-
-    private void SwitchButton_Click(object sender, RoutedEventArgs e)
-    {
-        _isFull = !_isFull;
-    }
-
-
-    private void SetButton_Click(object sender, RoutedEventArgs e)
-    {
-        var btn = (Button)sender;
-        var cm = btn.ContextMenu;
-        if (cm == null) return;
-
-        // 保证 DataContext（如果菜单里有绑定）
-        cm.DataContext = btn.DataContext;
-
-        // 控制弹出位置
-        cm.PlacementTarget = btn;
-        cm.Placement = PlacementMode.Right; // 或 MousePoint / Right / Left / Top
-        cm.HorizontalOffset = 0;
-        cm.VerticalOffset = 0;
-
-        // 打开（可切换）
-        cm.IsOpen = !cm.IsOpen;
-    }
-
-
-    private void RefreshButton_Click(object sender, RoutedEventArgs e)
-    {
     }
 
     private void PullButton_Click(object sender, RoutedEventArgs e)
@@ -174,30 +143,5 @@ public partial class DpsStatisticsView : Window
 
         // 这次点击后变成 false：允许“全不选”，什么也不做
         e.Handled = true;
-    }
-
-    private void ExitButton_Click(object sender, RoutedEventArgs e)
-    {
-        Close();
-    }
-
-    private void RefreshButton_MouseEnter(object sender, MouseEventArgs e)
-    {
-        // 模拟技能数据
-        var skills = new List<DpsStatisticsViewModel.SkillItem>
-        {
-            new() { SkillName = "技能A", TotalDamage = "939.1万", HitCount = 4, CritCount = 121, AvgDamage = 121 },
-            new() { SkillName = "技能B", TotalDamage = "88.6万", HitCount = 8, CritCount = 23, AvgDamage = 11 },
-            new() { SkillName = "技能C", TotalDamage = "123.4万", HitCount = 3, CritCount = 45, AvgDamage = 233 }
-        };
-
-        SkillList.ItemsSource = skills;
-        SkillPopup.IsOpen = true;
-    }
-
-    private void RefreshButton_MouseLeave(object sender, MouseEventArgs e)
-    {
-        SkillList.ItemsSource = null;
-        SkillPopup.IsOpen = false;
     }
 }

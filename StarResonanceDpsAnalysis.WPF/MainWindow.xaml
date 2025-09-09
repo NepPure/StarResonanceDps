@@ -27,6 +27,9 @@
             <Button Command="{Binding Debug.CallDebugWindowCommand}">
                 Test
             </Button>
+            <Button Command="{Binding CallDpsStatisticsViewCommand}">
+                Dps Statistic View
+            </Button>
         </StackPanel>
     </Grid>
 </Window>

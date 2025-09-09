@@ -1,8 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Windows.Controls;
 using System.Windows.Threading;
-using BlueProto;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StarResonanceDpsAnalysis.Core.Extends.System;
@@ -18,9 +16,11 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     private readonly long[] _totals = new long[6]; // 6位玩家示例
 
     [ObservableProperty] private DateTime _battleDuration;
-    [ObservableProperty] private StatisticType _statisticIndex;
     [ObservableProperty] private ScopeTime _scopeTime = ScopeTime.Current;
+    [ObservableProperty] private bool _showSkillListPopup;
     [ObservableProperty] private ObservableCollection<ProgressBarData> _slots = [];
+    [ObservableProperty] private StatisticType _statisticIndex;
+    [ObservableProperty] private bool _showContextMenu;
 
     private DispatcherTimer _timer = null!;
 
@@ -158,6 +158,35 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     {
         // 手动触发一次更新（如果需要）
         throw new NotImplementedException();
+    }
+
+    [ObservableProperty] private List<SkillItem>? _skillList;
+
+    [RelayCommand]
+    private void RefreshButtonMouseEntered()
+    {
+        var skills = new List<SkillItem>
+        {
+            new() { SkillName = "技能A", TotalDamage = "939.1万", HitCount = 4, CritCount = 121, AvgDamage = 121 },
+            new() { SkillName = "技能B", TotalDamage = "88.6万", HitCount = 8, CritCount = 23, AvgDamage = 11 },
+            new() { SkillName = "技能C", TotalDamage = "123.4万", HitCount = 3, CritCount = 45, AvgDamage = 233 }
+        };
+
+        SkillList = skills;
+        ShowSkillListPopup = true;
+    }
+
+    [RelayCommand]
+    private void RefreshButtonMouseLeaved()
+    {
+        SkillList = null;
+        ShowSkillListPopup = false;
+    }
+
+    [RelayCommand]
+    private void OpenContextMenu()
+    {
+        ShowContextMenu = true;
     }
 
     public class SkillItem
