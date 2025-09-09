@@ -39,8 +39,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         {
             InitializeComponent();
 
-            sortedProgressBarList1.AnimationDuration = 1000;
-            sortedProgressBarList1.AnimationQuality = Quality.High;
             sortedProgressBarList1.ProgressBarHeight = 50;
             sortedProgressBarList1.OrderOffset = new RenderContent.ContentOffset { X = 45, Y = 0 };
             sortedProgressBarList1.OrderCallback = (i) => $"{i:d2}";
@@ -173,34 +171,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     });
                 }
                 sortedProgressBarList1.Data = data;
-                return;
-
-                if (numericUpDown1.Value == numericUpDown2.Value && numericUpDown2.Value == -1)
-                {
-                    data.Clear();
-                    sortedProgressBarList1.Data = data;
-                    return;
-                }
-
-                if (numericUpDown1.Value < 0) return;
-
-                var index = data.FindIndex(e => e.ID == (int)numericUpDown1.Value);
-                if (index < 0) return;
-
-                data.RemoveAt(index);
-
-                sortedProgressBarList1.Data = data;
-            };
-
-            sortedProgressBarList1.SelectionChanged += (s, i, d) =>
-            {
-                if (i < 0 || d == null)
-                {
-                    Console.WriteLine("Nothing Clicked.");
-                    return;
-                }
-
-                Console.WriteLine($"ProgressBar Clicked: ID={d.ID}, Index={i}");
             };
         }
 
@@ -232,15 +202,16 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var id = 8900L;
-            var ticks = 638923753650224636;
+            //// 测试功能, 已失效
+            //var id = 8900L;
+            //var ticks = 638923753650224636;
 
-            BattleLogWriter.WriteToFile(Path.Combine(Environment.CurrentDirectory, "Logs"), new() 
-            {
-                FileVersion = LogsFileVersion.V3_0_0,
-                PlayerInfos = [ new PlayerInfo { UID = 123, Name = "惊奇猫猫盒" }, new PlayerInfo { UID = 234, Name = "露詩" } ],
-                BattleLogs = [ new BattleLog { PacketID = id, TimeTicks = ticks, SkillID = 0, AttackerUuid = 123, TargetUuid = 234, Value = 999 } ]
-            });
+            //BattleLogWriter.WriteToFile(Path.Combine(Environment.CurrentDirectory, "Logs"), new() 
+            //{
+            //    FileVersion = LogsFileVersion.V3_0_0,
+            //    PlayerInfos = [ new PlayerInfo { UID = 123, Name = "惊奇猫猫盒" }, new PlayerInfo { UID = 234, Name = "露詩" } ],
+            //    BattleLogs = [ new BattleLog { PacketID = id, TimeTicks = ticks, SkillID = 0, AttackerUuid = 123, TargetUuid = 234, Value = 999 } ]
+            //});
 
             var data = BattleLogReader.ReadFile(Path.Combine(Environment.CurrentDirectory, "Logs", "Logs_2025_09_02_02_02_45_2025_09_02_02_02_45.srlogs"));
         }

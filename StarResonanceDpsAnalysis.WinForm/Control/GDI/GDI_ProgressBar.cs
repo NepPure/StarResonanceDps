@@ -16,6 +16,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Control.GDI
     {
         private static readonly StringFormat _strictStringFormat = StringFormat.GenericTypographic;
         private static readonly Dictionary<(Image img, int w, int h), Bitmap> _scaledImageCache = [];
+        private static readonly Dictionary<Color, SolidBrush> _solidBrushCache = [];
 
         private readonly object _lock = new();
         private Color? _prevProgressBarColor = null;
@@ -43,32 +44,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Control.GDI
                 var barHeight = info.Height - info.Padding.Top - info.Padding.Bottom;
                 if (barWidth >= 1)
                 {
-                    //var diameter = Math.Max(1, Math.Min(info.ProgressBarCornerRadius * 2, Math.Min(barWidth, barHeight)));
-                    //var rect = new RectangleF(0, 0, (float)diameter, (float)diameter);
-
-                    //using var path = new GraphicsPath();
-                    //// 左上角
-                    //rect.X = info.Padding.Left;
-                    //rect.Y = info.Top + info.Padding.Top;
-                    //path.AddArc(rect, 180, 90);
-                    //// 右上角
-                    //rect.X = (float)(info.Padding.Left + (barWidth - diameter));
-                    //path.AddArc(rect, 270, 90);
-                    //// 右下角
-                    //rect.Y = (float)(info.Top + info.Height - info.Padding.Bottom - diameter);
-                    //path.AddArc(rect, 0, 90);
-                    //// 左下角
-                    //rect.X = info.Padding.Left;
-                    //path.AddArc(rect, 90, 90);
-                    //// 闭合图形
-                    //path.CloseFigure();
-
-                    //g.InterpolationMode = InterpolationMode.Default;
-                    //g.SmoothingMode = SmoothingMode.AntiAlias;
-                    //g.PixelOffsetMode = PixelOffsetMode.None;
-
-                    //g.FillPath(_progressBarBrush, path);
-
                     GDI_Base.RenderRoundedCornerRectangle(
                         g,
                         new RectangleF(0, info.Top, barWidth, barHeight),
@@ -112,7 +87,11 @@ namespace StarResonanceDpsAnalysis.WinForm.Control.GDI
             g.TextRenderingHint = TextRenderingHint.AntiAlias;
 
             // 25.08.18: 不能用 TextRenderer.DrawText, 会导致渲染不出内存字体
-            using var sb = new SolidBrush(content.ForeColor);
+            if (!_solidBrushCache.TryGetValue(content.ForeColor, out var sb))
+            {
+                sb = new SolidBrush(content.ForeColor);
+                _solidBrushCache[content.ForeColor] = sb;
+            }
             g.DrawString(content.Text, content.Font, sb, left, top);
         }
 

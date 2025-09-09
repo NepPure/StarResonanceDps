@@ -1120,25 +1120,27 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// </summary>
         private void MarkCombatActivity()
         {
-            var now = DateTime.Now;
-            // —— 新增：如果上一场已超时结束但未清空，则在此刻（新战斗的首个事件）清空上一场 —— 
-            if (_pendingClearOnNextCombat)
-            {
+            throw new NotImplementedException("该功能已不在此处实现, 详情请查看 SRDA.Core.Data.DataStorage");
 
-                // 只清玩家数据与战斗时钟；缓存（昵称/战力/职业）保留
-                ClearAll(false);
-                FormManager.dpsStatistics.HandleClearData(true);
-                _pendingClearOnNextCombat = false;
-            }
+            //var now = DateTime.Now;
+            //// —— 新增：如果上一场已超时结束但未清空，则在此刻（新战斗的首个事件）清空上一场 —— 
+            //if (_pendingClearOnNextCombat)
+            //{
 
-            // 原逻辑：未开始或已结束 => 开新场
-            if (!_combatStart.HasValue || _combatEnd.HasValue)
-            {
-                _combatStart = now;
-                _combatEnd = null;
-            }
+            //    // 只清玩家数据与战斗时钟；缓存（昵称/战力/职业）保留
+            //    ClearAll(false);
+            //    FormManager.DpsStatistics.HandleClearData(true);
+            //    _pendingClearOnNextCombat = false;
+            //}
 
-            _lastCombatActivity = now;
+            //// 原逻辑：未开始或已结束 => 开新场
+            //if (!_combatStart.HasValue || _combatEnd.HasValue)
+            //{
+            //    _combatStart = now;
+            //    _combatEnd = null;
+            //}
+
+            //_lastCombatActivity = now;
         }
 
         /// <summary>
@@ -1532,28 +1534,30 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="keepCombatTime">true=保留战斗时钟；false=同时清除战斗时钟。</param>
         public void ClearAll(bool keepCombatTime = true)
         {
-            bool hadPlayers;
-            lock (_playersLock) { hadPlayers = _players.Count > 0; }
+            throw new NotImplementedException("该功能已不在此处实现, 详情请查看 SRDA.Core.Data.DataStorage");
 
-            if (hadPlayers)
-            {
-                if (_combatStart.HasValue && !_combatEnd.HasValue)
-                    _combatEnd = _lastCombatActivity != DateTime.MinValue ? _lastCombatActivity : DateTime.Now;
+            //bool hadPlayers;
+            //lock (_playersLock) { hadPlayers = _players.Count > 0; }
 
-                // 先保存“当前战斗”的快照（如需把NPC也纳入快照，可在 SaveCurrentBattleSnapshot 内扩展）
-                SaveCurrentBattleSnapshot();
-            }
+            //if (hadPlayers)
+            //{
+            //    if (_combatStart.HasValue && !_combatEnd.HasValue)
+            //        _combatEnd = _lastCombatActivity != DateTime.MinValue ? _lastCombatActivity : DateTime.Now;
 
-            // 清玩家
-            lock (_playersLock) { _players.Clear();}
+            //    // 先保存“当前战斗”的快照（如需把NPC也纳入快照，可在 SaveCurrentBattleSnapshot 内扩展）
+            //    SaveCurrentBattleSnapshot();
+            //}
 
-            // ✅ 清“当前战斗”的 NPC 统计（与玩家同一生命周期）
-            // 假设你把 NpcManager 实例挂在同级位置（例如 PlayerDataManager 外的静态单例）
-            StatisticData._npcManager?.ResetAll();
+            //// 清玩家
+            //lock (_playersLock) { _players.Clear();}
 
-            // UI 清理与战斗时钟复位（保持你原有逻辑）
-            FormManager.dpsStatistics.ListClear();
-            ResetCombatClock();
+            //// ✅ 清“当前战斗”的 NPC 统计（与玩家同一生命周期）
+            //// 假设你把 NpcManager 实例挂在同级位置（例如 PlayerDataManager 外的静态单例）
+            //StatisticData._npcManager?.ResetAll();
+
+            //// UI 清理与战斗时钟复位（保持你原有逻辑）
+            //FormManager.DpsStatistics.ListClear();
+            //ResetCombatClock();
         }
 
         /// <summary>获取所有玩家 UID。</summary>

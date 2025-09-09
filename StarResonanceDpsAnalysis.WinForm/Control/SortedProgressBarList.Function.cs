@@ -7,8 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
-using StarResonanceDpsAnalysis.WinForm.Effects;
-using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
 
 using static StarResonanceDpsAnalysis.WinForm.Control.GDI.RenderContent;
 
@@ -16,37 +14,17 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
 {
     public partial class SortedProgressBarList
     {
-        private static readonly Dictionary<Quality, int> _animationFpsQuality = new()
-        {
-            { Quality.VeryLow, 10 },
-            { Quality.Low, 20 },
-            { Quality.Medium, 30 },
-            { Quality.High, 60 },
-            { Quality.VeryHigh, 120 },
-            { Quality.Extreme, 160 },
-            { Quality.AlmostAccurate, 999 }
-        };
-        private readonly PeriodicTimer _animationPeriodicTimer;
-        private readonly CubicBezier _moveAnimationCubicBezier;
-        private readonly CubicBezier _fadeAnimationCubicBezier;
-
         private readonly object _lock = new();
         private readonly Dictionary<long, GDI_ProgressBar> _gdiProgressBarDict = [];
         private readonly DrawInfo _drawInfo = new();
         private readonly ProgressBarPrivateData _progressBarPrivateData = new();
         private readonly List<RenderContent> _renderContentBuffer = [];
 
-        private Pen? _selectionBorderPen = null;
         private readonly SolidBrush _scrollBarBrush = new(Color.FromArgb(0xB2, 0xB2, 0xB2));
 
-        private readonly Stopwatch _animationWatch = new();
-        private bool _animating = false;
-        private List<long> _prevIdOrder = [];
-        private List<SortAnimatingInfo> _animatingInfoBuffer = [];
+        private List<SortingInfo> _infoBuffer = new(128);
 
-        private CancellationTokenSource? _animationCancellation = null;
-
-        public void Redraw(PaintEventArgs e)
+        public void Redraw(PaintEventArgs e, bool needResort = true)
         {
             if (Width == 0 || Height == 0) return;
 
@@ -56,41 +34,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
 
                 g.Clear(BackColor);
 
-                var aniMs = _animationWatch.ElapsedMilliseconds;
-
-                if (_animating && aniMs > AnimationDuration)
-                {
-                    _animating = false;
-                    // Console.WriteLine($"动画结束");
-                }
-
-                if (!_animating)
-                {
-                    var flag = Resort();
-                    if (flag)
-                    {
-                        _prevIdOrder = [.. _animatingInfoBuffer.Select(e => e.ID)];
-
-                        _animationWatch.Restart();
-
-                        _animating = true;
-                        //Console.WriteLine($"动画启动");
-                    }
-                }
-
-                var staticDraw = aniMs >= AnimationDuration;
+                if (needResort) Resort();
 
                 // 绘制进度条内容
-                foreach (var data in _animatingInfoBuffer)
+                foreach (var data in _infoBuffer)
                 {
                     var outOfHeightIndex = (Height / ProgressBarHeight) + 1;
-                    var fromIndex = data.FromIndex == -1
-                        ? outOfHeightIndex
-                        : data.FromIndex;
-                    var toIndex = data.ToIndex == -1
-                        ? outOfHeightIndex
-                        : data.ToIndex;
-                    var top = 1f * fromIndex * ProgressBarHeight - ScrollOffsetY;
+                    var top = (float)data.Order * ProgressBarHeight - ScrollOffsetY;
 
                     _progressBarPrivateData.OrderAlign = OrderAlign;
                     _progressBarPrivateData.OrderColor = OrderColor;
@@ -98,83 +48,30 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
                     _progressBarPrivateData.OrderOffset = OrderOffset;
                     _progressBarPrivateData.OrderImageAlign = OrderImageAlign;
                     _progressBarPrivateData.OrderImageOffset = OrderImageOffset;
+                    _progressBarPrivateData.OrderString = OrderCallback?.Invoke(data.Order + 1);
 
-                    _progressBarPrivateData.OrderString = OrderCallback == null
+                    _progressBarPrivateData.OrderImage = OrderImages == null || data.Order >= OrderImages.Count
                         ? null
-                        : OrderCallback(data.ToIndex + 1);
+                        : OrderImages[data.Order];
 
-                    _progressBarPrivateData.OrderImage = OrderImages == null || data.ToIndex < 0 || data.ToIndex >= OrderImages.Count
-                        ? null
-                        : OrderImages[data.ToIndex];
                     _progressBarPrivateData.OrderImageRenderSize =
                         _progressBarPrivateData.OrderImage != null && (OrderImageRenderSize.Width == 0 || OrderImageRenderSize.Height == 0)
                         ? _progressBarPrivateData.OrderImage.Size
                         : OrderImageRenderSize;
 
-                    if (data.FromIndex == data.ToIndex || staticDraw)
+                    _progressBarPrivateData.Top = top;
+                    _progressBarPrivateData.Opacity = 255;
+
+                    if (top < -ProgressBarHeight || top > Height)
                     {
-                        _progressBarPrivateData.Top = top;
-                        _progressBarPrivateData.Opacity = 255;
-
-                        if (top < -ProgressBarHeight || top > Height)
-                        {
-                            continue;
-                        }
-
-                        DrawProgressBar(g, data.Data, _progressBarPrivateData);
+                        continue;
                     }
-                    else
-                    {
-                        var timePersent = 1f * aniMs / AnimationDuration;
-                        var moveBezier = _moveAnimationCubicBezier.GetProximateBezierValue(timePersent);
-                        var fadeBezier = _fadeAnimationCubicBezier.GetProximateBezierValue(timePersent);
 
-                        var opacity = byte.MaxValue;
-
-                        if (data.FromIndex == -1)
-                        {
-                            opacity = (byte)(opacity * fadeBezier);
-                        }
-                        else if (data.ToIndex == -1)
-                        {
-                            opacity = (byte)(255 - opacity * fadeBezier);
-                        }
-
-                        top += ProgressBarHeight * (toIndex - fromIndex) * moveBezier;
-
-                        _progressBarPrivateData.Top = top;
-                        _progressBarPrivateData.Opacity = opacity;
-
-                        if (top < -ProgressBarHeight || top > Height)
-                        {
-                            continue;
-                        }
-
-                        DrawProgressBar(g, data.Data, _progressBarPrivateData);
-                    }
-                }
-
-                // 绘制选取框
-                if (_selectedIndex != null)
-                {
-                    var borderWidth = 2;
-                    var halfWidth = borderWidth / 2;
-                    var top = _selectedIndex.Value * ProgressBarHeight - ScrollOffsetY + halfWidth;
-                    if (top > -ProgressBarHeight && top < Height)
-                    {
-
-                        _selectionBorderPen ??= new Pen(_seletedItemColor, borderWidth);
-
-                        g.InterpolationMode = InterpolationMode.Low;
-                        g.SmoothingMode = SmoothingMode.HighSpeed;
-                        g.PixelOffsetMode = PixelOffsetMode.None;
-
-                        g.DrawRectangle(_selectionBorderPen, halfWidth, top, Width - borderWidth - ScrollBarWidth, ProgressBarHeight - halfWidth);
-                    }
+                    DrawProgressBar(g, data.Data, _progressBarPrivateData);
                 }
 
                 // 绘制滚动条
-                var totalHeight = Padding.Top + Padding.Bottom + _animatingInfoBuffer.Count * ProgressBarHeight;
+                var totalHeight = Padding.Top + Padding.Bottom + _infoBuffer.Count * ProgressBarHeight;
                 var scrollBarSizePersent = Math.Min(1f * Height / totalHeight, 1);
                 var offsetYPersent = (1f - scrollBarSizePersent) * ScrollOffsetY / (totalHeight - Height);
 
@@ -192,94 +89,44 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
             }
         }
 
-        private bool Resort()
+        private void Resort()
         {
-            var result = false;
-
-            // 已经经过消失动画的, 移除
-            var removeCount = _animatingInfoBuffer.RemoveAll(a => a.ToIndex == -1);
-            if (removeCount > 0)
-            {
-                // 记录有变更
-                result = true;
-            }
-
-            // 更新ToIndex
-            for (var i = 0; i < _animatingInfoBuffer.Count; ++i)
-            {
-                var info = _animatingInfoBuffer[i];
-                info.FromIndex = info.ToIndex;
-
-                // 如果数据已经不存在, 则动画消失
-                if (!_dataDict.ContainsKey(info.ID))
-                {
-                    info.ToIndex = -1;
-
-                    // 记录有变更
-                    result = true;
-                }
-
-                _animatingInfoBuffer[i] = info;
-            }
+            // 移除不存在的渲染项
+            _infoBuffer.RemoveAll(info => !_dataDict.ContainsKey(info.ID));
 
             foreach (var data in _dataDict)
             {
-                // 如果新增数据, 则动画出现
-                if (!_animatingInfoBuffer.Any(e => e.ID == data.Key))
+                // 添加新增数据
+                if (!ContainsId(_infoBuffer, data.Key))
                 {
-                    _animatingInfoBuffer.Add(new SortAnimatingInfo
+                    _infoBuffer.Add(new SortingInfo
                     {
                         ID = data.Key,
-                        FromIndex = -1,
-                        ToIndex = 0,
+                        Order = -1,
                         Data = data.Value
                     });
-
-                    // 记录有变更
-                    result = true;
                 }
             }
 
-            var tmpIndex = 0;
-            _animatingInfoBuffer = [.. _animatingInfoBuffer
-                .OrderByDescending(e => e.Data.ProgressBarValue)
-                .Select(e =>
-                {
-                    if (e.ToIndex == -1) return e;
+            _infoBuffer.Sort((a, b) => b.Data.ProgressBarValue.CompareTo(a.Data.ProgressBarValue));
 
-                    e.ToIndex = tmpIndex++;
-                    e.Data = _dataDict[e.ID];
-                    return e;
-                })];
-
-            return result || CompareOrder();
-        }
-        private bool CompareOrder()
-        {
-            if (_animatingInfoBuffer.Count != _prevIdOrder.Count) return true;
-
-            for (var i = 0; i < _prevIdOrder.Count; ++i)
+            // 重新排序, 并更新 Order
+            for (var i = 0; i < _infoBuffer.Count; ++i) 
             {
-                if (_animatingInfoBuffer[i].ID != _prevIdOrder[i]) return true;
+                var info = _infoBuffer[i];
+                info.Order = i;
+                info.Data = _dataDict[info.ID];
+                _infoBuffer[i] = info;
             }
+        }
 
+        private bool ContainsId(List<SortingInfo> list, long id)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i].ID == id) return true;
+            }
             return false;
-        }
-
-        private void InitAnimation()
-        {
-            _animationCancellation?.Cancel();
-            _animationCancellation = new CancellationTokenSource();
-
-            Task.Run(async () =>
-            {
-                // TODO: 最需要优化的地方
-
-                while (await _animationPeriodicTimer.WaitForNextTickAsync(_animationCancellation.Token).ConfigureAwait(false))
-                {
-                    Invalidate();
-                }
-            });
         }
 
         private void DrawProgressBar(Graphics g, ProgressBarData data, ProgressBarPrivateData privateData)
@@ -362,11 +209,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
             public Size OrderImageRenderSize { get; set; } = new Size(0, 0);
         }
 
-        private struct SortAnimatingInfo
+        private struct SortingInfo
         {
             public long ID { get; set; }
-            public int FromIndex { get; set; }
-            public int ToIndex { get; set; }
+            public int Order { get; set; }
             public ProgressBarData Data { get; set; }
         }
     }

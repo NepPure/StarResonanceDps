@@ -10,34 +10,32 @@ using AntdUI;
 using SharpPcap;
 using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.Core.Analyze;
+using StarResonanceDpsAnalysis.Core.Analyze.Exceptions;
 using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Extends.System;
-using StarResonanceDpsAnalysis.WinForm.Control;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 using StarResonanceDpsAnalysis.WinForm.Core;
-using StarResonanceDpsAnalysis.WinForm.Effects;
-using StarResonanceDpsAnalysis.WinForm.Effects.Enum;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
-using StarResonanceDpsAnalysis.WinForm.Plugin.LaunchFunction;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class DpsStatisticsForm
     {
-        // # 导航
-        // # 本文件主要职责：
-        // #   1) 启动/停止网络抓包的生命周期管理（StartCapture/StopCapture）。
-        // #   2) 清空/重置统计数据与图表（HandleClearData/ListClear）。
-        // #   3) 初始化用户与控件样式（InitTableColumnsConfigAtFirstRun/SetStyle）。
-        // #   4) 处理数据包到达事件，将原始数据交给 PacketAnalyzer（Device_OnPacketArrival）。
-        // #   5) 构建并刷新 DPS/治疗/承伤的 UI 列表（RefreshDpsTable/BuildUiRows）。
-        // # 事件分类索引：
-        // #   * [启动与初始化事件] InitTableColumnsConfigAtFirstRun / LoadNetworkDevices / SetStyle
-        // #   * [抓包事件] StartCapture / StopCapture / Device_OnPacketArrival
-        // #   * [清理与复位事件] HandleClearData / ListClear
-        // #   * [UI 刷新事件] RefreshDpsTable / BuildUiRows
-        // #   * [线程安全与状态] _dataLock / _isClearing / IsCaptureStarted / SelectedDevice
+        private bool _isShowFullData = false;
+        private int _stasticsType = 0;
+
+        private void SetDefaultFontFromResources()
+        {
+            pageHeader_MainHeader.Font = AppConfig.SaoFont;
+            pageHeader_MainHeader.SubFont = AppConfig.ContentFont;
+            label_CurrentDps.Font = label_CurrentOrder.Font = AppConfig.ContentFont;
+
+            button_TotalDamage.Font = AppConfig.BoldHarmonyFont;
+            button_TotalTreatment.Font = AppConfig.BoldHarmonyFont;
+            button_AlwaysInjured.Font = AppConfig.BoldHarmonyFont;
+            button_NpcTakeDamage.Font = AppConfig.BoldHarmonyFont;
+        }
 
         #region 加载 网卡 启动设备/初始化 统计数据/ 启动 抓包/停止抓包/清空数据/ 关闭 事件
         private void InitTableColumnsConfigAtFirstRun()
@@ -50,21 +48,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 AppConfig.Uid = AppConfig.GetValue("UserConfig", "Uid", "0").ToInt64();
                 AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知");
                 AppConfig.CombatPower = AppConfig.GetValue("UserConfig", "CombatPower", "0").ToInt();
-
-                // 写入本地统计缓存（用于 UI 初始显示）
-                StatisticData._manager.SetNickname(AppConfig.Uid, AppConfig.NickName);
-                StatisticData._manager.SetProfession(AppConfig.Uid, AppConfig.Profession);
-                StatisticData._manager.SetCombatPower(AppConfig.Uid, AppConfig.CombatPower);
-
-                if (AppConfig.Uid != 0)
-                {
-
-                    // 回填完成后按当前视图刷新（避免依赖后续抓包）
-                    RequestActiveViewRefresh();
-                }
-
-                SortedProgressBarStatic = this.sortedProgressBarList_MainList; // # 关键：这里绑定实例
-                return;
             }
         }
 
@@ -81,29 +64,141 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// <summary>
         /// 启动时加载网卡设备
         /// </summary>
-        public void LoadNetworkDevices()
+        private void LoadNetworkDevices()
         {
-            // # 启动与初始化事件：应用启动阶段加载网络设备列表，依据配置选择默认网卡
+            // 启动与初始化事件：应用启动阶段加载网络设备列表，依据配置选择默认网卡
             Console.WriteLine("应用程序启动时加载网卡...");
 
             if (AppConfig.NetworkCard >= 0)
             {
-                var devices = CaptureDeviceList.Instance; // # 设备列表：SharpPcap 提供
+                // 设备列表：SharpPcap 提供
+                var devices = CaptureDeviceList.Instance; 
                 if (AppConfig.NetworkCard < devices.Count)
                 {
-                    SelectedDevice = devices[AppConfig.NetworkCard]; // # 根据索引选择设备
+                    // 根据索引选择设备
+                    SelectedDevice = devices[AppConfig.NetworkCard]; 
                     Console.WriteLine($"启动时已选择网卡: {SelectedDevice.Description} (索引: {AppConfig.NetworkCard})");
                 }
             }
             else
             {
-                // 未设置时弹出设置窗口，引导用户选择
-                if (FormManager.settingsForm == null || FormManager.settingsForm.IsDisposed)
-                {
-                    FormManager.settingsForm = new SettingsForm();
-                }
-                FormManager.settingsForm.LoadDevices(); // # 设置窗体：填充设备列表
+                // 设置窗体：填充设备列表
+                FormManager.SettingsForm.LoadDevices();
             }
+        }
+
+        /// <summary>
+        /// 读取用户缓存
+        /// </summary>
+        private void LoadPlayerCache()
+        {
+            try
+            {
+                DataStorage.LoadPlayerInfoToFile();
+            }
+            catch (FileNotFoundException)
+            {
+                // 没有缓存
+            }
+            catch (DataTamperedException)
+            {
+                FormGui.Modal(this, "用户缓存错误", "用户缓存被篡改，或文件损坏。为软件正常运行，将清空用户缓存。");
+
+                DataStorage.ClearAllPlayerInfos();
+                DataStorage.SavePlayerInfoToFile();
+            }
+        }
+
+        /// <summary>
+        /// 软件开启后读取技能列表
+        /// </summary>
+        private void LoadFromEmbeddedSkillConfig()
+        {
+            // 1) 先用 int 键的表（已经解析过字符串）
+            foreach (var kv in EmbeddedSkillConfig.AllByInt)
+            {
+                var id = (long)kv.Key;
+                var def = kv.Value;
+
+                // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
+                // 这里用的是整条更新（SetOrUpdate），如果该技能 ID 已存在则覆盖，不存在则添加
+                SkillBook.SetOrUpdate(new SkillMeta
+                {
+                    Id = id,                         // 技能 ID（唯一标识一个技能）
+                    Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
+                                                     //School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
+                                                     //Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
+                                                     // Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
+                });
+
+
+            }
+
+            // 2) 有些 ID 可能超出 int 或不在 AllByInt，可以再兜底遍历字符串键
+            foreach (var kv in EmbeddedSkillConfig.AllByString)
+            {
+                if (kv.Key.TryToInt64(out var id))
+                {
+                    // 如果 int 表已覆盖，这里会覆盖同名；没关系，等价
+                    var def = kv.Value;
+                    // 将一条技能元数据（SkillMeta）写入 SkillBook 的全局字典中
+                    // 这里用的是整条更新（SetOrUpdate），如果该技能 ID 已存在则覆盖，不存在则添加
+                    SkillBook.SetOrUpdate(new SkillMeta
+                    {
+                        Id = id,                         // 技能 ID（唯一标识一个技能）
+                        Name = def.Name,                 // 技能名称（字符串，例如 "火球术"）
+                        //School = def.Element.ToString(), // 技能所属元素或流派（枚举转字符串）
+                        //Type = def.Type,                 // 技能类型（Damage/Heal/其他）——用于区分伤害技能和治疗技能
+                        //Element = def.Element            // 技能元素类型（枚举，例如 火/冰/雷）
+                    });
+
+                }
+            }
+
+            // MonsterNameResolver.Initialize(AppConfig.MonsterNames);//初始化怪物ID与名称的映射关系
+
+
+
+            // 你也可以在这里写日志：加载了多少条技能
+            // Console.WriteLine($"SkillBook loaded {EmbeddedSkillConfig.AllByInt.Count} + {EmbeddedSkillConfig.AllByString.Count} entries.");
+        }
+
+        public void SetStyle()
+        {
+            // # 启动与初始化事件：界面样式与渲染设置（仅 UI 外观，不涉及数据）
+            // ======= 单个进度条（textProgressBar1）的外观设置 =======
+            sortedProgressBarList_MainList.OrderImageOffset = new RenderContent.ContentOffset { X = 6, Y = 0 };
+            sortedProgressBarList_MainList.OrderImageRenderSize = new Size(22, 22);
+            sortedProgressBarList_MainList.OrderOffset = new RenderContent.ContentOffset { X = 32, Y = 0 };
+            sortedProgressBarList_MainList.OrderCallback = (i) => $"{i:d2}.";
+            sortedProgressBarList_MainList.OrderImages = [HandledAssets.皇冠];
+
+
+            sortedProgressBarList_MainList.OrderColor =
+                Config.IsLight ? Color.Black : Color.White;
+
+            sortedProgressBarList_MainList.OrderFont = AppConfig.SaoFont;
+
+            // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
+            sortedProgressBarList_MainList.ProgressBarHeight = AppConfig.ProgressBarHeight;  // 每行高度
+        }
+
+        /// <summary>
+        /// 通用提示气泡
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="text"></param>
+        /// <remarks>
+        /// 通用封装：在指定控件上显示提示文本
+        /// </remarks>
+        private void ToolTip(System.Windows.Forms.Control control, string text)
+        {
+            var tooltip = new TooltipComponent()
+            {
+                Font = HandledAssets.HarmonyOS_Sans(8),
+                ArrowAlign = TAlign.TL
+            };
+            tooltip.SetTip(control, text);
         }
 
         /// <summary>
@@ -178,910 +273,29 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             Console.WriteLine("开始抓包...");
         }
 
-        /// <summary>
-        /// 停止抓包
-        /// </summary>
-        public void StopCapture()
-        {
-            // # 抓包事件：用户点击“停止”或程序退出前触发
-            // # 步骤 1：先停止所有图表的自动刷新，防止在停止抓包后继续更新数据
-            ChartVisualizationService.StopAllChartsAutoRefresh();
-
-            // 在停止抓包时，通知图表服务战斗结束，确保显示最终的0值状态
-            ChartVisualizationService.OnCombatEnd();
-
-            if (SelectedDevice != null)
-            {
-                try
-                {
-                    // # 步骤 2：解绑事件，避免回调访问已释放对象
-                    SelectedDevice.OnPacketArrival -= Device_OnPacketArrival;
-
-                    // # 步骤 3：停止抓包（内部通常是异步）
-                    SelectedDevice.StopCapture();
-
-                    // # 步骤 4：等待后台捕获线程真正退出（简单轮询，最多 ~1s）
-                    for (int i = 0; i < 100; i++)
-                    {
-                        if (!(SelectedDevice.Started)) break;
-                        System.Threading.Thread.Sleep(10);
-                    }
-
-                    // # 步骤 5：关闭并释放句柄（Dispose 很关键）
-                    SelectedDevice.Close();
-                    SelectedDevice.Dispose();
-                    Console.WriteLine("停止抓包");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"停止抓包异常: {ex}");
-                }
-                finally
-                {
-                    SelectedDevice = null;
-                }
-            }
-
-            // # 步骤 6：状态复位与解析状态清空
-            IsCaptureStarted = false;
-
-            // 清空解析/重组状态
-            PacketAnalyzer.ResetCaptureState();
-
-            // # 步骤 7：更新 UI 上的网卡设置提示
-            StartupInitializer.RefreshNetworkCardSettingTip();
-        }
-
-        #region HandleClearData() 响应清空数据
-
-        public void HandleClearData(bool ClearPicture = false)
-        {
-            // # 清理与复位事件：用户点击“清空”时触发（不影响抓包的开启/关闭状态）
-            // 先停止所有图表的自动刷新
-            ChartVisualizationService.StopAllChartsAutoRefresh();
-
-            // 在清空数据前，通知图表服务战斗结束
-            ChartVisualizationService.OnCombatEnd();
-            if (FormManager.showTotal && !ClearPicture)
-            {
-                FullRecord.Reset(false);//全程统计数据清空
-                // 同步清理“全程曲线”历史，确保时间轴从 0 重新开始
-                ChartVisualizationService.ClearFullHistory();
-            }
-
-            ListClear();
-
-            // 仅清空当次曲线历史，保留全程曲线（满足“全程伤害从伤害开始记录到F9刷新”）
-            ChartVisualizationService.ClearCurrentHistory();
-
-            // 如果当前正在抓包，重新启动图表自动刷新（继续后台采样）
-            if (IsCaptureStarted)
-            {
-                ChartVisualizationService.StartAllChartsAutoRefresh(1000);
-            }
-        }
-        private readonly object _dataLock = new();
-        private int _isClearing = 0; // 0: 正常，1: 清空中
-        public void ListClear()
-        {
-            // # 清理与复位事件：清空 UI 进度条列表与缓存（线程安全）
-            if (Interlocked.Exchange(ref _isClearing, 1) == 1) return; // 已在清空中
-
-            StatisticData._manager.ClearAll();
-            SkillTableDatas.SkillTable.Clear();
-            label_CurrentOrder.Text = $"";
-            label_CurrentDps.Text = $"";
-            try
-            {
-                lock (_dataLock)
-                {
-                    // # 清空在内存中的数据模型
-                    DictList.Clear();
-                    list.Clear();
-                    userRenderContent.Clear();
-
-                    // 通知数据处理器标记新阶段
-                    DataStorage.ClearDpsData();
-                }
-            }
-            finally
-            {
-                // # 退出清空状态
-                Volatile.Write(ref _isClearing, 0);
-            }
-        }
-
-        #endregion
         #endregion
         #endregion
 
-
-        public void SetStyle()
+        private void HandleMouseThrough()
         {
-            // # 启动与初始化事件：界面样式与渲染设置（仅 UI 外观，不涉及数据）
-            // ======= 单个进度条（textProgressBar1）的外观设置 =======
-            sortedProgressBarList_MainList.OrderImageOffset = new RenderContent.ContentOffset { X = 6, Y = 0 };
-            sortedProgressBarList_MainList.OrderImageRenderSize = new Size(22, 22);
-            sortedProgressBarList_MainList.OrderOffset = new RenderContent.ContentOffset { X = 32, Y = 0 };
-            sortedProgressBarList_MainList.OrderCallback = (i) => $"{i:d2}.";
-            sortedProgressBarList_MainList.OrderImages = [HandledAssets.皇冠];
-
-
-            if (Config.IsLight)
+            if (!MousePenetrationHelper.IsPenetrating(this.Handle))
             {
-                sortedProgressBarList_MainList.OrderColor = Color.Black;
+                // 方案 O：AppConfig.Transparency 现在表示“不透明度百分比”
+                MousePenetrationHelper.SetMousePenetrate(this, enable: true, opacityPercent: AppConfig.Transparency);
             }
             else
             {
-                sortedProgressBarList_MainList.OrderColor = Color.White;
+                MousePenetrationHelper.SetMousePenetrate(this, enable: false);
             }
-
-            sortedProgressBarList_MainList.OrderFont = AppConfig.SaoFont;
-
-            // ======= 进度条列表（sortedProgressBarList1）的初始化与外观 =======
-            sortedProgressBarList_MainList.ProgressBarHeight = AppConfig.ProgressBarHeight;  // 每行高度
-            sortedProgressBarList_MainList.AnimationDuration = 1000; // 动画时长（毫秒）
-            sortedProgressBarList_MainList.AnimationQuality = Quality.Low; // 动画品质（你项目里的枚举）
-            //sortedProgressBarList1.OrderImages =
-            //[
-            //    (Bitmap)HandledAssets.皇冠,
-            //                (Bitmap)HandledAssets.皇冠白
-            //];
         }
 
-        // 当前是否停留在“NPC 攻击者榜”详情
-        private volatile bool _npcDetailMode = false;
-        // 详情里正在查看的 NPC Id
-        private long _npcFocusId = 0;
-
-        /// <summary>
-        /// 实例化 SortedProgressBarList 控件
-        /// </summary>
-        public static SortedProgressBarList? SortedProgressBarStatic { get; private set; }
-
-        /// <summary>
-        /// 用户战斗数据字典
-        /// </summary>
-        readonly static Dictionary<long, List<RenderContent>> DictList = new Dictionary<long, List<RenderContent>>();
-
-        /// <summary>
-        /// 用户战斗数据更新事件
-        /// </summary>
-        static List<ProgressBarData> list = new List<ProgressBarData>();
-
-        /// <summary>
-        /// 用户在底下显示自己的信息
-        /// </summary>
-        static List<RenderContent> userRenderContent = new List<RenderContent>();
-
-        //白窗体
-        Dictionary<string, Color> colorDict = new Dictionary<string, Color>()
+        private void HandleClearData() 
         {
-            { "未知", ColorTranslator.FromHtml("#67AEF6") },
-
-            { "神射手", ColorTranslator.FromHtml("#fffca3") }, //
-            { "冰魔导师", ColorTranslator.FromHtml("#aaa6ff") }, // 
-            { "巨刃守护者", ColorTranslator.FromHtml("#8ee392") }, // 
-            { "雷影剑士", ColorTranslator.FromHtml("#b8a3ff") }, // 
-            { "灵魂乐手", ColorTranslator.FromHtml("#ff5353") }, // 
-            { "青岚骑士", ColorTranslator.FromHtml("#abfaff") }, // 
-            { "森语者", ColorTranslator.FromHtml("#78ff95") }, // 
-            { "神盾骑士", ColorTranslator.FromHtml("#bfe6ff") }, // 
-            { "射线", ColorTranslator.FromHtml("#fffca3") },
-            { "协奏", ColorTranslator.FromHtml("#ff5353") },
-            { "愈合", ColorTranslator.FromHtml("#78ff95") },
-            { "惩戒", ColorTranslator.FromHtml("#78ff95") },
-            { "狂音", ColorTranslator.FromHtml("#ff5353") },
-            { "冰矛", ColorTranslator.FromHtml("#aaa6ff") },
-            { "居合", ColorTranslator.FromHtml("#b8a3ff") },
-            { "月刃", ColorTranslator.FromHtml("#b8a3ff") },
-            { "鹰弓", ColorTranslator.FromHtml("#fffca3") },
-            { "狼弓", ColorTranslator.FromHtml("#fffca3") },
-            { "空枪", ColorTranslator.FromHtml("#abfaff") },
-            { "重装", ColorTranslator.FromHtml("#abfaff") },
-            { "防盾", ColorTranslator.FromHtml("#bfe6ff") },
-            { "光盾", ColorTranslator.FromHtml("#bfe6ff") },
-            { "岩盾", ColorTranslator.FromHtml("#8ee392") },
-            { "格挡", ColorTranslator.FromHtml("#8ee392") },
-
-        };
-
-        // 黑窗体
-        Dictionary<string, Color> blackColorDict = new Dictionary<string, Color>()
-        {
-            { "未知", ColorTranslator.FromHtml("#67AEF6") },
-
-            { "神射手", ColorTranslator.FromHtml("#8e8b47") }, //
-            { "冰魔导师", ColorTranslator.FromHtml("#79779c") }, // 
-            { "巨刃守护者", ColorTranslator.FromHtml("#537758") }, // 
-            { "雷影剑士", ColorTranslator.FromHtml("#70629c") }, // 
-            { "灵魂乐手", ColorTranslator.FromHtml("#9c5353") }, // 
-            { "青岚骑士", ColorTranslator.FromHtml("#799a9c") }, // 
-            { "森语者", ColorTranslator.FromHtml("#639c70") }, // 
-            { "神盾骑士", ColorTranslator.FromHtml("#9c9b75") }, // 
-            { "射线", ColorTranslator.FromHtml("#8e8b47") },
-            { "协奏", ColorTranslator.FromHtml("#9c5353") },
-            { "愈合", ColorTranslator.FromHtml("#639c70") },
-            { "惩戒", ColorTranslator.FromHtml("#639c70") },
-            { "狂音", ColorTranslator.FromHtml("#9c5353") },
-            { "冰矛", ColorTranslator.FromHtml("#79779c") },
-            { "居合", ColorTranslator.FromHtml("#70629c") },
-            { "月刃", ColorTranslator.FromHtml("#70629c") },
-            { "鹰弓", ColorTranslator.FromHtml("#8e8b47") },
-            { "狼弓", ColorTranslator.FromHtml("#8e8b47") },
-            { "空枪", ColorTranslator.FromHtml("#799a9c") },
-            { "重装", ColorTranslator.FromHtml("#799a9c") },
-            { "防盾", ColorTranslator.FromHtml("#9c9b75") },
-            { "光盾", ColorTranslator.FromHtml("#9c9b75") },
-            { "岩盾", ColorTranslator.FromHtml("#537758") },
-            { "格挡", ColorTranslator.FromHtml("#537758") },
-        };
-
-        private static readonly Dictionary<(int w, int h), Bitmap> _emptyBitmapCache = [];
-        internal static Bitmap EmptyBitmap(int w = 1, int h = 1)
-        {
-            if (_emptyBitmapCache.TryGetValue((w, h), out var bm)) return bm;
-
-            bm = new Bitmap(w, h, PixelFormat.Format32bppArgb);
-            using (var g = Graphics.FromImage(bm)) g.Clear(Color.Transparent);
-            _emptyBitmapCache[(w, h)] = bm;
-            return bm;
+            DataStorage.ClearDpsData();
         }
-        public static Dictionary<string, Bitmap> imgDict = new Dictionary<string, Bitmap>()
-        {
-            { "未知", EmptyBitmap() },
-
-            { "冰魔导师", (Bitmap)HandledAssets.冰魔导师 },
-            { "巨刃守护者", (Bitmap)HandledAssets.巨刃守护者 },
-            { "森语者", (Bitmap)HandledAssets.森语者 },
-            { "灵魂乐手", (Bitmap)HandledAssets.灵魂乐手 },
-            { "神射手", (Bitmap)HandledAssets.神射手 },
-            { "雷影剑士", (Bitmap)HandledAssets.雷影剑士 },
-            { "青岚骑士", (Bitmap)HandledAssets.青岚骑士 },
-            { "神盾骑士", (Bitmap)HandledAssets.神盾骑士 },
-
-            { "射线",  (Bitmap)HandledAssets.冰魔导师 },
-            { "冰矛",  (Bitmap)HandledAssets.冰魔导师 },
-
-            { "协奏",  (Bitmap)HandledAssets.灵魂乐手 },
-            { "狂音",  (Bitmap)HandledAssets.灵魂乐手 },
-
-            { "居合",  (Bitmap)HandledAssets.雷影剑士 },
-            { "月刃",  (Bitmap)HandledAssets.雷影剑士 },
-
-            { "鹰弓",  (Bitmap)HandledAssets.神射手 },
-            { "狼弓",  (Bitmap)HandledAssets.神射手 },
-
-            { "空枪",  (Bitmap)HandledAssets.青岚骑士 },
-            { "重装",  (Bitmap)HandledAssets.青岚骑士 },
-
-            { "防盾",  (Bitmap)HandledAssets.神盾骑士 },
-            { "光盾",  (Bitmap)HandledAssets.神盾骑士 },
-
-            { "岩盾",  (Bitmap)HandledAssets.巨刃守护者 },
-            { "格挡",  (Bitmap)HandledAssets.巨刃守护者 },
-
-            { "愈合",  (Bitmap)HandledAssets.森语者 },
-            { "惩戒",  (Bitmap)HandledAssets.森语者 },
-
-        };
-
-
 
         public enum SourceType { Current, FullRecord }
         public enum MetricType { Damage, Healing, Taken, NpcTaken }
-
-        // 提供一个静态入口，供回填后请求一次按当前视图刷新
-        public static void RequestActiveViewRefresh()
-        {
-            try
-            {
-                var form = FormManager.dpsStatistics;
-                if (form == null || form.IsDisposed) return;
-                var source = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
-                var metric = FormManager.currentIndex switch
-                {
-                    1 => MetricType.Healing,
-                    2 => MetricType.Taken,
-                    3 => MetricType.NpcTaken,   // ★
-
-                    _ => MetricType.Damage
-                };
-                if (form.InvokeRequired)
-                    form.BeginInvoke(() => form.RefreshDpsTable(source, metric));
-                else
-                    form.RefreshDpsTable(source, metric);
-            }
-            catch { }
-        }
-        // NPC总览行：一个NPC一行
-        private class NpcRow
-        {
-            public long NpcId;
-            public string? Name;
-            public ulong TotalTaken;
-            public double TakenPerSec;
-        }
-        // 对某个NPC的攻击者行（仍然是玩家行，样式复用）
-        private class NpcAttackerRow
-        {
-            public long Uid;
-            public string? Nickname;
-            public int CombatPower;
-            public string? Profession;
-            public string? SubProfession;
-            public ulong DamageToNpc;
-            public double PlayerDps;   // 玩家全程DPS（信息项）
-            public double NpcOnlyDps;  // 该玩家对这个NPC的专属DPS（进度条主要依据）
-        }
-
-        private class UiRow
-        {
-            public long Uid;
-            public string? Nickname;
-            public int CombatPower;
-            public string? Profession;
-            public ulong Total;
-            public double PerSecond;
-            public string? SubProfession;
-        }
-
-        public void RefreshDpsTable(SourceType source, MetricType metric)
-        {
-            // # UI 刷新事件：根据指定数据源（单次/全程）与指标（伤害/治疗/承伤）对进度条列表进行重建与绑定
-            if (Interlocked.CompareExchange(ref _isClearing, 0, 0) == 1) return;
-            // —— 闸门 #1：开始前校验当前可见视图是否匹配 ——
-            var visible = FormManager.showTotal ? SourceType.FullRecord : SourceType.Current;
-            if (source != visible) return;
-
-            var uiList = BuildUiRows(source, metric)
-                .Where(r => (r?.Total ?? 0) > 0)   // 过滤 0 值（伤害/治疗/承伤都适用）
-                .ToList();
-
-            if (uiList.Count == 0)
-            {
-                if (sortedProgressBarList_MainList.InvokeRequired)
-                    sortedProgressBarList_MainList.BeginInvoke(() => sortedProgressBarList_MainList.Data = new List<ProgressBarData>());
-                else
-                    sortedProgressBarList_MainList.Data = new List<ProgressBarData>();
-                return;
-            }
-
-            var ordered = uiList.OrderByDescending(x => x.Total).ToList();
-
-            double teamSum = uiList.Sum(x => (double)x.Total);
-            if (teamSum <= 0d) teamSum = 1d;
-            double top = uiList.Max(x => (double)x.Total);
-            if (top <= 0d) top = 1d;
-            lock (_dataLock)
-            {
-                if (_isClearing == 1) return;
-
-                // 1) 拍当前 list 的快照，用它参与所有枚举相关计算
-                var snapshot = list
-                    .GroupBy(pb => pb.ID)
-                    .Select(g => g.Last())
-                    .ToList();
-
-                var present = new HashSet<long>(ordered.Select(x => x.Uid));
-
-                // 2) 先用快照算需要删除的旧行（避免直接枚举原 list）
-                var toRemove = snapshot.Where(pb => !present.Contains(pb.ID))
-                                       .Select(pb => pb.ID)
-                                       .ToList();
-
-                // 3) 基于快照建立索引，后面查找更快也更安全
-                var byId = new Dictionary<long, ProgressBarData>(snapshot.Count);
-                foreach (var pb in snapshot) byId[pb.ID] = pb;
-
-                // 4) 准备一个“下一帧”的新列表，最后一次性替换
-                var next = new List<ProgressBarData>(present.Count);
-
-                for (int i = 0; i < ordered.Count; i++)
-                {
-                    var p = ordered[i];
-
-                    if (p == null) continue;
-
-
-                    float ratio = (float)(p.Total / top);
-                    if (!float.IsFinite(ratio)) ratio = 0f;
-                    ratio = Math.Clamp(ratio, 0f, 1f);
-
-                    string totalFmt = Common.FormatWithEnglishUnits(p.Total);
-                    string perSec = Common.FormatWithEnglishUnits(Math.Round(p.PerSecond, 1));
-
-                    var iconKey = (p.Profession is string pr && pr != "未知" && imgDict.ContainsKey(pr)) ? pr
-                                : (p.SubProfession is string sr && sr != "未知" && imgDict.ContainsKey(sr)) ? sr
-                                : "未知";
-
-                    var profBmp = imgDict.TryGetValue(iconKey, out var bmp) ? bmp : imgDict["未知"];
-
-                    var colorMap = Config.IsLight ? colorDict : blackColorDict;
-
-                    var colorKey = (p.Profession is string pr2 && pr2 != "未知" && colorMap.ContainsKey(pr2)) ? pr2
-                                 : (p.SubProfession is string sr2 && sr2 != "未知" && colorMap.ContainsKey(sr2)) ? sr2
-                                 : "未知";
-
-                    var color = colorMap.TryGetValue(colorKey, out var c) ? c : ColorTranslator.FromHtml("#67AEF6");
-
-                    // 渲染行内容：DictList 也只在锁内改
-                    if (!DictList.TryGetValue(p.Uid, out var row))
-                    {
-                        row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset = AppConfig.ProgressBarImage, Image = profBmp, ImageRenderSize = AppConfig.ProgressBarImageSize },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset = AppConfig.ProgressBarNmae, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont},
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarHarm, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarProportion,  ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
-                        ];
-                        DictList[p.Uid] = row;
-                    }
-
-                    string share = $"{Math.Round(p.Total / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
-                    row[0].Image = profBmp;
-                    // 只要子流派；没有子流派就用战力；否则只显示昵称
-
-
-                    row[1].Text = $"{p.Nickname}-{p.SubProfession}({p.CombatPower})";
-
-                    row[2].Text = $"{totalFmt} ({perSec})";
-                    row[3].Text = share;
-
-                    if (p.Uid == (long)AppConfig.Uid)
-                    {
-                        label_CurrentOrder.Text = $" [{i + 1}]";
-                        label_CurrentDps.Text = $"{totalFmt} ({perSec})";
-                    }
-
-                    // 复用旧的 ProgressBarData，避免 UI 抖动；没有则新建
-                    if (!byId.TryGetValue(p.Uid, out var pb))
-                    {
-                        pb = new ProgressBarData
-                        {
-                            ID = p.Uid,
-                            ContentList = row,
-                            ProgressBarCornerRadius = 3,
-                            ProgressBarValue = ratio,
-                            ProgressBarColor = color,
-                        };
-                    }
-                    else
-                    {
-                        pb.ContentList = row;      // 保底同步
-                        pb.ProgressBarValue = ratio;
-                        pb.ProgressBarColor = color;
-                    }
-
-                    next.Add(pb);
-                }
-
-                // 5) 处理 DictList 的删除（可选，保持干净）
-                if (toRemove.Count > 0)
-                {
-                    foreach (var uid in toRemove)
-                        DictList.Remove(uid);
-                }
-
-                // 6) 一次性替换 list，避免“枚举中修改”
-                list = next;
-
-                // RefreshDpsTable(...) — 锁内最终绑定
-                void Bind()
-                {
-                    sortedProgressBarList_MainList.Data = list; // list 永不为 null
-                }
-
-                if (sortedProgressBarList_MainList.InvokeRequired) sortedProgressBarList_MainList.BeginInvoke((Action)Bind);
-                else Bind();
-            }
-        }
-        #region NPC承伤以及玩家对指定NPC造成的伤害排名
-        #region 全程
-        /// <summary>刷新：NPC承伤总览（全程 FullRecord）</summary>
-        public void RefreshNpcOverview()
-        {
-            if (Interlocked.CompareExchange(ref _isClearing, 0, 0) == 1) return;
-
-            // 1) 依据当前视图构建 NPC 行
-            var uiList = FormManager.showTotal
-                ? BuildNpcOverviewRows_FullRecord()
-                : BuildNpcOverviewRows_Current();
-
-            // 2) 空列表则清空 UI
-            if (uiList.Count == 0)
-            {
-                if (sortedProgressBarList_MainList.InvokeRequired)
-                    sortedProgressBarList_MainList.BeginInvoke(() => sortedProgressBarList_MainList.Data = new List<ProgressBarData>());
-                else
-                    sortedProgressBarList_MainList.Data = new List<ProgressBarData>();
-                return;
-            }
-
-            // 3) 渲染（与原全程逻辑一致）
-            var ordered = uiList.OrderByDescending(x => x.TotalTaken).ToList();
-            double teamSum = uiList.Sum(x => (double)x.TotalTaken);
-            if (teamSum <= 0d) teamSum = 1d;
-            double top = uiList.Max(x => (double)x.TotalTaken);
-            if (top <= 0d) top = 1d;
-
-            lock (_dataLock)
-            {
-                if (_isClearing == 1) return;
-
-                var snapshot = list.GroupBy(pb => pb.ID).Select(g => g.Last()).ToList();
-                var present = new HashSet<long>(ordered.Select(x => x.NpcId));
-                var toRemove = snapshot.Where(pb => !present.Contains(pb.ID)).Select(pb => pb.ID).ToList();
-                var byId = snapshot.ToDictionary(pb => pb.ID, pb => pb);
-
-                var next = new List<ProgressBarData>(present.Count);
-
-                for (int i = 0; i < ordered.Count; i++)
-                {
-                    var p = ordered[i];
-
-                    float ratio = (float)(p.TotalTaken / top);
-                    if (!float.IsFinite(ratio)) ratio = 0f;
-                    ratio = Math.Clamp(ratio, 0f, 1f);
-
-                    string totalFmt = Common.FormatWithEnglishUnits(p.TotalTaken);
-                    string perSec = Common.FormatWithEnglishUnits(Math.Round(p.TakenPerSec, 1));
-                    string share = $"{Math.Round(p.TotalTaken / teamSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
-
-                    // 头像&颜色（沿用“未知”）
-                    var profBmp = imgDict.TryGetValue("未知", out var bmp) ? bmp : imgDict["未知"];
-                    var colorMap = Config.IsLight ? colorDict : blackColorDict;
-                    var color = colorMap.TryGetValue("未知", out var c) ? c : ColorTranslator.FromHtml("#67AEF6");
-
-                    if (!DictList.TryGetValue(p.NpcId, out var row))
-                    {
-                        row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarImage, Image = profBmp, ImageRenderSize = AppConfig.ProgressBarImageSize },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarNmae, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont},
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarHarm, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset =AppConfig.ProgressBarProportion,  ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
-                        ];
-                        DictList[p.NpcId] = row;
-                    }
-
-                    row[0].Image = profBmp;
-                    row[1].Text = p.Name;
-                    row[2].Text = $"{totalFmt}({perSec})";
-                    row[3].Text = share;
-
-                    if (!byId.TryGetValue(p.NpcId, out var pb))
-                    {
-                        pb = new ProgressBarData
-                        {
-                            ID = p.NpcId,
-                            ContentList = row,
-                            ProgressBarCornerRadius = 3,
-                            ProgressBarValue = ratio,
-                            ProgressBarColor = color,
-                        };
-                    }
-                    else
-                    {
-                        pb.ContentList = row;
-                        pb.ProgressBarValue = ratio;
-                        pb.ProgressBarColor = color;
-                    }
-
-                    next.Add(pb);
-                }
-
-                if (toRemove.Count > 0)
-                    foreach (var id in toRemove) DictList.Remove(id);
-
-                list = next;
-
-                void Bind() => sortedProgressBarList_MainList.Data = list;
-                if (sortedProgressBarList_MainList.InvokeRequired) sortedProgressBarList_MainList.BeginInvoke(Bind);
-                else Bind();
-            }
-        }
-
-
-        /// <summary>刷新：某个NPC的攻击者排名（全程 FullRecord）</summary>
-        public void RefreshNpcAttackers(long npcId)
-        {
-            if (Interlocked.CompareExchange(ref _isClearing, 0, 0) == 1) return;
-
-            var uiList = FormManager.showTotal
-                ? BuildNpcAttackerRows_FullRecord(npcId)
-                : BuildNpcAttackerRows_Current(npcId);
-
-            if (uiList.Count == 0)
-            {
-                if (sortedProgressBarList_MainList.InvokeRequired)
-                    sortedProgressBarList_MainList.BeginInvoke(() => sortedProgressBarList_MainList.Data = new List<ProgressBarData>());
-                else
-                    sortedProgressBarList_MainList.Data = new List<ProgressBarData>();
-                return;
-            }
-
-            var ordered = uiList.OrderByDescending(x => x.DamageToNpc).ToList();
-            double npcSum = uiList.Sum(x => (double)x.DamageToNpc);
-            if (npcSum <= 0d) npcSum = 1d;
-            double top = uiList.Max(x => (double)x.DamageToNpc);
-            if (top <= 0d) top = 1d;
-
-            lock (_dataLock)
-            {
-                if (_isClearing == 1) return;
-
-                var snapshot = list.GroupBy(pb => pb.ID).Select(g => g.Last()).ToList();
-                var present = new HashSet<long>(ordered.Select(x => x.Uid));
-                var toRemove = snapshot.Where(pb => !present.Contains(pb.ID)).Select(pb => pb.ID).ToList();
-                var byId = snapshot.ToDictionary(pb => pb.ID, pb => pb);
-
-                var next = new List<ProgressBarData>(present.Count);
-
-                for (int i = 0; i < ordered.Count; i++)
-                {
-                    var p = ordered[i];
-
-                    float ratio = (float)(p.DamageToNpc / top);
-                    if (!float.IsFinite(ratio)) ratio = 0f;
-                    ratio = Math.Clamp(ratio, 0f, 1f);
-
-                    string totalFmt = Common.FormatWithEnglishUnits(p.DamageToNpc);
-                    string perSec = Common.FormatWithEnglishUnits(Math.Round(p.NpcOnlyDps, 1));
-                    string share = $"{Math.Round(p.DamageToNpc / npcSum * 100d, 0, MidpointRounding.AwayFromZero)}%";
-
-                    var profBmp = imgDict.TryGetValue(p.Profession ?? "未知", out var bmp) ? bmp : imgDict["未知"];
-                    var colorMap = Config.IsLight ? colorDict : blackColorDict;
-                    var color = colorMap.TryGetValue(p.Profession ?? "未知", out var c) ? c : ColorTranslator.FromHtml("#67AEF6");
-
-                    if (!DictList.TryGetValue(p.Uid, out var row))
-                    {
-                        row = [
-                            new() { Type = RenderContent.ContentType.Image, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarImage, Image = profBmp, ImageRenderSize = AppConfig.ProgressBarImageSize },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleLeft, Offset =AppConfig.ProgressBarNmae, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont},
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarHarm, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
-                            new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset =AppConfig.ProgressBarProportion,  ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
-                        ];
-                        DictList[p.Uid] = row;
-                    }
-
-                    row[0].Image = profBmp;
-                    row[1].Text = $"{p.Nickname}-{p.SubProfession}({p.CombatPower})";
-                    row[2].Text = $"{totalFmt}({perSec})";
-                    row[3].Text = share;
-
-                    if (!byId.TryGetValue(p.Uid, out var pb))
-                    {
-                        pb = new ProgressBarData
-                        {
-                            ID = p.Uid,
-                            ContentList = row,
-                            ProgressBarCornerRadius = 3,
-                            ProgressBarValue = ratio,
-                            ProgressBarColor = color,
-                        };
-                    }
-                    else
-                    {
-                        pb.ContentList = row;
-                        pb.ProgressBarValue = ratio;
-                        pb.ProgressBarColor = color;
-                    }
-
-                    next.Add(pb);
-                }
-
-                if (toRemove.Count > 0)
-                    foreach (var id in toRemove) DictList.Remove(id);
-
-                list = next;
-
-                void Bind() => sortedProgressBarList_MainList.Data = list;
-                if (sortedProgressBarList_MainList.InvokeRequired) sortedProgressBarList_MainList.BeginInvoke((Action)Bind);
-                else Bind();
-            }
-        }
-
-        #endregion
-        #region 单场
-        /// <summary>构建：NPC承伤总览（当前 Current）</summary>
-        private List<NpcRow> BuildNpcOverviewRows_Current()
-        {
-            // 先驱动一次实时窗口更新（有就更顺滑；没有也无妨）
-            StatisticData._npcManager.UpdateAllRealtime();
-
-            var ids = StatisticData._npcManager.GetAllNpcIds();
-            if (ids == null || ids.Count == 0) return new();
-
-            var list = new List<NpcRow>(ids.Count);
-            foreach (var id in ids)
-            {
-                var name = StatisticData._npcManager.GetNpcName(id);
-                var ov = StatisticData._npcManager.GetNpcOverview(id);
-                if (ov.TotalTaken == 0) continue;
-
-                // 承伤PS：采用 Total / ActiveSeconds，更稳定；如果你更喜欢实时窗口，可替换为 ov.RealtimeTaken
-                var perSec = StatisticData._npcManager.GetNpcTakenPerSecond(id);
-
-                list.Add(new NpcRow
-                {
-                    NpcId = (long)id,
-                    Name = name,
-                    TotalTaken = ov.TotalTaken,
-                    TakenPerSec = perSec
-                });
-            }
-
-            return list.OrderByDescending(r => r.TotalTaken).ToList();
-        }
-        /// <summary>构建：对指定NPC的攻击者排名（当前 Current）</summary>
-        private List<NpcAttackerRow> BuildNpcAttackerRows_Current(long npcId, int topN = 20)
-        {
-            // 先刷新一下实时窗口，保证 Realtime 值与 ActiveSeconds 更贴近当前
-            StatisticData._npcManager.UpdateAllRealtime();
-
-            // 先用现成的 Top 列表拿“对NPC的总伤害/基础信息/玩家全程DPS”
-            var top = StatisticData._npcManager.GetNpcTopAttackers(npcId, topN);
-            if (top == null || top.Count == 0) return new();
-
-            var rows = new List<NpcAttackerRow>(top.Count);
-            foreach (var t in top)
-            {
-                // 专属DPS：用玩家对该NPC的 StatisticData（Total / ActiveSeconds）
-                var npcOnlyDps = StatisticData._npcManager.GetPlayerNpcOnlyDps(npcId, t.Uid);
-
-                rows.Add(new NpcAttackerRow
-                {
-                    Uid = (long)t.Uid,
-                    Nickname = t.Nickname,
-                    CombatPower = t.CombatPower,
-                    Profession = t.Profession,
-                    SubProfession = StatisticData._manager.GetOrCreate(t.Uid).SubProfession ?? "",
-                    DamageToNpc = t.DamageToNpc,
-                    PlayerDps = t.TotalDps,
-                    NpcOnlyDps = npcOnlyDps
-                });
-            }
-
-            return rows
-                .Where(r => r.DamageToNpc > 0)
-                .OrderByDescending(r => r.DamageToNpc)
-                .ToList();
-        }
-
-        #endregion
-        #endregion
-
-        private List<UiRow> BuildUiRows(SourceType source, MetricType metric)
-        {
-            // # UI 刷新事件：根据数据源构建用于展示的轻量行结构（与底层统计对象解耦）
-            if (source == SourceType.Current)
-            {
-                var statsList = StatisticData._manager.GetPlayersWithCombatData().ToArray();
-                if (statsList.Length == 0) return new();
-
-
-
-                return statsList.Select(p =>
-                {
-                    ulong total;
-                    double ps;
-                    switch (metric)
-                    {
-                        case MetricType.Healing:
-                            total = p.HealingStats.Total;
-                            ps = p.HealingStats.GetTotalPerSecond();
-                            break;
-                        case MetricType.Taken:
-                            total = p.TakenStats.Total;
-                            ps = p.TakenStats.GetTotalPerSecond();
-                            break;
-                        default: // Damage
-                            total = p.DamageStats.Total;
-                            ps = p.DamageStats.GetTotalPerSecond();
-                            break;
-                    }
-
-                    return new UiRow
-                    {
-                        Uid = (long)p.Uid,
-                        Nickname = p.Nickname,
-                        CombatPower = p.CombatPower,
-                        Profession = p.Profession,
-                        SubProfession = p.SubProfession ?? "",
-                        Total = total,
-                        PerSecond = ps
-                    };
-                }).ToList();
-            }
-            else // FullRecord
-            {
-                var fr = FullRecord.GetPlayersWithTotalsArray();
-                if (fr.Length == 0) return new();
-
-
-
-                var sessionSecs = Math.Max(1.0, FullRecord.GetSessionTotalTimeSpan().TotalSeconds);
-
-                return fr.Select(p =>
-                {
-                    ulong total;
-                    double ps;
-                    switch (metric)
-                    {
-                        case MetricType.Healing:
-                            total = p.TotalHealing;
-                            ps = p.Hps;
-                            break;
-                        case MetricType.Taken:
-                            total = p.TakenDamage;
-                            ps = total / sessionSecs;
-                            break;
-                        default: // Damage
-                            total = p.TotalDamage;
-                            ps = p.Dps;
-                            break;
-                    }
-
-                    return new UiRow
-                    {
-                        Uid = (long)p.Uid,
-                        Nickname = p.Nickname,
-                        CombatPower = p.CombatPower,
-                        Profession = p.Profession,
-                        SubProfession = p.SubProfession ?? "",
-                        Total = total,
-                        PerSecond = ps
-                    };
-                }).ToList();
-            }
-        }
-
-        /// <summary>构建：NPC承伤总览（全程 FullRecord）</summary>
-        private List<NpcRow> BuildNpcOverviewRows_FullRecord()
-        {
-            var snap = FullRecord.TakeSnapshot();
-            if (snap.Npcs == null || snap.Npcs.Count == 0) return new();
-
-            // 转为列表并按总承伤降序
-            var list = snap.Npcs.Values
-                .Select(n => new NpcRow
-                {
-                    NpcId = (long)n.NpcId,
-                    Name = n.Name ?? $"NPC[{n.NpcId}]",
-                    TotalTaken = n.TotalTaken,
-                    TakenPerSec = n.TakenPerSec
-                })
-                .Where(r => r.TotalTaken > 0)
-                .OrderByDescending(r => r.TotalTaken)
-                .ToList();
-
-            return list;
-        }
-
-        /// <summary>构建：对指定NPC的攻击者排名（全程 FullRecord）</summary>
-        private List<NpcAttackerRow> BuildNpcAttackerRows_FullRecord(long npcId, int topN = 20)
-        {
-            var top = FullRecord.GetNpcTopAttackers(npcId, topN);
-            if (top == null || top.Count == 0) return new();
-
-
-            // 将 FullRecord 返回项映射到 UI 行
-            var rows = top.Select(t => new NpcAttackerRow
-            {
-                Uid = t.Uid,
-                Nickname = t.Nickname,
-                CombatPower = t.CombatPower,
-                Profession = t.Profession,
-                SubProfession = StatisticData._manager.GetOrCreate(t.Uid).SubProfession ?? "",
-                DamageToNpc = t.DamageToNpc,
-                PlayerDps = t.PlayerDps,
-                NpcOnlyDps = t.NpcOnlyDps
-            })
-            .Where(r => r.DamageToNpc > 0)
-            .OrderByDescending(r => r.DamageToNpc)
-            .ToList();
-
-            return rows;
-        }
 
     }
 }

@@ -63,32 +63,32 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms.AuxiliaryForms
 
         public async void LoadInformation(string battleId, string nickName)
         {
-            divider1.Text = nickName + "的技能参考数据";
-            DamageReferenceSkillData.DamageReferenceSkillTable.Clear();
-            string url = @$"{AppConfig.url}/get_user_dps";
-            var query = new
-            {
-                battleId
-            };
-            var data = await Common.RequestGet(url, query);
-            if (data["code"].ToString() == "200")
-            {
-                foreach (var item in data["data"])
-                {
-                    string name = item["name"].ToString();//用户名
-                    string damage = Common.FormatWithEnglishUnits(item["damage"]);//总伤害
-                    int hitCount = Convert.ToInt32(item["hitCount"]);//命中次数
-                    string critRate = item["critRate"].ToString() + "%";//爆击率
-                    string luckyRate = item["luckyRate"].ToString() + "%";//幸运率
-                    string avgPerHit = Common.FormatWithEnglishUnits(item["avgPerHit"]);//平均值
-                    string totalDps = Common.FormatWithEnglishUnits(item["totalDps"]);//秒伤
-                    double share = Convert.ToDouble(item["share"]) * 100;//技能占比
-                    DamageReferenceSkillData.DamageReferenceSkillTable.Add(new DamageReferenceSkill(name, damage, hitCount, critRate, luckyRate, avgPerHit, totalDps, share));
-                }
+            //divider1.Text = nickName + "的技能参考数据";
+            //DamageReferenceSkillData.DamageReferenceSkillTable.Clear();
+            //string url = @$"{AppConfig.url}/get_user_dps";
+            //var query = new
+            //{
+            //    battleId
+            //};
+            //var data = await Common.RequestGet(url, query);
+            //if (data["code"].ToString() == "200")
+            //{
+            //    foreach (var item in data["data"])
+            //    {
+            //        string name = item["name"].ToString();//用户名
+            //        string damage = Common.FormatWithEnglishUnits(item["damage"]);//总伤害
+            //        int hitCount = Convert.ToInt32(item["hitCount"]);//命中次数
+            //        string critRate = item["critRate"].ToString() + "%";//爆击率
+            //        string luckyRate = item["luckyRate"].ToString() + "%";//幸运率
+            //        string avgPerHit = Common.FormatWithEnglishUnits(item["avgPerHit"]);//平均值
+            //        string totalDps = Common.FormatWithEnglishUnits(item["totalDps"]);//秒伤
+            //        double share = Convert.ToDouble(item["share"]) * 100;//技能占比
+            //        DamageReferenceSkillData.DamageReferenceSkillTable.Add(new DamageReferenceSkill(name, damage, hitCount, critRate, luckyRate, avgPerHit, totalDps, share));
+            //    }
 
-            }
+            //}
 
-            this.Activate();
+            //this.Activate();
 
         }
 

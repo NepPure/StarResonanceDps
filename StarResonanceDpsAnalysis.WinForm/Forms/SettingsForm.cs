@@ -118,13 +118,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// <param name="e"></param>
         private void input5_VerifyKey(object sender, InputVerifyKeyboardEventArgs e)
         {
-            if (e.KeyData == Keys.Delete)
-            {
-                input5.Text = string.Empty;
-                return;
-            }
-            input5.Text = e.KeyData.KeysToString();
-            AppConfig.ClearHistoryKey = e.KeyData;
+            //if (e.KeyData == Keys.Delete)
+            //{
+            //    input5.Text = string.Empty;
+            //    return;
+            //}
+            //input5.Text = e.KeyData.KeysToString();
+            //AppConfig.ClearHistoryKey = e.KeyData;
         }
 
         private void InterfaceComboBox_SelectedIndexChanged(object sender, IntEventArgs e)
@@ -137,17 +137,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             }
 
             AppConfig.NetworkCard = InterfaceComboBox.SelectedIndex;
-
-            // 通知MainForm更新网卡设置提示
-            try
-            {
-                // var mainForm = Application.OpenForms.OfType<MainForm>().FirstOrDefault();
-                StartupInitializer.RefreshNetworkCardSettingTip();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"更新MainForm网卡设置提示时出错: {ex.Message}");
-            }
 
             var result = AppMessageBox.ShowMessage("""
                     您已更改网卡设置。

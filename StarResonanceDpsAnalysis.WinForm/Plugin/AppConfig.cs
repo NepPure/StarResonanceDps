@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
-
+using AntdUI;
 using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
@@ -27,29 +27,26 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
     {
         public static UserLocalCache cache = new();
 
-
-        public static float dpi;
-
         public static int ProgressBarHeight
         {
             get
             {
                 int height = 50;
-                switch (dpi)
+                switch (Config.Dpi)
                 {
-                    case 1:
+                    case 1F:
                         height = 35;
                         break;
-                    case (float)1.25:
+                    case 1.25F:
                         height = 45;
                         break;
-                    case (float)1.5:
+                    case 1.5F:
                         height = 45;
                         break;
-                    case (float)1.75:
+                    case 1.75F:
                         height = 45;
                         break;
-                    case 2:
+                    case 2F:
                         height = 45;
                         break;
 
@@ -64,7 +61,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             get
             {
                 int x = 64;
-                if (dpi == 1)
+                if (Config.Dpi == 1F)
                 {
                     x = 55;
                 }
@@ -78,29 +75,25 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             get
             {
                 int x = ProgressBarProportion.X - 50;
-                switch (dpi)
+                switch (Config.Dpi)
                 {
-                    case 1:
+                    case 1F:
                         x = -35;
                         break;
-                    case (float)1.25:
+                    case 1.25F:
                         x = -40;
                         break;
-                    case (float)1.5:
+                    case 1.5F:
                         x = ProgressBarProportion.X - 45;
                         break;
-                    case (float)1.75:
+                    case 1.75F:
                         x = ProgressBarProportion.X - 55;
                         break;
                     case 2:
                         x = ProgressBarProportion.X - 60;
                         break;
                 }
-                if (dpi == 1)
-                {
 
-                }
-                // if (SomeFlag) y = 10; // 需要更多条件时继续写
                 return new RenderContent.ContentOffset { X = x, Y = 0 };
             }
         }
@@ -222,8 +215,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         // 清空当前数据的快捷键，null 表示未设置
         private static Keys? _clearDataKey = null;
 
-        // 清空历史数据的快捷键，null 表示未设置
-        private static Keys? _clearHistoryKey = null;
         private static string? _damageDisplayType = null;
 
         /// <summary>
@@ -289,12 +280,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
                 _clearPicture = value;
             }
         }
-
-
-        public static bool NpcsTakeDamage = false;//NPC承伤
-        public static bool PilingMode = false;//打桩模式
-
-        public static string url = "https://api.jx3rec.com";//服务器地址
 
         public static int CombatTimeClearDelaySeconds
         {
@@ -592,28 +577,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             {
                 SetValue("SetKey", "ClearDataKey", ((int)value).ToString());
                 _clearDataKey = value;
-            }
-        }
-
-        /// <summary>
-        /// # 分类：热键 - 清空历史记录
-        /// 默认 F10。用于清除历史快照/历史榜单等更长期的数据。
-        /// </summary>
-        public static Keys ClearHistoryKey
-        {
-            get
-            {
-                if (_clearHistoryKey == null)
-                {
-                    var value = GetValue("SetKey", "ClearHistoryKey", ((int)Keys.F10).ToString()).ToInt();
-                    _clearHistoryKey = value.IntToKeys(Keys.F10);
-                }
-                return _clearHistoryKey.Value;
-            }
-            set
-            {
-                SetValue("SetKey", "ClearHistoryKey", ((int)value).ToString());
-                _clearHistoryKey = value;
             }
         }
 

@@ -37,7 +37,6 @@
             DoubleBuffered = true;
             Name = "SortedProgressBarList";
             Size = new Size(536, 477);
-            MouseClick += SortedProgressBarList_MouseClick;
             MouseDown += SortedProgressBarList_MouseDown;
             MouseMove += SortedProgressBarList_MouseMove;
             MouseUp += SortedProgressBarList_MouseUp;

@@ -113,55 +113,55 @@ namespace StarResonanceDpsAnalysis.WinForm.Core
         /// <param name="treat">是否疗伤</param>
         public static void OnHit(long uid, long skillId, ulong damage, bool iscrit, bool isLucky, bool treat = false)
         {
-            // 1) 只处理本人的
-            if (uid != AppConfig.Uid) return;
+            //// 1) 只处理本人的
+            //if (uid != AppConfig.Uid) return;
 
-            // 2) 拿一个局部快照，避免检查之后被别的线程置空
-            var form = FormManager.skillDiary;
-            if (form == null || form.IsDisposed || !form.IsHandleCreated) return;
+            //// 2) 拿一个局部快照，避免检查之后被别的线程置空
+            //var form = FormManager.skillDiary;
+            //if (form == null || form.IsDisposed || !form.IsHandleCreated) return;
 
-            var (shouldWrite, count, totalDamage, critCount, luckyCount) =
-                SkillDiaryGate.Register(uid, skillId, damage, iscrit, isLucky, treat); // ★ 传 treat
+            //var (shouldWrite, count, totalDamage, critCount, luckyCount) =
+            //    SkillDiaryGate.Register(uid, skillId, damage, iscrit, isLucky, treat); // ★ 传 treat
 
-            if (!shouldWrite || count <= 0) return;
+            //if (!shouldWrite || count <= 0) return;
 
-            var duration = StatisticData._manager.GetFormattedCombatDuration();
-            if (FormManager.showTotal) duration = FullRecord.GetEffectiveDurationString();
+            //var duration = StatisticData._manager.GetFormattedCombatDuration();
+            //if (FormManager.showTotal) duration = FullRecord.GetEffectiveDurationString();
 
-            var name = EmbeddedSkillConfig.GetName(skillId.ToString());
+            //var name = EmbeddedSkillConfig.GetName(skillId.ToString());
 
-            string line;
-            if (count > 1)
-            {
-                // 多段
-                var parts = new List<string>
-            {
-                $"{name}",
-                $"{(treat ? "治疗" : "伤害")}:{totalDamage}",
-                $"释放次数:{count}"
-            };
-                if (critCount > 0) parts.Add($"暴击:{critCount}");
-                if (luckyCount > 0) parts.Add($"幸运:{luckyCount}");
+            //string line;
+            //if (count > 1)
+            //{
+            //    // 多段
+            //    var parts = new List<string>
+            //{
+            //    $"{name}",
+            //    $"{(treat ? "治疗" : "伤害")}:{totalDamage}",
+            //    $"释放次数:{count}"
+            //};
+            //    if (critCount > 0) parts.Add($"暴击:{critCount}");
+            //    if (luckyCount > 0) parts.Add($"幸运:{luckyCount}");
 
-                line = $"[{duration}] " + string.Join(" | ", parts);
-            }
-            else
-            {
-                // 单段
-                var parts = new List<string>
-                {
-                    $"{name}",
-                    $"{(treat ? "治疗" : "伤害")}:{damage}"
-                };
-                if (iscrit) parts.Add("暴击");
-                if (isLucky) parts.Add("幸运");
+            //    line = $"[{duration}] " + string.Join(" | ", parts);
+            //}
+            //else
+            //{
+            //    // 单段
+            //    var parts = new List<string>
+            //    {
+            //        $"{name}",
+            //        $"{(treat ? "治疗" : "伤害")}:{damage}"
+            //    };
+            //    if (iscrit) parts.Add("暴击");
+            //    if (isLucky) parts.Add("幸运");
 
-                line = $"[{duration}] " + string.Join(" | ", parts);
-            }
+            //    line = $"[{duration}] " + string.Join(" | ", parts);
+            //}
 
 
 
-            FormManager.skillDiary.AppendDiaryLine(line);
+            //FormManager.skillDiary.AppendDiaryLine(line);
         }
 
 

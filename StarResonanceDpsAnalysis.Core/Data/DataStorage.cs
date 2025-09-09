@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using StarResonanceDpsAnalysis.Core.Analyze;
 using StarResonanceDpsAnalysis.Core.Analyze.Models;
 using StarResonanceDpsAnalysis.Core.Data.Models;
@@ -16,6 +18,10 @@ namespace StarResonanceDpsAnalysis.Core.Data
     /// </summary>
     public static class DataStorage
     {
+        /// <summary>
+        /// 当前玩家UUID
+        /// </summary>
+        internal static long CurrentPlayerUUID { get; set; }
         /// <summary>
         /// 当前玩家信息
         /// </summary>
@@ -77,6 +83,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         public delegate void BattleLogCreatedEventHandler(BattleLog battleLog);
         public delegate void DpsDataUpdatedEventHandler();
         public delegate void DataUpdatedEventHandler();
+        public delegate void ServerChangedEventHandler(string currentServer, string prevServer);
 
         /// <summary>
         /// 玩家信息更新事件
@@ -98,11 +105,69 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 数据更新事件 (玩家信息或战斗日志更新时触发)
         /// </summary>
         public static event DataUpdatedEventHandler? DataUpdated;
+        /// <summary>
+        /// 服务器变更事件 (地图变更)
+        /// </summary>
+        public static event ServerChangedEventHandler? ServerChanged;
+
+        /// <summary>
+        /// 从文件加载缓存玩家信息
+        /// </summary>
+        /// <param name="relativeFilePath"></param>
+        public static void LoadPlayerInfoToFile()
+        {
+            var playerInfoCaches = PlayerInfoCacheReader.ReadFile();
+
+            foreach (var playerInfoCache in playerInfoCaches.PlayerInfos)
+            {
+                if (!PlayerInfoDatas.TryGetValue(playerInfoCache.UID, out var playerInfo))
+                {
+                    playerInfo = new();
+                }
+
+                playerInfo.UID = playerInfoCache.UID;
+                playerInfo.ProfessionID ??= playerInfoCache.ProfessionID;
+                playerInfo.CombatPower ??= playerInfoCache.CombatPower;
+                playerInfo.Critical ??= playerInfoCache.Critical;
+                playerInfo.Lucky ??= playerInfoCache.Lucky;
+                playerInfo.MaxHP ??= playerInfoCache.MaxHP;
+
+                if (string.IsNullOrEmpty(playerInfo.Name))
+                {
+                    playerInfo.Name = playerInfoCache.Name;
+                }
+                if (string.IsNullOrEmpty(playerInfo.SubProfessionName))
+                {
+                    playerInfo.SubProfessionName = playerInfoCache.SubProfessionName;
+                }
+
+                PlayerInfoDatas[playerInfo.UID] = playerInfo;
+            }
+        }
+
+        /// <summary>
+        /// 保存缓存玩家信息到文件
+        /// </summary>
+        /// <param name="relativeFilePath"></param>
+        public static void SavePlayerInfoToFile() 
+        {
+            try
+            {
+                LoadPlayerInfoToFile();
+            }
+            catch (Exception)
+            {
+                // 无缓存或缓存篡改直接无视重新保存新文件
+            }
+
+            var list = PlayerInfoDatas.Values.ToList();
+            PlayerInfoCacheWriter.WriteToFile([..list]);
+        }
 
         /// <summary>
         /// 检查或创建玩家信息
         /// </summary>
-        /// <param name="uid"UID></param>
+        /// <param name="uid"></param>
         /// <returns>是否已经存在; 是: true, 否: false</returns>
         /// <remarks>
         /// 如果传入的 UID 已存在, 则不会进行任何操作;
@@ -294,7 +359,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
             if (LastBattleLog != null)
             {
                 // 如果超时或强制创建新战斗阶段时, 关闭上一分段, 最后创建新分段
-                var prevTt = new TimeSpan(LastBattleLog!.TimeTicks);
+                var prevTt = new TimeSpan(LastBattleLog!.Value.TimeTicks);
                 if (tt - prevTt > SectionTimeout || ForceNewBattleSection)
                 {
                     ClearDpsData();
@@ -382,8 +447,8 @@ namespace StarResonanceDpsAnalysis.Core.Data
             sectionedSkillDic.CritTimes += log.IsCritical ? 1 : 0;
             sectionedSkillDic.LuckyTimes += log.IsLucky ? 1 : 0;
 
-            FullDpsData[uid].BattleLogs.Add(log);
-            SectionedDpsDatas[uid].BattleLogs.Add(log);
+            //FullDpsData[uid].BattleLogs.Add(log);
+            //SectionedDpsDatas[uid].BattleLogs.Add(log);
 
             return (fullData, sectionedData);
         }
@@ -464,6 +529,11 @@ namespace StarResonanceDpsAnalysis.Core.Data
             PlayerInfoDatas.Clear();
 
             DataUpdated?.Invoke();
+        }
+
+        internal static void InvokeServerChangedEvent(string currentServer, string prevServer)
+        {
+            ServerChanged?.Invoke(currentServer, prevServer);
         }
 
     }

@@ -210,401 +210,401 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
         /// </summary>
         public void SelectDataType()
         {
-            // 1) 根据 segmented1 决定当前查看指标（伤害/治疗/承伤）
-            MetricType metric;
-            if (segmented1.SelectIndex == 1) metric = MetricType.Healing;
-            else if (segmented1.SelectIndex == 2)
-            {
-                metric = MetricType.Taken;
-            }
-            else metric = MetricType.Damage;
+            //// 1) 根据 segmented1 决定当前查看指标（伤害/治疗/承伤）
+            //MetricType metric;
+            //if (segmented1.SelectIndex == 1) metric = MetricType.Healing;
+            //else if (segmented1.SelectIndex == 2)
+            //{
+            //    metric = MetricType.Taken;
+            //}
+            //else metric = MetricType.Damage;
 
-            // 2) 快照模式：不刷新实时曲线，只渲染顶部与表格、静态图
-            if (ContextType == DetailContextType.Snapshot && SnapshotStartTime is DateTime)
-            {
-                DateTime snapTime = (DateTime)SnapshotStartTime;
-                try
-                {
-                    FillHeader(metric);                    // 顶部汇总（快照口径）
-                    UpdateSkillTable_Snapshot(Uid, snapTime, metric); // 表格（快照口径）
-                }
-                catch { }
+            //// 2) 快照模式：不刷新实时曲线，只渲染顶部与表格、静态图
+            //if (ContextType == DetailContextType.Snapshot && SnapshotStartTime is DateTime)
+            //{
+            //    DateTime snapTime = (DateTime)SnapshotStartTime;
+            //    try
+            //    {
+            //        FillHeader(metric);                    // 顶部汇总（快照口径）
+            //        UpdateSkillTable_Snapshot(Uid, snapTime, metric); // 表格（快照口径）
+            //    }
+            //    catch { }
 
-                try { UpdateCritLuckyChart(); } catch { }
-                try { UpdateSkillDistributionChart(); } catch { }
-                return;
-            }
+            //    try { UpdateCritLuckyChart(); } catch { }
+            //    try { UpdateSkillDistributionChart(); } catch { }
+            //    return;
+            //}
 
-            // 3) 非快照：按 Current / FullRecord 渲染
-            SourceType source;
-            if (ContextType == DetailContextType.FullRecord || FormManager.showTotal) source = SourceType.FullRecord;
-            else source = SourceType.Current;
+            //// 3) 非快照：按 Current / FullRecord 渲染
+            //SourceType source;
+            //if (ContextType == DetailContextType.FullRecord || FormManager.showTotal) source = SourceType.FullRecord;
+            //else source = SourceType.Current;
 
-            FillHeader(metric); // 顶部汇总（Current/FullRecord）
+            //FillHeader(metric); // 顶部汇总（Current/FullRecord）
 
-            try
-            {
-                UpdateSkillTable(Uid, source, metric);   // 列表
-                RefreshDpsTrendChart();                  // 趋势图（仅非快照）
-                UpdateCritLuckyChart();                  // 技能占比图
-                UpdateSkillDistributionChart();          // 普通/暴击/幸运分布图
-            }
-            catch { }
+            //try
+            //{
+            //    UpdateSkillTable(Uid, source, metric);   // 列表
+            //    RefreshDpsTrendChart();                  // 趋势图（仅非快照）
+            //    UpdateCritLuckyChart();                  // 技能占比图
+            //    UpdateSkillDistributionChart();          // 普通/暴击/幸运分布图
+            //}
+            //catch { }
         }
         #endregion
 
         #region 区块：顶部汇总渲染（快照 / 当前 / 全程）
         private void FillHeader(MetricType metric)
         {
-            // ======== 快照模式（历史）========
-            if (ContextType == DetailContextType.Snapshot && SnapshotStartTime is DateTime)
-            {
-                DateTime snapTime = (DateTime)SnapshotStartTime;
+            //// ======== 快照模式（历史）========
+            //if (ContextType == DetailContextType.Snapshot && SnapshotStartTime is DateTime)
+            //{
+            //    DateTime snapTime = (DateTime)SnapshotStartTime;
 
-                var sessionDict = FullRecord.GetAllPlayersDataBySnapshotTime(snapTime);
+            //    var sessionDict = FullRecord.GetAllPlayersDataBySnapshotTime(snapTime);
 
-                SnapshotPlayer sp = null;
-                if (sessionDict != null)
-                {
-                    SnapshotPlayer tmp;
-                    if (sessionDict.TryGetValue(Uid, out tmp)) sp = tmp;
-                }
+            //    SnapshotPlayer sp = null;
+            //    if (sessionDict != null)
+            //    {
+            //        SnapshotPlayer tmp;
+            //        if (sessionDict.TryGetValue(Uid, out tmp)) sp = tmp;
+            //    }
 
-                if (sp == null)
-                {
-                    // 在 _manager.History 中寻找开始时间相等或 ±2 秒内的战斗
-                    BattleSnapshot battle = null;
-                    var history = StatisticData._manager.History;
-                    if (history != null)
-                    {
-                        for (int i = 0; i < history.Count; i++)
-                        {
-                            var s = history[i];
-                            double delta = Math.Abs((s.StartedAt - snapTime).TotalSeconds);
-                            if (s.StartedAt == snapTime || delta <= 2.0)
-                            {
-                                battle = s;
-                                break;
-                            }
-                        }
-                    }
-                    if (battle != null && battle.Players != null)
-                    {
-                        SnapshotPlayer tmp2;
-                        if (battle.Players.TryGetValue(Uid, out tmp2)) sp = tmp2;
-                    }
-                }
+            //    if (sp == null)
+            //    {
+            //        // 在 _manager.History 中寻找开始时间相等或 ±2 秒内的战斗
+            //        BattleSnapshot battle = null;
+            //        var history = StatisticData._manager.History;
+            //        if (history != null)
+            //        {
+            //            for (int i = 0; i < history.Count; i++)
+            //            {
+            //                var s = history[i];
+            //                double delta = Math.Abs((s.StartedAt - snapTime).TotalSeconds);
+            //                if (s.StartedAt == snapTime || delta <= 2.0)
+            //                {
+            //                    battle = s;
+            //                    break;
+            //                }
+            //            }
+            //        }
+            //        if (battle != null && battle.Players != null)
+            //        {
+            //            SnapshotPlayer tmp2;
+            //            if (battle.Players.TryGetValue(Uid, out tmp2)) sp = tmp2;
+            //        }
+            //    }
 
-                if (sp == null)
-                {
-                    TotalDamageText.Text = "0";
-                    TotalDpsText.Text = "0";
-                    CritRateText.Text = "0";
-                    LuckyRate.Text = "0";
-                    NormalDamageText.Text = "0";
-                    CritDamageText.Text = "0";
-                    LuckyDamageText.Text = "0";
-                    AvgDamageText.Text = "0";
-                    NumberHitsLabel.Text = "0";
-                    NumberCriticalHitsLabel.Text = "0";
-                    LuckyTimesLabel.Text = "0";
-                    BeatenLabel.Text = "0";
-                    return;
-                }
+            //    if (sp == null)
+            //    {
+            //        TotalDamageText.Text = "0";
+            //        TotalDpsText.Text = "0";
+            //        CritRateText.Text = "0";
+            //        LuckyRate.Text = "0";
+            //        NormalDamageText.Text = "0";
+            //        CritDamageText.Text = "0";
+            //        LuckyDamageText.Text = "0";
+            //        AvgDamageText.Text = "0";
+            //        NumberHitsLabel.Text = "0";
+            //        NumberCriticalHitsLabel.Text = "0";
+            //        LuckyTimesLabel.Text = "0";
+            //        BeatenLabel.Text = "0";
+            //        return;
+            //    }
 
-                // —— 工具函数（快照模式内部估算用）
-                static int SumHits(IReadOnlyList<SkillSummary> list)
-                {
-                    if (list == null) return 0;
-                    int total = 0;
-                    for (int i = 0; i < list.Count; i++) total += list[i].HitCount;
-                    return total;
-                }
+            //    // —— 工具函数（快照模式内部估算用）
+            //    static int SumHits(IReadOnlyList<SkillSummary> list)
+            //    {
+            //        if (list == null) return 0;
+            //        int total = 0;
+            //        for (int i = 0; i < list.Count; i++) total += list[i].HitCount;
+            //        return total;
+            //    }
 
-                static int EstCrits(IReadOnlyList<SkillSummary> list)
-                {
-                    if (list == null) return 0;
-                    double total = 0;
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        var s = list[i];
-                        total += s.HitCount * (s.CritRate / 100.0);
-                    }
-                    return (int)Math.Round(total);
-                }
+            //    static int EstCrits(IReadOnlyList<SkillSummary> list)
+            //    {
+            //        if (list == null) return 0;
+            //        double total = 0;
+            //        for (int i = 0; i < list.Count; i++)
+            //        {
+            //            var s = list[i];
+            //            total += s.HitCount * (s.CritRate / 100.0);
+            //        }
+            //        return (int)Math.Round(total);
+            //    }
 
-                static int EstLuckies(IReadOnlyList<SkillSummary> list)
-                {
-                    if (list == null) return 0;
-                    double total = 0;
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        var s = list[i];
-                        total += s.HitCount * (s.LuckyRate / 100.0);
-                    }
-                    return (int)Math.Round(total);
-                }
+            //    static int EstLuckies(IReadOnlyList<SkillSummary> list)
+            //    {
+            //        if (list == null) return 0;
+            //        double total = 0;
+            //        for (int i = 0; i < list.Count; i++)
+            //        {
+            //            var s = list[i];
+            //            total += s.HitCount * (s.LuckyRate / 100.0);
+            //        }
+            //        return (int)Math.Round(total);
+            //    }
 
-                static double WeightedRate(IReadOnlyList<SkillSummary> list, Func<SkillSummary, double> selector)
-                {
-                    if (list == null || list.Count == 0) return 0;
-                    int hits = SumHits(list);
-                    if (hits <= 0) return 0;
+            //    static double WeightedRate(IReadOnlyList<SkillSummary> list, Func<SkillSummary, double> selector)
+            //    {
+            //        if (list == null || list.Count == 0) return 0;
+            //        int hits = SumHits(list);
+            //        if (hits <= 0) return 0;
 
-                    double weightedSum = 0;
-                    for (int i = 0; i < list.Count; i++)
-                    {
-                        var s = list[i];
-                        weightedSum += s.HitCount * selector(s);
-                    }
-                    return Math.Round(weightedSum / hits, 2);
-                }
+            //        double weightedSum = 0;
+            //        for (int i = 0; i < list.Count; i++)
+            //        {
+            //            var s = list[i];
+            //            weightedSum += s.HitCount * selector(s);
+            //        }
+            //        return Math.Round(weightedSum / hits, 2);
+            //    }
 
-                static ulong SafeUlong(double v)
-                {
-                    if (v <= 0) return 0UL;
-                    return (ulong)Math.Round(v);
-                }
+            //    static ulong SafeUlong(double v)
+            //    {
+            //        if (v <= 0) return 0UL;
+            //        return (ulong)Math.Round(v);
+            //    }
 
-                var dmgSkills = sp.DamageSkills;
-                var healSkills = sp.HealingSkills;
-                var takenSkills = sp.TakenSkills;
+            //    var dmgSkills = sp.DamageSkills;
+            //    var healSkills = sp.HealingSkills;
+            //    var takenSkills = sp.TakenSkills;
 
-                if (metric == MetricType.Damage)
-                {
-                    var total = sp.TotalDamage;
-                    var dps = sp.TotalDps;
-                    int hits = SumHits(dmgSkills);
-                    double avg = (hits > 0) ? ((double)total / hits) : 0.0;
+            //    if (metric == MetricType.Damage)
+            //    {
+            //        var total = sp.TotalDamage;
+            //        var dps = sp.TotalDps;
+            //        int hits = SumHits(dmgSkills);
+            //        double avg = (hits > 0) ? ((double)total / hits) : 0.0;
 
-                    long normal = (long)total - (long)sp.CriticalDamage - (long)sp.LuckyDamage + (long)sp.CritLuckyDamage;
-                    if (normal < 0) normal = 0;
+            //        long normal = (long)total - (long)sp.CriticalDamage - (long)sp.LuckyDamage + (long)sp.CritLuckyDamage;
+            //        if (normal < 0) normal = 0;
 
-                    double critRate = (sp.CritRate > 0) ? sp.CritRate : WeightedRate(dmgSkills, delegate (SkillSummary s) { return s.CritRate; });
-                    double luckyRate = (sp.LuckyRate > 0) ? sp.LuckyRate : WeightedRate(dmgSkills, delegate (SkillSummary s) { return s.LuckyRate; });
+            //        double critRate = (sp.CritRate > 0) ? sp.CritRate : WeightedRate(dmgSkills, delegate (SkillSummary s) { return s.CritRate; });
+            //        double luckyRate = (sp.LuckyRate > 0) ? sp.LuckyRate : WeightedRate(dmgSkills, delegate (SkillSummary s) { return s.LuckyRate; });
 
-                    TotalDamageText.Text = Common.FormatWithEnglishUnits(total);
-                    TotalDpsText.Text = Common.FormatWithEnglishUnits(dps);
-                    CritRateText.Text = critRate.ToString() + "%";
-                    LuckyRate.Text = luckyRate.ToString() + "%";
+            //        TotalDamageText.Text = Common.FormatWithEnglishUnits(total);
+            //        TotalDpsText.Text = Common.FormatWithEnglishUnits(dps);
+            //        CritRateText.Text = critRate.ToString() + "%";
+            //        LuckyRate.Text = luckyRate.ToString() + "%";
 
-                    NormalDamageText.Text = Common.FormatWithEnglishUnits(SafeUlong(normal));
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(sp.CriticalDamage);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(sp.LuckyDamage);
-                    AvgDamageText.Text = Common.FormatWithEnglishUnits(avg);
+            //        NormalDamageText.Text = Common.FormatWithEnglishUnits(SafeUlong(normal));
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(sp.CriticalDamage);
+            //        LuckyDamageText.Text = Common.FormatWithEnglishUnits(sp.LuckyDamage);
+            //        AvgDamageText.Text = Common.FormatWithEnglishUnits(avg);
 
-                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(hits);
-                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(EstCrits(dmgSkills));
-                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(EstLuckies(dmgSkills));
-                    BeatenLabel.Text = Common.FormatWithEnglishUnits(SumHits(takenSkills));
-                }
-                else if (metric == MetricType.Healing)
-                {
-                    var total = sp.TotalHealing;
-                    var hps = sp.TotalHps;
-                    int hits = SumHits(healSkills);
-                    double avg = (hits > 0) ? ((double)total / hits) : 0.0;
+            //        NumberHitsLabel.Text = Common.FormatWithEnglishUnits(hits);
+            //        NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(EstCrits(dmgSkills));
+            //        LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(EstLuckies(dmgSkills));
+            //        BeatenLabel.Text = Common.FormatWithEnglishUnits(SumHits(takenSkills));
+            //    }
+            //    else if (metric == MetricType.Healing)
+            //    {
+            //        var total = sp.TotalHealing;
+            //        var hps = sp.TotalHps;
+            //        int hits = SumHits(healSkills);
+            //        double avg = (hits > 0) ? ((double)total / hits) : 0.0;
 
-                    long normalHeal = (long)total - (long)sp.HealingCritical - (long)sp.HealingLucky + (long)sp.HealingCritLucky;
-                    if (normalHeal < 0) normalHeal = 0;
+            //        long normalHeal = (long)total - (long)sp.HealingCritical - (long)sp.HealingLucky + (long)sp.HealingCritLucky;
+            //        if (normalHeal < 0) normalHeal = 0;
 
-                    double critRate = WeightedRate(healSkills, delegate (SkillSummary s) { return s.CritRate; });
-                    double luckyRate = WeightedRate(healSkills, delegate (SkillSummary s) { return s.LuckyRate; });
+            //        double critRate = WeightedRate(healSkills, delegate (SkillSummary s) { return s.CritRate; });
+            //        double luckyRate = WeightedRate(healSkills, delegate (SkillSummary s) { return s.LuckyRate; });
 
-                    TotalDamageText.Text = Common.FormatWithEnglishUnits(total);
-                    TotalDpsText.Text = Common.FormatWithEnglishUnits(hps);
-                    CritRateText.Text = critRate.ToString() + "%";
-                    LuckyRate.Text = luckyRate.ToString() + "%";
+            //        TotalDamageText.Text = Common.FormatWithEnglishUnits(total);
+            //        TotalDpsText.Text = Common.FormatWithEnglishUnits(hps);
+            //        CritRateText.Text = critRate.ToString() + "%";
+            //        LuckyRate.Text = luckyRate.ToString() + "%";
 
-                    NormalDamageText.Text = Common.FormatWithEnglishUnits(SafeUlong(normalHeal));
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(sp.HealingCritical);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(sp.HealingLucky);
-                    AvgDamageText.Text = Common.FormatWithEnglishUnits(avg);
+            //        NormalDamageText.Text = Common.FormatWithEnglishUnits(SafeUlong(normalHeal));
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(sp.HealingCritical);
+            //        LuckyDamageText.Text = Common.FormatWithEnglishUnits(sp.HealingLucky);
+            //        AvgDamageText.Text = Common.FormatWithEnglishUnits(avg);
 
-                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(hits);
-                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(EstCrits(healSkills));
-                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(EstLuckies(healSkills));
-                    BeatenLabel.Text = Common.FormatWithEnglishUnits(hits);
-                }
-                else // Taken
-                {
-                    ulong total = sp.TakenDamage;
-                    int hits = SumHits(takenSkills);
-                    double perSecond = 0.0; // 如需可用快照时长计算
+            //        NumberHitsLabel.Text = Common.FormatWithEnglishUnits(hits);
+            //        NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(EstCrits(healSkills));
+            //        LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(EstLuckies(healSkills));
+            //        BeatenLabel.Text = Common.FormatWithEnglishUnits(hits);
+            //    }
+            //    else // Taken
+            //    {
+            //        ulong total = sp.TakenDamage;
+            //        int hits = SumHits(takenSkills);
+            //        double perSecond = 0.0; // 如需可用快照时长计算
 
-                    // 最大/最小承伤（>0 的最小）
-                    ulong maxSingle = 0UL;
-                    ulong minSingle = 0UL;
-                    if (takenSkills != null && takenSkills.Count > 0)
-                    {
-                        // max
-                        for (int i = 0; i < takenSkills.Count; i++)
-                        {
-                            if (takenSkills[i].MaxSingleHit > maxSingle)
-                                maxSingle = takenSkills[i].MaxSingleHit;
-                        }
-                        // min (>0)
-                        bool hasMin = false;
-                        for (int i = 0; i < takenSkills.Count; i++)
-                        {
-                            ulong v = takenSkills[i].MinSingleHit;
-                            if (v > 0)
-                            {
-                                if (!hasMin)
-                                {
-                                    minSingle = v;
-                                    hasMin = true;
-                                }
-                                else
-                                {
-                                    if (v < minSingle) minSingle = v;
-                                }
-                            }
-                        }
-                        if (!hasMin) minSingle = 0;
-                    }
+            //        // 最大/最小承伤（>0 的最小）
+            //        ulong maxSingle = 0UL;
+            //        ulong minSingle = 0UL;
+            //        if (takenSkills != null && takenSkills.Count > 0)
+            //        {
+            //            // max
+            //            for (int i = 0; i < takenSkills.Count; i++)
+            //            {
+            //                if (takenSkills[i].MaxSingleHit > maxSingle)
+            //                    maxSingle = takenSkills[i].MaxSingleHit;
+            //            }
+            //            // min (>0)
+            //            bool hasMin = false;
+            //            for (int i = 0; i < takenSkills.Count; i++)
+            //            {
+            //                ulong v = takenSkills[i].MinSingleHit;
+            //                if (v > 0)
+            //                {
+            //                    if (!hasMin)
+            //                    {
+            //                        minSingle = v;
+            //                        hasMin = true;
+            //                    }
+            //                    else
+            //                    {
+            //                        if (v < minSingle) minSingle = v;
+            //                    }
+            //                }
+            //            }
+            //            if (!hasMin) minSingle = 0;
+            //        }
 
-                    TotalDamageText.Text = Common.FormatWithEnglishUnits(total);
-                    TotalDpsText.Text = Common.FormatWithEnglishUnits(perSecond);
-                    CritRateText.Text = Common.FormatWithEnglishUnits(maxSingle);   // UI 约定：最大承伤
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(minSingle); // UI 约定：最小承伤
-                    LuckyRate.Text = "0";
+            //        TotalDamageText.Text = Common.FormatWithEnglishUnits(total);
+            //        TotalDpsText.Text = Common.FormatWithEnglishUnits(perSecond);
+            //        CritRateText.Text = Common.FormatWithEnglishUnits(maxSingle);   // UI 约定：最大承伤
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(minSingle); // UI 约定：最小承伤
+            //        LuckyRate.Text = "0";
 
-                    NormalDamageText.Text = Common.FormatWithEnglishUnits(total);
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(0);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(0);
-                    AvgDamageText.Text = Common.FormatWithEnglishUnits(hits > 0 ? (double)total / hits : 0.0);
+            //        NormalDamageText.Text = Common.FormatWithEnglishUnits(total);
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(0);
+            //        LuckyDamageText.Text = Common.FormatWithEnglishUnits(0);
+            //        AvgDamageText.Text = Common.FormatWithEnglishUnits(hits > 0 ? (double)total / hits : 0.0);
 
-                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(hits);
-                    NumberCriticalHitsLabel.Text = "0";
-                    LuckyTimesLabel.Text = "0";
-                    BeatenLabel.Text = Common.FormatWithEnglishUnits(hits);
-                }
+            //        NumberHitsLabel.Text = Common.FormatWithEnglishUnits(hits);
+            //        NumberCriticalHitsLabel.Text = "0";
+            //        LuckyTimesLabel.Text = "0";
+            //        BeatenLabel.Text = Common.FormatWithEnglishUnits(hits);
+            //    }
 
-                return; // 快照分支结束
-            }
+            //    return; // 快照分支结束
+            //}
 
-            // ======== 非快照（单次 / 全程）========
-            SourceType src;
-            if (ContextType == DetailContextType.FullRecord || FormManager.showTotal) src = SourceType.FullRecord;
-            else src = SourceType.Current;
+            //// ======== 非快照（单次 / 全程）========
+            //SourceType src;
+            //if (ContextType == DetailContextType.FullRecord || FormManager.showTotal) src = SourceType.FullRecord;
+            //else src = SourceType.Current;
 
-            if (src == SourceType.Current)
-            {
-                var p = StatisticData._manager.GetOrCreate(Uid);
+            //if (src == SourceType.Current)
+            //{
+            //    var p = StatisticData._manager.GetOrCreate(Uid);
 
-                if (metric == MetricType.Damage)
-                {
-                    TotalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Total);
-                    TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalDps());
-                    CritRateText.Text = p.DamageStats.GetCritRate().ToString() + "%";
-                    LuckyRate.Text = p.DamageStats.GetLuckyRate().ToString() + "%";
+            //    if (metric == MetricType.Damage)
+            //    {
+            //        TotalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Total);
+            //        TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalDps());
+            //        CritRateText.Text = p.DamageStats.GetCritRate().ToString() + "%";
+            //        LuckyRate.Text = p.DamageStats.GetLuckyRate().ToString() + "%";
 
-                    NormalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Normal);
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.LuckyAndCritical);
-                    AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());
+            //        NormalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Normal);
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
+            //        LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.LuckyAndCritical);
+            //        AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());
 
-                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountTotal);
-                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountCritical);
-                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountLucky);
-                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
-                }
-                else if (metric == MetricType.Healing)
-                {
-                    TotalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Total);
-                    TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalHps());
-                    CritRateText.Text = p.HealingStats.GetCritRate().ToString() + "%";
-                    LuckyRate.Text = p.HealingStats.GetLuckyRate().ToString() + "%";
+            //        NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountTotal);
+            //        NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountCritical);
+            //        LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountLucky);
+            //        BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
+            //    }
+            //    else if (metric == MetricType.Healing)
+            //    {
+            //        TotalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Total);
+            //        TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalHps());
+            //        CritRateText.Text = p.HealingStats.GetCritRate().ToString() + "%";
+            //        LuckyRate.Text = p.HealingStats.GetLuckyRate().ToString() + "%";
 
-                    NormalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Normal);
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.LuckyAndCritical);
-                    AvgDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.GetAveragePerHit());
+            //        NormalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Normal);
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
+            //        LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.LuckyAndCritical);
+            //        AvgDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.GetAveragePerHit());
 
-                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);
-                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountCritical);
-                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountLucky);
-                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);
-                }
-                else // Taken
-                {
-                    var taken = StatisticData._manager.GetPlayerTakenOverview(Uid);
-                    TotalDamageText.Text = Common.FormatWithEnglishUnits(taken.Total);
-                    TotalDpsText.Text = Common.FormatWithEnglishUnits(taken.AvgTakenPerSec);
-                    CritRateText.Text = Common.FormatWithEnglishUnits(taken.MaxSingleHit); // 最大承伤
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(taken.MinSingleHit); // 最小承伤
-                    LuckyRate.Text = "0";
+            //        NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);
+            //        NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountCritical);
+            //        LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountLucky);
+            //        BeatenLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);
+            //    }
+            //    else // Taken
+            //    {
+            //        var taken = StatisticData._manager.GetPlayerTakenOverview(Uid);
+            //        TotalDamageText.Text = Common.FormatWithEnglishUnits(taken.Total);
+            //        TotalDpsText.Text = Common.FormatWithEnglishUnits(taken.AvgTakenPerSec);
+            //        CritRateText.Text = Common.FormatWithEnglishUnits(taken.MaxSingleHit); // 最大承伤
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(taken.MinSingleHit); // 最小承伤
+            //        LuckyRate.Text = "0";
 
-                    NormalDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Total);
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.LuckyAndCritical);
-                    AvgDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.GetAveragePerHit());
+            //        NormalDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Total);
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);
+            //        LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.LuckyAndCritical);
+            //        AvgDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.GetAveragePerHit());
 
-                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
-                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountCritical);
-                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountLucky);
-                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
-                }
-            }
-            else // FullRecord
-            {
-                var p = FullRecord.Shim.GetOrCreate(Uid);
+            //        NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
+            //        NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountCritical);
+            //        LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountLucky);
+            //        BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
+            //    }
+            //}
+            //else // FullRecord
+            //{
+            //    var p = FullRecord.Shim.GetOrCreate(Uid);
 
-                if (metric == MetricType.Damage)
-                {
-                    TotalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Total);
-                    TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalDps());
-                    CritRateText.Text = p.DamageStats.GetCritRate().ToString() + "%";
-                    LuckyRate.Text = p.DamageStats.GetLuckyRate().ToString() + "%";
+            //    if (metric == MetricType.Damage)
+            //    {
+            //        TotalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Total);
+            //        TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalDps());
+            //        CritRateText.Text = p.DamageStats.GetCritRate().ToString() + "%";
+            //        LuckyRate.Text = p.DamageStats.GetLuckyRate().ToString() + "%";
 
-                    NormalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Normal);
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Lucky);
-                    AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());
+            //        NormalDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Normal);
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Critical);
+            //        LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.Lucky);
+            //        AvgDamageText.Text = Common.FormatWithEnglishUnits(p.DamageStats.GetAveragePerHit());
 
-                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountTotal);
-                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountCritical);
-                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountLucky);
-                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
-                }
-                else if (metric == MetricType.Healing)
-                {
-                    TotalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Total);
-                    TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalHps());
-                    CritRateText.Text = p.HealingStats.GetCritRate().ToString() + "%";
-                    LuckyRate.Text = p.HealingStats.GetLuckyRate().ToString() + "%";
+            //        NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountTotal);
+            //        NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountCritical);
+            //        LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.DamageStats.CountLucky);
+            //        BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
+            //    }
+            //    else if (metric == MetricType.Healing)
+            //    {
+            //        TotalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Total);
+            //        TotalDpsText.Text = Common.FormatWithEnglishUnits(p.GetTotalHps());
+            //        CritRateText.Text = p.HealingStats.GetCritRate().ToString() + "%";
+            //        LuckyRate.Text = p.HealingStats.GetLuckyRate().ToString() + "%";
 
-                    NormalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Normal);
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Lucky);
-                    AvgDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.GetAveragePerHit());
+            //        NormalDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Normal);
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Critical);
+            //        LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.Lucky);
+            //        AvgDamageText.Text = Common.FormatWithEnglishUnits(p.HealingStats.GetAveragePerHit());
 
-                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);
-                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountCritical);
-                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountLucky);
-                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);
-                }
-                else // Taken
-                {
-                    var taken = FullRecord.Shim.GetPlayerTakenOverview(Uid);
-                    TotalDamageText.Text = Common.FormatWithEnglishUnits(taken.Total);
-                    TotalDpsText.Text = Common.FormatWithEnglishUnits(taken.AvgTakenPerSec);
-                    CritRateText.Text = Common.FormatWithEnglishUnits(taken.MaxSingleHit);
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(taken.MinSingleHit);
-                    LuckyRate.Text = "0";
+            //        NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);
+            //        NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountCritical);
+            //        LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountLucky);
+            //        BeatenLabel.Text = Common.FormatWithEnglishUnits(p.HealingStats.CountTotal);
+            //    }
+            //    else // Taken
+            //    {
+            //        var taken = FullRecord.Shim.GetPlayerTakenOverview(Uid);
+            //        TotalDamageText.Text = Common.FormatWithEnglishUnits(taken.Total);
+            //        TotalDpsText.Text = Common.FormatWithEnglishUnits(taken.AvgTakenPerSec);
+            //        CritRateText.Text = Common.FormatWithEnglishUnits(taken.MaxSingleHit);
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(taken.MinSingleHit);
+            //        LuckyRate.Text = "0";
 
-                    NormalDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Total);
-                    CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);
-                    LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Lucky);
-                    AvgDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.GetAveragePerHit());
+            //        NormalDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Total);
+            //        CritDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Critical);
+            //        LuckyDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.Lucky);
+            //        AvgDamageText.Text = Common.FormatWithEnglishUnits(p.TakenStats.GetAveragePerHit());
 
-                    NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
-                    NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountCritical);
-                    LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountLucky);
-                    BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
-                }
-            }
+            //        NumberHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
+            //        NumberCriticalHitsLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountCritical);
+            //        LuckyTimesLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountLucky);
+            //        BeatenLabel.Text = Common.FormatWithEnglishUnits(p.TakenStats.CountTotal);
+            //    }
+            //}
         }
         #endregion
 
@@ -615,74 +615,74 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
         /// </summary>
         private void UpdateSkillDistributionChart()
         {
-            if (_skillDistributionChart == null) return;
+            //if (_skillDistributionChart == null) return;
 
-            try
-            {
-                SourceType source;
-                if (ContextType == DetailContextType.FullRecord || FormManager.showTotal) source = SourceType.FullRecord;
-                else source = SourceType.Current;
+            //try
+            //{
+            //    SourceType source;
+            //    if (ContextType == DetailContextType.FullRecord || FormManager.showTotal) source = SourceType.FullRecord;
+            //    else source = SourceType.Current;
 
-                MetricType metric;
-                if (segmented1.SelectIndex == 1) metric = MetricType.Healing;
-                else if (segmented1.SelectIndex == 2) metric = MetricType.Taken;
-                else metric = MetricType.Damage;
+            //    MetricType metric;
+            //    if (segmented1.SelectIndex == 1) metric = MetricType.Healing;
+            //    else if (segmented1.SelectIndex == 2) metric = MetricType.Taken;
+            //    else metric = MetricType.Damage;
 
-                double critRate = 0;
-                double luckyRate = 0;
-                if (source == SourceType.Current)
-                {
-                    var p = StatisticData._manager.GetOrCreate(Uid);
-                    if (metric == MetricType.Healing)
-                    {
-                        critRate = p.HealingStats.GetCritRate();
-                        luckyRate = p.HealingStats.GetLuckyRate();
-                    }
-                    else if (metric == MetricType.Taken)
-                    {
-                        critRate = p.TakenStats.GetCritRate();
-                        luckyRate = p.TakenStats.GetLuckyRate();
-                    }
-                    else
-                    {
-                        critRate = p.DamageStats.GetCritRate();
-                        luckyRate = p.DamageStats.GetLuckyRate();
-                    }
-                }
-                else
-                {
-                    var p = FullRecord.Shim.GetOrCreate(Uid);
-                    if (metric == MetricType.Healing)
-                    {
-                        critRate = p.HealingStats.GetCritRate();
-                        luckyRate = p.HealingStats.GetLuckyRate();
-                    }
-                    else if (metric == MetricType.Taken)
-                    {
-                        critRate = p.TakenStats.GetCritRate();
-                        luckyRate = p.TakenStats.GetLuckyRate();
-                    }
-                    else
-                    {
-                        critRate = p.DamageStats.GetCritRate();
-                        luckyRate = p.DamageStats.GetLuckyRate();
-                    }
-                }
+            //    double critRate = 0;
+            //    double luckyRate = 0;
+            //    if (source == SourceType.Current)
+            //    {
+            //        var p = StatisticData._manager.GetOrCreate(Uid);
+            //        if (metric == MetricType.Healing)
+            //        {
+            //            critRate = p.HealingStats.GetCritRate();
+            //            luckyRate = p.HealingStats.GetLuckyRate();
+            //        }
+            //        else if (metric == MetricType.Taken)
+            //        {
+            //            critRate = p.TakenStats.GetCritRate();
+            //            luckyRate = p.TakenStats.GetLuckyRate();
+            //        }
+            //        else
+            //        {
+            //            critRate = p.DamageStats.GetCritRate();
+            //            luckyRate = p.DamageStats.GetLuckyRate();
+            //        }
+            //    }
+            //    else
+            //    {
+            //        var p = FullRecord.Shim.GetOrCreate(Uid);
+            //        if (metric == MetricType.Healing)
+            //        {
+            //            critRate = p.HealingStats.GetCritRate();
+            //            luckyRate = p.HealingStats.GetLuckyRate();
+            //        }
+            //        else if (metric == MetricType.Taken)
+            //        {
+            //            critRate = p.TakenStats.GetCritRate();
+            //            luckyRate = p.TakenStats.GetLuckyRate();
+            //        }
+            //        else
+            //        {
+            //            critRate = p.DamageStats.GetCritRate();
+            //            luckyRate = p.DamageStats.GetLuckyRate();
+            //        }
+            //    }
 
-                double normalRate = 100 - critRate - luckyRate;
-                if (normalRate < 0) normalRate = 0;
+            //    double normalRate = 100 - critRate - luckyRate;
+            //    if (normalRate < 0) normalRate = 0;
 
-                var chartData = new List<(string, double)>();
-                if (normalRate > 0) chartData.Add(("普通", normalRate));
-                if (critRate > 0) chartData.Add(("暴击", critRate));
-                if (luckyRate > 0) chartData.Add(("幸运", luckyRate));
+            //    var chartData = new List<(string, double)>();
+            //    if (normalRate > 0) chartData.Add(("普通", normalRate));
+            //    if (critRate > 0) chartData.Add(("暴击", critRate));
+            //    if (luckyRate > 0) chartData.Add(("幸运", luckyRate));
 
-                _skillDistributionChart.SetData(chartData);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("更新暴击率与幸运率图表时出错: " + ex.Message);
-            }
+            //    _skillDistributionChart.SetData(chartData);
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("更新暴击率与幸运率图表时出错: " + ex.Message);
+            //}
         }
         #endregion
 
@@ -693,67 +693,67 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
         /// </summary>
         private void UpdateCritLuckyChart()
         {
-            if (_critLuckyChart == null) return;
+            //if (_critLuckyChart == null) return;
 
-            try
-            {
-                SourceType source;
-                if (ContextType == DetailContextType.FullRecord || FormManager.showTotal) source = SourceType.FullRecord;
-                else source = SourceType.Current;
+            //try
+            //{
+            //    SourceType source;
+            //    if (ContextType == DetailContextType.FullRecord || FormManager.showTotal) source = SourceType.FullRecord;
+            //    else source = SourceType.Current;
 
-                MetricType metric;
-                if (segmented1.SelectIndex == 1) metric = MetricType.Healing;
-                else if (segmented1.SelectIndex == 2) metric = MetricType.Taken;
-                else metric = MetricType.Damage;
+            //    MetricType metric;
+            //    if (segmented1.SelectIndex == 1) metric = MetricType.Healing;
+            //    else if (segmented1.SelectIndex == 2) metric = MetricType.Taken;
+            //    else metric = MetricType.Damage;
 
-                List<SkillSummary> skills = new List<SkillSummary>();
+            //    List<SkillSummary> skills = new List<SkillSummary>();
 
-                if (source == SourceType.Current)
-                {
-                    if (metric == MetricType.Healing)
-                    {
-                        var tmp = StatisticData._manager.GetPlayerSkillSummaries(Uid, 10, true, Core.SkillType.Heal);
-                        skills = ToListOrEmpty(tmp);
-                    }
-                    else if (metric == MetricType.Taken)
-                    {
-                        var tmp = StatisticData._manager.GetPlayerTakenDamageSummaries(Uid, 10, true);
-                        skills = ToListOrEmpty(tmp);
-                    }
-                    else
-                    {
-                        var tmp = StatisticData._manager.GetPlayerSkillSummaries(Uid, 10, true, Core.SkillType.Damage);
-                        skills = ToListOrEmpty(tmp);
-                    }
-                    // 保险：再按排序器排序一遍，截前10
-                    SortSkillsDesc(skills);
-                    if (skills.Count > 10) skills = skills.GetRange(0, 10);
-                }
-                else
-                {
-                    var triple = FullRecord.GetPlayerSkills(Uid);
-                    if (metric == MetricType.Healing)
-                        skills = ToListOrEmpty(triple.Item2);
-                    else if (metric == MetricType.Taken)
-                        skills = ToListOrEmpty(triple.Item3);
-                    else
-                        skills = ToListOrEmpty(triple.Item1);
+            //    if (source == SourceType.Current)
+            //    {
+            //        if (metric == MetricType.Healing)
+            //        {
+            //            var tmp = StatisticData._manager.GetPlayerSkillSummaries(Uid, 10, true, Core.SkillType.Heal);
+            //            skills = ToListOrEmpty(tmp);
+            //        }
+            //        else if (metric == MetricType.Taken)
+            //        {
+            //            var tmp = StatisticData._manager.GetPlayerTakenDamageSummaries(Uid, 10, true);
+            //            skills = ToListOrEmpty(tmp);
+            //        }
+            //        else
+            //        {
+            //            var tmp = StatisticData._manager.GetPlayerSkillSummaries(Uid, 10, true, Core.SkillType.Damage);
+            //            skills = ToListOrEmpty(tmp);
+            //        }
+            //        // 保险：再按排序器排序一遍，截前10
+            //        SortSkillsDesc(skills);
+            //        if (skills.Count > 10) skills = skills.GetRange(0, 10);
+            //    }
+            //    else
+            //    {
+            //        var triple = FullRecord.GetPlayerSkills(Uid);
+            //        if (metric == MetricType.Healing)
+            //            skills = ToListOrEmpty(triple.Item2);
+            //        else if (metric == MetricType.Taken)
+            //            skills = ToListOrEmpty(triple.Item3);
+            //        else
+            //            skills = ToListOrEmpty(triple.Item1);
 
-                    SortSkillsDesc(skills);
-                    if (skills.Count > 10) skills = skills.GetRange(0, 10);
-                }
+            //        SortSkillsDesc(skills);
+            //        if (skills.Count > 10) skills = skills.GetRange(0, 10);
+            //    }
 
-                var chartData = new List<(string, double)>();
-                for (int i = 0; i < skills.Count; i++)
-                {
-                    chartData.Add((skills[i].SkillName, (double)skills[i].Total));
-                }
-                _critLuckyChart.SetData(chartData);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("更新技能占比图时出错: " + ex.Message);
-            }
+            //    var chartData = new List<(string, double)>();
+            //    for (int i = 0; i < skills.Count; i++)
+            //    {
+            //        chartData.Add((skills[i].SkillName, (double)skills[i].Total));
+            //    }
+            //    _critLuckyChart.SetData(chartData);
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("更新技能占比图时出错: " + ex.Message);
+            //}
         }
         #endregion
 

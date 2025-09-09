@@ -42,7 +42,6 @@
             // sortedProgressBarList1
             // 
             sortedProgressBarList1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            sortedProgressBarList1.AnimationQuality = Effects.Enum.Quality.Medium;
             sortedProgressBarList1.BackColor = Color.White;
             sortedProgressBarList1.Location = new Point(13, 11);
             sortedProgressBarList1.Margin = new Padding(5, 4, 5, 4);
@@ -52,7 +51,6 @@
             sortedProgressBarList1.OrderImageAlign = Control.GDI.RenderContent.ContentAlign.MiddleLeft;
             sortedProgressBarList1.OrderImageRenderSize = new Size(0, 0);
             sortedProgressBarList1.OrderImages = null;
-            sortedProgressBarList1.SeletedItemColor = Color.FromArgb(86, 156, 214);
             sortedProgressBarList1.Size = new Size(1237, 600);
             sortedProgressBarList1.TabIndex = 1;
             // 
