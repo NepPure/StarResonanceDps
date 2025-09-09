@@ -216,7 +216,6 @@
                                     </MenuItem>
                                     <!--  历史记录  -->
                                     <MenuItem
-                                        x:Name="miHistory"
                                         Header="历史记录"
                                         ItemContainerStyle="{StaticResource CheckableMenuItem}" />
                                     <!--  打桩模式  -->

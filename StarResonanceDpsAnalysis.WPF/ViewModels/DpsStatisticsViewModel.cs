@@ -14,6 +14,7 @@ namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 
 public partial class DpsStatisticsViewModel : BaseViewModel
 {
+    private readonly IApplicationController _appController;
     private readonly Random _rd = new();
     private readonly long[] _totals = new long[6]; // 6位玩家示例
 
@@ -26,8 +27,10 @@ public partial class DpsStatisticsViewModel : BaseViewModel
 
     private DispatcherTimer _timer = null!;
 
-    public DpsStatisticsViewModel()
+    public DpsStatisticsViewModel(IApplicationController appController)
+
     {
+        _appController = appController;
         Debug.WriteLine("VM Loaded");
 
         InitDemoProgressBars();
@@ -118,9 +121,9 @@ public partial class DpsStatisticsViewModel : BaseViewModel
 
         // 计算“每秒值”举例：取最近随机的一点点变化，示意 dps
         // 这里简化：用一个近似（0.4~0.8）* (当下相对值*1w)，只做展示
-        for (var i = 0; i < _slots.Count; i++)
+        for (var i = 0; i < Slots.Count; i++)
         {
-            var bar = _slots[i];
+            var bar = Slots[i];
             var total = _totals[i];
             var ratio = (double)total / max; // 0~1
             bar.ProgressBarValue = ratio; // 控制条的长度
@@ -139,7 +142,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
 
         // 可选：按照总伤排序（若你的控件会按 Data 输入顺序渲染）
         // 如果 SortedProgressBarList 自己会排序，则可不要这段
-        var ordered = _slots.Zip(_totals, (bar, total) => (bar, total))
+        var ordered = Slots.Zip(_totals, (bar, total) => (bar, total))
             .OrderByDescending(x => x.total)
             .Select(x => x.bar)
             .ToList();
@@ -191,6 +194,13 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     {
         ShowContextMenu = true;
     }
+
+    [RelayCommand]
+    private void Shutdown()
+    {
+        _appController.Shutdown();
+    }
+
 
     public class SkillItem
     {
