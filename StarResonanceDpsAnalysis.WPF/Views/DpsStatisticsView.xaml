@@ -324,10 +324,7 @@
                             </b:Interaction.Triggers>
                         </Button>
                         <!--  设置按钮  -->
-                        <Button
-                            x:Name="SetButton"
-                            Width="24"
-                            Content="&#xE600;">
+                        <Button x:Name="SetButton" Content="&#xE600;">
                             <b:Interaction.Behaviors>
                                 <behaviors:OpenContextMenuBehavior />
                             </b:Interaction.Behaviors>
@@ -337,10 +334,6 @@
                                     <ContextMenu.Resources>
                                         <Style BasedOn="{StaticResource ModernMenuItem}" TargetType="{x:Type MenuItem}" />
                                     </ContextMenu.Resources>
-
-                                    <ContextMenu.Style>
-                                        <StaticResource ResourceKey="ModernContextMenu" />
-                                    </ContextMenu.Style>
 
                                     <MenuItem
                                         Header="统计BOSS"
@@ -411,7 +404,7 @@
                             x:Name="PullButton"
                             Width="22"
                             Click="PullButton_Click"
-                            Content="&#xE601;"
+                            Content=""
                             RenderTransformOrigin="0.5,0.5">
                             <Button.RenderTransform>
                                 <TransformGroup>
