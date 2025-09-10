@@ -167,4 +167,19 @@ public partial class DpsStatisticsView : Window
     {
         Debug.WriteLine($"ProgressBar Clicked: ID({data.ID}), Value({data.ProgressBarValue}), typeof(Data)=>{data.Data?.GetType().Name}");
     }
+
+    private void ProgressBarList_ProgressBarMouseEnter(CustomizeProgressBar sender, MouseEventArgs e, ProgressBarData data)
+    {
+        Debug.WriteLine($"ProgressBar Entered: ID({data.ID}), Value({data.ProgressBarValue}), typeof(Data)=>{data.Data?.GetType().Name}");
+    }
+
+    private void ProgressBarList_ProgressBarMouseMove(CustomizeProgressBar sender, MouseEventArgs e, ProgressBarData data)
+    {
+        Debug.WriteLine($"ProgressBar Moving: ID({data.ID}), Value({data.ProgressBarValue}), typeof(Data)=>{data.Data?.GetType().Name}");
+    }
+
+    private void ProgressBarList_ProgressBarMouseLeave(CustomizeProgressBar sender, MouseEventArgs e, ProgressBarData data)
+    {
+        Debug.WriteLine($"ProgressBar Leaveed: ID({data.ID}), Value({data.ProgressBarValue}), typeof(Data)=>{data.Data?.GetType().Name}");
+    }
 }

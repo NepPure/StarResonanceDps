@@ -125,6 +125,9 @@ public partial class SortedProgressBarList
                 Value = data.Value.ProgressBarValue,
                 Slot = template
             };
+            progressBar.MouseEnter += ProgressBar_MouseEnter;
+            progressBar.MouseMove += ProgressBar_MouseMove;
+            progressBar.MouseLeave += ProgressBar_MouseLeave;
             progressBar.MouseDown += ProgressBar_MouseDown;
 
             ProgressBarListBox.Children.Add(progressBar);
@@ -171,6 +174,24 @@ public partial class SortedProgressBarList
         ];
 
         return result || CompareOrder();
+    }
+
+    private void ProgressBar_MouseEnter(object sender, MouseEventArgs e)
+    {
+        var progressBar = (CustomizeProgressBar)sender;
+        ProgressBarMouseEnter?.Invoke(progressBar, e, progressBar.Data);
+    }
+
+    private void ProgressBar_MouseMove(object sender, MouseEventArgs e)
+    {
+        var progressBar = (CustomizeProgressBar)sender;
+        ProgressBarMouseMove?.Invoke(progressBar, e, progressBar.Data);
+    }
+
+    private void ProgressBar_MouseLeave(object sender, MouseEventArgs e)
+    {
+        var progressBar = (CustomizeProgressBar)sender;
+        ProgressBarMouseLeave?.Invoke(progressBar, e, progressBar.Data);
     }
 
     private void ProgressBar_MouseDown(object sender, MouseButtonEventArgs e)

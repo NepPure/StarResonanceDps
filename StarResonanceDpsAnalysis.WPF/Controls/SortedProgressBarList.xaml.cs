@@ -11,8 +11,14 @@ namespace StarResonanceDpsAnalysis.WPF.Controls;
 /// </summary>
 public partial class SortedProgressBarList : UserControl
 {
+    public delegate void ProgressBarMouseEnterEventHandler(CustomizeProgressBar sender, MouseEventArgs e, ProgressBarData? data);
+    public delegate void ProgressBarMouseMoveEventHandler(CustomizeProgressBar sender, MouseEventArgs e, ProgressBarData? data);
+    public delegate void ProgressBarMouseLeaveEventHandler(CustomizeProgressBar sender, MouseEventArgs e, ProgressBarData? data);
     public delegate void ProgressBarMouseDownEventHandler(CustomizeProgressBar sender, MouseButtonEventArgs e, ProgressBarData? data);
 
+    public event ProgressBarMouseEnterEventHandler? ProgressBarMouseEnter;
+    public event ProgressBarMouseMoveEventHandler? ProgressBarMouseMove;
+    public event ProgressBarMouseLeaveEventHandler? ProgressBarMouseLeave;
     public event ProgressBarMouseDownEventHandler? ProgressBarMouseDown;
 
     public static readonly DependencyProperty ProgressBarSlotDataTemplateProperty =

@@ -275,6 +275,9 @@
             <ctrl:SortedProgressBarList
                 x:Name="ProgressBarList"
                 Margin="0,25,0,25"
+                ProgressBarMouseEnter="ProgressBarList_ProgressBarMouseEnter"
+                ProgressBarMouseMove="ProgressBarList_ProgressBarMouseMove"
+                ProgressBarMouseLeave="ProgressBarList_ProgressBarMouseLeave"
                 ProgressBarMouseDown="ProgressBarList_ProgressBarMouseDown"
                 Data="{Binding Path=Slots}">
                 <ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
