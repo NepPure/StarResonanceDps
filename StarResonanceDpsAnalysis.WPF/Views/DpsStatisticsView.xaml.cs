@@ -28,20 +28,6 @@ public partial class DpsStatisticsView : Window
         InitializeComponent();
 
         DataContext = vm;
-
-        Task.Run(async () => 
-        {
-            while (true)
-            {
-                var data = vm.UpdateBars();
-                ProgressBarList.Dispatcher.Invoke(() => 
-                {
-                    ProgressBarList.Data = data;
-                });
-
-                await Task.Delay(200);
-            }
-        });
     }
 
     public bool Minimize

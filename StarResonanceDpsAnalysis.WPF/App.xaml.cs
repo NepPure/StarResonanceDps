@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using StarResonanceDpsAnalysis.WPF.Data;
 using StarResonanceDpsAnalysis.WPF.Models;
 using StarResonanceDpsAnalysis.WPF.Themes;
 using StarResonanceDpsAnalysis.WPF.ViewModels;
@@ -53,6 +54,7 @@ public partial class App : Application
                     services.AddTransient<DpsStatisticsView>();
                     services.AddThemes();
                     services.AddSingleton<IApplicationController, ApplicationController>();
+                    services.AddSingleton<IDataSource, DpsDummyDataSource>();
                     // 注册主线程调度器
                     services.AddSingleton(_ => Current.Dispatcher);
                 })

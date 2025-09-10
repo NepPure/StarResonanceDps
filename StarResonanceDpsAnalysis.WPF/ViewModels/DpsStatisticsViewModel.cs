@@ -104,10 +104,10 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         // 3) 定时器：实时更新
         _timer = new DispatcherTimer(DispatcherPriority.Background)
         {
-            Interval = TimeSpan.FromMilliseconds(100)
+            Interval = TimeSpan.FromMilliseconds(2000)
         };
-        _timer.Tick += (_, __) => UpdateBars();
-        // _timer.Start();
+        _timer.Tick += (_, __) => UpdateData();
+        _timer.Start();
     }
 
 
@@ -131,6 +131,8 @@ public partial class DpsStatisticsViewModel : BaseViewModel
 
     private void UpdateData()
     {
+        Debug.WriteLine("Enter updatedata");
+
         // 随机增长各自总伤
         for (var i = 0; i < _totals.Length; i++)
             _totals[i] += _rd.Next(10, 20);
@@ -172,9 +174,9 @@ public partial class DpsStatisticsViewModel : BaseViewModel
                 p.Name = $"{rank + 1:00}.";
         }
 
-        // 把排序后的列表重新赋值（若控件 Data 是 IEnumerable，并允许替换）
-        // 如果你的控件支持就地更新而不需要替换，也可以直接 ProgressBarList.Data = _slots;
-        return ordered;
+        // Reorder the observable collection to match the desired order with minimal notifications.
+        SortData(ordered);
+        Debug.WriteLine("Exit updatedata");
     }
 
     [RelayCommand]
@@ -217,9 +219,36 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         _appController.Shutdown();
     }
 
-    private void SortData()
+    private void SortData(IEnumerable<ProgressBarData> orderedEnumerable)
     {
-        throw new NotImplementedException();
+        if (orderedEnumerable is null)
+            return;
+
+        var desired = orderedEnumerable as IList<ProgressBarData> ?? orderedEnumerable.ToList();
+
+        // Defensive: if collection sizes differ or some items are missing, replace the entire collection.
+        if (Slots.Count != desired.Count || desired.Any(d => !Slots.Contains(d)))
+        {
+            // Replace the whole collection (property setter will raise change notification).
+            Slots = new System.Collections.ObjectModel.ObservableCollection<ProgressBarData>(desired);
+            return;
+        }
+
+        // In-place reordering using ObservableCollection.Move to minimize change notifications.
+        // For each position i, find the desired item and move it into position i if necessary.
+        for (var i = 0; i < desired.Count; i++)
+        {
+            var target = desired[i];
+            var currentIndex = Slots.IndexOf(target);
+            if (currentIndex < 0)
+                continue; // shouldn't happen due to previous check
+
+            if (currentIndex == i)
+                continue;
+
+            // Move element from currentIndex to i.
+            Slots.Move(currentIndex, i);
+        }
     }
 
     public class SkillItem
@@ -232,4 +261,4 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     }
 }
 
-public sealed class DpsStatisticsDesignTimeViewModel() : DpsStatisticsViewModel(null!);
+public sealed class DpsStatisticsDesignTimeViewModel() : DpsStatisticsViewModel(null!, null!);

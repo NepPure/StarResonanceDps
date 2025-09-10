@@ -19,8 +19,6 @@
                                      IsDesignTimeCreatable=True}"
     ResizeMode="CanResize"
     Style="{StaticResource TransparentWindow}"
-    d:DataContext="{d:DesignInstance Type=vm:DpsStatisticsViewModel,
-                                     IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
     <b:Interaction.Triggers>
         <b:EventTrigger EventName="Loaded">
@@ -299,11 +297,11 @@
             <ctrl:SortedProgressBarList
                 x:Name="ProgressBarList"
                 Margin="0,25,0,25"
-                ProgressBarMouseEnter="ProgressBarList_ProgressBarMouseEnter"
-                ProgressBarMouseMove="ProgressBarList_ProgressBarMouseMove"
-                ProgressBarMouseLeave="ProgressBarList_ProgressBarMouseLeave"
+                Data="{Binding Path=Slots, UpdateSourceTrigger=PropertyChanged}"
                 ProgressBarMouseDown="ProgressBarList_ProgressBarMouseDown"
-                Data="{Binding Path=Slots}">
+                ProgressBarMouseEnter="ProgressBarList_ProgressBarMouseEnter"
+                ProgressBarMouseLeave="ProgressBarList_ProgressBarMouseLeave"
+                ProgressBarMouseMove="ProgressBarList_ProgressBarMouseMove" >
                 <ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
                     <DataTemplate>
                         <Grid>
