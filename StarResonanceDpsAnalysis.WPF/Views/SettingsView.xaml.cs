@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 using StarResonanceDpsAnalysis.WPF.Controls;
+using StarResonanceDpsAnalysis.WPF.Controls.Models;
 using StarResonanceDpsAnalysis.WPF.ViewModels;
 
 namespace StarResonanceDpsAnalysis.WPF.Views
@@ -48,7 +49,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
 
                 while (true)
                 {
-                    var data = new ObservableCollection<ProgressBarData>();
+                    var data = new List<ProgressBarData>();
                     for (var i = 0; i < 10; ++i)
                     {
                         arrs[i] += rd.Next(10, 20);
@@ -75,7 +76,7 @@ namespace StarResonanceDpsAnalysis.WPF.Views
             });
         }
 
-        public class Data : OrderingDataViewModel
+        public class Data : OrderingData
         {
             public double Value { get; set; }
             public string Name => $"{Order.ToString().PadLeft(2, '0')}: {Math.Round(Value, 2)}";

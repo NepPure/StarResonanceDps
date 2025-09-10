@@ -1,13 +1,20 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+
+using StarResonanceDpsAnalysis.WPF.Controls.Models;
 
 namespace StarResonanceDpsAnalysis.WPF.Controls;
 
 /// <summary>
-///     SortedProgressBarList.xaml 的交互逻辑
+/// SortedProgressBarList.xaml 的交互逻辑
 /// </summary>
 public partial class SortedProgressBarList : UserControl
 {
+    public delegate void ProgressBarMouseDownEventHandler(CustomizeProgressBar sender, MouseButtonEventArgs e, ProgressBarData? data);
+
+    public event ProgressBarMouseDownEventHandler? ProgressBarMouseDown;
+
     public static readonly DependencyProperty ProgressBarSlotDataTemplateProperty =
         DependencyProperty.Register(
             nameof(ProgressBarSlotDataTemplate),
@@ -35,45 +42,6 @@ public partial class SortedProgressBarList : UserControl
 
     private readonly Dictionary<long, ProgressBarData> _dataDict = [];
 
-    // /// <summary>
-    // /// 数据源
-    // /// </summary>
-    // public List<ProgressBarData>? Data
-    // {
-    //     get => [.. _dataDict.Values];
-    //     set
-    //     {
-    //         lock (_dataLock)
-    //         {
-    //             // 清除所有项目
-    //             if (value == null || value.Count == 0)
-    //             {
-    //                 _dataDict.Clear();
-    //
-    //                 return;
-    //             }
-    //
-    //             // 移除不存在的项
-    //             foreach (var key in _dataDict.Keys.ToList())
-    //             {
-    //                 if (value.Exists(e => e.ID == key)) continue;
-    //
-    //                 _dataDict.Remove(key);
-    //             }
-    //
-    //             // 更新或新增项（后者覆盖同 ID）
-    //             foreach (var item in value)
-    //             {
-    //                 if (item == null || item.ID < 0) continue;
-    //
-    //                 _dataDict[item.ID] = item;
-    //             }
-    //
-    //             UpdateAnimation();
-    //         }
-    //     }
-    // }
-
     public SortedProgressBarList()
     {
         InitializeComponent();
@@ -97,9 +65,42 @@ public partial class SortedProgressBarList : UserControl
         set => SetValue(ProgressBarMarginProperty, value);
     }
 
-    public ICollection<ProgressBarData> Data
+    /// <summary>
+    /// 数据源
+    /// </summary>
+    public List<ProgressBarData>? Data
     {
-        get => (ICollection<ProgressBarData>)GetValue(DataProperty);
-        set => SetValue(DataProperty, value);
+        // 无需双向通知
+        set
+        {
+            lock (_dataLock)
+            {
+                // 清除所有项目
+                if (value == null || value.Count == 0)
+                {
+                    _dataDict.Clear();
+
+                    return;
+                }
+
+                // 移除不存在的项
+                foreach (var key in _dataDict.Keys.ToList())
+                {
+                    if (value.Exists(e => e.ID == key)) continue;
+
+                    _dataDict.Remove(key);
+                }
+
+                // 更新或新增项（后者覆盖同 ID）
+                foreach (var item in value)
+                {
+                    if (item == null || item.ID < 0) continue;
+
+                    _dataDict[item.ID] = item;
+                }
+
+                UpdateAnimation();
+            }
+        }
     }
 }

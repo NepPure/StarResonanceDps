@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using StarResonanceDpsAnalysis.WPF.Controls.Models;
 
 namespace StarResonanceDpsAnalysis.WPF.Controls
 {
@@ -83,6 +84,18 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
         {
             get { return (DataTemplate)GetValue(SlotDataTemplateProperty); }
             set { SetValue(SlotDataTemplateProperty, value); }
+        }
+
+        public static readonly DependencyProperty DataProperty =
+            DependencyProperty.Register(
+                nameof(Data),
+                typeof(ProgressBarData),
+                typeof(CustomizeProgressBar),
+                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None));
+        public ProgressBarData? Data 
+        {
+            get { return (ProgressBarData?)GetValue(DataProperty); }
+            set { SetValue(DataProperty, value); }
         }
 
         public CustomizeProgressBar()

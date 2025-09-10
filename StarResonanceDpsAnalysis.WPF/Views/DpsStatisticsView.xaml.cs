@@ -1,7 +1,10 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
+using StarResonanceDpsAnalysis.WPF.Controls;
+using StarResonanceDpsAnalysis.WPF.Controls.Models;
 using StarResonanceDpsAnalysis.WPF.ViewModels;
 
 namespace StarResonanceDpsAnalysis.WPF.Views;
@@ -23,7 +26,22 @@ public partial class DpsStatisticsView : Window
     public DpsStatisticsView(DpsStatisticsViewModel vm)
     {
         InitializeComponent();
+
         DataContext = vm;
+
+        Task.Run(async () => 
+        {
+            while (true)
+            {
+                var data = vm.UpdateBars();
+                ProgressBarList.Dispatcher.Invoke(() => 
+                {
+                    ProgressBarList.Data = data;
+                });
+
+                await Task.Delay(200);
+            }
+        });
     }
 
 
@@ -77,7 +95,7 @@ public partial class DpsStatisticsView : Window
     }
 
     /// <summary>
-    ///     打桩模式选择
+    /// 打桩模式选择
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -102,7 +120,7 @@ public partial class DpsStatisticsView : Window
     }
 
     /// <summary>
-    ///     设置选择
+    /// 设置选择
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -121,7 +139,7 @@ public partial class DpsStatisticsView : Window
     }
 
     /// <summary>
-    ///     测伤模式
+    /// 测伤模式
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
@@ -143,5 +161,10 @@ public partial class DpsStatisticsView : Window
 
         // 这次点击后变成 false：允许“全不选”，什么也不做
         e.Handled = true;
+    }
+
+    private void ProgressBarList_ProgressBarMouseDown(CustomizeProgressBar sender, MouseButtonEventArgs e, ProgressBarData data)
+    {
+        Debug.WriteLine($"ProgressBar Clicked: ID({data.ID}), Value({data.ProgressBarValue}), typeof(Data)=>{data.Data?.GetType().Name}");
     }
 }

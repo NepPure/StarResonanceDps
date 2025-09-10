@@ -1,7 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
+
 using StarResonanceDpsAnalysis.Core.Extends.System.Windows;
+using StarResonanceDpsAnalysis.WPF.Controls.Models;
 
 namespace StarResonanceDpsAnalysis.WPF.Controls;
 
@@ -26,7 +29,6 @@ public partial class SortedProgressBarList
         }
 
         _animating = true;
-        Debug.WriteLine("Animation Start");
 
         _prevIdOrder = [.. _animatingInfoBuffer.Select(e => e.ID)];
 
@@ -108,8 +110,9 @@ public partial class SortedProgressBarList
 
         foreach (var data in _dataDict)
         {
-            // 如果新增数据, 则动画出现
             if (_animatingInfoBuffer.Any(e => e.ID == data.Key)) continue;
+
+            // 如果新增数据, 则动画出现
             var template = ProgressBarSlotDataTemplate.LoadContent() as FrameworkElement;
             template!.DataContext = data.Value.Data;
 
@@ -118,9 +121,11 @@ public partial class SortedProgressBarList
             {
                 VerticalAlignment = VerticalAlignment.Top,
                 Height = ProgressBarHeight,
+                Data = data.Value,
                 Value = data.Value.ProgressBarValue,
                 Slot = template
             };
+            progressBar.MouseDown += ProgressBar_MouseDown;
 
             ProgressBarListBox.Children.Add(progressBar);
 
@@ -137,6 +142,7 @@ public partial class SortedProgressBarList
             result = true;
         }
 
+        // 重新排序
         var tmpIndex = 0;
         _animatingInfoBuffer =
         [
@@ -144,6 +150,7 @@ public partial class SortedProgressBarList
                 .OrderByDescending(e => e.Data.ProgressBarValue)
                 .Select(info =>
                 {
+                    // 即将消失的项目, 不参与排序
                     if (info.ToIndex == -1) return info;
 
                     info.ToIndex = tmpIndex++;
@@ -164,6 +171,12 @@ public partial class SortedProgressBarList
         ];
 
         return result || CompareOrder();
+    }
+
+    private void ProgressBar_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        var progressBar = (CustomizeProgressBar)sender;
+        ProgressBarMouseDown?.Invoke(progressBar, e, progressBar.Data);
     }
 
     private bool CompareOrder()

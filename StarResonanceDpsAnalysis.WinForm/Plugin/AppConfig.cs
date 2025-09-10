@@ -25,8 +25,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
     /// </summary>
     public class AppConfig
     {
-        public static UserLocalCache cache = new();
-
         public static int ProgressBarHeight
         {
             get

@@ -8,17 +8,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:viewModels="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
+    xmlns:vm="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
     Title="DpsStatisticsForm"
-    Width="320"
-    Height="359"
-    MinWidth="300"
-    MinHeight="31"
-    d:DataContext="{d:DesignInstance Type=viewModels:DpsStatisticsViewModel,
-                                     IsDesignTimeCreatable=True}"
+    Width="320" Height="359"
+    MinWidth="300" MinHeight="31"
+    WindowStartupLocation="CenterScreen"
     ResizeMode="CanResize"
     Style="{StaticResource TransparentWindow}"
-    WindowStartupLocation="CenterScreen"
+    d:DataContext="{d:DesignInstance Type=vm:DpsStatisticsViewModel,
+                                     IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
     <b:Interaction.Triggers>
         <b:EventTrigger EventName="Loaded">
@@ -277,6 +275,7 @@
             <ctrl:SortedProgressBarList
                 x:Name="ProgressBarList"
                 Margin="0,25,0,25"
+                ProgressBarMouseDown="ProgressBarList_ProgressBarMouseDown"
                 Data="{Binding Path=Slots}">
                 <ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
                     <DataTemplate>

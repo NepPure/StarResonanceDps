@@ -1,10 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Threading;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StarResonanceDpsAnalysis.Core.Extends.System;
-using StarResonanceDpsAnalysis.WPF.Controls;
+using StarResonanceDpsAnalysis.Core.Models;
+using StarResonanceDpsAnalysis.WPF.Controls.Models;
 using StarResonanceDpsAnalysis.WPF.Extensions;
 using StarResonanceDpsAnalysis.WPF.Models;
 
@@ -25,8 +27,9 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     private DispatcherTimer _timer = null!;
 
     public DpsStatisticsViewModel()
-
     {
+        Debug.WriteLine("VM Loaded");
+
         InitDemoProgressBars();
     }
 
@@ -66,7 +69,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
             });
         }
 
-        Slots = new ObservableCollection<ProgressBarData>(list);
+        Slots = [.. list];
     }
 
     [RelayCommand]
@@ -82,7 +85,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         {
             Interval = TimeSpan.FromMilliseconds(100)
         };
-        _timer.Tick += (_, __) => UpdateBars();
+        _timer.Tick += (_, _) => UpdateBars();
         // _timer.Start();
     }
 
@@ -105,7 +108,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         ScopeTime = ScopeTime.Next();
     }
 
-    private void UpdateBars()
+    public List<ProgressBarData> UpdateBars()
     {
         // 随机增长各自总伤
         for (var i = 0; i < _totals.Length; i++)
@@ -147,10 +150,10 @@ public partial class DpsStatisticsViewModel : BaseViewModel
             if (ordered[rank].Data is PlayerSlotViewModel p)
                 p.Name = $"{rank + 1:00}.";
         }
-        //
-        // // 把排序后的列表重新赋值（若控件 Data 是 IEnumerable，并允许替换）
-        // // 如果你的控件支持就地更新而不需要替换，也可以直接 ProgressBarList.Data = _slots;
-        // ProgressBarList.Data = ordered;
+
+        // 把排序后的列表重新赋值（若控件 Data 是 IEnumerable，并允许替换）
+        // 如果你的控件支持就地更新而不需要替换，也可以直接 ProgressBarList.Data = _slots;
+        return ordered;
     }
 
     [RelayCommand]

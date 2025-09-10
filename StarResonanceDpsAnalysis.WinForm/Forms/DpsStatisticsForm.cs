@@ -79,13 +79,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             }
         }
 
-        protected override void OnFormClosed(FormClosedEventArgs e)
-        {
-            try { KbHook?.UnHook(); }
-            catch (Exception ex) { Console.WriteLine($"窗体关闭清理时出错: {ex.Message}"); }
-            base.OnFormClosed(e);
-        }
-
         #endregion
 
         private void DataStorage_ServerChanged(string currentServer, string prevServer)
@@ -491,6 +484,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             DataStorage.DpsDataUpdated -= DataStorage_DpsDataUpdated;
             DataStorage.SavePlayerInfoToFile();
+
+            try { KbHook?.UnHook(); }
+            catch (Exception ex) { Console.WriteLine($"窗体关闭清理时出错: {ex.Message}"); }
         }
 
         private void button_ThemeSwitch_Click(object sender, EventArgs e)

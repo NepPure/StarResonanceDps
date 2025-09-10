@@ -1,13 +1,15 @@
-﻿using System.Windows.Media.Imaging;
+﻿using System;
+
 using CommunityToolkit.Mvvm.ComponentModel;
-using StarResonanceDpsAnalysis.WPF.Models;
+using StarResonanceDpsAnalysis.Core.Models;
+using StarResonanceDpsAnalysis.WPF.Controls.Models;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 
 /// <summary>
 /// 用于 DataTemplate 绑定的数据载体（挂到 ProgressBarData.Data 上）
 /// </summary>
-public partial class PlayerSlotViewModel : OrderingDataViewModel
+public partial class PlayerSlotViewModel : OrderingData
 {
     [ObservableProperty] private string _name = string.Empty;
 
