@@ -8,9 +8,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
-    xmlns:viewModels="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:viewModels="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
     Title="DpsStatisticsForm"
     Width="320"
     Height="359"
@@ -215,34 +214,35 @@
                                     <MenuItem Header="个人模式" />
                                     <!--  记录设置  -->
                                     <MenuItem Header="记录设置" ItemContainerStyle="{StaticResource CheckableMenuItem}">
-                                        <!-- pass a parameter (literal) to the command -->
-                                        <MenuItem IsChecked="{Binding Options.MinimalDurationInSeconds}"
-                                                  Command="{Binding Options.SetMinimalDurationCommand}"
-                                                  Header="记录每一次">
+                                        <!--  pass a parameter (literal) to the command  -->
+                                        <MenuItem
+                                            Command="{Binding Options.SetMinimalDurationCommand}"
+                                            Header="记录每一次"
+                                            IsChecked="{Binding Options.MinimalDurationInSeconds}">
                                             <MenuItem.CommandParameter>
                                                 <system:Int32>-1</system:Int32>
                                             </MenuItem.CommandParameter>
                                         </MenuItem>
-                                        <MenuItem IsChecked="{Binding Options.MinimalDurationInSeconds}" 
+                                        <MenuItem
                                             Command="{Binding Options.SetMinimalDurationCommand}"
-                                                  Header="不记录1分钟以下">
+                                            Header="不记录1分钟以下"
+                                            IsChecked="{Binding Options.MinimalDurationInSeconds}">
                                             <MenuItem.CommandParameter>
                                                 <system:Int32>60</system:Int32>
                                             </MenuItem.CommandParameter>
                                         </MenuItem>
-                                        <!-- Click="RecordSettingsMenuItem_Click" -->
-                                        <MenuItem IsChecked="{Binding Options.MinimalDurationInSeconds}"
-                                        Command="{Binding Options.SetMinimalDurationCommand}"
-                                                  Header="不记录2分钟以下">
+                                        <!--  Click="RecordSettingsMenuItem_Click"  -->
+                                        <MenuItem
+                                            Command="{Binding Options.SetMinimalDurationCommand}"
+                                            Header="不记录2分钟以下"
+                                            IsChecked="{Binding Options.MinimalDurationInSeconds}">
                                             <MenuItem.CommandParameter>
                                                 <system:Int32>120</system:Int32>
                                             </MenuItem.CommandParameter>
                                         </MenuItem>
                                     </MenuItem>
                                     <!--  历史记录  -->
-                                    <MenuItem
-                                        Header="历史记录"
-                                        ItemContainerStyle="{StaticResource CheckableMenuItem}" />
+                                    <MenuItem Header="历史记录" ItemContainerStyle="{StaticResource CheckableMenuItem}" />
                                     <!--  打桩模式  -->
                                     <MenuItem Header="打桩模式" ItemContainerStyle="{StaticResource CheckableMenuItem}">
                                         <MenuItem

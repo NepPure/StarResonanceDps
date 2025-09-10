@@ -5,6 +5,8 @@ using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StarResonanceDpsAnalysis.Core.Extends.System;
+using StarResonanceDpsAnalysis.WPF.Controls;
+using StarResonanceDpsAnalysis.WPF.Data;
 using StarResonanceDpsAnalysis.Core.Models;
 using StarResonanceDpsAnalysis.WPF.Controls.Models;
 using StarResonanceDpsAnalysis.WPF.Extensions;
@@ -26,6 +28,7 @@ public partial class DpsStatisticsOptions : BaseViewModel
 public partial class DpsStatisticsViewModel : BaseViewModel
 {
     private readonly IApplicationController _appController;
+    private readonly IDataSource _dataSource;
     private readonly Random _rd = new();
     private readonly long[] _totals = new long[6]; // 6位玩家示例
 
@@ -40,10 +43,10 @@ public partial class DpsStatisticsViewModel : BaseViewModel
 
     private DispatcherTimer _timer = null!;
 
-    public DpsStatisticsViewModel(IApplicationController appController)
-
+    public DpsStatisticsViewModel(IApplicationController appController, IDataSource dataSource)
     {
         _appController = appController;
+        _dataSource = dataSource;
         Debug.WriteLine("VM Loaded");
 
         InitDemoProgressBars();
@@ -103,7 +106,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         {
             Interval = TimeSpan.FromMilliseconds(100)
         };
-        _timer.Tick += (_, _) => UpdateBars();
+        _timer.Tick += (_, __) => UpdateBars();
         // _timer.Start();
     }
 
@@ -126,7 +129,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         ScopeTime = ScopeTime.Next();
     }
 
-    public List<ProgressBarData> UpdateBars()
+    private void UpdateData()
     {
         // 随机增长各自总伤
         for (var i = 0; i < _totals.Length; i++)
@@ -214,6 +217,11 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         _appController.Shutdown();
     }
 
+    private void SortData()
+    {
+        throw new NotImplementedException();
+    }
+
     public class SkillItem
     {
         public string SkillName { get; set; } = string.Empty;
@@ -223,4 +231,5 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         public int AvgDamage { get; set; }
     }
 }
+
 public sealed class DpsStatisticsDesignTimeViewModel() : DpsStatisticsViewModel(null!);

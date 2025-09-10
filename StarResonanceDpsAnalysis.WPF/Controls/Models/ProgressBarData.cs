@@ -1,6 +1,3 @@
-﻿using System.Windows.Media;
-using StarResonanceDpsAnalysis.WPF.ViewModels;
-
 namespace StarResonanceDpsAnalysis.WPF.Controls.Models;
 
 public class ProgressBarData

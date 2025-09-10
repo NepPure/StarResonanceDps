@@ -44,7 +44,6 @@ public partial class DpsStatisticsView : Window
         });
     }
 
-
     public bool Minimize
     {
         get => (bool)GetValue(MinimizeProperty);
