@@ -69,12 +69,11 @@
             pageHeader_MainHeader.Font = new Font("SAO Welcome TT", 8.999999F, FontStyle.Bold);
             pageHeader_MainHeader.ForeColor = Color.White;
             pageHeader_MainHeader.Location = new Point(0, 0);
-            pageHeader_MainHeader.Margin = new Padding(2);
             pageHeader_MainHeader.MaximizeBox = false;
             pageHeader_MainHeader.MinimizeBox = false;
             pageHeader_MainHeader.Mode = AntdUI.TAMode.Dark;
             pageHeader_MainHeader.Name = "pageHeader_MainHeader";
-            pageHeader_MainHeader.Size = new Size(421, 20);
+            pageHeader_MainHeader.Size = new Size(632, 30);
             pageHeader_MainHeader.SubFont = new Font("HarmonyOS Sans SC Medium", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             pageHeader_MainHeader.SubGap = 0;
             pageHeader_MainHeader.SubText = "当前 · 伤害";
@@ -88,10 +87,9 @@
             button_ThemeSwitch.Ghost = true;
             button_ThemeSwitch.IconRatio = 0.8F;
             button_ThemeSwitch.IconSvg = "SunOutlined";
-            button_ThemeSwitch.Location = new Point(323, 0);
-            button_ThemeSwitch.Margin = new Padding(2);
+            button_ThemeSwitch.Location = new Point(485, 0);
             button_ThemeSwitch.Name = "button_ThemeSwitch";
-            button_ThemeSwitch.Size = new Size(27, 20);
+            button_ThemeSwitch.Size = new Size(40, 30);
             button_ThemeSwitch.TabIndex = 1;
             button_ThemeSwitch.ToggleIconSvg = "MoonOutlined";
             button_ThemeSwitch.Click += button_ThemeSwitch_Click;
@@ -103,9 +101,10 @@
             button_Minimum.Ghost = true;
             button_Minimum.IconRatio = 0.8F;
             button_Minimum.IconSvg = resources.GetString("button_Minimum.IconSvg");
-            button_Minimum.Location = new Point(350, 0);
+            button_Minimum.Location = new Point(525, 0);
+            button_Minimum.Margin = new Padding(4, 4, 4, 4);
             button_Minimum.Name = "button_Minimum";
-            button_Minimum.Size = new Size(16, 20);
+            button_Minimum.Size = new Size(24, 30);
             button_Minimum.TabIndex = 2;
             button_Minimum.ToggleIconSvg = "";
             button_Minimum.Click += button_Minimum_Click;
@@ -117,9 +116,10 @@
             button_SwitchStatisticsMode.Icon = (Image)resources.GetObject("button_SwitchStatisticsMode.Icon");
             button_SwitchStatisticsMode.IconHover = (Image)resources.GetObject("button_SwitchStatisticsMode.IconHover");
             button_SwitchStatisticsMode.IconRatio = 0.8F;
-            button_SwitchStatisticsMode.Location = new Point(184, 0);
+            button_SwitchStatisticsMode.Location = new Point(275, 0);
+            button_SwitchStatisticsMode.Margin = new Padding(4, 4, 4, 4);
             button_SwitchStatisticsMode.Name = "button_SwitchStatisticsMode";
-            button_SwitchStatisticsMode.Size = new Size(19, 20);
+            button_SwitchStatisticsMode.Size = new Size(28, 30);
             button_SwitchStatisticsMode.TabIndex = 0;
             button_SwitchStatisticsMode.Click += button_SwitchStatisticsMode_Click;
             button_SwitchStatisticsMode.MouseEnter += button_SwitchStatisticsMode_MouseEnter;
@@ -131,9 +131,10 @@
             button_AlwaysOnTop.Ghost = true;
             button_AlwaysOnTop.IconRatio = 0.8F;
             button_AlwaysOnTop.IconSvg = resources.GetString("button_AlwaysOnTop.IconSvg");
-            button_AlwaysOnTop.Location = new Point(366, 0);
+            button_AlwaysOnTop.Location = new Point(549, 0);
+            button_AlwaysOnTop.Margin = new Padding(4, 4, 4, 4);
             button_AlwaysOnTop.Name = "button_AlwaysOnTop";
-            button_AlwaysOnTop.Size = new Size(18, 20);
+            button_AlwaysOnTop.Size = new Size(27, 30);
             button_AlwaysOnTop.TabIndex = 3;
             button_AlwaysOnTop.ToggleIconSvg = resources.GetString("button_AlwaysOnTop.ToggleIconSvg");
             button_AlwaysOnTop.Click += button_AlwaysOnTop_Click;
@@ -146,9 +147,10 @@
             button_RefreshDps.Ghost = true;
             button_RefreshDps.IconRatio = 0.8F;
             button_RefreshDps.IconSvg = resources.GetString("button_RefreshDps.IconSvg");
-            button_RefreshDps.Location = new Point(384, 0);
+            button_RefreshDps.Location = new Point(576, 0);
+            button_RefreshDps.Margin = new Padding(4, 4, 4, 4);
             button_RefreshDps.Name = "button_RefreshDps";
-            button_RefreshDps.Size = new Size(16, 20);
+            button_RefreshDps.Size = new Size(24, 30);
             button_RefreshDps.TabIndex = 4;
             button_RefreshDps.ToggleIconSvg = "";
             button_RefreshDps.Click += button_RefreshDps_Click;
@@ -165,9 +167,10 @@
             button_Settings.Icon = (Image)resources.GetObject("button_Settings.Icon");
             button_Settings.IconRatio = 1F;
             button_Settings.IconSvg = "";
-            button_Settings.Location = new Point(400, 0);
+            button_Settings.Location = new Point(600, 0);
+            button_Settings.Margin = new Padding(4, 4, 4, 4);
             button_Settings.Name = "button_Settings";
-            button_Settings.Size = new Size(21, 20);
+            button_Settings.Size = new Size(32, 30);
             button_Settings.TabIndex = 5;
             button_Settings.ToggleIconSvg = "";
             button_Settings.Click += button_Settings_Click;
@@ -179,12 +182,13 @@
             panel_Footer.Controls.Add(label_BattleTimeText);
             panel_Footer.Controls.Add(label_CurrentOrder);
             panel_Footer.Dock = DockStyle.Bottom;
-            panel_Footer.Location = new Point(0, 326);
+            panel_Footer.Location = new Point(0, 490);
+            panel_Footer.Margin = new Padding(4, 4, 4, 4);
             panel_Footer.Name = "panel_Footer";
             panel_Footer.Radius = 3;
             panel_Footer.Shadow = 3;
             panel_Footer.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel_Footer.Size = new Size(421, 27);
+            panel_Footer.Size = new Size(632, 40);
             panel_Footer.TabIndex = 3;
             panel_Footer.Text = "panel1";
             // 
@@ -192,9 +196,10 @@
             // 
             label_CurrentDps.Dock = DockStyle.Right;
             label_CurrentDps.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            label_CurrentDps.Location = new Point(314, 3);
+            label_CurrentDps.Location = new Point(472, 4);
+            label_CurrentDps.Margin = new Padding(4, 4, 4, 4);
             label_CurrentDps.Name = "label_CurrentDps";
-            label_CurrentDps.Size = new Size(107, 24);
+            label_CurrentDps.Size = new Size(160, 36);
             label_CurrentDps.TabIndex = 2;
             label_CurrentDps.Text = "";
             label_CurrentDps.TextAlign = ContentAlignment.MiddleRight;
@@ -203,10 +208,9 @@
             // 
             label_BattleTimeText.Dock = DockStyle.Left;
             label_BattleTimeText.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            label_BattleTimeText.Location = new Point(31, 3);
-            label_BattleTimeText.Margin = new Padding(2);
+            label_BattleTimeText.Location = new Point(46, 4);
             label_BattleTimeText.Name = "label_BattleTimeText";
-            label_BattleTimeText.Size = new Size(191, 24);
+            label_BattleTimeText.Size = new Size(286, 36);
             label_BattleTimeText.TabIndex = 1;
             label_BattleTimeText.Text = "请稍等，正在准备监听服务器...";
             // 
@@ -214,10 +218,9 @@
             // 
             label_CurrentOrder.Dock = DockStyle.Left;
             label_CurrentOrder.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            label_CurrentOrder.Location = new Point(0, 3);
-            label_CurrentOrder.Margin = new Padding(2);
+            label_CurrentOrder.Location = new Point(0, 4);
             label_CurrentOrder.Name = "label_CurrentOrder";
-            label_CurrentOrder.Size = new Size(31, 24);
+            label_CurrentOrder.Size = new Size(46, 36);
             label_CurrentOrder.TabIndex = 0;
             label_CurrentOrder.Text = "";
             // 
@@ -229,11 +232,12 @@
             panel_ModeBox.Controls.Add(button_TotalTreatment);
             panel_ModeBox.Controls.Add(button_TotalDamage);
             panel_ModeBox.Dock = DockStyle.Top;
-            panel_ModeBox.Location = new Point(0, 20);
+            panel_ModeBox.Location = new Point(0, 30);
+            panel_ModeBox.Margin = new Padding(4, 4, 4, 4);
             panel_ModeBox.Name = "panel_ModeBox";
             panel_ModeBox.Shadow = 3;
             panel_ModeBox.ShadowAlign = AntdUI.TAlignMini.Bottom;
-            panel_ModeBox.Size = new Size(421, 44);
+            panel_ModeBox.Size = new Size(632, 66);
             panel_ModeBox.TabIndex = 1;
             panel_ModeBox.Text = "panel2";
             // 
@@ -245,10 +249,11 @@
             button_NpcTakeDamage.Font = new Font("HarmonyOS Sans SC Medium", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             button_NpcTakeDamage.Icon = (Image)resources.GetObject("button_NpcTakeDamage.Icon");
             button_NpcTakeDamage.IconRatio = 0.8F;
-            button_NpcTakeDamage.Location = new Point(298, 6);
+            button_NpcTakeDamage.Location = new Point(447, 9);
+            button_NpcTakeDamage.Margin = new Padding(4, 4, 4, 4);
             button_NpcTakeDamage.Name = "button_NpcTakeDamage";
             button_NpcTakeDamage.Radius = 3;
-            button_NpcTakeDamage.Size = new Size(89, 30);
+            button_NpcTakeDamage.Size = new Size(134, 45);
             button_NpcTakeDamage.TabIndex = 3;
             button_NpcTakeDamage.Tag = "3";
             button_NpcTakeDamage.Text = "承伤";
@@ -261,10 +266,11 @@
             button_AlwaysInjured.DefaultBorderColor = Color.Wheat;
             button_AlwaysInjured.Font = new Font("HarmonyOS Sans SC Medium", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             button_AlwaysInjured.Icon = (Image)resources.GetObject("button_AlwaysInjured.Icon");
-            button_AlwaysInjured.Location = new Point(209, 6);
+            button_AlwaysInjured.Location = new Point(314, 9);
+            button_AlwaysInjured.Margin = new Padding(4, 4, 4, 4);
             button_AlwaysInjured.Name = "button_AlwaysInjured";
             button_AlwaysInjured.Radius = 3;
-            button_AlwaysInjured.Size = new Size(89, 30);
+            button_AlwaysInjured.Size = new Size(134, 45);
             button_AlwaysInjured.TabIndex = 2;
             button_AlwaysInjured.Tag = "2";
             button_AlwaysInjured.Text = "总承伤";
@@ -276,10 +282,11 @@
             button_TotalTreatment.DefaultBack = Color.FromArgb(247, 247, 247);
             button_TotalTreatment.Font = new Font("HarmonyOS Sans SC Medium", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             button_TotalTreatment.Icon = (Image)resources.GetObject("button_TotalTreatment.Icon");
-            button_TotalTreatment.Location = new Point(119, 6);
+            button_TotalTreatment.Location = new Point(178, 9);
+            button_TotalTreatment.Margin = new Padding(4, 4, 4, 4);
             button_TotalTreatment.Name = "button_TotalTreatment";
             button_TotalTreatment.Radius = 3;
-            button_TotalTreatment.Size = new Size(89, 30);
+            button_TotalTreatment.Size = new Size(134, 45);
             button_TotalTreatment.TabIndex = 1;
             button_TotalTreatment.Tag = "1";
             button_TotalTreatment.Text = "总治疗";
@@ -291,10 +298,11 @@
             button_TotalDamage.DefaultBack = Color.FromArgb(223, 223, 223);
             button_TotalDamage.Font = new Font("HarmonyOS Sans SC Medium", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             button_TotalDamage.Icon = (Image)resources.GetObject("button_TotalDamage.Icon");
-            button_TotalDamage.Location = new Point(30, 6);
+            button_TotalDamage.Location = new Point(45, 9);
+            button_TotalDamage.Margin = new Padding(4, 4, 4, 4);
             button_TotalDamage.Name = "button_TotalDamage";
             button_TotalDamage.Radius = 3;
-            button_TotalDamage.Size = new Size(89, 30);
+            button_TotalDamage.Size = new Size(134, 45);
             button_TotalDamage.TabIndex = 0;
             button_TotalDamage.Tag = "0";
             button_TotalDamage.Text = "总伤害";
@@ -302,8 +310,10 @@
             // 
             // sortedProgressBarList_MainList
             // 
+            sortedProgressBarList_MainList.AnimationQuality = Effects.Enum.Quality.Medium;
             sortedProgressBarList_MainList.Dock = DockStyle.Fill;
-            sortedProgressBarList_MainList.Location = new Point(0, 64);
+            sortedProgressBarList_MainList.Location = new Point(0, 96);
+            sortedProgressBarList_MainList.Margin = new Padding(8, 6, 8, 6);
             sortedProgressBarList_MainList.Name = "sortedProgressBarList_MainList";
             sortedProgressBarList_MainList.OrderColor = Color.Black;
             sortedProgressBarList_MainList.OrderFont = new Font("宋体", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
@@ -312,7 +322,8 @@
             sortedProgressBarList_MainList.OrderImages = null;
             sortedProgressBarList_MainList.ScrollBarWidth = 8;
             sortedProgressBarList_MainList.ScrollOffsetY = 0F;
-            sortedProgressBarList_MainList.Size = new Size(421, 262);
+            sortedProgressBarList_MainList.SeletedItemColor = Color.FromArgb(86, 156, 214);
+            sortedProgressBarList_MainList.Size = new Size(632, 394);
             sortedProgressBarList_MainList.TabIndex = 2;
             // 
             // timer_BattleTimeLabelUpdater
@@ -322,17 +333,16 @@
             // 
             // DpsStatisticsForm
             // 
-            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleDimensions = new SizeF(144F, 144F);
             AutoScaleMode = AutoScaleMode.Dpi;
             BackColor = Color.White;
             BorderWidth = 0;
-            ClientSize = new Size(421, 353);
+            ClientSize = new Size(632, 530);
             Controls.Add(sortedProgressBarList_MainList);
             Controls.Add(panel_ModeBox);
             Controls.Add(panel_Footer);
             Controls.Add(pageHeader_MainHeader);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            Margin = new Padding(2);
             Name = "DpsStatisticsForm";
             Radius = 3;
             StartPosition = FormStartPosition.CenterScreen;

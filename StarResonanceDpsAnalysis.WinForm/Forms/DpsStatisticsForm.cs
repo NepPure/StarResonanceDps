@@ -197,12 +197,17 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             UpdateSortProgressBarListData();
         }
 
+        /// <summary>
+        /// 更新主界面中的 DPS 进度条列表数据
+        /// </summary>
         private void UpdateSortProgressBarListData()
         {
+            // 根据选择，决定显示全程数据还是分段数据
             var dpsList = _isShowFullData
                 ? DataStorage.ReadOnlyFullDpsDataList
                 : DataStorage.ReadOnlySectionedDpsDataList;
 
+            // 如果没有任何数据，清空界面显示
             if (dpsList.Count == 0)
             {
                 sortedProgressBarList_MainList.Data = [];
@@ -210,6 +215,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 return;
             }
 
+            // 先对数据做筛选（比如过滤掉无效/被排除的玩家）
             var dpsIEnum = GetDefaultFilter(dpsList, _stasticsType);
             if (!dpsIEnum.Any())
             {
@@ -218,14 +224,20 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 return;
             }
 
+            // 获取该类型下的最大值和总和（用于计算进度条比例和百分比）
             (var maxValue, var sumValue) = GetMaxSumValueByType(dpsIEnum, _stasticsType);
 
+            // 遍历每个玩家的数据，生成进度条数据
             var progressBarDataList = dpsIEnum
                 .Select(e =>
                 {
+                    // 根据 UID 找到玩家的额外信息（职业、名字、战力等）
                     DataStorage.ReadOnlyPlayerInfoDatas.TryGetValue(e.UID, out var playerInfo);
-                    var professionName = playerInfo?.SubProfessionName ?? playerInfo?.ProfessionID?.GetProfessionNameById() ?? string.Empty;
+                    var professionName = playerInfo?.SubProfessionName
+                                         ?? playerInfo?.ProfessionID?.GetProfessionNameById()
+                                         ?? string.Empty;
 
+                    // 如果之前没有渲染数据，先新建一份
                     if (!_renderListDict.TryGetValue(e.UID, out var renderContent))
                     {
                         var profBmp = professionName.GetProfessionBitmap();
@@ -233,46 +245,57 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                         _renderListDict[e.UID] = renderContent;
                     }
 
+                    // 确保职业图标有值（有些玩家可能一开始没加载出来）
                     if (renderContent[0].Image == ProfessionThemeExtends.EmptyBitmap)
                     {
                         renderContent[0].Image = professionName.GetProfessionBitmap();
                     }
 
+                    // 获取玩家在该统计类型下的数值（伤害/治疗/承伤）
                     var value = GetValueByType(e, _stasticsType);
 
+                    // 昵称/职业/战力（或 UID）的显示文本
                     renderContent[1].Text = $"{(playerInfo?.Name == null ? string.Empty : $"{playerInfo.Name}-")}{playerInfo?.SubProfessionName ?? professionName}({playerInfo?.CombatPower?.ToString() ?? ($"UID: {e.UID}")})";
+
+                    // 总数值 + 平均每秒（DPS/HPS等）
                     renderContent[2].Text = $"{value.ToCompactString()} ({(value / Math.Max(1, TimeSpan.FromTicks(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
+
+                    // 团队占比（四舍五入为整数百分比）
                     renderContent[3].Text = $"{Math.Round(100d * value / sumValue, 0, MidpointRounding.AwayFromZero)}%";
 
+                    // 返回进度条数据
                     return new ProgressBarData()
                     {
-                        ID = e.UID,
-                        ProgressBarColor = professionName.GetProfessionThemeColor(Config.IsLight),
-                        ProgressBarCornerRadius = 3,
-                        ProgressBarValue = (float)value / maxValue,
-                        ContentList = renderContent
+                        ID = e.UID, // 绑定玩家 ID
+                        ProgressBarColor = professionName.GetProfessionThemeColor(Config.IsLight), // 进度条颜色随职业变化
+                        ProgressBarCornerRadius = 3, // 圆角大小
+                        ProgressBarValue = (float)value / maxValue, // 当前值/最大值 → 进度条比例
+                        ContentList = renderContent // 渲染文本和图片
                     };
                 }).ToList();
 
+            // 把生成的进度条数据放到主列表控件上
             sortedProgressBarList_MainList.Data = progressBarDataList;
 
-            // DpsDatas(dd) 当前玩家的DPS数据
+            // 当前玩家的 DPS 数据源（全程 or 分段）
             var dd = _isShowFullData
                 ? DataStorage.ReadOnlyFullDpsDatas
                 : DataStorage.ReadOnlySectionedDpsDatas;
 
-            // currentPlayerDpsData(cpdd) 当前玩家数据
+            // 如果找不到当前玩家的数据，就显示占位符
             if (!dd.TryGetValue(DataStorage.CurrentPlayerInfo.UID, out DpsData? cpdd))
             {
                 label_CurrentDps.Text = "-- (--)";
                 return;
             }
 
-            // currentValue(cv) 当前统计值
+            // 当前玩家的数值（比如当前玩家的总伤害/总治疗）
             var cv = GetValueByType(cpdd, _stasticsType);
-            label_CurrentDps.Text = $"{cv.ToCompactString()} ({(cv / Math.Max(1, TimeSpan.FromTicks(cpdd.LastLoggedTick - (cpdd.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
 
+            // 显示当前玩家的总数值 + 每秒平均值
+            label_CurrentDps.Text = $"{cv.ToCompactString()} ({(cv / Math.Max(1, TimeSpan.FromTicks(cpdd.LastLoggedTick - (cpdd.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
         }
+
 
         /// <summary>
         /// 获取每个统计类别的默认筛选器

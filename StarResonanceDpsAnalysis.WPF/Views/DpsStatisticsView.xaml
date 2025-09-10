@@ -310,10 +310,11 @@
                             >[Sort]</Button>
                         <Button Command="{Binding AddRandomDataCommand}"
                             >[AddRand]</Button>
+                        <!--  设置按钮  -->
                         <Button
                             x:Name="RefreshButton"
                             Command="{Binding RefreshCommand}"
-                            Content="">
+                            Content="&#xE644;" Width="21">
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="MouseEnter">
                                     <b:InvokeCommandAction Command="{Binding RefreshButtonMouseEnteredCommand}" />
@@ -324,16 +325,20 @@
                             </b:Interaction.Triggers>
                         </Button>
                         <!--  设置按钮  -->
-                        <Button x:Name="SetButton" Content="&#xE600;">
+                        <Button x:Name="SetButton" Content="&#xE600;" Width="24">
                             <b:Interaction.Behaviors>
                                 <behaviors:OpenContextMenuBehavior />
                             </b:Interaction.Behaviors>
                             <Button.ContextMenu>
-                                <ContextMenu Style="{StaticResource ModernContextMenu}">
+                                <ContextMenu>
                                     <!--  只给 MenuItem 应用样式，Separator 不受影响  -->
                                     <ContextMenu.Resources>
-                                        <Style BasedOn="{StaticResource ModernMenuItem}" TargetType="MenuItem" />
+                                        <Style BasedOn="{StaticResource ModernMenuItem}" TargetType="{x:Type MenuItem}" />
                                     </ContextMenu.Resources>
+
+                                    <ContextMenu.Style>
+                                        <StaticResource ResourceKey="ModernContextMenu"/>
+                                    </ContextMenu.Style>
 
                                     <MenuItem
                                         Header="统计BOSS"
@@ -403,8 +408,8 @@
                         <Button
                             x:Name="PullButton"
                             Click="PullButton_Click"
-                            Content=""
-                            RenderTransformOrigin="0.5,0.5">
+                            Content="&#xE601;"
+                            RenderTransformOrigin="0.5,0.5" Width="22">
                             <Button.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform />
@@ -414,7 +419,6 @@
                                 </TransformGroup>
                             </Button.RenderTransform>
                         </Button>
-                        <!--  Popup 承载自定义 UserControl  -->
                         <!--  鼠标经过 显示测试到时放进度条上  -->
                         <Popup
                             x:Name="SkillPopup"
