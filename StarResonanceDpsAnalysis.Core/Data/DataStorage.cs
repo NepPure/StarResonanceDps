@@ -77,8 +77,29 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// </remarks>
         private static bool ForceNewBattleSection { get; set; } = false;
 
+        private static bool _isServerConnected = false;
+        /// <summary>
+        /// 是否正在监听服务器
+        /// </summary>
+        public static bool IsServerConnected
+        {
+            get => _isServerConnected;
+            internal set
+            {
+                if (_isServerConnected != value)
+                {
+                    _isServerConnected = value;
 
+                    try
+                    {
+                        ServerConnectionStateChanged?.Invoke(value);
+                    }
+                    catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(ServerConnectionStateChanged) => {ex.Message}\r\n{ex.StackTrace}"); }
+                }
+            }
+        }
 
+        public delegate void ServerConnectionStateChangedEventHandler(bool serverConnectionState);
         public delegate void PlayerInfoUpdatedEventHandler(PlayerInfo info);
         public delegate void NewSectionCreatedEventHandler();
         public delegate void BattleLogCreatedEventHandler(BattleLog battleLog);
@@ -86,6 +107,10 @@ namespace StarResonanceDpsAnalysis.Core.Data
         public delegate void DataUpdatedEventHandler();
         public delegate void ServerChangedEventHandler(string currentServer, string prevServer);
 
+        /// <summary>
+        /// 服务器的监听连接状态变更事件
+        /// </summary>
+        public static event ServerConnectionStateChangedEventHandler? ServerConnectionStateChanged;
         /// <summary>
         /// 玩家信息更新事件
         /// </summary>

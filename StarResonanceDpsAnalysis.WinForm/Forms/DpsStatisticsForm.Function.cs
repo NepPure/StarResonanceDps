@@ -72,11 +72,11 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             if (AppConfig.NetworkCard >= 0)
             {
                 // 设备列表：SharpPcap 提供
-                var devices = CaptureDeviceList.Instance; 
+                var devices = CaptureDeviceList.Instance;
                 if (AppConfig.NetworkCard < devices.Count)
                 {
                     // 根据索引选择设备
-                    SelectedDevice = devices[AppConfig.NetworkCard]; 
+                    SelectedDevice = devices[AppConfig.NetworkCard];
                     Console.WriteLine($"启动时已选择网卡: {SelectedDevice.Description} (索引: {AppConfig.NetworkCard})");
                 }
             }
@@ -289,7 +289,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             }
         }
 
-        private void HandleClearAllData() 
+        private void HandleClearAllData()
         {
             DataStorage.ClearAllDpsData();
 

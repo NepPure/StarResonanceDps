@@ -100,8 +100,11 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void ForceReconnect(string reason)
         {
+            DataStorage.IsServerConnected = false;
+
             Console.WriteLine($"[PacketAnalyzer] Reconnect due to {reason} @ {DateTime.Now:HH:mm:ss}");
-            ResetCaptureState(); // 清空状态，让后续包重新走“识别服务器”的逻辑
+            // 清空状态，让后续包重新走“识别服务器”的逻辑
+            ResetCaptureState(); 
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -131,6 +134,9 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
         {
             try
             {
+                // 标记已开始监听服务器
+                DataStorage.IsServerConnected = true;
+
                 // 使用 PacketDotNet 解析为通用数据包对象（包含以太网/IP/TCP 等）
                 var packet = Packet.ParsePacket(raw.LinkLayerType, raw.Data);
 
