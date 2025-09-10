@@ -540,10 +540,9 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         _appController.Shutdown();
     }
 
-    [RelayCommand]
-    private void Shutdown()
+    private void SortData()
     {
-        _appController.Shutdown();
+        throw new NotImplementedException();
     }
 
     public class SkillItem
