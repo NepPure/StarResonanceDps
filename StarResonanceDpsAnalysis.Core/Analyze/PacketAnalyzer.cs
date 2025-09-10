@@ -204,10 +204,16 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                                         {
                                             if (CurrentServer != srcServer)
                                             {
+                                                var prevServer = CurrentServer;
                                                 CurrentServer = srcServer;
+
                                                 ClearTcpCache();
+
                                                 TcpNextSeq = tcpPacket.SequenceNumber + (uint)payload.Length;
+
                                                 Console.WriteLine($"Got Scene Server Address: {srcServer}");
+
+                                                DataStorage.InvokeServerChangedEvent(CurrentServer, prevServer);
                                             }
                                         }
                                         catch (Exception ex)
@@ -234,8 +240,7 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                                 {
                                     if (CurrentServer != srcServer)
                                     {
-                                        DataStorage.InvokeServerChangedEvent(srcServer, CurrentServer);
-
+                                        var prevServer = CurrentServer;
                                         CurrentServer = srcServer;
 
                                         ClearTcpCache();
@@ -243,6 +248,8 @@ namespace StarResonanceDpsAnalysis.Core.Analyze
                                         TcpNextSeq = tcpPacket.SequenceNumber + (uint)payload.Length;
 
                                         Console.WriteLine($"Got Scene Server Address by Login Return Packet: {srcServer}");
+
+                                        DataStorage.InvokeServerChangedEvent(CurrentServer, prevServer);
                                     }
                                 }
                             }

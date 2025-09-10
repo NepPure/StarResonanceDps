@@ -134,16 +134,21 @@ namespace StarResonanceDpsAnalysis.WinForm.Extends
 
         public static Color GetProfessionThemeColor(this string professionName, bool isLightTheme)
         {
-            var dic = isLightTheme
-                ? LightThemeProfessionColorDict
-                : DarkThemeProfessionColorDict;
-
-            if (dic.TryGetValue(professionName, out var color))
+            if (TryGetProfessionThemeColor(professionName, isLightTheme, out var color))
             {
                 return color;
             }
 
             return DefaultColor;
+        }
+
+        public static bool TryGetProfessionThemeColor(this string professionName, bool isLightTheme, out Color color) 
+        {
+            var dic = isLightTheme
+                ? LightThemeProfessionColorDict
+                : DarkThemeProfessionColorDict;
+
+            return dic.TryGetValue(professionName, out color);
         }
 
         public static Image GetProfessionImage(this string professionName, Image? def = null)

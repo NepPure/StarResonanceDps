@@ -98,6 +98,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Control
         #endregion
 
         #region 区块：表格数据刷新（单次/全程入口）
+        public enum SourceType { Current, FullRecord }
+        public enum MetricType { Damage, Healing, Taken, NpcTaken }
         /// <summary>
         /// 刷新并填充玩家技能表格
         /// 根据 source（Current/FullRecord）与 metric（Damage/Healing/Taken）决定取数口径。

@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using StarResonanceDpsAnalysis.Core.Analyze;
 using StarResonanceDpsAnalysis.Core.Analyze.Models;
 using StarResonanceDpsAnalysis.Core.Data.Models;
+using StarResonanceDpsAnalysis.Core.Extends.Data;
 
 namespace StarResonanceDpsAnalysis.Core.Data
 {
@@ -43,15 +44,15 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <summary>
         /// 全程玩家DPS字典 (Key: UID)
         /// </summary>
-        private static Dictionary<long, DpsData> FullDpsData { get; } = [];
+        private static Dictionary<long, DpsData> FullDpsDatas { get; } = [];
         /// <summary>
         /// 只读全程玩家DPS字典 (Key: UID)
         /// </summary>
-        public static ReadOnlyDictionary<long, DpsData> ReadOnlyFullDpsData { get => FullDpsData.AsReadOnly(); }
+        public static ReadOnlyDictionary<long, DpsData> ReadOnlyFullDpsDatas { get => FullDpsDatas.AsReadOnly(); }
         /// <summary>
         /// 只读全程玩家DPS列表; 注意! 频繁读取该属性可能会导致性能问题!
         /// </summary>
-        public static IReadOnlyList<DpsData> ReadOnlyFullDpsDataList { get => FullDpsData.Values.ToList().AsReadOnly(); }
+        public static IReadOnlyList<DpsData> ReadOnlyFullDpsDataList { get => FullDpsDatas.Values.ToList().AsReadOnly(); }
         /// <summary>
         /// 阶段性玩家DPS字典 (Key: UID)
         /// </summary>
@@ -79,7 +80,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
 
 
         public delegate void PlayerInfoUpdatedEventHandler(PlayerInfo info);
-        public delegate void BattleLogNewSectionCreatedEventHandler();
+        public delegate void NewSectionCreatedEventHandler();
         public delegate void BattleLogCreatedEventHandler(BattleLog battleLog);
         public delegate void DpsDataUpdatedEventHandler();
         public delegate void DataUpdatedEventHandler();
@@ -92,7 +93,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <summary>
         /// 战斗日志新分段创建事件
         /// </summary>
-        public static event BattleLogNewSectionCreatedEventHandler? BattleLogNewSectionCreated;
+        public static event NewSectionCreatedEventHandler? NewSectionCreated;
         /// <summary>
         /// 战斗日志更新事件
         /// </summary>
@@ -149,7 +150,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 保存缓存玩家信息到文件
         /// </summary>
         /// <param name="relativeFilePath"></param>
-        public static void SavePlayerInfoToFile() 
+        public static void SavePlayerInfoToFile()
         {
             try
             {
@@ -161,7 +162,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
             }
 
             var list = PlayerInfoDatas.Values.ToList();
-            PlayerInfoCacheWriter.WriteToFile([..list]);
+            PlayerInfoCacheWriter.WriteToFile([.. list]);
         }
 
         /// <summary>
@@ -314,8 +315,17 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <param name="uid">UID</param>
         private static void TriggerPlayerInfoUpdated(long uid)
         {
-            PlayerInfoUpdated?.Invoke(PlayerInfoDatas[uid]);
-            DataUpdated?.Invoke();
+            try
+            {
+                PlayerInfoUpdated?.Invoke(PlayerInfoDatas[uid]);
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(PlayerInfoUpdated) => {ex.Message}\r\n{ex.StackTrace}"); }
+
+            try
+            {
+                DataUpdated?.Invoke();
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}"); }
         }
 
         /// <summary>
@@ -329,7 +339,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// </remarks>
         internal static (DpsData fullData, DpsData sectionedData) GetOrCreateDpsDataByUID(long uid)
         {
-            var fullDpsDataFlag = FullDpsData.TryGetValue(uid, out var fullDpsData);
+            var fullDpsDataFlag = FullDpsDatas.TryGetValue(uid, out var fullDpsData);
             if (!fullDpsDataFlag)
             {
                 fullDpsData = new() { UID = uid };
@@ -342,7 +352,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
             }
 
             SectionedDpsDatas[uid] = sectionedDpsData!;
-            FullDpsData[uid] = fullDpsData!;
+            FullDpsDatas[uid] = fullDpsData!;
 
             return (fullDpsData!, sectionedDpsData!);
         }
@@ -354,15 +364,17 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <param name="log">战斗日志</param>
         internal static void AddBattleLog(BattleLog log)
         {
+            // 当前封包时间
             var tt = new TimeSpan(log.TimeTicks);
+            // 是否创建新战斗分段标记
             var sectionFlag = false;
             if (LastBattleLog != null)
             {
-                // 如果超时或强制创建新战斗阶段时, 关闭上一分段, 最后创建新分段
-                var prevTt = new TimeSpan(LastBattleLog!.Value.TimeTicks);
+                // 如果 战斗超时 或 强制创建新战斗分段 时, 创建新分段
+                var prevTt = new TimeSpan(LastBattleLog.Value.TimeTicks);
                 if (tt - prevTt > SectionTimeout || ForceNewBattleSection)
                 {
-                    ClearDpsData();
+                    PrivateClearDpsData();
 
                     sectionFlag = true;
 
@@ -370,68 +382,115 @@ namespace StarResonanceDpsAnalysis.Core.Data
                 }
             }
 
+            // 如果目标是玩家
             if (log.IsTargetPlayer)
             {
+                // 如果是治疗数据包
                 if (log.IsHeal)
                 {
+                    // 设置通用基础信息
                     (var fullData, var sectionedData) = SetLogInfos(log.AttackerUuid, log);
 
-                    fullData.TotalHeal += log.Value;
+                    // 尝试通过技能ID设置对应副职
+                    TrySetSubProfessionBySkillId(log.AttackerUuid, log.SkillID);
 
+                    // 叠加治疗量
+                    fullData.TotalHeal += log.Value;
                     sectionedData.TotalHeal += log.Value;
                 }
                 else
                 {
+                    // 设置通用基础信息
                     (var fullData, var sectionedData) = SetLogInfos(log.TargetUuid, log);
 
+                    // 叠加受击伤害
                     fullData.TotalTakenDamage += log.Value;
-
                     sectionedData.TotalTakenDamage += log.Value;
                 }
             }
+            // 如果目标不是玩家
             else
             {
+                // 不是 治疗数据包 且 攻击者是玩家
                 if (!log.IsHeal && log.IsAttackerPlayer)
                 {
+                    // 设置通用基础信息
                     (var fullData, var sectionedData) = SetLogInfos(log.AttackerUuid, log);
 
-                    fullData.TotalAttackDamage += log.Value;
+                    // 尝试通过技能ID设置对应副职
+                    TrySetSubProfessionBySkillId(log.AttackerUuid, log.SkillID);
 
+                    // 叠加输出伤害
+                    fullData.TotalAttackDamage += log.Value;
                     sectionedData.TotalAttackDamage += log.Value;
                 }
 
                 // 提升局部, 统一局部变量名
                 {
+                    // 设置通用基础信息
                     (var fullData, var sectionedData) = SetLogInfos(log.TargetUuid, log);
 
+                    // 叠加受击伤害
                     fullData.TotalTakenDamage += log.Value;
-                    fullData.IsNpcData = true;
-
                     sectionedData.TotalTakenDamage += log.Value;
+
+                    // 将Dps数据记录为NPC数据
+                    fullData.IsNpcData = true;
                     sectionedData.IsNpcData = true;
                 }
             }
 
+            // 最后一个日志赋值
             LastBattleLog = log;
 
+            // 如果创建新战斗分段
             if (sectionFlag)
             {
-                BattleLogNewSectionCreated?.Invoke();
+                try
+                {
+                    // 触发新战斗分段创建事件
+                    NewSectionCreated?.Invoke();
+                }
+                catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(NewSectionCreated) => {ex.Message}\r\n{ex.StackTrace}"); }
             }
 
-            BattleLogCreated?.Invoke(log);
-            DpsDataUpdated?.Invoke();
-            DataUpdated?.Invoke();
+            try
+            {
+                // 触发战斗日志创建事件
+                BattleLogCreated?.Invoke(log);
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(BattleLogCreated) => {ex.Message}\r\n{ex.StackTrace}"); }
+            try
+            {
+                // 触发DPS数据更新事件
+                DpsDataUpdated?.Invoke();
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(DpsDataUpdated) => {ex.Message}\r\n{ex.StackTrace}"); }
+            try
+            {
+                // 触发数据更新事件
+                DataUpdated?.Invoke();
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}"); }
         }
 
+        /// <summary>
+        /// 设置通用基础信息
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
         private static (DpsData fullData, DpsData sectionedData) SetLogInfos(long uid, BattleLog log)
         {
+            // 检查或创建玩家信息
             TestCreatePlayerInfoByUID(uid);
 
+            // 检查或创建玩家战斗日志列表
             (var fullData, var sectionedData) = GetOrCreateDpsDataByUID(uid);
 
             fullData.StartLoggedTick ??= log.TimeTicks;
             fullData.LastLoggedTick = log.TimeTicks;
+
             var fullSkillDic = fullData.GetOrCreateSkillData(log.SkillID);
             fullSkillDic.TotalValue += log.Value;
             fullSkillDic.UseTimes += 1;
@@ -439,18 +498,29 @@ namespace StarResonanceDpsAnalysis.Core.Data
             fullSkillDic.LuckyTimes += log.IsLucky ? 1 : 0;
 
             sectionedData.StartLoggedTick ??= log.TimeTicks;
-            sectionedData.TotalHeal += log.Value;
             sectionedData.LastLoggedTick = log.TimeTicks;
+
             var sectionedSkillDic = sectionedData.GetOrCreateSkillData(log.SkillID);
             sectionedSkillDic.TotalValue += log.Value;
             sectionedSkillDic.UseTimes += 1;
             sectionedSkillDic.CritTimes += log.IsCritical ? 1 : 0;
             sectionedSkillDic.LuckyTimes += log.IsLucky ? 1 : 0;
 
-            //FullDpsData[uid].BattleLogs.Add(log);
-            //SectionedDpsDatas[uid].BattleLogs.Add(log);
-
             return (fullData, sectionedData);
+        }
+
+        private static void TrySetSubProfessionBySkillId(long uid, long skillId)
+        {
+            if (!PlayerInfoDatas.TryGetValue(uid, out var playerInfo))
+            {
+                return;
+            }
+
+            var subProfessionName = skillId.GetSubProfessionBySkillId();
+            if (!string.IsNullOrEmpty(subProfessionName))
+            {
+                playerInfo.SubProfessionName = subProfessionName;
+            }
         }
 
         /// <summary>
@@ -479,13 +549,38 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// <summary>
         /// 清除所有DPS数据 (包括全程和阶段性)
         /// </summary>
-        public static void ClearCachingAllDpsData()
+        public static void ClearAllDpsData()
+        {
+            ForceNewBattleSection = true;
+            SectionedDpsDatas.Clear();
+            FullDpsDatas.Clear();
+
+            try
+            {
+                DpsDataUpdated?.Invoke();
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(DpsDataUpdated) => {ex.Message}\r\n{ex.StackTrace}"); }
+            try
+            {
+                DataUpdated?.Invoke();
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}"); }
+        }
+
+        private static void PrivateClearDpsData()
         {
             SectionedDpsDatas.Clear();
-            FullDpsData.Clear();
 
-            DpsDataUpdated?.Invoke();
-            DataUpdated?.Invoke();
+            try
+            {
+                DpsDataUpdated?.Invoke();
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(DpsDataUpdated) => {ex.Message}\r\n{ex.StackTrace}"); }
+            try
+            {
+                DataUpdated?.Invoke();
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}"); }
         }
 
         /// <summary>
@@ -494,10 +589,8 @@ namespace StarResonanceDpsAnalysis.Core.Data
         public static void ClearDpsData()
         {
             ForceNewBattleSection = true;
-            SectionedDpsDatas.Clear();
 
-            DpsDataUpdated?.Invoke();
-            DataUpdated?.Invoke();
+            PrivateClearDpsData();
         }
 
         /// <summary>
@@ -517,7 +610,11 @@ namespace StarResonanceDpsAnalysis.Core.Data
         {
             PlayerInfoDatas.Clear();
 
-            DataUpdated?.Invoke();
+            try
+            {
+                DataUpdated?.Invoke();
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}"); }
         }
 
         /// <summary>
@@ -528,12 +625,20 @@ namespace StarResonanceDpsAnalysis.Core.Data
             CurrentPlayerInfo = new();
             PlayerInfoDatas.Clear();
 
-            DataUpdated?.Invoke();
+            try
+            {
+                DataUpdated?.Invoke();
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(DataUpdated) => {ex.Message}\r\n{ex.StackTrace}"); }
         }
 
         internal static void InvokeServerChangedEvent(string currentServer, string prevServer)
         {
-            ServerChanged?.Invoke(currentServer, prevServer);
+            try
+            {
+                ServerChanged?.Invoke(currentServer, prevServer);
+            }
+            catch (Exception ex) { Console.WriteLine($"An error occurred during trigger event(ServerChanged) => {ex.Message}\r\n{ex.StackTrace}"); }
         }
 
     }

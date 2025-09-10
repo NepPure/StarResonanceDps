@@ -16,11 +16,15 @@ using StarResonanceDpsAnalysis.WinForm.Extends;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 
 using Button = AntdUI.Button;
+using System.Diagnostics;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class DpsStatisticsForm : BorderlessForm
     {
+        private readonly Stopwatch _fullBattleTimer = new();
+        private readonly Stopwatch _battleTimer = new();
+        private Stopwatch InUsingTimer => _isShowFullData ? _fullBattleTimer : _battleTimer;
         public DpsStatisticsForm()
         {
             InitializeComponent();
@@ -55,8 +59,47 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // 开始监听服务器变更事件
             DataStorage.ServerChanged += DataStorage_ServerChanged;
 
+            // 启动新分段事件
+            DataStorage.NewSectionCreated += DataStorage_NewSectionCreated;
+
             // 开始监听DPS更新事件
             DataStorage.DpsDataUpdated += DataStorage_DpsDataUpdated;
+
+            Task.Run(async () =>
+            {
+                await Task.Delay(15000);
+                if (timer_BattleTimeLabelUpdater.Enabled)
+                {
+                    return;
+                }
+
+                FormGui.Modal(this, "我们依然在尝试监听服务器...",
+                    """
+
+                    本次等待监听服务器比预想得耗时更久...
+                    
+                    没有启动游戏 或 网卡选择错误 也会造成监听不到服务器,
+                    请确认您是否已经启动了游戏或您的网卡选择没有问题。
+                    """,
+                    cancelText: null!,
+                    type: TType.Warn);
+
+                await Task.Delay(15000);
+                if (timer_BattleTimeLabelUpdater.Enabled)
+                {
+                    return;
+                }
+
+                FormGui.Modal(this, "我们建议您检查设置",
+                    """
+
+                    本次等待监听服务器比预想得... 更加不顺利...
+                    
+                    如果您已经启动游戏, 那么我们强烈建议您检查网卡设置。
+                    """,
+                    cancelText: null!,
+                    type: TType.Error);
+            });
         }
 
         #region 钩子
@@ -75,7 +118,11 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             }
             else if (e.KeyData == AppConfig.ClearDataKey)
             {
-                HandleClearData();
+                Action clearHandler = _isShowFullData
+                    ? HandleClearAllData
+                    : HandleClearData;
+
+                clearHandler();
             }
         }
 
@@ -83,12 +130,33 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void DataStorage_ServerChanged(string currentServer, string prevServer)
         {
-            HandleClearData();
+            Console.WriteLine($"ServerChanged: {prevServer} => {currentServer}");
+
+            Invoke(() =>
+            {
+                timer_BattleTimeLabelUpdater.Enabled = true;
+            });
+
+            HandleClearAllData();
+        }
+
+        private void DataStorage_NewSectionCreated()
+        {
+            _battleTimer.Reset();
         }
 
         private readonly Dictionary<long, List<RenderContent>> _renderListDict = [];
         private void DataStorage_DpsDataUpdated()
         {
+            if (!_fullBattleTimer.IsRunning)
+            {
+                _fullBattleTimer.Restart();
+            }
+            if (!_battleTimer.IsRunning)
+            {
+                _battleTimer.Restart();
+            }
+
             var dpsList = _isShowFullData
                 ? DataStorage.ReadOnlyFullDpsDataList
                 : DataStorage.ReadOnlySectionedDpsDataList;
@@ -96,6 +164,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             if (dpsList.Count == 0)
             {
                 sortedProgressBarList_MainList.Data = [];
+                label_CurrentDps.Text = "-- (--)";
                 return;
             }
 
@@ -103,6 +172,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             if (!dpsIEnum.Any())
             {
                 sortedProgressBarList_MainList.Data = [];
+                label_CurrentDps.Text = "-- (--)";
                 return;
             }
 
@@ -112,7 +182,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 .Select(e =>
                 {
                     DataStorage.ReadOnlyPlayerInfoDatas.TryGetValue(e.UID, out var playerInfo);
-                    var professionName = playerInfo?.ProfessionID?.GetProfessionNameById() ?? string.Empty;
+                    var professionName = playerInfo?.SubProfessionName ?? playerInfo?.ProfessionID?.GetProfessionNameById() ?? string.Empty;
 
                     if (!_renderListDict.TryGetValue(e.UID, out var renderContent))
                     {
@@ -121,16 +191,21 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                         _renderListDict[e.UID] = renderContent;
                     }
 
+                    if (renderContent[0].Image == ProfessionThemeExtends.EmptyBitmap)
+                    {
+                        renderContent[0].Image = professionName.GetProfessionBitmap();
+                    }
+
                     var value = GetValueByType(e, _stasticsType);
 
-                    renderContent[1].Text = $"{playerInfo?.Name}-{professionName}({e.UID})";
-                    renderContent[2].Text = $"{value.ToCompactString()} ({(value / Math.Max(1, new TimeSpan(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
+                    renderContent[1].Text = $"{(playerInfo?.Name == null ? string.Empty : $"{playerInfo.Name}-")}{playerInfo?.SubProfessionName ?? professionName}({playerInfo?.CombatPower?.ToString() ?? ($"UID: {e.UID}")})";
+                    renderContent[2].Text = $"{value.ToCompactString()} ({(value / Math.Max(1, TimeSpan.FromTicks(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
                     renderContent[3].Text = $"{Math.Round(100d * value / sumValue, 0, MidpointRounding.AwayFromZero)}%";
 
                     return new ProgressBarData()
                     {
                         ID = e.UID,
-                        ProgressBarColor = GetProfessionColor(playerInfo?.ProfessionID ?? 0),
+                        ProgressBarColor = professionName.GetProfessionThemeColor(Config.IsLight),
                         ProgressBarCornerRadius = 3,
                         ProgressBarValue = (float)value / maxValue,
                         ContentList = renderContent
@@ -138,6 +213,22 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 }).ToList();
 
             sortedProgressBarList_MainList.Data = progressBarDataList;
+
+            // DpsDatas(dd) 当前玩家的DPS数据
+            var dd = _isShowFullData
+                ? DataStorage.ReadOnlyFullDpsDatas
+                : DataStorage.ReadOnlySectionedDpsDatas;
+
+            // currentPlayerDpsData(cpdd) 当前玩家数据
+            if (!dd.TryGetValue(DataStorage.CurrentPlayerInfo.UID, out DpsData? cpdd)) 
+            {
+                label_CurrentDps.Text = "-- (--)";
+                return;
+            }
+
+            // currentValue(cv) 当前统计值
+            var cv = GetValueByType(cpdd, _stasticsType);
+            label_CurrentDps.Text = $"{cv.ToCompactString()} ({(cv / Math.Max(1, TimeSpan.FromTicks(cpdd.LastLoggedTick - (cpdd.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
         }
 
         /// <summary>
@@ -166,12 +257,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 0 => (list.Max(e => e.TotalAttackDamage), list.Sum(e => e.TotalAttackDamage)),
                 1 => (list.Max(e => e.TotalHeal), list.Sum(e => e.TotalHeal)),
                 2 or 3 => (list.Max(e => e.TotalTakenDamage), list.Sum(e => e.TotalTakenDamage)),
-                
+
                 _ => (long.MaxValue, long.MaxValue)
             };
         }
 
-        private long GetValueByType(DpsData data, int type) 
+        private long GetValueByType(DpsData data, int type)
         {
             return type switch
             {
@@ -191,13 +282,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarHarm, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
                 new() { Type = RenderContent.ContentType.Text, Align = RenderContent.ContentAlign.MiddleRight, Offset = AppConfig.ProgressBarProportion, ForeColor = AppConfig.colorText, Font = AppConfig.ProgressBarFont },
             ];
-        }
-
-        private Color GetProfessionColor(int professionID)
-        {
-            return professionID
-                .GetProfessionNameById()
-                .GetProfessionThemeColor(Config.IsLight);
         }
 
         // # 窗体加载事件：启动抓包
@@ -261,6 +345,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             // 更新标题状态副文本
             UpdateHeaderText();
+
+            // 更新战斗时长文本
+            UpdateBattleTimerText();
+
+            // 更新面板数据
+            DataStorage_DpsDataUpdated();
         }
         #endregion
 
@@ -271,31 +361,36 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// <param name="e"></param>
         private void button_RefreshDps_Click(object sender, EventArgs e) // 清空按钮点击：触发清空逻辑
         {
-            HandleClearData();
+            Action clearHandler = _isShowFullData
+                ? HandleClearAllData
+                : HandleClearData;
+
+            clearHandler();
         }
 
 
-        // # 设置按钮 → 右键菜单
-        private void button_Settings_Click(object sender, EventArgs e) // 设置按钮点击：弹出右键菜单
+        private readonly IContextMenuStripItem[] _menulist =
+        [
+            new ContextMenuStripItem("基础设置"){ IconSvg = HandledAssets.Set_Up },
+            new ContextMenuStripItem("关于"){ IconSvg = HandledAssets.HomeIcon },
+            new ContextMenuStripItem("退出"){ IconSvg = HandledAssets.Quit, },
+        ];
+        /// <summary>
+        /// 设置按钮点击
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button_Settings_Click(object sender, EventArgs e)
         {
-            var menulist = new IContextMenuStripItem[] // 构建右键菜单项数组
-            {
-                new ContextMenuStripItem("基础设置"){ IconSvg = HandledAssets.Set_Up }, // 一级菜单：基础设置
-                new ContextMenuStripItem("主窗体"){ IconSvg = HandledAssets.HomeIcon }, // 一级菜单：主窗体
-                new ContextMenuStripItem("退出"){ IconSvg = HandledAssets.Quit, }, // 一级菜单：退出
-            };
-
             AntdUI.ContextMenuStrip.open(this, it =>
             {
-                // 根据 Text 执行对应动作
                 switch (it.Text)
                 {
                     case "基础设置":
-                        // 打开设置面板
                         OpenSettingsDialog();
                         break;
 
-                    case "主窗体":
+                    case "关于":
                         FormManager.MainForm.Show();
                         break;
 
@@ -303,7 +398,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                         Application.Exit();
                         break;
                 }
-            }, menulist);
+            }, _menulist);
         }
 
         /// <summary>
@@ -352,6 +447,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             {
                 ChangeToDarkTheme();
             }
+
+            DataStorage_DpsDataUpdated();
 
             SetSortedProgressBarListForeColor();
         }
@@ -501,6 +598,11 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             FormGui.SetColorMode(FormManager.MainForm, AppConfig.IsLight);
             FormGui.SetColorMode(FormManager.SettingsForm, AppConfig.IsLight);
             FormGui.SetColorMode(FormManager.DpsStatistics, AppConfig.IsLight);
+        }
+
+        private void timer_BattleTimeLabelUpdater_Tick(object sender, EventArgs e)
+        {
+            UpdateBattleTimerText();
         }
     }
 }

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DpsStatisticsForm));
             pageHeader_MainHeader = new AntdUI.PageHeader();
             button_ThemeSwitch = new AntdUI.Button();
@@ -46,6 +47,7 @@
             button_TotalTreatment = new AntdUI.Button();
             button_TotalDamage = new AntdUI.Button();
             sortedProgressBarList_MainList = new StarResonanceDpsAnalysis.WinForm.Control.SortedProgressBarList();
+            timer_BattleTimeLabelUpdater = new System.Windows.Forms.Timer(components);
             pageHeader_MainHeader.SuspendLayout();
             panel_Footer.SuspendLayout();
             panel_ModeBox.SuspendLayout();
@@ -204,9 +206,9 @@
             label_BattleTimeText.Location = new Point(31, 3);
             label_BattleTimeText.Margin = new Padding(2);
             label_BattleTimeText.Name = "label_BattleTimeText";
-            label_BattleTimeText.Size = new Size(79, 24);
+            label_BattleTimeText.Size = new Size(191, 24);
             label_BattleTimeText.TabIndex = 1;
-            label_BattleTimeText.Text = "00:00";
+            label_BattleTimeText.Text = "请稍等，正在准备监听服务器...";
             // 
             // label_CurrentOrder
             // 
@@ -313,6 +315,11 @@
             sortedProgressBarList_MainList.Size = new Size(421, 262);
             sortedProgressBarList_MainList.TabIndex = 2;
             // 
+            // timer_BattleTimeLabelUpdater
+            // 
+            timer_BattleTimeLabelUpdater.Interval = 500;
+            timer_BattleTimeLabelUpdater.Tick += timer_BattleTimeLabelUpdater_Tick;
+            // 
             // DpsStatisticsForm
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
@@ -359,5 +366,6 @@
         private AntdUI.Button button_NpcTakeDamage;
         private AntdUI.Button button_ThemeSwitch;
         private Control.SortedProgressBarList sortedProgressBarList_MainList;
+        private System.Windows.Forms.Timer timer_BattleTimeLabelUpdater;
     }
 }

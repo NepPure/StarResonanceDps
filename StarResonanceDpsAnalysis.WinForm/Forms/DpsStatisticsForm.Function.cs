@@ -289,13 +289,25 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             }
         }
 
-        private void HandleClearData() 
+        private void HandleClearAllData() 
         {
-            DataStorage.ClearDpsData();
+            DataStorage.ClearAllDpsData();
+
+            _fullBattleTimer.Reset();
+            _battleTimer.Reset();
         }
 
-        public enum SourceType { Current, FullRecord }
-        public enum MetricType { Damage, Healing, Taken, NpcTaken }
+        private void HandleClearData()
+        {
+            DataStorage.ClearDpsData();
+
+            _battleTimer.Reset();
+        }
+
+        private void UpdateBattleTimerText()
+        {
+            label_BattleTimeText.Text = TimeSpan.FromTicks(InUsingTimer.ElapsedTicks).ToString(@"hh\:mm\:ss");
+        }
 
     }
 }
