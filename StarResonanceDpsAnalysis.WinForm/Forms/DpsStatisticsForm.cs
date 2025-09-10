@@ -56,7 +56,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             SetStyle(); // 设置/应用本窗体的个性化样式（定义在同类/局部类的其他部分）
 
-            // 开始监听服务器变更事件
+            // 监听服务器连接状态变更事件
+            DataStorage.ServerConnectionStateChanged += DataStorage_ServerConnectionStateChanged;
+
+            // 服务器变更事件
             DataStorage.ServerChanged += DataStorage_ServerChanged;
 
             // 启动新分段事件
@@ -67,8 +70,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
             Task.Run(async () =>
             {
-                await Task.Delay(15000);
-                if (timer_BattleTimeLabelUpdater.Enabled)
+                await Task.Delay(10000);
+                if (DataStorage.IsServerConnected)
                 {
                     return;
                 }
@@ -84,8 +87,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     cancelText: null!,
                     type: TType.Warn);
 
-                await Task.Delay(15000);
-                if (timer_BattleTimeLabelUpdater.Enabled)
+                await Task.Delay(10000);
+                if (DataStorage.IsServerConnected)
                 {
                     return;
                 }
@@ -100,6 +103,45 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     cancelText: null!,
                     type: TType.Error);
             });
+        }
+
+        /// <summary>
+        /// 窗体加载事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DpsStatistics_Load(object sender, EventArgs e) // 窗体 Load 事件处理
+        {
+            // 启动网络抓包/数据采集
+            StartCapture();
+
+            // 重置为上次关闭前的位置与大小
+            SetStartupPositionAndSize();
+
+            EnsureTopMost();
+        }
+
+        /// <summary>
+        /// 监听服务器连接状态变更事件
+        /// </summary>
+        /// <param name="serverConnectionState"></param>
+        private void DataStorage_ServerConnectionStateChanged(bool serverConnectionState)
+        {
+            if (serverConnectionState)
+            {
+                Invoke(() =>
+                {
+                    timer_BattleTimeLabelUpdater.Enabled = true;
+                });
+            }
+            else
+            {
+                Invoke(() =>
+                {
+                    timer_BattleTimeLabelUpdater.Enabled = false;
+                    label_BattleTimeText.Text = $"请稍等，正在准备监听服务器...";
+                });
+            }
         }
 
         #region 钩子
@@ -132,11 +174,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         {
             Console.WriteLine($"ServerChanged: {prevServer} => {currentServer}");
 
-            Invoke(() =>
-            {
-                timer_BattleTimeLabelUpdater.Enabled = true;
-            });
-
             HandleClearAllData();
         }
 
@@ -157,6 +194,11 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 _battleTimer.Restart();
             }
 
+            UpdateSortProgressBarListData();
+        }
+
+        private void UpdateSortProgressBarListData()
+        {
             var dpsList = _isShowFullData
                 ? DataStorage.ReadOnlyFullDpsDataList
                 : DataStorage.ReadOnlySectionedDpsDataList;
@@ -220,7 +262,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 : DataStorage.ReadOnlySectionedDpsDatas;
 
             // currentPlayerDpsData(cpdd) 当前玩家数据
-            if (!dd.TryGetValue(DataStorage.CurrentPlayerInfo.UID, out DpsData? cpdd)) 
+            if (!dd.TryGetValue(DataStorage.CurrentPlayerInfo.UID, out DpsData? cpdd))
             {
                 label_CurrentDps.Text = "-- (--)";
                 return;
@@ -229,6 +271,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // currentValue(cv) 当前统计值
             var cv = GetValueByType(cpdd, _stasticsType);
             label_CurrentDps.Text = $"{cv.ToCompactString()} ({(cv / Math.Max(1, TimeSpan.FromTicks(cpdd.LastLoggedTick - (cpdd.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
+
         }
 
         /// <summary>
@@ -284,19 +327,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             ];
         }
 
-        // # 窗体加载事件：启动抓包
-        private void DpsStatistics_Load(object sender, EventArgs e) // 窗体 Load 事件处理
-        {
-            //开启默认置顶
-
-            StartCapture(); // 启动网络抓包/数据采集（核心运行入口之一）
-
-            // 重置为上次关闭前的位置与大小
-            SetStartupPositionAndSize();
-
-            EnsureTopMost();
-        }
-
         // # 顶部：置顶窗口按钮
         private void button_AlwaysOnTop_Click(object sender, EventArgs e) // 置顶按钮点击事件
         {
@@ -350,7 +380,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             UpdateBattleTimerText();
 
             // 更新面板数据
-            DataStorage_DpsDataUpdated();
+            UpdateSortProgressBarListData();
         }
         #endregion
 
@@ -448,7 +478,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 ChangeToDarkTheme();
             }
 
-            DataStorage_DpsDataUpdated();
+            UpdateSortProgressBarListData();
 
             SetSortedProgressBarListForeColor();
         }
@@ -572,7 +602,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // 刷新顶部文本
             UpdateHeaderText();
             // 刷新表单数据
-            DataStorage_DpsDataUpdated();
+            UpdateSortProgressBarListData();
         }
 
         private void DpsStatisticsForm_FormClosing(object sender, FormClosingEventArgs e)
