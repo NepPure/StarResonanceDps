@@ -29,601 +29,556 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingsForm));
-            pageHeader1 = new AntdUI.PageHeader();
-            TitleText = new AntdUI.Label();
-            panel1 = new AntdUI.Panel();
-            panel2 = new AntdUI.Panel();
-            label1 = new AntdUI.Label();
-            CombatSettingsPanel = new AntdUI.Panel();
-            select2 = new AntdUI.Select();
-            label10 = new AntdUI.Label();
-            slider1 = new AntdUI.Slider();
-            label9 = new AntdUI.Label();
-            inputNumber2 = new AntdUI.InputNumber();
-            label8 = new AntdUI.Label();
-            label5 = new AntdUI.Label();
-            switch1 = new AntdUI.Switch();
-            divider2 = new AntdUI.Divider();
-            button3 = new AntdUI.Button();
-            label4 = new AntdUI.Label();
-            KeySettingsPanel = new AntdUI.Panel();
-            label6 = new AntdUI.Label();
-            input5 = new AntdUI.Input();
-            input4 = new AntdUI.Input();
-            input3 = new AntdUI.Input();
-            input2 = new AntdUI.Input();
-            input1 = new AntdUI.Input();
-            divider1 = new AntdUI.Divider();
-            button2 = new AntdUI.Button();
-            label3 = new AntdUI.Label();
-            BasicSetupPanel = new AntdUI.Panel();
-            label7 = new AntdUI.Label();
-            InterfaceComboBox = new AntdUI.Select();
-            divider3 = new AntdUI.Divider();
-            button1 = new AntdUI.Button();
-            label2 = new AntdUI.Label();
-            panel7 = new AntdUI.Panel();
-            select1 = new AntdUI.Select();
-            button4 = new AntdUI.Button();
-            SaveButton = new AntdUI.Button();
-            stackPanel1 = new AntdUI.StackPanel();
-            pageHeader1.SuspendLayout();
-            panel2.SuspendLayout();
-            CombatSettingsPanel.SuspendLayout();
-            KeySettingsPanel.SuspendLayout();
-            BasicSetupPanel.SuspendLayout();
-            panel7.SuspendLayout();
-            stackPanel1.SuspendLayout();
+            pageHeader_MainHeader = new AntdUI.PageHeader();
+            label_TitleText = new AntdUI.Label();
+            panel_MainTitlePanel = new AntdUI.Panel();
+            label_SettingTitle = new AntdUI.Label();
+            panel_CombatSettings = new AntdUI.Panel();
+            panel_CombatSettingsColorBar = new Panel();
+            select_DamageDisplayType = new AntdUI.Select();
+            label_DpsShowType = new AntdUI.Label();
+            slider_Transparency = new AntdUI.Slider();
+            label_Transparent = new AntdUI.Label();
+            inputNumber_ClearSectionedDataTime = new AntdUI.InputNumber();
+            label_CombatSettingsTip = new AntdUI.Label();
+            label_ClearAllDataWhenSwitch = new AntdUI.Label();
+            switch_ClearAllDataWhenSwitch = new AntdUI.Switch();
+            divider_CombatSettings_1 = new AntdUI.Divider();
+            label_CombatSettingsTitle = new AntdUI.Label();
+            panel_KeySettings = new AntdUI.Panel();
+            panel_KeySettingsColorBar = new Panel();
+            label_KeySettingsTip = new AntdUI.Label();
+            input_ClearData = new AntdUI.Input();
+            input_MouseThroughKey = new AntdUI.Input();
+            divider_KeySettings_1 = new AntdUI.Divider();
+            label_KeySettingsTitle = new AntdUI.Label();
+            panel_BasicSetup = new AntdUI.Panel();
+            panel_BasicSetupColorBar = new Panel();
+            label_BasicSetupTip = new AntdUI.Label();
+            select_NetcardSelector = new AntdUI.Select();
+            divider_BasicSetup_1 = new AntdUI.Divider();
+            label_BasicSetupTitle = new AntdUI.Label();
+            panel_FooterPanel = new AntdUI.Panel();
+            button_FormCancel = new AntdUI.Button();
+            button_Save = new AntdUI.Button();
+            stackPanel_MainPanel = new AntdUI.StackPanel();
+            pageHeader_MainHeader.SuspendLayout();
+            panel_MainTitlePanel.SuspendLayout();
+            panel_CombatSettings.SuspendLayout();
+            panel_KeySettings.SuspendLayout();
+            panel_BasicSetup.SuspendLayout();
+            panel_FooterPanel.SuspendLayout();
+            stackPanel_MainPanel.SuspendLayout();
             SuspendLayout();
             // 
-            // pageHeader1
-            // 
-            pageHeader1.BackColor = Color.FromArgb(178, 178, 178);
-            pageHeader1.ColorScheme = AntdUI.TAMode.Dark;
-            pageHeader1.Controls.Add(TitleText);
-            pageHeader1.DividerShow = true;
-            pageHeader1.DividerThickness = 2F;
-            pageHeader1.Dock = DockStyle.Top;
-            pageHeader1.Location = new Point(0, 0);
-            pageHeader1.MaximizeBox = false;
-            pageHeader1.Mode = AntdUI.TAMode.Dark;
-            pageHeader1.Name = "pageHeader1";
-            pageHeader1.Size = new Size(974, 38);
-            pageHeader1.TabIndex = 29;
-            pageHeader1.Text = "";
-            // 
-            // TitleText
-            // 
-            TitleText.BackColor = Color.Transparent;
-            TitleText.ColorScheme = AntdUI.TAMode.Dark;
-            TitleText.Dock = DockStyle.Fill;
-            TitleText.Font = new Font("SAO Welcome TT", 12F, FontStyle.Bold);
-            TitleText.Location = new Point(0, 0);
-            TitleText.Name = "TitleText";
-            TitleText.Size = new Size(974, 38);
-            TitleText.TabIndex = 27;
-            TitleText.Text = "BasicSetup";
-            TitleText.TextAlign = ContentAlignment.MiddleCenter;
-            TitleText.MouseDown += TitleText_MouseDown;
-            // 
-            // panel1
-            // 
-            panel1.Dock = DockStyle.Left;
-            panel1.Location = new Point(0, 38);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(10, 1239);
-            panel1.TabIndex = 30;
-            panel1.Text = "panel1";
-            // 
-            // panel2
-            // 
-            panel2.Back = Color.FromArgb(34, 151, 244);
-            panel2.Controls.Add(label1);
-            panel2.Dock = DockStyle.Top;
-            panel2.Location = new Point(10, 38);
-            panel2.Name = "panel2";
-            panel2.Radius = 0;
-            panel2.Size = new Size(964, 51);
-            panel2.TabIndex = 31;
-            panel2.Text = "panel2";
-            // 
-            // label1
-            // 
-            label1.BackColor = Color.Transparent;
-            label1.Font = new Font("阿里妈妈数黑体", 10F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            label1.ForeColor = Color.White;
-            label1.Location = new Point(19, 7);
-            label1.Name = "label1";
-            label1.Size = new Size(363, 31);
-            label1.TabIndex = 32;
-            label1.Text = "设置";
-            // 
-            // CombatSettingsPanel
-            // 
-            CombatSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            CombatSettingsPanel.Back = Color.White;
-            CombatSettingsPanel.BackColor = Color.Transparent;
-            CombatSettingsPanel.Controls.Add(select2);
-            CombatSettingsPanel.Controls.Add(label10);
-            CombatSettingsPanel.Controls.Add(slider1);
-            CombatSettingsPanel.Controls.Add(label9);
-            CombatSettingsPanel.Controls.Add(inputNumber2);
-            CombatSettingsPanel.Controls.Add(label8);
-            CombatSettingsPanel.Controls.Add(label5);
-            CombatSettingsPanel.Controls.Add(switch1);
-            CombatSettingsPanel.Controls.Add(divider2);
-            CombatSettingsPanel.Controls.Add(button3);
-            CombatSettingsPanel.Controls.Add(label4);
-            CombatSettingsPanel.Location = new Point(20, 614);
-            CombatSettingsPanel.Margin = new Padding(20);
-            CombatSettingsPanel.Name = "CombatSettingsPanel";
-            CombatSettingsPanel.Size = new Size(924, 445);
-            CombatSettingsPanel.TabIndex = 2;
-            CombatSettingsPanel.Text = "panel6";
-            // 
-            // select2
-            // 
-            select2.Items.AddRange(new object[] { "KMB显示", "万显示" });
-            select2.List = true;
-            select2.Location = new Point(685, 275);
-            select2.Name = "select2";
-            select2.Radius = 3;
-            select2.SelectedValue = "KBM显示";
-            select2.SelectionStart = 5;
-            select2.Size = new Size(207, 68);
-            select2.TabIndex = 51;
-            select2.Text = "KBM显示";
-            // 
-            // label10
-            // 
-            label10.Font = new Font("HarmonyOS Sans SC", 9F);
-            label10.Location = new Point(46, 280);
-            label10.Name = "label10";
-            label10.Size = new Size(234, 58);
-            label10.TabIndex = 50;
-            label10.Text = "DPS统计伤害显示类型";
-            // 
-            // slider1
-            // 
-            slider1.Location = new Point(173, 364);
-            slider1.MinValue = 10;
-            slider1.Name = "slider1";
-            slider1.ShowValue = true;
-            slider1.Size = new Size(719, 48);
-            slider1.TabIndex = 48;
-            slider1.Text = "slider1";
-            slider1.Value = 90;
-            slider1.ValueChanged += slider1_ValueChanged;
-            // 
-            // label9
-            // 
-            label9.Font = new Font("HarmonyOS Sans SC", 9F);
-            label9.Location = new Point(46, 359);
-            label9.Name = "label9";
-            label9.Size = new Size(138, 58);
-            label9.TabIndex = 49;
-            label9.Text = "窗体透明度";
-            // 
-            // inputNumber2
-            // 
-            inputNumber2.Location = new Point(36, 113);
-            inputNumber2.Name = "inputNumber2";
-            inputNumber2.PrefixText = "脱战";
-            inputNumber2.Radius = 3;
-            inputNumber2.SelectionStart = 1;
-            inputNumber2.Size = new Size(407, 65);
-            inputNumber2.SuffixText = "/秒后清除当前统计";
-            inputNumber2.TabIndex = 46;
-            inputNumber2.Text = "5";
-            inputNumber2.TextAlign = HorizontalAlignment.Center;
-            inputNumber2.Value = new decimal(new int[] { 5, 0, 0, 0 });
-            // 
-            // label8
-            // 
-            label8.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label8.BackColor = Color.Transparent;
-            label8.Font = new Font("HarmonyOS Sans SC", 7F);
-            label8.ForeColor = Color.FromArgb(34, 151, 244);
-            label8.Location = new Point(643, 26);
-            label8.Name = "label8";
-            label8.Size = new Size(249, 31);
-            label8.TabIndex = 45;
-            label8.Text = "脱战清空为当前统计非全程统计";
-            label8.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // label5
-            // 
-            label5.Font = new Font("HarmonyOS Sans SC", 9F);
-            label5.Location = new Point(46, 201);
-            label5.Name = "label5";
-            label5.Size = new Size(234, 58);
-            label5.TabIndex = 41;
-            label5.Text = "换地图是否清空全程统计";
-            // 
-            // switch1
-            // 
-            switch1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            switch1.Checked = true;
-            switch1.Location = new Point(809, 210);
-            switch1.Name = "switch1";
-            switch1.Size = new Size(83, 41);
-            switch1.TabIndex = 40;
-            switch1.Text = "switch1";
-            switch1.CheckedChanged += switch1_CheckedChanged;
-            // 
-            // divider2
-            // 
-            divider2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            divider2.BackColor = Color.Transparent;
-            divider2.Location = new Point(36, 78);
-            divider2.Name = "divider2";
-            divider2.OrientationMargin = 0F;
-            divider2.Size = new Size(856, 14);
-            divider2.TabIndex = 37;
-            divider2.Text = "";
-            // 
-            // button3
-            // 
-            button3.DefaultBack = Color.FromArgb(34, 151, 244);
-            button3.Location = new Point(-9, 7);
-            button3.Name = "button3";
-            button3.Radius = 0;
-            button3.Size = new Size(21, 70);
-            button3.TabIndex = 34;
-            // 
-            // label4
-            // 
-            label4.BackColor = Color.Transparent;
-            label4.Font = new Font("HarmonyOS Sans SC", 9.999999F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            label4.ForeColor = Color.FromArgb(34, 151, 244);
-            label4.Location = new Point(36, 26);
-            label4.Name = "label4";
-            label4.Size = new Size(105, 31);
-            label4.TabIndex = 33;
-            label4.Text = "战斗设置";
-            // 
-            // KeySettingsPanel
-            // 
-            KeySettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            KeySettingsPanel.Back = Color.White;
-            KeySettingsPanel.BackColor = Color.Transparent;
-            KeySettingsPanel.Controls.Add(label6);
-            KeySettingsPanel.Controls.Add(input5);
-            KeySettingsPanel.Controls.Add(input4);
-            KeySettingsPanel.Controls.Add(input3);
-            KeySettingsPanel.Controls.Add(input2);
-            KeySettingsPanel.Controls.Add(input1);
-            KeySettingsPanel.Controls.Add(divider1);
-            KeySettingsPanel.Controls.Add(button2);
-            KeySettingsPanel.Controls.Add(label3);
-            KeySettingsPanel.Location = new Point(20, 271);
-            KeySettingsPanel.Margin = new Padding(20);
-            KeySettingsPanel.Name = "KeySettingsPanel";
-            KeySettingsPanel.Size = new Size(924, 303);
-            KeySettingsPanel.TabIndex = 1;
-            KeySettingsPanel.Text = "panel5";
-            KeySettingsPanel.Click += KeySettingsPanel_Click;
-            // 
-            // label6
-            // 
-            label6.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label6.BackColor = Color.Transparent;
-            label6.Font = new Font("HarmonyOS Sans SC", 7F);
-            label6.ForeColor = Color.FromArgb(34, 151, 244);
-            label6.Location = new Point(694, 26);
-            label6.Name = "label6";
-            label6.Size = new Size(198, 31);
-            label6.TabIndex = 43;
-            label6.Text = "Delete删除当前键位";
-            label6.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // input5
-            // 
-            input5.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            input5.Font = new Font("HarmonyOS Sans SC", 9F);
-            input5.Location = new Point(650, 112);
-            input5.Name = "input5";
-            input5.PrefixText = "清空历史:";
-            input5.Radius = 3;
-            input5.ReadOnly = true;
-            input5.Size = new Size(250, 65);
-            input5.TabIndex = 42;
-            input5.VerifyKeyboard += input5_VerifyKey;
-            // 
-            // input4
-            // 
-            input4.Anchor = AnchorStyles.Top;
-            input4.Font = new Font("HarmonyOS Sans SC", 9F);
-            input4.Location = new Point(343, 112);
-            input4.Name = "input4";
-            input4.PrefixText = "清空数据:";
-            input4.Radius = 3;
-            input4.ReadOnly = true;
-            input4.Size = new Size(250, 65);
-            input4.TabIndex = 41;
-            input4.VerifyKeyboard += input4_VerifyKey;
-            // 
-            // input3
-            // 
-            input3.Font = new Font("HarmonyOS Sans SC", 9F);
-            input3.Location = new Point(36, 200);
-            input3.Name = "input3";
-            input3.PrefixText = "开关键位:";
-            input3.Radius = 3;
-            input3.ReadOnly = true;
-            input3.Size = new Size(250, 65);
-            input3.TabIndex = 40;
-            input3.Visible = false;
-            input3.VerifyKeyboard += input3_VerifyKey;
-            // 
-            // input2
-            // 
-            input2.Font = new Font("HarmonyOS Sans SC", 9F);
-            input2.Location = new Point(343, 200);
-            input2.Name = "input2";
-            input2.PrefixText = "窗体透明:";
-            input2.Radius = 3;
-            input2.ReadOnly = true;
-            input2.Size = new Size(250, 65);
-            input2.TabIndex = 39;
-            input2.Visible = false;
-            input2.VerifyKeyboard += input2_VerifyKey;
-            // 
-            // input1
-            // 
-            input1.Font = new Font("HarmonyOS Sans SC", 9F);
-            input1.Location = new Point(36, 112);
-            input1.Name = "input1";
-            input1.PrefixText = "鼠标穿透:";
-            input1.Radius = 3;
-            input1.ReadOnly = true;
-            input1.Size = new Size(250, 65);
-            input1.TabIndex = 38;
-            input1.VerifyKeyboard += input1_VerifyKey;
-            // 
-            // divider1
-            // 
-            divider1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            divider1.BackColor = Color.Transparent;
-            divider1.Location = new Point(36, 78);
-            divider1.Name = "divider1";
-            divider1.OrientationMargin = 0F;
-            divider1.Size = new Size(856, 14);
-            divider1.TabIndex = 37;
-            divider1.Text = "";
-            // 
-            // button2
-            // 
-            button2.DefaultBack = Color.FromArgb(34, 151, 244);
-            button2.Location = new Point(-9, 7);
-            button2.Name = "button2";
-            button2.Radius = 0;
-            button2.Size = new Size(21, 70);
-            button2.TabIndex = 34;
-            // 
-            // label3
-            // 
-            label3.BackColor = Color.Transparent;
-            label3.Font = new Font("HarmonyOS Sans SC", 9.999999F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            label3.ForeColor = Color.FromArgb(34, 151, 244);
-            label3.Location = new Point(36, 26);
-            label3.Name = "label3";
-            label3.Size = new Size(105, 31);
-            label3.TabIndex = 33;
-            label3.Text = "按键设置";
-            // 
-            // BasicSetupPanel
-            // 
-            BasicSetupPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            BasicSetupPanel.Back = Color.White;
-            BasicSetupPanel.BackColor = Color.Transparent;
-            BasicSetupPanel.Controls.Add(label7);
-            BasicSetupPanel.Controls.Add(InterfaceComboBox);
-            BasicSetupPanel.Controls.Add(divider3);
-            BasicSetupPanel.Controls.Add(button1);
-            BasicSetupPanel.Controls.Add(label2);
-            BasicSetupPanel.Location = new Point(20, 20);
-            BasicSetupPanel.Margin = new Padding(20);
-            BasicSetupPanel.Name = "BasicSetupPanel";
-            BasicSetupPanel.Size = new Size(924, 211);
-            BasicSetupPanel.TabIndex = 0;
-            BasicSetupPanel.Text = "panel4";
-            // 
-            // label7
-            // 
-            label7.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label7.BackColor = Color.Transparent;
-            label7.Font = new Font("HarmonyOS Sans SC", 7F);
-            label7.ForeColor = Color.FromArgb(34, 151, 244);
-            label7.Location = new Point(694, 26);
-            label7.Name = "label7";
-            label7.Size = new Size(198, 31);
-            label7.TabIndex = 44;
-            label7.Text = "自动设置错误时可手动设置";
-            label7.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // InterfaceComboBox
-            // 
-            InterfaceComboBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            InterfaceComboBox.Font = new Font("HarmonyOS Sans SC", 9F);
-            InterfaceComboBox.List = true;
-            InterfaceComboBox.Location = new Point(36, 114);
-            InterfaceComboBox.Name = "InterfaceComboBox";
-            InterfaceComboBox.PrefixText = "请选择网卡：";
-            InterfaceComboBox.Radius = 3;
-            InterfaceComboBox.Size = new Size(856, 56);
-            InterfaceComboBox.TabIndex = 38;
-            InterfaceComboBox.SelectedIndexChanged += InterfaceComboBox_SelectedIndexChanged;
-            // 
-            // divider3
-            // 
-            divider3.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            divider3.BackColor = Color.Transparent;
-            divider3.Location = new Point(36, 78);
-            divider3.Name = "divider3";
-            divider3.OrientationMargin = 0F;
-            divider3.Size = new Size(856, 14);
-            divider3.TabIndex = 37;
-            divider3.Text = "";
-            // 
-            // button1
-            // 
-            button1.DefaultBack = Color.FromArgb(34, 151, 244);
-            button1.Location = new Point(-9, 7);
-            button1.Name = "button1";
-            button1.Radius = 0;
-            button1.Size = new Size(21, 70);
-            button1.TabIndex = 34;
-            // 
-            // label2
-            // 
-            label2.BackColor = Color.Transparent;
-            label2.Font = new Font("HarmonyOS Sans SC", 9.999999F, FontStyle.Bold, GraphicsUnit.Point, 134);
-            label2.ForeColor = Color.FromArgb(34, 151, 244);
-            label2.Location = new Point(36, 26);
-            label2.Name = "label2";
-            label2.Size = new Size(105, 31);
-            label2.TabIndex = 33;
-            label2.Text = "基础设置";
-            // 
-            // panel7
-            // 
-            panel7.Controls.Add(select1);
-            panel7.Controls.Add(button4);
-            panel7.Controls.Add(SaveButton);
-            panel7.Dock = DockStyle.Bottom;
-            panel7.Location = new Point(10, 1197);
-            panel7.Name = "panel7";
-            panel7.Radius = 3;
-            panel7.Shadow = 6;
-            panel7.ShadowAlign = AntdUI.TAlignMini.Top;
-            panel7.Size = new Size(964, 80);
-            panel7.TabIndex = 31;
-            panel7.Text = "panel7";
-            // 
-            // select1
-            // 
-            select1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            select1.DropDownTextAlign = AntdUI.TAlign.Top;
-            select1.List = true;
-            select1.Location = new Point(2487, 107);
-            select1.Name = "select1";
-            select1.Placement = AntdUI.TAlignFrom.Top;
-            select1.Radius = 3;
-            select1.Size = new Size(196, 47);
-            select1.TabIndex = 27;
-            // 
-            // button4
-            // 
-            button4.Anchor = AnchorStyles.Bottom;
-            button4.Ghost = true;
-            button4.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Normal;
-            button4.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Cancel_Hover;
-            button4.IconPosition = AntdUI.TAlignMini.None;
-            button4.IconRatio = 1.3F;
-            button4.Location = new Point(534, 20);
-            button4.Name = "button4";
-            button4.Size = new Size(57, 49);
-            button4.TabIndex = 1;
-            button4.Click += button4_Click;
-            // 
-            // SaveButton
-            // 
-            SaveButton.Anchor = AnchorStyles.Bottom;
-            SaveButton.Ghost = true;
-            SaveButton.Icon = StarResonanceDpsAnalysis.Assets.HandledAssets.Ok_Normal;
-            SaveButton.IconHover = StarResonanceDpsAnalysis.Assets.HandledAssets.Ok_Hover;
-            SaveButton.IconPosition = AntdUI.TAlignMini.None;
-            SaveButton.IconRatio = 1.3F;
-            SaveButton.Location = new Point(371, 20);
-            SaveButton.Name = "SaveButton";
-            SaveButton.Size = new Size(57, 49);
-            SaveButton.TabIndex = 0;
-            SaveButton.Click += button5_Click;
-            // 
-            // stackPanel1
-            // 
-            stackPanel1.AutoScroll = true;
-            stackPanel1.Back = Color.FromArgb(239, 239, 239);
-            stackPanel1.Controls.Add(CombatSettingsPanel);
-            stackPanel1.Controls.Add(KeySettingsPanel);
-            stackPanel1.Controls.Add(BasicSetupPanel);
-            stackPanel1.Dock = DockStyle.Fill;
-            stackPanel1.Location = new Point(10, 89);
-            stackPanel1.Margin = new Padding(10);
-            stackPanel1.Name = "stackPanel1";
-            stackPanel1.Size = new Size(964, 1108);
-            stackPanel1.TabIndex = 3;
-            stackPanel1.Text = "stackPanel1";
-            stackPanel1.Vertical = true;
+            // pageHeader_MainHeader
+            // 
+            pageHeader_MainHeader.BackColor = Color.FromArgb(178, 178, 178);
+            pageHeader_MainHeader.ColorScheme = AntdUI.TAMode.Dark;
+            pageHeader_MainHeader.Controls.Add(label_TitleText);
+            pageHeader_MainHeader.DividerShow = true;
+            pageHeader_MainHeader.DividerThickness = 2F;
+            pageHeader_MainHeader.Dock = DockStyle.Top;
+            pageHeader_MainHeader.Location = new Point(0, 0);
+            pageHeader_MainHeader.Margin = new Padding(2);
+            pageHeader_MainHeader.MaximizeBox = false;
+            pageHeader_MainHeader.Mode = AntdUI.TAMode.Dark;
+            pageHeader_MainHeader.Name = "pageHeader_MainHeader";
+            pageHeader_MainHeader.Size = new Size(455, 27);
+            pageHeader_MainHeader.TabIndex = 29;
+            pageHeader_MainHeader.Text = "";
+            // 
+            // label_TitleText
+            // 
+            label_TitleText.BackColor = Color.Transparent;
+            label_TitleText.ColorScheme = AntdUI.TAMode.Dark;
+            label_TitleText.Dock = DockStyle.Fill;
+            label_TitleText.Font = new Font("SAO Welcome TT", 12F, FontStyle.Bold);
+            label_TitleText.Location = new Point(0, 0);
+            label_TitleText.Margin = new Padding(2);
+            label_TitleText.Name = "label_TitleText";
+            label_TitleText.Size = new Size(455, 27);
+            label_TitleText.TabIndex = 0;
+            label_TitleText.Text = "BasicSetup";
+            label_TitleText.TextAlign = ContentAlignment.MiddleCenter;
+            label_TitleText.MouseDown += label_TitleText_MouseDown;
+            // 
+            // panel_MainTitlePanel
+            // 
+            panel_MainTitlePanel.Back = Color.FromArgb(34, 151, 244);
+            panel_MainTitlePanel.Controls.Add(label_SettingTitle);
+            panel_MainTitlePanel.Dock = DockStyle.Top;
+            panel_MainTitlePanel.Location = new Point(0, 27);
+            panel_MainTitlePanel.Margin = new Padding(2);
+            panel_MainTitlePanel.Name = "panel_MainTitlePanel";
+            panel_MainTitlePanel.Radius = 0;
+            panel_MainTitlePanel.Size = new Size(455, 36);
+            panel_MainTitlePanel.TabIndex = 0;
+            panel_MainTitlePanel.Text = "panel2";
+            // 
+            // label_SettingTitle
+            // 
+            label_SettingTitle.BackColor = Color.Transparent;
+            label_SettingTitle.Font = new Font("阿里妈妈数黑体", 10F, FontStyle.Bold, GraphicsUnit.Point, 134);
+            label_SettingTitle.ForeColor = Color.White;
+            label_SettingTitle.Location = new Point(12, 5);
+            label_SettingTitle.Margin = new Padding(2);
+            label_SettingTitle.Name = "label_SettingTitle";
+            label_SettingTitle.Size = new Size(231, 22);
+            label_SettingTitle.TabIndex = 0;
+            label_SettingTitle.Text = "设置";
+            // 
+            // panel_CombatSettings
+            // 
+            panel_CombatSettings.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            panel_CombatSettings.Back = Color.White;
+            panel_CombatSettings.BackColor = Color.Transparent;
+            panel_CombatSettings.Controls.Add(panel_CombatSettingsColorBar);
+            panel_CombatSettings.Controls.Add(select_DamageDisplayType);
+            panel_CombatSettings.Controls.Add(label_DpsShowType);
+            panel_CombatSettings.Controls.Add(slider_Transparency);
+            panel_CombatSettings.Controls.Add(label_Transparent);
+            panel_CombatSettings.Controls.Add(inputNumber_ClearSectionedDataTime);
+            panel_CombatSettings.Controls.Add(label_CombatSettingsTip);
+            panel_CombatSettings.Controls.Add(label_ClearAllDataWhenSwitch);
+            panel_CombatSettings.Controls.Add(switch_ClearAllDataWhenSwitch);
+            panel_CombatSettings.Controls.Add(divider_CombatSettings_1);
+            panel_CombatSettings.Controls.Add(label_CombatSettingsTitle);
+            panel_CombatSettings.Location = new Point(13, 367);
+            panel_CombatSettings.Margin = new Padding(13, 14, 13, 14);
+            panel_CombatSettings.Name = "panel_CombatSettings";
+            panel_CombatSettings.Size = new Size(413, 315);
+            panel_CombatSettings.TabIndex = 2;
+            panel_CombatSettings.Text = "panel6";
+            // 
+            // panel_CombatSettingsColorBar
+            // 
+            panel_CombatSettingsColorBar.BackColor = Color.FromArgb(34, 151, 244);
+            panel_CombatSettingsColorBar.Location = new Point(0, 9);
+            panel_CombatSettingsColorBar.Name = "panel_CombatSettingsColorBar";
+            panel_CombatSettingsColorBar.Size = new Size(3, 42);
+            panel_CombatSettingsColorBar.TabIndex = 0;
+            // 
+            // select_DamageDisplayType
+            // 
+            select_DamageDisplayType.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            select_DamageDisplayType.Items.AddRange(new object[] { "三位分节法 (KMBT)", "四位分节法 (万亿兆)" });
+            select_DamageDisplayType.List = true;
+            select_DamageDisplayType.Location = new Point(235, 191);
+            select_DamageDisplayType.Margin = new Padding(2);
+            select_DamageDisplayType.Name = "select_DamageDisplayType";
+            select_DamageDisplayType.Radius = 3;
+            select_DamageDisplayType.SelectedValue = "KBM显示";
+            select_DamageDisplayType.SelectionStart = 12;
+            select_DamageDisplayType.Size = new Size(158, 48);
+            select_DamageDisplayType.TabIndex = 8;
+            select_DamageDisplayType.Text = "三位分节法 (KMBT)";
+            select_DamageDisplayType.SelectedValueChanged += select_DamageDisplayType_SelectedValueChanged;
+            // 
+            // label_DpsShowType
+            // 
+            label_DpsShowType.Font = new Font("HarmonyOS Sans SC", 9F);
+            label_DpsShowType.Location = new Point(29, 198);
+            label_DpsShowType.Margin = new Padding(2);
+            label_DpsShowType.Name = "label_DpsShowType";
+            label_DpsShowType.Size = new Size(149, 41);
+            label_DpsShowType.TabIndex = 7;
+            label_DpsShowType.Text = "DPS统计伤害显示类型";
+            // 
+            // slider_Transparency
+            // 
+            slider_Transparency.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            slider_Transparency.Location = new Point(110, 258);
+            slider_Transparency.Margin = new Padding(2);
+            slider_Transparency.MinValue = 10;
+            slider_Transparency.Name = "slider_Transparency";
+            slider_Transparency.ShowValue = true;
+            slider_Transparency.Size = new Size(283, 34);
+            slider_Transparency.TabIndex = 10;
+            slider_Transparency.Text = "slider1";
+            slider_Transparency.Value = 90;
+            slider_Transparency.ValueChanged += slider_Transparency_ValueChanged;
+            // 
+            // label_Transparent
+            // 
+            label_Transparent.Font = new Font("HarmonyOS Sans SC", 9F);
+            label_Transparent.Location = new Point(29, 254);
+            label_Transparent.Margin = new Padding(2);
+            label_Transparent.Name = "label_Transparent";
+            label_Transparent.Size = new Size(88, 41);
+            label_Transparent.TabIndex = 9;
+            label_Transparent.Text = "窗体透明度";
+            // 
+            // inputNumber_ClearSectionedDataTime
+            // 
+            inputNumber_ClearSectionedDataTime.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            inputNumber_ClearSectionedDataTime.Location = new Point(23, 80);
+            inputNumber_ClearSectionedDataTime.Margin = new Padding(2);
+            inputNumber_ClearSectionedDataTime.Name = "inputNumber_ClearSectionedDataTime";
+            inputNumber_ClearSectionedDataTime.PrefixText = "脱战";
+            inputNumber_ClearSectionedDataTime.Radius = 3;
+            inputNumber_ClearSectionedDataTime.SelectionStart = 1;
+            inputNumber_ClearSectionedDataTime.Size = new Size(370, 46);
+            inputNumber_ClearSectionedDataTime.SuffixText = "/秒后清除当前统计";
+            inputNumber_ClearSectionedDataTime.TabIndex = 4;
+            inputNumber_ClearSectionedDataTime.Text = "5";
+            inputNumber_ClearSectionedDataTime.TextAlign = HorizontalAlignment.Center;
+            inputNumber_ClearSectionedDataTime.Value = new decimal(new int[] { 5, 0, 0, 0 });
+            inputNumber_ClearSectionedDataTime.TextChanged += inputNumber_ClearSectionedDataTime_TextChanged;
+            // 
+            // label_CombatSettingsTip
+            // 
+            label_CombatSettingsTip.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label_CombatSettingsTip.BackColor = Color.Transparent;
+            label_CombatSettingsTip.Font = new Font("HarmonyOS Sans SC", 7F);
+            label_CombatSettingsTip.ForeColor = Color.FromArgb(34, 151, 244);
+            label_CombatSettingsTip.Location = new Point(235, 18);
+            label_CombatSettingsTip.Margin = new Padding(2);
+            label_CombatSettingsTip.Name = "label_CombatSettingsTip";
+            label_CombatSettingsTip.Size = new Size(158, 22);
+            label_CombatSettingsTip.TabIndex = 2;
+            label_CombatSettingsTip.Text = "脱战清空为当前统计非全程统计";
+            label_CombatSettingsTip.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // label_ClearAllDataWhenSwitch
+            // 
+            label_ClearAllDataWhenSwitch.Font = new Font("HarmonyOS Sans SC", 9F);
+            label_ClearAllDataWhenSwitch.Location = new Point(29, 142);
+            label_ClearAllDataWhenSwitch.Margin = new Padding(2);
+            label_ClearAllDataWhenSwitch.Name = "label_ClearAllDataWhenSwitch";
+            label_ClearAllDataWhenSwitch.Size = new Size(149, 41);
+            label_ClearAllDataWhenSwitch.TabIndex = 5;
+            label_ClearAllDataWhenSwitch.Text = "换地图是否清空全程统计";
+            // 
+            // switch_ClearAllDataWhenSwitch
+            // 
+            switch_ClearAllDataWhenSwitch.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            switch_ClearAllDataWhenSwitch.Checked = true;
+            switch_ClearAllDataWhenSwitch.Location = new Point(340, 154);
+            switch_ClearAllDataWhenSwitch.Margin = new Padding(2);
+            switch_ClearAllDataWhenSwitch.Name = "switch_ClearAllDataWhenSwitch";
+            switch_ClearAllDataWhenSwitch.Size = new Size(53, 29);
+            switch_ClearAllDataWhenSwitch.TabIndex = 6;
+            switch_ClearAllDataWhenSwitch.Text = "switch1";
+            switch_ClearAllDataWhenSwitch.CheckedChanged += switch_ClearAllDataWhenSwitch_CheckedChanged;
+            // 
+            // divider_CombatSettings_1
+            // 
+            divider_CombatSettings_1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            divider_CombatSettings_1.BackColor = Color.Transparent;
+            divider_CombatSettings_1.Location = new Point(23, 55);
+            divider_CombatSettings_1.Margin = new Padding(2);
+            divider_CombatSettings_1.Name = "divider_CombatSettings_1";
+            divider_CombatSettings_1.OrientationMargin = 0F;
+            divider_CombatSettings_1.Size = new Size(388, 10);
+            divider_CombatSettings_1.TabIndex = 3;
+            divider_CombatSettings_1.Text = "";
+            // 
+            // label_CombatSettingsTitle
+            // 
+            label_CombatSettingsTitle.BackColor = Color.Transparent;
+            label_CombatSettingsTitle.Font = new Font("HarmonyOS Sans SC", 9.999999F, FontStyle.Bold, GraphicsUnit.Point, 134);
+            label_CombatSettingsTitle.ForeColor = Color.FromArgb(34, 151, 244);
+            label_CombatSettingsTitle.Location = new Point(23, 18);
+            label_CombatSettingsTitle.Margin = new Padding(2);
+            label_CombatSettingsTitle.Name = "label_CombatSettingsTitle";
+            label_CombatSettingsTitle.Size = new Size(67, 22);
+            label_CombatSettingsTitle.TabIndex = 1;
+            label_CombatSettingsTitle.Text = "战斗设置";
+            // 
+            // panel_KeySettings
+            // 
+            panel_KeySettings.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            panel_KeySettings.Back = Color.White;
+            panel_KeySettings.BackColor = Color.Transparent;
+            panel_KeySettings.Controls.Add(panel_KeySettingsColorBar);
+            panel_KeySettings.Controls.Add(label_KeySettingsTip);
+            panel_KeySettings.Controls.Add(input_ClearData);
+            panel_KeySettings.Controls.Add(input_MouseThroughKey);
+            panel_KeySettings.Controls.Add(divider_KeySettings_1);
+            panel_KeySettings.Controls.Add(label_KeySettingsTitle);
+            panel_KeySettings.Location = new Point(13, 191);
+            panel_KeySettings.Margin = new Padding(13, 14, 13, 14);
+            panel_KeySettings.Name = "panel_KeySettings";
+            panel_KeySettings.Size = new Size(413, 148);
+            panel_KeySettings.TabIndex = 1;
+            panel_KeySettings.Text = "panel5";
+            // 
+            // panel_KeySettingsColorBar
+            // 
+            panel_KeySettingsColorBar.BackColor = Color.FromArgb(34, 151, 244);
+            panel_KeySettingsColorBar.Location = new Point(0, 9);
+            panel_KeySettingsColorBar.Name = "panel_KeySettingsColorBar";
+            panel_KeySettingsColorBar.Size = new Size(3, 42);
+            panel_KeySettingsColorBar.TabIndex = 0;
+            // 
+            // label_KeySettingsTip
+            // 
+            label_KeySettingsTip.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label_KeySettingsTip.BackColor = Color.Transparent;
+            label_KeySettingsTip.Font = new Font("HarmonyOS Sans SC", 7F);
+            label_KeySettingsTip.ForeColor = Color.FromArgb(34, 151, 244);
+            label_KeySettingsTip.Location = new Point(267, 18);
+            label_KeySettingsTip.Margin = new Padding(2);
+            label_KeySettingsTip.Name = "label_KeySettingsTip";
+            label_KeySettingsTip.Size = new Size(126, 22);
+            label_KeySettingsTip.TabIndex = 2;
+            label_KeySettingsTip.Text = "Delete删除当前键位";
+            label_KeySettingsTip.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // input_ClearData
+            // 
+            input_ClearData.Anchor = AnchorStyles.Top;
+            input_ClearData.Font = new Font("HarmonyOS Sans SC", 9F);
+            input_ClearData.Location = new Point(213, 79);
+            input_ClearData.Margin = new Padding(2);
+            input_ClearData.Name = "input_ClearData";
+            input_ClearData.PrefixText = "清空数据:";
+            input_ClearData.Radius = 3;
+            input_ClearData.ReadOnly = true;
+            input_ClearData.Size = new Size(180, 46);
+            input_ClearData.TabIndex = 5;
+            input_ClearData.VerifyKeyboard += input_ClearData_VerifyKey;
+            // 
+            // input_MouseThroughKey
+            // 
+            input_MouseThroughKey.Anchor = AnchorStyles.Top;
+            input_MouseThroughKey.Font = new Font("HarmonyOS Sans SC", 9F);
+            input_MouseThroughKey.Location = new Point(22, 79);
+            input_MouseThroughKey.Margin = new Padding(2);
+            input_MouseThroughKey.Name = "input_MouseThroughKey";
+            input_MouseThroughKey.PrefixText = "鼠标穿透:";
+            input_MouseThroughKey.Radius = 3;
+            input_MouseThroughKey.ReadOnly = true;
+            input_MouseThroughKey.Size = new Size(180, 46);
+            input_MouseThroughKey.TabIndex = 4;
+            input_MouseThroughKey.VerifyKeyboard += input_MouseThroughKey_VerifyKey;
+            // 
+            // divider_KeySettings_1
+            // 
+            divider_KeySettings_1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            divider_KeySettings_1.BackColor = Color.Transparent;
+            divider_KeySettings_1.Location = new Point(23, 55);
+            divider_KeySettings_1.Margin = new Padding(2);
+            divider_KeySettings_1.Name = "divider_KeySettings_1";
+            divider_KeySettings_1.OrientationMargin = 0F;
+            divider_KeySettings_1.Size = new Size(388, 10);
+            divider_KeySettings_1.TabIndex = 3;
+            divider_KeySettings_1.Text = "";
+            // 
+            // label_KeySettingsTitle
+            // 
+            label_KeySettingsTitle.BackColor = Color.Transparent;
+            label_KeySettingsTitle.Font = new Font("HarmonyOS Sans SC", 9.999999F, FontStyle.Bold, GraphicsUnit.Point, 134);
+            label_KeySettingsTitle.ForeColor = Color.FromArgb(34, 151, 244);
+            label_KeySettingsTitle.Location = new Point(23, 18);
+            label_KeySettingsTitle.Margin = new Padding(2);
+            label_KeySettingsTitle.Name = "label_KeySettingsTitle";
+            label_KeySettingsTitle.Size = new Size(67, 22);
+            label_KeySettingsTitle.TabIndex = 1;
+            label_KeySettingsTitle.Text = "按键设置";
+            // 
+            // panel_BasicSetup
+            // 
+            panel_BasicSetup.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            panel_BasicSetup.Back = Color.White;
+            panel_BasicSetup.BackColor = Color.Transparent;
+            panel_BasicSetup.Controls.Add(panel_BasicSetupColorBar);
+            panel_BasicSetup.Controls.Add(label_BasicSetupTip);
+            panel_BasicSetup.Controls.Add(select_NetcardSelector);
+            panel_BasicSetup.Controls.Add(divider_BasicSetup_1);
+            panel_BasicSetup.Controls.Add(label_BasicSetupTitle);
+            panel_BasicSetup.Location = new Point(13, 14);
+            panel_BasicSetup.Margin = new Padding(13, 14, 13, 14);
+            panel_BasicSetup.Name = "panel_BasicSetup";
+            panel_BasicSetup.Size = new Size(413, 149);
+            panel_BasicSetup.TabIndex = 0;
+            panel_BasicSetup.Text = "panel4";
+            // 
+            // panel_BasicSetupColorBar
+            // 
+            panel_BasicSetupColorBar.BackColor = Color.FromArgb(34, 151, 244);
+            panel_BasicSetupColorBar.Location = new Point(0, 9);
+            panel_BasicSetupColorBar.Name = "panel_BasicSetupColorBar";
+            panel_BasicSetupColorBar.Size = new Size(3, 42);
+            panel_BasicSetupColorBar.TabIndex = 0;
+            // 
+            // label_BasicSetupTip
+            // 
+            label_BasicSetupTip.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            label_BasicSetupTip.BackColor = Color.Transparent;
+            label_BasicSetupTip.Font = new Font("HarmonyOS Sans SC", 7F);
+            label_BasicSetupTip.ForeColor = Color.FromArgb(34, 151, 244);
+            label_BasicSetupTip.Location = new Point(267, 18);
+            label_BasicSetupTip.Margin = new Padding(2);
+            label_BasicSetupTip.Name = "label_BasicSetupTip";
+            label_BasicSetupTip.Size = new Size(126, 22);
+            label_BasicSetupTip.TabIndex = 2;
+            label_BasicSetupTip.Text = "自动设置错误时可手动设置";
+            label_BasicSetupTip.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // select_NetcardSelector
+            // 
+            select_NetcardSelector.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            select_NetcardSelector.Font = new Font("HarmonyOS Sans SC", 9F);
+            select_NetcardSelector.List = true;
+            select_NetcardSelector.Location = new Point(23, 81);
+            select_NetcardSelector.Margin = new Padding(2);
+            select_NetcardSelector.Name = "select_NetcardSelector";
+            select_NetcardSelector.PrefixText = "请选择网卡：";
+            select_NetcardSelector.Radius = 3;
+            select_NetcardSelector.Size = new Size(370, 40);
+            select_NetcardSelector.TabIndex = 4;
+            select_NetcardSelector.SelectedIndexChanged += select_NetcardSelector_SelectedIndexChanged;
+            // 
+            // divider_BasicSetup_1
+            // 
+            divider_BasicSetup_1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            divider_BasicSetup_1.BackColor = Color.Transparent;
+            divider_BasicSetup_1.Location = new Point(23, 55);
+            divider_BasicSetup_1.Margin = new Padding(2);
+            divider_BasicSetup_1.Name = "divider_BasicSetup_1";
+            divider_BasicSetup_1.OrientationMargin = 0F;
+            divider_BasicSetup_1.Size = new Size(388, 10);
+            divider_BasicSetup_1.TabIndex = 3;
+            divider_BasicSetup_1.Text = "";
+            // 
+            // label_BasicSetupTitle
+            // 
+            label_BasicSetupTitle.BackColor = Color.Transparent;
+            label_BasicSetupTitle.Font = new Font("HarmonyOS Sans SC", 9.999999F, FontStyle.Bold, GraphicsUnit.Point, 134);
+            label_BasicSetupTitle.ForeColor = Color.FromArgb(34, 151, 244);
+            label_BasicSetupTitle.Location = new Point(23, 18);
+            label_BasicSetupTitle.Margin = new Padding(2);
+            label_BasicSetupTitle.Name = "label_BasicSetupTitle";
+            label_BasicSetupTitle.Size = new Size(67, 22);
+            label_BasicSetupTitle.TabIndex = 1;
+            label_BasicSetupTitle.Text = "基础设置";
+            // 
+            // panel_FooterPanel
+            // 
+            panel_FooterPanel.Controls.Add(button_FormCancel);
+            panel_FooterPanel.Controls.Add(button_Save);
+            panel_FooterPanel.Dock = DockStyle.Bottom;
+            panel_FooterPanel.Location = new Point(0, 723);
+            panel_FooterPanel.Margin = new Padding(2);
+            panel_FooterPanel.Name = "panel_FooterPanel";
+            panel_FooterPanel.Radius = 3;
+            panel_FooterPanel.Shadow = 6;
+            panel_FooterPanel.ShadowAlign = AntdUI.TAlignMini.Top;
+            panel_FooterPanel.Size = new Size(455, 57);
+            panel_FooterPanel.TabIndex = 2;
+            panel_FooterPanel.Text = "panel7";
+            // 
+            // button_FormCancel
+            // 
+            button_FormCancel.Anchor = AnchorStyles.Bottom;
+            button_FormCancel.Ghost = true;
+            button_FormCancel.Icon = (Image)resources.GetObject("button_FormCancel.Icon");
+            button_FormCancel.IconHover = (Image)resources.GetObject("button_FormCancel.IconHover");
+            button_FormCancel.IconPosition = AntdUI.TAlignMini.None;
+            button_FormCancel.IconRatio = 1.3F;
+            button_FormCancel.Location = new Point(261, 14);
+            button_FormCancel.Margin = new Padding(2);
+            button_FormCancel.Name = "button_FormCancel";
+            button_FormCancel.Size = new Size(36, 35);
+            button_FormCancel.TabIndex = 1;
+            button_FormCancel.Click += button_FormCancel_Click;
+            // 
+            // button_Save
+            // 
+            button_Save.Anchor = AnchorStyles.Bottom;
+            button_Save.Ghost = true;
+            button_Save.Icon = (Image)resources.GetObject("button_Save.Icon");
+            button_Save.IconHover = (Image)resources.GetObject("button_Save.IconHover");
+            button_Save.IconPosition = AntdUI.TAlignMini.None;
+            button_Save.IconRatio = 1.3F;
+            button_Save.Location = new Point(157, 14);
+            button_Save.Margin = new Padding(2);
+            button_Save.Name = "button_Save";
+            button_Save.Size = new Size(36, 35);
+            button_Save.TabIndex = 0;
+            button_Save.Click += button_Save_Click;
+            // 
+            // stackPanel_MainPanel
+            // 
+            stackPanel_MainPanel.AutoScroll = true;
+            stackPanel_MainPanel.Back = Color.FromArgb(239, 239, 239);
+            stackPanel_MainPanel.Controls.Add(panel_CombatSettings);
+            stackPanel_MainPanel.Controls.Add(panel_KeySettings);
+            stackPanel_MainPanel.Controls.Add(panel_BasicSetup);
+            stackPanel_MainPanel.Dock = DockStyle.Fill;
+            stackPanel_MainPanel.Location = new Point(0, 63);
+            stackPanel_MainPanel.Margin = new Padding(6, 7, 6, 7);
+            stackPanel_MainPanel.Name = "stackPanel_MainPanel";
+            stackPanel_MainPanel.Size = new Size(455, 660);
+            stackPanel_MainPanel.TabIndex = 1;
+            stackPanel_MainPanel.Text = "stackPanel1";
+            stackPanel_MainPanel.Vertical = true;
             // 
             // SettingsForm
             // 
-            AutoScaleDimensions = new SizeF(11F, 24F);
+            AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            ClientSize = new Size(974, 1277);
-            Controls.Add(stackPanel1);
-            Controls.Add(panel7);
-            Controls.Add(panel2);
-            Controls.Add(panel1);
-            Controls.Add(pageHeader1);
+            ClientSize = new Size(455, 780);
+            Controls.Add(stackPanel_MainPanel);
+            Controls.Add(panel_FooterPanel);
+            Controls.Add(panel_MainTitlePanel);
+            Controls.Add(pageHeader_MainHeader);
             Icon = (Icon)resources.GetObject("$this.Icon");
+            Margin = new Padding(2);
+            MinimumSize = new Size(450, 0);
             Name = "SettingsForm";
             Opacity = 0.95D;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "基础设置";
             Load += SettingsForm_Load;
             ForeColorChanged += SettingsForm_ForeColorChanged;
-            pageHeader1.ResumeLayout(false);
-            panel2.ResumeLayout(false);
-            CombatSettingsPanel.ResumeLayout(false);
-            KeySettingsPanel.ResumeLayout(false);
-            BasicSetupPanel.ResumeLayout(false);
-            panel7.ResumeLayout(false);
-            stackPanel1.ResumeLayout(false);
+            pageHeader_MainHeader.ResumeLayout(false);
+            panel_MainTitlePanel.ResumeLayout(false);
+            panel_CombatSettings.ResumeLayout(false);
+            panel_KeySettings.ResumeLayout(false);
+            panel_BasicSetup.ResumeLayout(false);
+            panel_FooterPanel.ResumeLayout(false);
+            stackPanel_MainPanel.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
 
-        private AntdUI.PageHeader pageHeader1;
-        private AntdUI.Panel panel1;
-        private AntdUI.Panel panel2;
-        private AntdUI.Label label1;
-        private AntdUI.Panel BasicSetupPanel;
-        private AntdUI.Label label2;
-        private AntdUI.Button button1;
-        private AntdUI.Divider divider3;
-        public AntdUI.Select InterfaceComboBox;
-        private AntdUI.Panel KeySettingsPanel;
-        private AntdUI.Divider divider1;
-        private AntdUI.Button button2;
-        private AntdUI.Label label3;
-        private AntdUI.Input input5;
-        private AntdUI.Input input4;
-        private AntdUI.Input input3;
-        private AntdUI.Input input2;
-        private AntdUI.Input input1;
-        private AntdUI.Panel CombatSettingsPanel;
-        private AntdUI.Divider divider2;
-        private AntdUI.Button button3;
-        private AntdUI.Label label4;
-        private AntdUI.Label label5;
-        private AntdUI.Switch switch1;
-        private AntdUI.Label TitleText;
-        private AntdUI.Label label6;
-        private AntdUI.Panel panel7;
-        private AntdUI.Select select1;
-        private AntdUI.Button button4;
-        private AntdUI.Button SaveButton;
-        private AntdUI.Label label7;
-        private AntdUI.Label label8;
-        private AntdUI.InputNumber inputNumber2;
-        private AntdUI.Label label9;
-        private AntdUI.Slider slider1;
-        private AntdUI.StackPanel stackPanel1;
-        private AntdUI.Label label10;
-        private AntdUI.Select select2;
+        private AntdUI.PageHeader pageHeader_MainHeader;
+        private AntdUI.Panel panel_MainTitlePanel;
+        private AntdUI.Label label_SettingTitle;
+        private AntdUI.Panel panel_BasicSetup;
+        private AntdUI.Label label_BasicSetupTitle;
+        private AntdUI.Divider divider_BasicSetup_1;
+        public AntdUI.Select select_NetcardSelector;
+        private AntdUI.Panel panel_KeySettings;
+        private AntdUI.Divider divider_KeySettings_1;
+        private AntdUI.Label label_KeySettingsTitle;
+        private AntdUI.Input input_ClearData;
+        private AntdUI.Input input_MouseThroughKey;
+        private AntdUI.Panel panel_CombatSettings;
+        private AntdUI.Divider divider_CombatSettings_1;
+        private AntdUI.Label label_CombatSettingsTitle;
+        private AntdUI.Label label_ClearAllDataWhenSwitch;
+        private AntdUI.Switch switch_ClearAllDataWhenSwitch;
+        private AntdUI.Label label_TitleText;
+        private AntdUI.Label label_KeySettingsTip;
+        private AntdUI.Panel panel_FooterPanel;
+        private AntdUI.Button button_FormCancel;
+        private AntdUI.Button button_Save;
+        private AntdUI.Label label_BasicSetupTip;
+        private AntdUI.Label label_CombatSettingsTip;
+        private AntdUI.InputNumber inputNumber_ClearSectionedDataTime;
+        private AntdUI.Label label_Transparent;
+        private AntdUI.Slider slider_Transparency;
+        private AntdUI.StackPanel stackPanel_MainPanel;
+        private AntdUI.Label label_DpsShowType;
+        private AntdUI.Select select_DamageDisplayType;
+        private Panel panel_BasicSetupColorBar;
+        private Panel panel_CombatSettingsColorBar;
+        private Panel panel_KeySettingsColorBar;
     }
 }

@@ -12,6 +12,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         public const string APP_NAME = "别查我DPS";
         public static string AppVersion { get => $"v{Application.ProductVersion.Split('+')[0]}"; }
 
+        public static bool IsMouseThrough { get; set; } = false;
+
         private static SettingsForm? _settingsForm = null;
         private static DpsStatisticsForm? _dpsStatisticsForm = null;
         private static UserUidSetForm? _userUidSetForm = null;
@@ -71,6 +73,21 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private static Form[] TransparencyForms => [SettingsForm, DpsStatistics, UserUidSetForm];
         /// <summary>
+        /// 统一设置是否在最上端显示
+        /// </summary>
+        /// <param name="topMost"></param>
+        public static void SetTopMost(bool topMost) 
+        {
+            foreach (var form in TransparencyForms)
+            {
+                try
+                {
+                    form.TopMost = topMost;
+                }
+                catch (Exception) { }
+            }
+        }
+        /// <summary>
         /// 统一设置透明度
         /// </summary>
         /// <param name="opacity"></param>
@@ -80,7 +97,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             {
                 try
                 {
-                    form.Opacity = opacity;
+                    if (IsMouseThrough)
+                    {
+                        form.Opacity = opacity;
+                    }
                 }
                 catch (Exception) { }
             }

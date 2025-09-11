@@ -15,6 +15,7 @@ using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
 using StarResonanceDpsAnalysis.WinForm.Core;
+using StarResonanceDpsAnalysis.WinForm.Forms.PopUp;
 using StarResonanceDpsAnalysis.WinForm.Plugin;
 using StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics;
 
@@ -38,18 +39,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         }
 
         #region 加载 网卡 启动设备/初始化 统计数据/ 启动 抓包/停止抓包/清空数据/ 关闭 事件
-        private void InitTableColumnsConfigAtFirstRun()
-        {
-            // # 启动与初始化事件：首次运行初始化表头配置 & 绑定本机身份信息
-            if (AppConfig.GetConfigExists())
-            {
-                AppConfig.ClearPicture = AppConfig.GetValue("UserConfig", "ClearPicture", "1").ToInt();
-                AppConfig.NickName = AppConfig.GetValue("UserConfig", "NickName", "未知");
-                AppConfig.Uid = AppConfig.GetValue("UserConfig", "Uid", "0").ToInt64();
-                AppConfig.Profession = AppConfig.GetValue("UserConfig", "Profession", "未知");
-                AppConfig.CombatPower = AppConfig.GetValue("UserConfig", "CombatPower", "0").ToInt();
-            }
-        }
 
         #region —— 抓包设备/统计 —— 
 
@@ -61,30 +50,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         private PacketAnalyzer PacketAnalyzer { get; } = new(); // # 抓包/分析器：每个到达的数据包交由该分析器处理
         #endregion
 
-        /// <summary>
-        /// 启动时加载网卡设备
-        /// </summary>
-        private void LoadNetworkDevices()
+        private void LoadAppConfig() 
         {
-            // 启动与初始化事件：应用启动阶段加载网络设备列表，依据配置选择默认网卡
-            Console.WriteLine("应用程序启动时加载网卡...");
-
-            if (AppConfig.NetworkCard >= 0)
-            {
-                // 设备列表：SharpPcap 提供
-                var devices = CaptureDeviceList.Instance;
-                if (AppConfig.NetworkCard < devices.Count)
-                {
-                    // 根据索引选择设备
-                    SelectedDevice = devices[AppConfig.NetworkCard];
-                    Console.WriteLine($"启动时已选择网卡: {SelectedDevice.Description} (索引: {AppConfig.NetworkCard})");
-                }
-            }
-            else
-            {
-                // 设置窗体：填充设备列表
-                FormManager.SettingsForm.LoadDevices();
-            }
+            DataStorage.SectionTimeout = TimeSpan.FromSeconds(AppConfig.CombatTimeClearDelaySeconds);
         }
 
         /// <summary>
@@ -94,7 +62,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         {
             try
             {
-                DataStorage.LoadPlayerInfoToFile();
+                DataStorage.LoadPlayerInfoFromFile();
             }
             catch (FileNotFoundException)
             {
@@ -102,7 +70,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             }
             catch (DataTamperedException)
             {
-                FormGui.Modal(this, "用户缓存错误", "用户缓存被篡改，或文件损坏。为软件正常运行，将清空用户缓存。");
+                AppMessageBox.ShowMessage("用户缓存被篡改，或文件损坏。为软件正常运行，将清空用户缓存。", this);
 
                 DataStorage.ClearAllPlayerInfos();
                 DataStorage.SavePlayerInfoToFile();
@@ -200,62 +168,67 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             };
             tooltip.SetTip(control, text);
         }
-
-        /// <summary>
-        /// 数据包到达事件
-        /// </summary>
-        private void Device_OnPacketArrival(object sender, PacketCapture e)
-        {
-            // # 抓包事件：回调于数据包到达时（SharpPcap线程）
-            try
-            {
-                var dev = (ICaptureDevice)sender;
-                PacketAnalyzer.StartNewAnalyzer(dev, e.GetPacket());
-            }
-            catch (Exception ex)
-            {
-                // # 异常保护：避免抓包线程因未处理异常中断
-                Console.WriteLine($"数据包到达后进行处理时发生异常 {ex.Message}\r\n{ex.StackTrace}");
-            }
-        }
         #region StartCapture() 抓包：开始/停止/事件/统计
-        /// <summary>
-        /// 是否开始抓包
-        /// </summary>
-        private static bool IsCaptureStarted { get; set; } = false; // # 运行状态：标识当前是否处于抓包/监控中
-
         /// <summary>
         /// 开始抓包
         /// </summary>
-        public async void StartCapture()
+        public void StartCapture()
         {
-            // # 抓包事件：用户点击“开始”或自动启动时触发
-            // # 步骤 1：前置校验 —— 网络设备索引/可用性检查
-            if (AppConfig.NetworkCard < 0)
+            // 检查是否有可抓包设备
+            var devices = CaptureDeviceList.Instance;
+            if (devices == null || devices.Count == 0)
             {
-                MessageBox.Show("请选择一个网卡设备");
+                AppMessageBox.ShowMessage("没有找到可用的网络抓包设备, 请检查您的系统设置", this);
                 return;
             }
 
-            var devices = CaptureDeviceList.Instance;
-            if (devices == null || devices.Count == 0)
-                throw new InvalidOperationException("没有找到可用的网络抓包设备");
+            var netcardName = AppConfig.NetworkCardName;
+            int netcardIndex;
+            // 检查是否设置过网卡设备
+            if (string.IsNullOrEmpty(netcardName))
+            {
+                // 首次自动设置网卡设备
 
-            if (AppConfig.NetworkCard < 0 || AppConfig.NetworkCard >= devices.Count)
-                throw new InvalidOperationException($"无效的网络设备索引: {AppConfig.NetworkCard}");
+                netcardIndex = CaptureDeviceHelper.GetBestNetworkCardIndex(devices);
+                if (netcardIndex < 0)
+                {
+                    AppMessageBox.ShowMessage("我们未能为您自动设置网卡设备，请前往设置界面手动设置", this);
+                    return;
+                }
 
-            SelectedDevice = devices[AppConfig.NetworkCard];
+                AppConfig.NetworkCardName = devices[netcardIndex].Description;
+            }
+            else
+            {
+                // 已经设置过网卡设备
+                netcardIndex = AppConfig.GetNetworkCardIndex(devices);
+            }
+
+            // 检查网卡设置变动
+            // (首次如果设置失败会 return, 不会走到这里, 这里的再次判断防止网卡设备变动)
+            if (netcardIndex < 0)
+            {
+                netcardIndex = CaptureDeviceHelper.GetBestNetworkCardIndex(devices);
+                if (netcardIndex < 0)
+                {
+                    AppMessageBox.ShowMessage("网卡信息发生变动，我们未能为您自动设置网卡设备，请前往设置界面手动设置", this);
+                    return;
+                }
+                else
+                {
+                    AppMessageBox.ShowMessage("网卡信息发生变动，已为您重新设置网卡设备，如有软件无法识别等情况，请手动重设设备", this);
+                }
+            }
+
+            // 设置选择的网卡设备
+            SelectedDevice = devices[netcardIndex];
             if (SelectedDevice == null)
-                throw new InvalidOperationException($"无法获取网络设备，索引: {AppConfig.NetworkCard}");
+            {
+                AppMessageBox.ShowMessage($"获取网卡设备失败，[索引]名称: [{netcardIndex}]{netcardName}", this);
+                return;
+            }
 
-            await Task.Delay(1000);
-            // # 步骤 3：图表历史与自动刷新 —— 开始新的战斗记录
-            ChartVisualizationService.ClearAllHistory();
-
-            // 启动所有图表的自动刷新 + 后台采样（满足“从DPS伤害开始就加载曲线”）
-            ChartVisualizationService.StartAllChartsAutoRefresh(1000);
-
-            // # 步骤 4：打开并启动设备监听 —— 绑定回调、设置过滤器
+            // 打开并启动设备监听 —— 绑定回调、设置过滤器
             SelectedDevice.Open(new DeviceConfiguration
             {
                 Mode = DeviceModes.Promiscuous,
@@ -267,9 +240,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             SelectedDevice.OnPacketArrival += new PacketArrivalEventHandler(Device_OnPacketArrival);
             SelectedDevice.StartCapture();
 
-            // # 步骤 5：标记状态、启动全程记录器
-            IsCaptureStarted = true;
-            FullRecord.Start();
             Console.WriteLine("开始抓包...");
         }
 

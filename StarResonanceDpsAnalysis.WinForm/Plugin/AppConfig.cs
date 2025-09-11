@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 using AntdUI;
+using SharpPcap;
 using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.WinForm.Control.GDI;
@@ -186,14 +187,12 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         public static string MonsterNames = $"{Environment.CurrentDirectory}\\monster_names.json";
 
         /// <summary>
-        /// # 分类：静态字段（延迟加载缓存）
-        /// - 仅在首次读取对应属性时，从 INI 取值并写入缓存；之后命中缓存避免重复 IO。
+        /// 网卡名称
         /// </summary>
-        // 网卡编号（可能用于网络数据抓取的网卡选择），null 表示尚未设置
-        private static int? _networkCard = null;
+        private static string? _networkCardName = null;
 
-        // 窗体透明度（0.0~1.0），null 表示未设置
-        private static double? _transparency = null;
+        // 窗体透明度（0~100），null 表示未设置
+        private static int? _transparency = null;
 
         // 是否使用浅色模式（true 浅色 / false 深色），null 表示未设置
         private static bool? _isLight = null;
@@ -213,28 +212,27 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         // 清空当前数据的快捷键，null 表示未设置
         private static Keys? _clearDataKey = null;
 
-        private static string? _damageDisplayType = null;
+        private static int? _damageDisplayType = null;
 
         /// <summary>
         /// DPS伤害类型显示
         /// </summary>
-        public static string DamageDisplayType
+        public static int DamageDisplayType
         {
             get
             {
                 if (_damageDisplayType == null)
                 {
-                    var value = GetValue("SetUp", "DamageDisplayType1", "KMB显示");
+                    var value = GetValue("SetUp", "DamageDisplayType", "0").ToInt();
                     _damageDisplayType = value;
                 }
-                return _damageDisplayType;
+
+                return _damageDisplayType.Value;
             }
             set
             {
-
-                SetValue("SetUp", "DamageDisplayType1", value);
+                SetValue("SetUp", "DamageDisplayType", value.ToString());
                 _damageDisplayType = value;
-
             }
 
         }
@@ -253,29 +251,27 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         private static long? _uid = null;//用户UID
         private static int? _combatPower = null;//战斗力
         public static int? _combatTimeClearDelaySeconds;//战斗计时清除延迟
-        public static int _clearPicture = 1;//是否过图清空记录
+        public static bool? _clearAllDataWhenSwitch;//是否过图清空记录
         public static Color colorText = Color.Black;//文字颜色
 
         /// <summary>
         /// 是否过图清全程记录
         /// </summary>
-        public static int ClearPicture
+        public static bool ClearAllDataWhenSwitch
         {
             get
             {
-                if (_clearPicture == 0)
+                if (_clearAllDataWhenSwitch == null)
                 {
-                    var value = GetValue("SetUp", "ClearPicture", "1").ToInt();
-                    _clearPicture = value;
+                    var value = GetValue("SetUp", "ClearAllDataWhenSwitch", "1").ToInt();
+                    _clearAllDataWhenSwitch = value == 1;
                 }
-                return _clearPicture;
-
-
+                return _clearAllDataWhenSwitch.Value;
             }
             set
             {
-                SetValue("SetUp", "ClearPicture", value.ToString());
-                _clearPicture = value;
+                SetValue("SetUp", "ClearAllDataWhenSwitch", value ? "1" : "0");
+                _clearAllDataWhenSwitch = value;
             }
         }
 
@@ -381,32 +377,36 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
                 _combatPower = value;
             }
         }
+
         /// <summary>
-        /// # 分类：网卡顺序
-        /// 说明：用于保存用户在网卡列表中选择的“索引/顺序号”。
-        /// 读取流程：
-        /// - 首次访问时，从 [SetUp] 节读取键 NetworkCard；
-        /// - 若不存在则回退到默认值 -1；
-        /// - 通过 ToInt()（扩展方法）转换为 int。
-        /// 设置流程：
-        /// - 写入 INI 文件并更新缓存。
+        /// 网卡名称
         /// </summary>
-        public static int NetworkCard
+        public static string NetworkCardName 
         {
-            get
+            get 
             {
-                if (_networkCard == null)
+                if (_networkCardName == null)
                 {
-                    var value = GetValue("SetUp", "NetworkCard", "-1").ToInt();
-                    _networkCard = value;
+                    var value = GetValue("SetUp", "NetworkCardName", string.Empty);
+                    _networkCardName = value;
                 }
-                return _networkCard!.Value;
+
+                return _networkCardName;
             }
-            set
+            set 
             {
-                SetValue("SetUp", "NetworkCard", value.ToString());
-                _networkCard = value;
+                SetValue("SetUp", "NetworkCardName", value);
+                _networkCardName = value;
             }
+        }
+
+        public static int GetNetworkCardIndex(CaptureDeviceList devices) 
+        {
+            var deviceIndexData = devices
+                    .Select((Data, Index) => (Data, Index))
+                    .FirstOrDefault(e => e.Data.Description == NetworkCardName);
+
+            return deviceIndexData.Data == null ? -1 : deviceIndexData.Index;
         }
 
         /// <summary>
@@ -414,13 +414,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// UI 总体透明度百分比，默认 100（不透明）。
         /// 注意：此处未强制约束范围；调用方应确保 0-100 合法范围，或在使用处进行钳制。
         /// </summary>
-        public static double Transparency
+        public static int Transparency
         {
             get
             {
                 if (_transparency == null)
                 {
-                    var value = GetValue("SetUp", "Transparency", "100").ToDouble();
+                    var value = GetValue("SetUp", "Transparency", "100").ToInt();
                     _transparency = value;
                 }
                 return _transparency.Value;
@@ -494,7 +494,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// 默认 F6。读取到的数值会校验是否在 Keys 枚举内，不合法则回退到默认。
         /// 用途：在 UI 悬浮窗等场景切换是否“可点击/可穿透”。
         /// </summary>
-        public static Keys MouseThroughKey
+        public static Keys? MouseThroughKey
         {
             get
             {
@@ -507,7 +507,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             }
             set
             {
-                SetValue("SetKey", "MouseThroughKey", ((int)value).ToString());
+                SetValue("SetKey", "MouseThroughKey", ((int?)value).ToString() ?? string.Empty);
                 _mouseThroughKey = value;
             }
         }
@@ -560,7 +560,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// # 分类：热键 - 清空当前数据
         /// 默认 F9。通常用于清空当前战斗/会话的即时统计。
         /// </summary>
-        public static Keys ClearDataKey
+        public static Keys? ClearDataKey
         {
             get
             {
@@ -573,7 +573,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
             }
             set
             {
-                SetValue("SetKey", "ClearDataKey", ((int)value).ToString());
+                SetValue("SetKey", "ClearDataKey", ((int?)value).ToString() ?? string.Empty);
                 _clearDataKey = value;
             }
         }

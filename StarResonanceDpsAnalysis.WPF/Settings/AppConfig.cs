@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows;
 using StarResonanceDpsAnalysis.Assets;
 using StarResonanceDpsAnalysis.Core.Extends.System;
 
@@ -22,66 +23,6 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
     /// </summary>
     public class AppConfig
     {
-     
-        public static Size ProgressBarImageSize = new Size(25, 25);
-       
-        #region 字体
-        /// <summary>
-        /// 进度条字体
-        /// </summary>
-        public static Font ProgressBarFont
-        {
-            get => HandledAssets.HarmonyOS_Sans(9);
-        }
-
-        /// <summary>
-        /// 内容文本2
-        /// </summary>
-        public static Font DigitalFont
-        {
-
-            get => HandledAssets.HarmonyOS_Sans(9);
-        }
-
-        /// <summary>
-        /// SAO字体小
-        /// </summary>
-        public static Font SaoFont
-        {
-            get => HandledAssets.SAOWelcomeTT(10);
-        }
-
-
-        /// <summary>
-        /// 标题SAO
-        /// </summary>
-        public static Font TitleFont
-        {
-            get => HandledAssets.SAOWelcomeTT(12);
-        }
-
-        /// <summary>
-        /// 标题文本
-        /// </summary>
-        public static Font HeaderFont
-        {
-            get => HandledAssets.AliMaMaShuHeiTi(10);
-        }
-
-        public static Font BoldHarmonyFont
-        {
-            get => HandledAssets.HarmonyOS_Sans_Bold(9);
-        }
-
-        /// <summary>
-        /// 内容字体
-        /// </summary>
-        public static Font ContentFont
-        {
-            get => HandledAssets.HarmonyOS_Sans(9);
-        }
-
-        #endregion
 
         /// <summary>
         /// # 分类：Win32 API 声明（读取 INI）
@@ -110,9 +51,9 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         /// # 分类：路径与静态缓存
         /// 配置文件完整路径：应用当前目录下的 config.ini。
         /// </summary>
-        private static string FilePath { get; } = $"{Environment.CurrentDirectory}\\config.ini";
+        private static string FilePath { get; } = $@"{Environment.CurrentDirectory}\config.ini";
 
-        public static string MonsterNames = $"{Environment.CurrentDirectory}\\monster_names.json";
+        public static string MonsterNames { get; } = $@"{Environment.CurrentDirectory}\monster_names.json";
 
         /// <summary>
         /// # 分类：静态字段（延迟加载缓存）
@@ -393,7 +334,6 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
             {
                 if (_startUpState == null)
                 {
-                    var psb = Screen.PrimaryScreen?.Bounds;//630, 530 \ 420, 350
                     var valueStr = GetValue("SetUp", "StartUpState", string.Empty);
                     var valueList = valueStr.Split(',').Select(e => e.ToInt(-1)).ToList();
                     if (valueList.Count == 4 && valueList[0] >= 0 && valueList[1] >= 0 && valueList[2] >= 0 && valueList[3] >= 0)

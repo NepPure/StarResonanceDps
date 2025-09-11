@@ -496,7 +496,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin
         /// <returns></returns>
         public static string FormatWithEnglishUnits<T>(T number)
         {
-            if (AppConfig.DamageDisplayType == "KMB显示")
+            if (AppConfig.DamageDisplayType == 0)
             {
                 double value = Convert.ToDouble(number);
 
