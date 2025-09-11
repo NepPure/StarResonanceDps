@@ -438,8 +438,6 @@
                 Grid.Row="1"
                 Data="{Binding Slots, UpdateSourceTrigger=PropertyChanged}"
                 ItemTemplate="{StaticResource ProgressBarDataTemplate}" />
-                <!-- SortDirection="Descending" -->
-                <!-- SortMemberPath="Value"/> -->
 
             <Border
                 x:Name="ContentBorder"
