@@ -499,7 +499,7 @@
         public static void Reset(bool preserveHistory = true)
         {
 
-            if (AppConfig.ClearPicture == 0 && preserveHistory) return;//如果是0，则不清除数据
+            if (AppConfig.ClearAllDataWhenSwitch && preserveHistory) return;//如果是0，则不清除数据
             lock (_sync)
             {
                 // 1) 如有进行中的或已有数据的会话，先入一条快照（不影响历史）

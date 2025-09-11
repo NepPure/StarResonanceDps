@@ -10,7 +10,7 @@ namespace StarResonanceDpsAnalysis.Core.Extends.System
     public static class Int64Extends
     {
         private static string[] CompactSuffixes { get; } = [string.Empty, "K", "M", "B", "T", "Q"];
-        private static string[] ChineseUnits { get; } = [string.Empty, "万", "亿", "万亿", "千万亿"];
+        private static string[] ChineseUnits { get; } = [string.Empty, "万", "亿", "兆", "吉"];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long ShiftRight16(this long value)

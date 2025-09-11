@@ -17,6 +17,8 @@ using StarResonanceDpsAnalysis.WinForm.Plugin;
 
 using Button = AntdUI.Button;
 using System.Diagnostics;
+using SharpPcap;
+using StarResonanceDpsAnalysis.WinForm.Forms.PopUp;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
@@ -42,11 +44,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // 安装键盘钩子，用于全局热键监听与处理
             RegisterKeyboardHook();
 
-            // 首次运行初始化表格列配置（列宽/显示项等）
-            InitTableColumnsConfigAtFirstRun();
-
-            // 加载/枚举网络设备（抓包设备列表）
-            LoadNetworkDevices();
+            // 初始化用户设置
+            LoadAppConfig();
 
             // 读取玩家信息缓存
             LoadPlayerCache();
@@ -76,16 +75,14 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     return;
                 }
 
-                FormGui.Modal(this, "我们依然在尝试监听服务器...",
+                AppMessageBox.ShowMessage(
                     """
-
                     本次等待监听服务器比预想得耗时更久...
                     
                     没有启动游戏 或 网卡选择错误 也会造成监听不到服务器,
                     请确认您是否已经启动了游戏或您的网卡选择没有问题。
                     """,
-                    cancelText: null!,
-                    type: TType.Warn);
+                    this);
 
                 await Task.Delay(10000);
                 if (DataStorage.IsServerConnected)
@@ -93,15 +90,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     return;
                 }
 
-                FormGui.Modal(this, "我们建议您检查设置",
+                AppMessageBox.ShowMessage(
                     """
-
                     本次等待监听服务器比预想得... 更加不顺利...
                     
                     如果您已经启动游戏, 那么我们强烈建议您检查网卡设置。
                     """,
-                    cancelText: null!,
-                    type: TType.Error);
+                    this);
             });
         }
 
@@ -119,6 +114,24 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             SetStartupPositionAndSize();
 
             EnsureTopMost();
+        }
+
+        /// <summary>
+        /// 数据包到达事件
+        /// </summary>
+        private void Device_OnPacketArrival(object sender, PacketCapture e)
+        {
+            // # 抓包事件：回调于数据包到达时（SharpPcap线程）
+            try
+            {
+                var dev = (ICaptureDevice)sender;
+                PacketAnalyzer.StartNewAnalyzer(dev, e.GetPacket());
+            }
+            catch (Exception ex)
+            {
+                // # 异常保护：避免抓包线程因未处理异常中断
+                Console.WriteLine($"数据包到达后进行处理时发生异常 {ex.Message}\r\n{ex.StackTrace}");
+            }
         }
 
         /// <summary>
@@ -174,7 +187,10 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         {
             Console.WriteLine($"ServerChanged: {prevServer} => {currentServer}");
 
-            HandleClearAllData();
+            if (AppConfig.ClearAllDataWhenSwitch)
+            {
+                HandleClearAllData();
+            }
         }
 
         private void DataStorage_NewSectionCreated()
@@ -227,6 +243,11 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // 获取该类型下的最大值和总和（用于计算进度条比例和百分比）
             (var maxValue, var sumValue) = GetMaxSumValueByType(dpsIEnum, _stasticsType);
 
+            // LongValueShowHandler (lvsh) 数值显示方式函数
+            var lvsh = GetLongGroupingHandler(AppConfig.DamageDisplayType);
+            // DoubleValueShowHandler (dvsh) 数值显示方式函数
+            var dvsh = GetDoubleGroupingHandler(AppConfig.DamageDisplayType);
+
             // 遍历每个玩家的数据，生成进度条数据
             var progressBarDataList = dpsIEnum
                 .Select(e =>
@@ -258,7 +279,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     renderContent[1].Text = $"{(playerInfo?.Name == null ? string.Empty : $"{playerInfo.Name}-")}{playerInfo?.SubProfessionName ?? professionName}({playerInfo?.CombatPower?.ToString() ?? ($"UID: {e.UID}")})";
 
                     // 总数值 + 平均每秒（DPS/HPS等）
-                    renderContent[2].Text = $"{value.ToCompactString()} ({(value / Math.Max(1, TimeSpan.FromTicks(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
+                    renderContent[2].Text = $"{lvsh(value, 2)} ({dvsh(value / Math.Max(1, TimeSpan.FromTicks(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds), 2)})";
 
                     // 团队占比（四舍五入为整数百分比）
                     renderContent[3].Text = $"{Math.Round(100d * value / sumValue, 0, MidpointRounding.AwayFromZero)}%";
@@ -293,7 +314,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             var cv = GetValueByType(cpdd, _stasticsType);
 
             // 显示当前玩家的总数值 + 每秒平均值
-            label_CurrentDps.Text = $"{cv.ToCompactString()} ({(cv / Math.Max(1, TimeSpan.FromTicks(cpdd.LastLoggedTick - (cpdd.StartLoggedTick ?? 0)).TotalSeconds)).ToCompactString()})";
+            label_CurrentDps.Text = $"{lvsh(cv, 2)} ({dvsh(cv / Math.Max(1, TimeSpan.FromTicks(cpdd.LastLoggedTick - (cpdd.StartLoggedTick ?? 0)).TotalSeconds), 2)})";
         }
 
 
@@ -325,6 +346,28 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 2 or 3 => (list.Max(e => e.TotalTakenDamage), list.Sum(e => e.TotalTakenDamage)),
 
                 _ => (long.MaxValue, long.MaxValue)
+            };
+        }
+
+        private Func<long, int, string> GetLongGroupingHandler(int type)
+        {
+            return type switch
+            {
+                0 => Int64Extends.ToCompactString,
+                1 => Int64Extends.ToChineseUnitString,
+
+                _ => (value, digit) => value.ToString()
+            };
+        }
+
+        private Func<double, int, string> GetDoubleGroupingHandler(int type)
+        {
+            return type switch
+            {
+                0 => DoubleExtends.ToCompactString,
+                1 => DoubleExtends.ToChineseUnitString,
+
+                _ => (value, digit) => value.ToString()
             };
         }
 
@@ -597,8 +640,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         private void EnsureTopMost()
         {
             // 先关再开, 强制触发样式刷新
-            TopMost = false;
-            TopMost = true;
+            FormManager.SetTopMost(false);
+            FormManager.SetTopMost(true);
 
             Activate();
             BringToFront();

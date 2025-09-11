@@ -140,7 +140,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         /// 从文件加载缓存玩家信息
         /// </summary>
         /// <param name="relativeFilePath"></param>
-        public static void LoadPlayerInfoToFile()
+        public static void LoadPlayerInfoFromFile()
         {
             var playerInfoCaches = PlayerInfoCacheReader.ReadFile();
 
@@ -179,7 +179,7 @@ namespace StarResonanceDpsAnalysis.Core.Data
         {
             try
             {
-                LoadPlayerInfoToFile();
+                LoadPlayerInfoFromFile();
             }
             catch (Exception)
             {

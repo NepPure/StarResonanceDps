@@ -19,20 +19,20 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms.PopUp
         public AppMessageBox(string message)
         {
             InitializeComponent();
+
             FormGui.SetDefaultGUI(this);
+
             FormGui.SetColorMode(this, AppConfig.IsLight);//设置窗体颜色
+
             labelMessage.Text = message;
         }
 
         public static DialogResult ShowMessage(string message, IWin32Window? owner = null)
         {
-            using (var box = new AppMessageBox(message))
-            {
-                if (owner != null)
-                    return box.ShowDialog(owner); // 相对 owner 居中
-                else
-                    return box.ShowDialog(); // 默认居中屏幕
-            }
+            using var box = new AppMessageBox(message);
+
+            if (owner == null) return box.ShowDialog(); // 默认居中屏幕
+            else return box.ShowDialog(owner); // 相对 owner 居中
         }
 
 

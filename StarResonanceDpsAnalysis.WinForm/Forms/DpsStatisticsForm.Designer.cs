@@ -310,7 +310,6 @@
             // 
             // sortedProgressBarList_MainList
             // 
-            sortedProgressBarList_MainList.AnimationQuality = Effects.Enum.Quality.Medium;
             sortedProgressBarList_MainList.Dock = DockStyle.Fill;
             sortedProgressBarList_MainList.Location = new Point(0, 96);
             sortedProgressBarList_MainList.Margin = new Padding(8, 6, 8, 6);
@@ -322,7 +321,6 @@
             sortedProgressBarList_MainList.OrderImages = null;
             sortedProgressBarList_MainList.ScrollBarWidth = 8;
             sortedProgressBarList_MainList.ScrollOffsetY = 0F;
-            sortedProgressBarList_MainList.SeletedItemColor = Color.FromArgb(86, 156, 214);
             sortedProgressBarList_MainList.Size = new Size(632, 394);
             sortedProgressBarList_MainList.TabIndex = 2;
             // 

@@ -114,7 +114,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     {
         try
         {
-            DataStorage.LoadPlayerInfoToFile();
+            DataStorage.LoadPlayerInfoFromFile();
         }
         catch (FileNotFoundException)
         {
