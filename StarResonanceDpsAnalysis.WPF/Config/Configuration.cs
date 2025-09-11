@@ -1,4 +1,7 @@
-﻿namespace StarResonanceDpsAnalysis.WPF.Config;
+﻿using StarResonanceDpsAnalysis.Core.Models;
+using StarResonanceDpsAnalysis.WPF.Converters;
+
+namespace StarResonanceDpsAnalysis.WPF.Config;
 
 public class Configuration
 {
@@ -16,7 +19,7 @@ public class Configuration
         public long CombatPower { get; set; } = 0;
         public int Transparency { get; set; } = 100;
         public int CombatTimeClearDelaySeconds { get; set; } = 5;
-        public DamageDisplayType DamageDisplayType { get; set; } = DamageDisplayType.KMB;
+        public NumberDisplayMode DamageDisplayMode { get; set; } = NumberDisplayMode.KMB;
     }
 
     public class Shortcut
@@ -25,19 +28,4 @@ public class Configuration
         public int ClearDataKey { get; set; } = 131190;
         public int ClearHistoryKey { get; set; } = 131193;
     }
-}
-
-/// <summary>
-/// 伤害显示类型
-/// </summary>
-public enum DamageDisplayType
-{
-    /// <summary>
-    /// Kilo Mega Billion
-    /// </summary>
-    KMB, // KMB
-    /// <summary>
-    /// 万 亿
-    /// </summary>
-    Wan, 
 }

@@ -1,0 +1,52 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls"
+    xmlns:conv="clr-namespace:StarResonanceDpsAnalysis.WPF.Converters">
+
+    <conv:PercentToWidthConverter x:Key="PercentToWidthConverter" />
+
+    <Style TargetType="{x:Type controls:DpsIndicatorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:DpsIndicatorControl}">
+                    <Grid x:Name="Root">
+                        <!--  track  -->
+                        <Border
+                            x:Name="PART_Track"
+                            Visibility="Hidden"
+                            Height="{Binding Height, RelativeSource={RelativeSource TemplatedParent}}"
+                            Background="{Binding IndicatorBackground, RelativeSource={RelativeSource TemplatedParent}}"
+                            CornerRadius="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}}" />
+
+                        <!--  indicator, width calculated by converter  -->
+                        <Rectangle
+                            x:Name="PART_Indicator"
+                            Height="{Binding Height, RelativeSource={RelativeSource TemplatedParent}}"
+                            HorizontalAlignment="Left"
+                            Fill="{Binding IndicatorForeground, RelativeSource={RelativeSource TemplatedParent}}"
+                            RadiusX="{Binding CornerRadius.TopLeft, RelativeSource={RelativeSource TemplatedParent}}"
+                            RadiusY="{Binding CornerRadius.TopLeft, RelativeSource={RelativeSource TemplatedParent}}">
+                            <Rectangle.Width>
+                                <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
+                                    <Binding Path="Percentage" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding Path="Maximum" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding ElementName="Root" Path="ActualWidth" />
+                                </MultiBinding>
+                            </Rectangle.Width>
+                        </Rectangle>
+
+                        <ContentPresenter
+                            x:Name="PART_Overlay"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            Content="{Binding OverlayContent, RelativeSource={RelativeSource TemplatedParent}}"
+                            ContentTemplate="{Binding OverlayTemplate, RelativeSource={RelativeSource TemplatedParent}}"
+                            IsHitTestVisible="False" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

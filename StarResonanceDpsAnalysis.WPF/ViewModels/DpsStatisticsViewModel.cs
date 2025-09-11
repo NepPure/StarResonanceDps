@@ -9,6 +9,7 @@ using StarResonanceDpsAnalysis.WPF.Controls;
 using StarResonanceDpsAnalysis.WPF.Data;
 using StarResonanceDpsAnalysis.Core.Models;
 using StarResonanceDpsAnalysis.WPF.Controls.Models;
+using StarResonanceDpsAnalysis.WPF.Converters;
 using StarResonanceDpsAnalysis.WPF.Extensions;
 using StarResonanceDpsAnalysis.WPF.Models;
 
@@ -40,6 +41,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     [ObservableProperty] private List<SkillItem>? _skillList;
     [ObservableProperty] private ObservableCollection<ProgressBarData> _slots = [];
     [ObservableProperty] private StatisticType _statisticIndex;
+    [ObservableProperty] private NumberDisplayMode _numberDisplayMode = NumberDisplayMode.Wan;
 
     private DispatcherTimer _timer = null!;
 
@@ -80,12 +82,12 @@ public partial class DpsStatisticsViewModel : BaseViewModel
                 Name = $"{i + 1:00}.", // 01. 02. ...
                 Nickname = nick,
                 Class = @class,
-                ValueText = "24.81万(2456.0)"
             };
             list.Add(new ProgressBarData
             {
                 ID = i,
                 ProgressBarValue = 0, // 先给0，等会定时器里刷新
+                Classes = @class,
                 Data = slotData
             });
         }
@@ -150,12 +152,11 @@ public partial class DpsStatisticsViewModel : BaseViewModel
 
             // 右侧文本：总伤(每秒)
             var approxPerSec = ratio * 10000 * (0.4 + 0.4 * _rd.NextDouble());
-            var valueText = $"{total.ToChineseUnitString()}({approxPerSec:0.0})";
 
             // 更新 Data 里的文本（绑定会刷新）
             if (bar.Data is PlayerSlotViewModel p)
             {
-                p.ValueText = valueText;
+                p.Value = (ulong)approxPerSec;
                 // 也可以顺带更新 Name 为名次，但需要排序后再写（见可选排序）
             }
         }

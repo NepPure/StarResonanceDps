@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:models="clr-namespace:StarResonanceDpsAnalysis.WPF.Models">
+    xmlns:models="clr-namespace:StarResonanceDpsAnalysis.Core.Models;assembly=StarResonanceDpsAnalysis.Core">
 
     <!--
         说明（中文）：
