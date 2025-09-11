@@ -6,5 +6,6 @@
     <converters:ClassesToIconConverter x:Key="ClassesToIconConverter" />
     <converters:StatisticTypeToStringConverter x:Key="StatisticTypeToStringConverter" />
     <converters:ScopeTimeToStringConverter x:Key="ScopeTimeToStringConverter" />
+    <converters:HumanReadableNumberConverter x:Key="HumanReadableNumberConverter" />
     <!-- <converters:StatisticTypeNScopeTimeToStringMultiConverter x:Key="StatisticTypeNScopeTimeToStringMultiConverter" /> -->
 </ResourceDictionary>
