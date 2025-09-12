@@ -29,7 +29,7 @@
                             RadiusY="{Binding CornerRadius.TopLeft, RelativeSource={RelativeSource TemplatedParent}}">
                             <Rectangle.Width>
                                 <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
-                                    <Binding Path="Percentage" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding Path="AnimatedPercentage" RelativeSource="{RelativeSource TemplatedParent}" />
                                     <Binding Path="Maximum" RelativeSource="{RelativeSource TemplatedParent}" />
                                     <Binding ElementName="Root" Path="ActualWidth" />
                                 </MultiBinding>

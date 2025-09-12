@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace StarResonanceDpsAnalysis.WPF.Controls;
 
@@ -15,12 +16,41 @@ public class DpsIndicatorControl : Control
     // Percentage value in range 0..Maximum. Use double for proper binding with ProgressBar-like behavior.
     public static readonly DependencyProperty PercentageProperty = DependencyProperty.Register(
         nameof(Percentage), typeof(double), typeof(DpsIndicatorControl),
-        new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+        new FrameworkPropertyMetadata(0d, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnPercentageChanged));
 
     public double Percentage
     {
         get => (double)GetValue(PercentageProperty);
         set => SetValue(PercentageProperty, value);
+    }
+
+    // AnimatedPercentage: used by the template to animate visual changes when Percentage updates
+    public static readonly DependencyProperty AnimatedPercentageProperty = DependencyProperty.Register(
+        nameof(AnimatedPercentage), typeof(double), typeof(DpsIndicatorControl),
+        new PropertyMetadata(0d));
+
+    public double AnimatedPercentage
+    {
+        get => (double)GetValue(AnimatedPercentageProperty);
+        set => SetValue(AnimatedPercentageProperty, value);
+    }
+
+    private static void OnPercentageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not DpsIndicatorControl ctl) return;
+
+        var newVal = (double)e.NewValue;
+
+        // Create smooth animation from current AnimatedPercentage to new Percentage
+        var animation = new DoubleAnimation
+        {
+            To = newVal,
+            Duration = TimeSpan.FromMilliseconds(300),
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+        };
+
+        // Begin animation on AnimatedPercentageProperty
+        ctl.BeginAnimation(AnimatedPercentageProperty, animation);
     }
 
     // Maximum value used to scale Percentage (default 100)
