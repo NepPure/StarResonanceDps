@@ -54,6 +54,8 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     [ObservableProperty] private bool _showSkillListPopup;
 
     [ObservableProperty] private List<SkillItem>? _skillList;
+    // [ObservableProperty] private ObservableCollection<ProgressBarData> _slots = [];
+    [ObservableProperty] private ObservableDictionary<uint, StatisticDataViewModel> _slots = new();
     [ObservableProperty] private StatisticType _statisticIndex;
     [ObservableProperty] private NumberDisplayMode _numberDisplayMode = NumberDisplayMode.Wan;
 
@@ -89,11 +91,13 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         };
 
         Slots.BeginUpdate();
-        for (int i = 0; i < players.Length; i++)
+        for (uint i = 0; i < players.Length; i++)
         {
             var (nick, @class) = players[i];
             var barData = new StatisticDataViewModel()
             {
+                Id = i,
+                Name = nick,
                 Id = i + 1, // 1-based index
                 Name = nick,
                 Classes = @class,

@@ -436,8 +436,10 @@
 
             <ctrl:SortedDpsControl
                 Grid.Row="1"
-                Data="{Binding Slots, UpdateSourceTrigger=PropertyChanged}"
-                ItemTemplate="{StaticResource ProgressBarDataTemplate}" />
+                Data="{Binding Slots.Values, UpdateSourceTrigger=PropertyChanged}"
+                ItemTemplate="{StaticResource ProgressBarDataTemplate}"
+                SortDirection="Descending"
+                SortMemberPath="Value" />
 
             <Border
                 x:Name="ContentBorder"
