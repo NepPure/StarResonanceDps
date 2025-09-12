@@ -39,7 +39,8 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     [ObservableProperty] private bool _showSkillListPopup;
 
     [ObservableProperty] private List<SkillItem>? _skillList;
-    [ObservableProperty] private ObservableCollection<ProgressBarData> _slots = [];
+    // [ObservableProperty] private ObservableCollection<ProgressBarData> _slots = [];
+    [ObservableProperty] private ObservableDictionary<uint, StatisticDataViewModel> _slots = new();
     [ObservableProperty] private StatisticType _statisticIndex;
     [ObservableProperty] private NumberDisplayMode _numberDisplayMode = NumberDisplayMode.Wan;
 
@@ -66,33 +67,24 @@ public partial class DpsStatisticsViewModel : BaseViewModel
             ("无双重剑-测试(19876)", Classes.ShieldKnight),
             ("奥术回响-测试(20111)", Classes.FrostMage),
             ("圣光之约-测试(18770)", Classes.VerdantOracle),
-            ("影袭-测试(20990)", Classes.Stormblade)
+            ("影袭-测试(20990)", Classes.Stormblade),
+            ("Jojo-未知(20990)", Classes.Unknown)
         };
 
-        var list = new List<ProgressBarData>();
-        for (var i = 0; i < players.Length; i++)
+        Slots.BeginUpdate();
+        for (uint i = 0; i < players.Length; i++)
         {
             var (nick, @class) = players[i];
-
-            // 初始化一点基础值，避免全部为0
-            _totals[i] = _rd.Next(2_000, 8_000);
-
-            var slotData = new PlayerSlotViewModel
+            var barData = new StatisticDataViewModel()
             {
-                Name = $"{i + 1:00}.", // 01. 02. ...
-                Nickname = nick,
-                Class = @class,
-            };
-            list.Add(new ProgressBarData
-            {
-                ID = i,
-                ProgressBarValue = 0, // 先给0，等会定时器里刷新
+                Id = i,
+                Name = nick,
                 Classes = @class,
-                Data = slotData
-            });
+            };
+            Slots[i] = barData;
         }
-
-        Slots = [.. list];
+        UpdateData();
+        Slots.EndUpdate();
     }
 
     [RelayCommand]
@@ -106,7 +98,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         // 3) 定时器：实时更新
         _timer = new DispatcherTimer(DispatcherPriority.Background)
         {
-            Interval = TimeSpan.FromMilliseconds(2000)
+            Interval = TimeSpan.FromMilliseconds(100)
         };
         _timer.Tick += (_, __) => UpdateData();
         _timer.Start();
@@ -134,49 +126,29 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     private void UpdateData()
     {
         Debug.WriteLine("Enter updatedata");
-
-        // 随机增长各自总伤
-        for (var i = 0; i < _totals.Length; i++)
-            _totals[i] += _rd.Next(10, 20);
-
-        var max = Math.Max(1, _totals.Max()); // 防止除0
-
-        // 计算“每秒值”举例：取最近随机的一点点变化，示意 dps
-        // 这里简化：用一个近似（0.4~0.8）* (当下相对值*1w)，只做展示
-        for (var i = 0; i < Slots.Count; i++)
+        foreach (var slot in Slots)
         {
-            var bar = Slots[i];
-            var total = _totals[i];
-            var ratio = (double)total / max; // 0~1
-            bar.ProgressBarValue = ratio; // 控制条的长度
+            if (slot.Value is not StatisticDataViewModel data) continue;
+            data.Value += (ulong)_rd.Next(1000, 80000);
 
-            // 右侧文本：总伤(每秒)
-            var approxPerSec = ratio * 10000 * (0.4 + 0.4 * _rd.NextDouble());
+            Debug.WriteLine($"Updated {data.Name}'s value to {data.Value}");
+        }
+        // update percentage of max
+        var max = Slots.Max(d => d.Value);
+        foreach (var slot in Slots)
+        {
+            if (slot.Value is not StatisticDataViewModel data) continue;
+            data.PercentOfMax = data.Value / (double)max.Value * 100;
 
-            // 更新 Data 里的文本（绑定会刷新）
-            if (bar.Data is PlayerSlotViewModel p)
-            {
-                p.Value = (ulong)approxPerSec;
-                // 也可以顺带更新 Name 为名次，但需要排序后再写（见可选排序）
-            }
+            Debug.WriteLine($"Updated {data.Name}'s value to {data.Value}");
         }
 
-        // 可选：按照总伤排序（若你的控件会按 Data 输入顺序渲染）
-        // 如果 SortedProgressBarList 自己会排序，则可不要这段
-        var ordered = Slots.Zip(_totals, (bar, total) => (bar, total))
-            .OrderByDescending(x => x.total)
-            .Select(x => x.bar)
-            .ToList();
-
-        // 更新名次显示（01. 02. ...）
-        for (var rank = 0; rank < ordered.Count; rank++)
+        var percentOfTotal = Slots.Values.Sum(d => Convert.ToDouble(d.Value));
+        foreach (var slot in Slots)
         {
-            if (ordered[rank].Data is PlayerSlotViewModel p)
-                p.Name = $"{rank + 1:00}.";
+            if (slot.Value is not StatisticDataViewModel data) continue;
+            data.Percent = data.Value / percentOfTotal;
         }
-
-        // Reorder the observable collection to match the desired order with minimal notifications.
-        SortData(ordered);
         Debug.WriteLine("Exit updatedata");
     }
 
@@ -218,38 +190,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     private void Shutdown()
     {
         _appController.Shutdown();
-    }
-
-    private void SortData(IEnumerable<ProgressBarData> orderedEnumerable)
-    {
-        if (orderedEnumerable is null)
-            return;
-
-        var desired = orderedEnumerable as IList<ProgressBarData> ?? orderedEnumerable.ToList();
-
-        // Defensive: if collection sizes differ or some items are missing, replace the entire collection.
-        if (Slots.Count != desired.Count || desired.Any(d => !Slots.Contains(d)))
-        {
-            // Replace the whole collection (property setter will raise change notification).
-            Slots = new System.Collections.ObjectModel.ObservableCollection<ProgressBarData>(desired);
-            return;
-        }
-
-        // In-place reordering using ObservableCollection.Move to minimize change notifications.
-        // For each position i, find the desired item and move it into position i if necessary.
-        for (var i = 0; i < desired.Count; i++)
-        {
-            var target = desired[i];
-            var currentIndex = Slots.IndexOf(target);
-            if (currentIndex < 0)
-                continue; // shouldn't happen due to previous check
-
-            if (currentIndex == i)
-                continue;
-
-            // Move element from currentIndex to i.
-            Slots.Move(currentIndex, i);
-        }
     }
 
     public class SkillItem

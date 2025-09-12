@@ -1,8 +1,7 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:ctrl="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls"
-    xmlns:models="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls.Models">
+    xmlns:ctrl="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls">
 
     <Style TargetType="ctrl:SortedDpsControl">
         <Setter Property="Template">
@@ -10,19 +9,20 @@
                 <ControlTemplate TargetType="ctrl:SortedDpsControl">
                     <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
                         <ListBox
-                                x:Name="PART_ListBox"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                ItemTemplate="{Binding ItemTemplate, RelativeSource={RelativeSource TemplatedParent}}"
-                                ItemsSource="{Binding Data, RelativeSource={RelativeSource TemplatedParent}}"
-                                ScrollViewer.CanContentScroll="True"
-                                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                SelectedItem="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                VirtualizingStackPanel.IsVirtualizing="True"
-                                VirtualizingStackPanel.VirtualizationMode="Recycling"
-                                HorizontalContentAlignment="Stretch"
-                                HorizontalAlignment="Stretch">
+                            x:Name="PART_ListBox"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ItemTemplate="{Binding ItemTemplate, RelativeSource={RelativeSource TemplatedParent}}"
+                            ItemsSource="{Binding Data, RelativeSource={RelativeSource TemplatedParent}}"
+                            ScrollViewer.CanContentScroll="True"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                            SelectedItem="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                            AlternationCount="2147483647">
 
+                            <!-- VirtualizingStackPanel.IsVirtualizing="True" -->
+                            <!-- VirtualizingStackPanel.VirtualizationMode="Recycling" -->
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -31,7 +31,8 @@
 
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <VirtualizingStackPanel />
+                                    <!-- <VirtualizingStackPanel /> -->
+                                    <StackPanel></StackPanel>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>

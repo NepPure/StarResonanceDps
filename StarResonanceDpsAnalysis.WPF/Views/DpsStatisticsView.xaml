@@ -4,11 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:behaviors="clr-namespace:StarResonanceDpsAnalysis.WPF.Behaviors"
+    xmlns:converters="clr-namespace:StarResonanceDpsAnalysis.WPF.Converters"
     xmlns:ctrl="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls.Models"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
     xmlns:viewModels="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
     Title="DpsStatisticsForm"
@@ -37,6 +39,7 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <!-- <converters:PercentOfMaxConverter x:Key="PercentOfMaxConverter" /> -->
         <Style x:Key="TitleBar" TargetType="Border">
             <Setter Property="Background" Value="#CCBABABA" />
             <Setter Property="VerticalAlignment" Value="Top" />
@@ -125,7 +128,7 @@
             </Style.Triggers>
         </Style>
 
-        <DataTemplate x:Key="PercentageDataTemplate" DataType="{x:Type models:ProgressBarData}">
+        <DataTemplate x:Key="PercentageDataTemplate" DataType="{x:Type models:StatisticDataViewModel}">
             <Grid HorizontalAlignment="Stretch">
                 <!--  名次  -->
                 <Grid.ColumnDefinitions>
@@ -133,20 +136,27 @@
                     <ColumnDefinition Width="Auto" SharedSizeGroup="B" />
                     <ColumnDefinition Width="*" SharedSizeGroup="C" />
                     <ColumnDefinition Width="Auto" SharedSizeGroup="D" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="E" />
                 </Grid.ColumnDefinitions>
                 <TextBlock
                     Grid.Column="0"
                     Margin="4,0,4,0"
                     VerticalAlignment="Center"
                     FontFamily="pack://application:,,,/Assets/Fonts/#SAO Welcome TT"
-                    Foreground="White"
-                    Text="{Binding ID, FallbackValue=N/A}" />
+                    Foreground="White">
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource ItemIndexMultiConverter}">
+                            <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource AncestorType=ListBoxItem}" />
+                            <Binding Path="Id" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
 
                 <!--  职业图标  -->
                 <Image
                     Grid.Column="1"
                     Margin="4"
-                    Source="{Binding Classes, Converter={StaticResource ClassesToIconConverter}}" />
+                    Source="{Binding Classes, Converter={StaticResource ClassesToIconConverter}, FallbackValue={StaticResource ClassesUnknownIcon}}" />
 
                 <!--  昵称  -->
                 <TextBlock
@@ -155,7 +165,7 @@
                     VerticalAlignment="Center"
                     FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
                     Foreground="White"
-                    Text="{Binding Data.Nickname}" />
+                    Text="{Binding Name}" />
 
                 <!--  数值  -->
                 <TextBlock
@@ -167,14 +177,23 @@
                     Foreground="White">
                     <TextBlock.Text>
                         <MultiBinding Converter="{StaticResource HumanReadableNumberConverter}">
-                            <Binding Path="Data.Value" />
-                            <Binding Path="DataContext.NumberMode" RelativeSource="{RelativeSource AncestorType=Window}" />
+                            <Binding Path="Value" />
+                            <Binding Path="DataContext.NumberDisplayMode" RelativeSource="{RelativeSource AncestorType=Window}" />
                         </MultiBinding>
                     </TextBlock.Text>
                 </TextBlock>
+                <TextBlock
+                    Grid.Column="4"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
+                    FontWeight="Bold"
+                    Foreground="White"
+                    Text="{Binding Percent, StringFormat={}({0:P1})}" />
+
             </Grid>
         </DataTemplate>
-        <DataTemplate x:Key="ProgressBarDataTemplate" DataType="{x:Type models:ProgressBarData}">
+        <DataTemplate x:Key="ProgressBarDataTemplate" DataType="{x:Type models:StatisticDataViewModel}">
             <Grid Height="30" Margin="0">
                 <Button
                     Margin="1"
@@ -184,7 +203,12 @@
                     Background="Transparent"
                     BorderThickness="0"
                     Command="{Binding ItemClickCommand, RelativeSource={RelativeSource AncestorType=ctrl:SortedDpsControl}}"
-                    CommandParameter="{Binding}">
+                    CommandParameter="{Binding}"
+                    FocusVisualStyle="{x:Null}"
+                    Focusable="False"
+                    IsHitTestVisible="False"
+                    IsTabStop="False"
+                    OverridesDefaultStyle="True">
 
                     <!--  simple ControlTemplate so ContentPresenter stretches to available size  -->
                     <Button.Template>
@@ -204,24 +228,28 @@
 
                     <!--  actual visual content, will now stretch to fill the button  -->
                     <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
                         <ctrl:DpsIndicatorControl
+                            Grid.Column="1"
                             Margin="1"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             OverlayContent="{Binding}"
                             OverlayTemplate="{StaticResource PercentageDataTemplate}"
-                            Percentage="80" />
+                            Percentage="{Binding PercentOfMax}">
+                            <!-- <ctrl:DpsIndicatorControl.Percentage> -->
+                            <!--  <MultiBinding Converter="{StaticResource PercentOfMaxConverter}"  -->
+                            <!--  Mode="OneWay">  -->
+                            <!--         <Binding Path="Value" UpdateSourceTrigger="PropertyChanged"/> -->
+                            <!--         <Binding Path="DataContext.Slots.Values" RelativeSource="{RelativeSource AncestorType=Window}" UpdateSourceTrigger="PropertyChanged"/> -->
+                            <!--     </MultiBinding> -->
+                            <!-- </ctrl:DpsIndicatorControl.Percentage> -->
+                        </ctrl:DpsIndicatorControl>
                     </Grid>
-                    <!--  <ctrl:CustomizeProgressBar  -->
-                    <!--  Height="{Binding ItemHeight, RelativeSource={RelativeSource AncestorType=ctrl:SortedDpsControl}}"  -->
-                    <!--  Margin="2"  -->
-                    <!--  Data="{Binding}"  -->
-                    <!--  Slot="{Binding Data}"  -->
-                    <!--  Value="{Binding ProgressBarValue}">  -->
-                    <!--     <ctrl:CustomizeProgressBar.SlotDataTemplate> -->
-                    <!--     </ctrl:CustomizeProgressBar.SlotDataTemplate> -->
-                    <!--    -->
-                    <!-- </ctrl:CustomizeProgressBar> -->
                 </Button>
             </Grid>
         </DataTemplate>
@@ -403,8 +431,10 @@
 
             <ctrl:SortedDpsControl
                 Grid.Row="1"
-                Data="{Binding Slots, UpdateSourceTrigger=PropertyChanged}"
-                ItemTemplate="{StaticResource ProgressBarDataTemplate}" />
+                Data="{Binding Slots.Values, UpdateSourceTrigger=PropertyChanged}"
+                ItemTemplate="{StaticResource ProgressBarDataTemplate}"
+                SortDirection="Descending"
+                SortMemberPath="Value" />
 
             <Border
                 x:Name="ContentBorder"

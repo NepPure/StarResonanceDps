@@ -14,10 +14,10 @@
                         <!--  track  -->
                         <Border
                             x:Name="PART_Track"
-                            Visibility="Hidden"
                             Height="{Binding Height, RelativeSource={RelativeSource TemplatedParent}}"
                             Background="{Binding IndicatorBackground, RelativeSource={RelativeSource TemplatedParent}}"
-                            CornerRadius="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}}" />
+                            CornerRadius="{Binding CornerRadius, RelativeSource={RelativeSource TemplatedParent}}"
+                            Visibility="Hidden" />
 
                         <!--  indicator, width calculated by converter  -->
                         <Rectangle
