@@ -190,7 +190,7 @@
             slider_Transparency.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             slider_Transparency.Location = new Point(110, 258);
             slider_Transparency.Margin = new Padding(2);
-            slider_Transparency.MinValue = 10;
+            slider_Transparency.MinValue = 25;
             slider_Transparency.Name = "slider_Transparency";
             slider_Transparency.ShowValue = true;
             slider_Transparency.Size = new Size(283, 34);
@@ -533,6 +533,7 @@
             Opacity = 0.95D;
             StartPosition = FormStartPosition.CenterScreen;
             Text = "基础设置";
+            FormClosing += SettingsForm_FormClosing;
             Load += SettingsForm_Load;
             ForeColorChanged += SettingsForm_ForeColorChanged;
             pageHeader_MainHeader.ResumeLayout(false);

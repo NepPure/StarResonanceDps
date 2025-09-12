@@ -71,14 +71,14 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             }
         }
 
-        private static Form[] TransparencyForms => [SettingsForm, DpsStatistics, UserUidSetForm];
+        private static Form[] SameSettingForms => [SettingsForm, DpsStatistics, UserUidSetForm];
         /// <summary>
         /// 统一设置是否在最上端显示
         /// </summary>
         /// <param name="topMost"></param>
         public static void SetTopMost(bool topMost) 
         {
-            foreach (var form in TransparencyForms)
+            foreach (var form in SameSettingForms)
             {
                 try
                 {
@@ -91,13 +91,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         /// 统一设置透明度
         /// </summary>
         /// <param name="opacity"></param>
-        public static void FullFormTransparency(double opacity)
+        public static void FullFormTransparency(double opacity, bool force = false)
         {
-            foreach (var form in TransparencyForms)
+            foreach (var form in SameSettingForms)
             {
                 try
                 {
-                    if (IsMouseThrough)
+                    if (IsMouseThrough || force)
                     {
                         form.Opacity = opacity;
                     }
