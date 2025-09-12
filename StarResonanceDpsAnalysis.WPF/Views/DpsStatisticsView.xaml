@@ -143,14 +143,8 @@
                     Margin="4,0,4,0"
                     VerticalAlignment="Center"
                     FontFamily="pack://application:,,,/Assets/Fonts/#SAO Welcome TT"
-                    Foreground="White">
-                    <TextBlock.Text>
-                        <MultiBinding Converter="{StaticResource ItemIndexMultiConverter}">
-                            <Binding Path="(ItemsControl.AlternationIndex)" RelativeSource="{RelativeSource AncestorType=ListBoxItem}" />
-                            <Binding Path="Id" />
-                        </MultiBinding>
-                    </TextBlock.Text>
-                </TextBlock>
+                    Foreground="White"
+                    Text="{Binding Id}" />
 
                 <!--  职业图标  -->
                 <Image

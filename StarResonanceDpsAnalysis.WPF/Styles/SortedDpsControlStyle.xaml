@@ -18,8 +18,7 @@
                             ItemsSource="{Binding Data, RelativeSource={RelativeSource TemplatedParent}}"
                             ScrollViewer.CanContentScroll="True"
                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                            SelectedItem="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                            AlternationCount="2147483647">
+                            SelectedItem="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" >
 
                             <!-- VirtualizingStackPanel.IsVirtualizing="True" -->
                             <!-- VirtualizingStackPanel.VirtualizationMode="Recycling" -->

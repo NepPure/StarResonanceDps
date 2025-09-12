@@ -26,7 +26,7 @@ public class SortedDpsControl : Control
         nameof(ItemTemplate), typeof(DataTemplate), typeof(SortedDpsControl), new PropertyMetadata(null));
 
     public static readonly DependencyProperty ItemHeightProperty = DependencyProperty.Register(
-        nameof(ItemHeight), typeof(double), typeof(SortedDpsControl), new PropertyMetadata(default(double)));
+        nameof(ItemHeight), typeof(double), typeof(SortedDpsControl), new PropertyMetadata(30.0));
 
     // Selected item
     public static readonly DependencyProperty SelectedItemProperty = DependencyProperty.Register(
@@ -201,11 +201,15 @@ public class SortedDpsControl : Control
             UnsubscribeAllItems();
 
             // Update indices to reflect current ordering
+            UpdateItemIndices(view);
             return;
         }
 
         // Fallback: subscribe to PropertyChanged of items and refresh view when the sort key property changes
         SubscribeToAllItems(view);
+
+        // Update indices after applying sorting
+        UpdateItemIndices(view);
     }
 
     private void AttachCollectionNotifications(ICollectionView view)
@@ -234,6 +238,9 @@ public class SortedDpsControl : Control
         // Re-evaluate subscriptions when items are added/removed
         if (_currentView == null) return;
         SubscribeToAllItems(_currentView);
+
+        // Update indices when collection changes
+        UpdateItemIndices(_currentView);
     }
 
     private void SubscribeToAllItems(ICollectionView view)
@@ -279,7 +286,68 @@ public class SortedDpsControl : Control
                    (_listBox != null ? CollectionViewSource.GetDefaultView(_listBox.ItemsSource) : null);
         if (view == null) return;
 
-        // Refresh on UI thread
-        Dispatcher.BeginInvoke(new Action(() => view.Refresh()));
+        // Refresh and update indices on UI thread, then update layout and animate
+        Dispatcher.BeginInvoke(new Action(() =>
+        {
+            try
+            {
+                view.Refresh();
+            }
+            catch
+            {
+                // ignore
+            }
+
+            UpdateItemIndices(view);
+
+            try
+            {
+                _listBox?.UpdateLayout();
+            }
+            catch
+            {
+                // ignore
+            }
+
+        }), System.Windows.Threading.DispatcherPriority.Loaded);
     }
+
+    private void UpdateItemIndices(ICollectionView view)
+    {
+        if (view == null) return;
+
+        int index = 1;
+        foreach (var item in view)
+        {
+            if (item == null)
+            {
+                index++;
+                continue;
+            }
+
+            var itemType = item.GetType();
+
+            // Try common property names: "Id", "ID", "Order"
+            var prop = itemType.GetProperty("Id") ?? itemType.GetProperty("ID") ?? itemType.GetProperty("Order");
+            if (prop != null && prop.CanWrite)
+            {
+                try
+                {
+                    if (prop.PropertyType == typeof(int))
+                        prop.SetValue(item, index);
+                    else if (prop.PropertyType == typeof(long))
+                        prop.SetValue(item, (long)index);
+                    else if (prop.PropertyType == typeof(string))
+                        prop.SetValue(item, index.ToString());
+                }
+                catch
+                {
+                    // ignore failures to set index
+                }
+            }
+
+            index++;
+        }
+    }
+
 }
