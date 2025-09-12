@@ -17,14 +17,14 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             pageHeader_MainHeader = new AntdUI.PageHeader();
-            button_ThemeSwitch = new AntdUI.Button();
             pictureBox_AppIcon = new PictureBox();
             groupBox_About = new GroupBox();
+            linkLabel_QQGroup_2 = new LinkLabel();
             label_ThankHelpFromTip_2 = new Label();
             linkLabel_NodeJsProject = new LinkLabel();
             label_ThankHelpFromTip_1 = new Label();
             label_Copyright = new Label();
-            linkLabel_QQGroup = new LinkLabel();
+            linkLabel_QQGroup_1 = new LinkLabel();
             label_OpenSourceTip_2 = new Label();
             label_OpenSourceTip_1 = new Label();
             linkLabel_GitHub = new LinkLabel();
@@ -34,21 +34,19 @@
             label_NowVersionNumber = new Label();
             label_NowVersionTip = new Label();
             label_AppName = new Label();
-            pageHeader_MainHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox_AppIcon).BeginInit();
             groupBox_About.SuspendLayout();
             SuspendLayout();
             // 
             // pageHeader_MainHeader
             // 
-            pageHeader_MainHeader.Controls.Add(button_ThemeSwitch);
             pageHeader_MainHeader.DividerShow = true;
             pageHeader_MainHeader.DividerThickness = 2F;
             pageHeader_MainHeader.Dock = DockStyle.Top;
             pageHeader_MainHeader.Font = new Font("阿里妈妈数黑体", 9F, FontStyle.Bold, GraphicsUnit.Point, 134);
             pageHeader_MainHeader.Icon = (Image)resources.GetObject("pageHeader_MainHeader.Icon");
             pageHeader_MainHeader.Location = new Point(0, 0);
-            pageHeader_MainHeader.Margin = new Padding(2, 2, 2, 2);
+            pageHeader_MainHeader.Margin = new Padding(2);
             pageHeader_MainHeader.MaximizeBox = false;
             pageHeader_MainHeader.Name = "pageHeader_MainHeader";
             pageHeader_MainHeader.ShowButton = true;
@@ -56,19 +54,6 @@
             pageHeader_MainHeader.SubText = "";
             pageHeader_MainHeader.TabIndex = 8;
             pageHeader_MainHeader.Text = "别查我DPS";
-            // 
-            // button_ThemeSwitch
-            // 
-            button_ThemeSwitch.Dock = DockStyle.Right;
-            button_ThemeSwitch.Ghost = true;
-            button_ThemeSwitch.IconSvg = resources.GetString("button_ThemeSwitch.IconSvg");
-            button_ThemeSwitch.Location = new Point(631, 0);
-            button_ThemeSwitch.Margin = new Padding(2, 2, 2, 2);
-            button_ThemeSwitch.Name = "button_ThemeSwitch";
-            button_ThemeSwitch.Size = new Size(31, 30);
-            button_ThemeSwitch.TabIndex = 0;
-            button_ThemeSwitch.ToggleIconSvg = "MoonOutlined";
-            button_ThemeSwitch.Click += button_ThemeSwitch_Click;
             // 
             // pictureBox_AppIcon
             // 
@@ -82,11 +67,12 @@
             // groupBox_About
             // 
             groupBox_About.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            groupBox_About.Controls.Add(linkLabel_QQGroup_2);
             groupBox_About.Controls.Add(label_ThankHelpFromTip_2);
             groupBox_About.Controls.Add(linkLabel_NodeJsProject);
             groupBox_About.Controls.Add(label_ThankHelpFromTip_1);
             groupBox_About.Controls.Add(label_Copyright);
-            groupBox_About.Controls.Add(linkLabel_QQGroup);
+            groupBox_About.Controls.Add(linkLabel_QQGroup_1);
             groupBox_About.Controls.Add(label_OpenSourceTip_2);
             groupBox_About.Controls.Add(label_OpenSourceTip_1);
             groupBox_About.Controls.Add(linkLabel_GitHub);
@@ -99,13 +85,27 @@
             groupBox_About.Controls.Add(pictureBox_AppIcon);
             groupBox_About.Font = new Font("HarmonyOS Sans SC", 11.9999981F, FontStyle.Bold, GraphicsUnit.Point, 134);
             groupBox_About.Location = new Point(19, 42);
-            groupBox_About.Margin = new Padding(10, 10, 10, 10);
+            groupBox_About.Margin = new Padding(10);
             groupBox_About.Name = "groupBox_About";
-            groupBox_About.Padding = new Padding(10, 10, 10, 10);
+            groupBox_About.Padding = new Padding(10);
             groupBox_About.Size = new Size(720, 408);
             groupBox_About.TabIndex = 11;
             groupBox_About.TabStop = false;
             groupBox_About.Text = "关于";
+            // 
+            // linkLabel_QQGroup_2
+            // 
+            linkLabel_QQGroup_2.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            linkLabel_QQGroup_2.AutoSize = true;
+            linkLabel_QQGroup_2.Font = new Font("HarmonyOS Sans SC", 9F);
+            linkLabel_QQGroup_2.Location = new Point(556, 325);
+            linkLabel_QQGroup_2.Margin = new Padding(0);
+            linkLabel_QQGroup_2.Name = "linkLabel_QQGroup_2";
+            linkLabel_QQGroup_2.Size = new Size(107, 16);
+            linkLabel_QQGroup_2.TabIndex = 25;
+            linkLabel_QQGroup_2.TabStop = true;
+            linkLabel_QQGroup_2.Text = "1022797551 (2群)";
+            linkLabel_QQGroup_2.LinkClicked += linkLabel_QQGroup_2_LinkClicked;
             // 
             // label_ThankHelpFromTip_2
             // 
@@ -156,19 +156,19 @@
             label_Copyright.TabIndex = 21;
             label_Copyright.Text = "Copyright (C) 2025 anying1073/StarResonanceDps Team\r\nPowered by .NET 8, Licensed under the GNU AGPL v3.";
             // 
-            // linkLabel_QQGroup
+            // linkLabel_QQGroup_1
             // 
-            linkLabel_QQGroup.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            linkLabel_QQGroup.AutoSize = true;
-            linkLabel_QQGroup.Font = new Font("HarmonyOS Sans SC", 9F);
-            linkLabel_QQGroup.Location = new Point(456, 325);
-            linkLabel_QQGroup.Margin = new Padding(0);
-            linkLabel_QQGroup.Name = "linkLabel_QQGroup";
-            linkLabel_QQGroup.Size = new Size(70, 16);
-            linkLabel_QQGroup.TabIndex = 20;
-            linkLabel_QQGroup.TabStop = true;
-            linkLabel_QQGroup.Text = "678150498";
-            linkLabel_QQGroup.LinkClicked += linkLabel_QQGroup_LinkClicked;
+            linkLabel_QQGroup_1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            linkLabel_QQGroup_1.AutoSize = true;
+            linkLabel_QQGroup_1.Font = new Font("HarmonyOS Sans SC", 9F);
+            linkLabel_QQGroup_1.Location = new Point(456, 325);
+            linkLabel_QQGroup_1.Margin = new Padding(0);
+            linkLabel_QQGroup_1.Name = "linkLabel_QQGroup_1";
+            linkLabel_QQGroup_1.Size = new Size(100, 16);
+            linkLabel_QQGroup_1.TabIndex = 20;
+            linkLabel_QQGroup_1.TabStop = true;
+            linkLabel_QQGroup_1.Text = "678150498 (1群)";
+            linkLabel_QQGroup_1.LinkClicked += linkLabel_QQGroup_1_LinkClicked;
             // 
             // label_OpenSourceTip_2
             // 
@@ -278,21 +278,19 @@
             Controls.Add(pageHeader_MainHeader);
             Dark = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
-            Margin = new Padding(4, 4, 4, 4);
+            Margin = new Padding(4);
             MaximizeBox = false;
             Mode = AntdUI.TAMode.Dark;
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "DPS 统计工具";
             ForeColorChanged += MainForm_ForeColorChanged;
-            pageHeader_MainHeader.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox_AppIcon).EndInit();
             groupBox_About.ResumeLayout(false);
             groupBox_About.PerformLayout();
             ResumeLayout(false);
         }
         private AntdUI.PageHeader pageHeader_MainHeader;
-        private AntdUI.Button button_ThemeSwitch;
         private PictureBox pictureBox_AppIcon;
         private GroupBox groupBox_About;
         private Label label_AppName;
@@ -304,10 +302,11 @@
         private Label label_OpenSourceTip_2;
         private Label label_OpenSourceTip_1;
         private LinkLabel linkLabel_GitHub;
-        private LinkLabel linkLabel_QQGroup;
+        private LinkLabel linkLabel_QQGroup_1;
         private Label label_Copyright;
         private Label label_ThankHelpFromTip_2;
         private LinkLabel linkLabel_NodeJsProject;
         private Label label_ThankHelpFromTip_1;
+        private LinkLabel linkLabel_QQGroup_2;
     }
 }

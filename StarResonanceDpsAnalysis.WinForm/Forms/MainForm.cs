@@ -14,74 +14,36 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
     public partial class MainForm : BorderlessForm
     {
-
-        #region ========== 构造与启动加载 ==========
-
         public MainForm()
         {
+            InitializeComponent();
 
-            InitializeComponent(); // # WinForms 初始化
-            FormGui.SetDefaultGUI(this); // # UI 样式：统一默认外观
+            FormGui.SetDefaultGUI(this);
 
+            FormGui.SetColorMode(this, AppConfig.IsLight);
+
+            SetDefaultFontFromResources();
 
             pageHeader_MainHeader.Text = Text = $"{FormManager.APP_NAME} {FormManager.AppVersion}";
+
             label_NowVersionNumber.Text = FormManager.AppVersion;
-
-            //InitTableColumnsConfigAtFirstRun(); // # 列显隐初始化：首次运行建立列配置
-            //LoadTableColumnVisibilitySettings(); // # 读取列显隐配置
-            //ToggleTableView(); // # 表格视图切换（依配置）
-            //LoadFromEmbeddedSkillConfig(); // # 预装载技能元数据 → SkillBook
-
-            FormGui.SetColorMode(this, AppConfig.IsLight); // # 主题：主窗体明暗模式
-
-            var alimamaFont_Size12Bold = HandledAssets.HarmonyOS_Sans(12, FontStyle.Bold);
-            var alimamaFont_Size9 = HandledAssets.HarmonyOS_Sans(9);
-
-            var size12BoldControlList = new List<System.Windows.Forms.Control>()
-            {
-                groupBox_About, label_AppName, label_NowVersionTip, label_NowVersionDevelopersTip
-            };
-            foreach (var c in size12BoldControlList)
-            {
-                c.Font = alimamaFont_Size12Bold;
-            }
-
-            var size9ControlList = new List<System.Windows.Forms.Control>
-            {
-                label_SelfIntroduce, label_NowVersionNumber, label_NowVersionDevelopers,
-                label_OpenSourceTip_1, linkLabel_GitHub, label_OpenSourceTip_2, linkLabel_QQGroup,
-                label_ThankHelpFromTip_1, linkLabel_NodeJsProject, label_ThankHelpFromTip_2,
-                label_Copyright
-            };
-            foreach (var c in size9ControlList)
-            {
-                c.Font = alimamaFont_Size9;
-            }
 
             label_AppName.Text = $"{FormManager.APP_NAME}";
 
             pictureBox_AppIcon.Image = HandledAssets.ApplicationIcon_256x256;
         }
 
-
-        #endregion
-
-        #region —— 按钮/复选框/下拉事件 —— 
-        private void button_ThemeSwitch_Click(object sender, EventArgs e)
+        private void SetDefaultFontFromResources()
         {
-            AppConfig.IsLight = !AppConfig.IsLight; // # 状态翻转：明/暗
+            groupBox_About.Font = label_AppName.Font = label_NowVersionTip.Font =
+                label_NowVersionDevelopersTip.Font = HandledAssets.HarmonyOS_Sans(12, FontStyle.Bold);
 
-            button_ThemeSwitch.Toggle = !AppConfig.IsLight; // # UI同步：按钮切换状态
 
-            FormGui.SetColorMode(this, AppConfig.IsLight);
-
-            FormGui.SetColorMode(FormManager.SettingsForm, AppConfig.IsLight);//设置窗体颜色
-            FormGui.SetColorMode(FormManager.DpsStatistics, AppConfig.IsLight);//设置窗体颜色
-
-            // # 注意：部分窗体可能为 null 或已释放，SetColorMode 内部应做空值与IsDisposed判断方可安全调用
+            label_SelfIntroduce.Font = label_NowVersionNumber.Font = label_NowVersionDevelopers.Font =
+                label_OpenSourceTip_1.Font = linkLabel_GitHub.Font = label_OpenSourceTip_2.Font =
+                linkLabel_QQGroup_1.Font = label_ThankHelpFromTip_1.Font = linkLabel_NodeJsProject.Font =
+                label_ThankHelpFromTip_2.Font = label_Copyright.Font = HandledAssets.HarmonyOS_Sans(9);
         }
-
-        #endregion
 
         private void linkLabel_GitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -94,7 +56,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             linkLabel_GitHub.LinkVisited = true;
         }
 
-        private void linkLabel_QQGroup_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void linkLabel_QQGroup_1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start(new ProcessStartInfo
             {
@@ -102,7 +64,18 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 UseShellExecute = true
             });
 
-            linkLabel_QQGroup.LinkVisited = true;
+            linkLabel_QQGroup_1.LinkVisited = true;
+        }
+
+        private void linkLabel_QQGroup_2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://qm.qq.com/cgi-bin/qm/qr?k=ZbyXsDqWZm9mQN0R7cg-EVYlISgbik4M&jump_from=webapi&authKey=S8y8TcbKHzd2yWYUz4YA+Ojrq93PfFCyENqUgXho632ELRIiK6MmnauLuEB4BjhE",
+                UseShellExecute = true
+            });
+
+            linkLabel_QQGroup_1.LinkVisited = true;
         }
 
         private void linkLabel_NodeJsProject_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -121,14 +94,14 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             if (Config.IsLight)
             {
                 groupBox_About.ForeColor = Color.Black;
-                linkLabel_GitHub.LinkColor = linkLabel_QQGroup.LinkColor = linkLabel_NodeJsProject.LinkColor = Color.Blue;
-                linkLabel_GitHub.VisitedLinkColor = linkLabel_QQGroup.VisitedLinkColor = linkLabel_NodeJsProject.VisitedLinkColor = Color.Purple;
+                linkLabel_GitHub.LinkColor = linkLabel_QQGroup_1.LinkColor = linkLabel_NodeJsProject.LinkColor = Color.Blue;
+                linkLabel_GitHub.VisitedLinkColor = linkLabel_QQGroup_1.VisitedLinkColor = linkLabel_NodeJsProject.VisitedLinkColor = Color.Purple;
             }
             else
             {
                 groupBox_About.ForeColor = Color.White;
-                linkLabel_GitHub.LinkColor = linkLabel_QQGroup.LinkColor = linkLabel_NodeJsProject.LinkColor = Color.LightSkyBlue;
-                linkLabel_GitHub.VisitedLinkColor = linkLabel_QQGroup.VisitedLinkColor = linkLabel_NodeJsProject.VisitedLinkColor = Color.MediumPurple;
+                linkLabel_GitHub.LinkColor = linkLabel_QQGroup_1.LinkColor = linkLabel_NodeJsProject.LinkColor = Color.LightSkyBlue;
+                linkLabel_GitHub.VisitedLinkColor = linkLabel_QQGroup_1.VisitedLinkColor = linkLabel_NodeJsProject.VisitedLinkColor = Color.MediumPurple;
             }
         }
     }

@@ -134,7 +134,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
 
         private void slider_Transparency_ValueChanged(object sender, IntEventArgs e)
         {
-            FormManager.FullFormTransparency((double)e.Value / 100);
+            FormManager.FullFormTransparency((double)e.Value / 100, true);
 
             AppConfig.Transparency = slider_Transparency.Value;
         }
@@ -174,6 +174,14 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         private void button_FormCancel_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void SettingsForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (!FormManager.IsMouseThrough)
+            {
+                FormManager.FullFormTransparency(1, true);
+            }
         }
     }
 }
