@@ -19,6 +19,7 @@ using Button = AntdUI.Button;
 using System.Diagnostics;
 using SharpPcap;
 using StarResonanceDpsAnalysis.WinForm.Forms.PopUp;
+using System.Numerics;
 
 namespace StarResonanceDpsAnalysis.WinForm.Forms
 {
@@ -243,11 +244,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             // 获取该类型下的最大值和总和（用于计算进度条比例和百分比）
             (var maxValue, var sumValue) = GetMaxSumValueByType(dpsIEnum, _stasticsType);
 
-            // LongValueShowHandler (lvsh) 数值显示方式函数
-            var lvsh = GetLongGroupingHandler(AppConfig.DamageDisplayType);
-            // DoubleValueShowHandler (dvsh) 数值显示方式函数
-            var dvsh = GetDoubleGroupingHandler(AppConfig.DamageDisplayType);
-
             // 遍历每个玩家的数据，生成进度条数据
             var progressBarDataList = dpsIEnum
                 .Select(e =>
@@ -279,7 +275,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                     renderContent[1].Text = $"{(playerInfo?.Name == null ? string.Empty : $"{playerInfo.Name}-")}{playerInfo?.SubProfessionName ?? professionName}({playerInfo?.CombatPower?.ToString() ?? ($"UID: {e.UID}")})";
 
                     // 总数值 + 平均每秒（DPS/HPS等）
-                    renderContent[2].Text = $"{lvsh(value, 2)} ({dvsh(value / Math.Max(1, TimeSpan.FromTicks(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds), 2)})";
+                    renderContent[2].Text = $"{Vsh(value)} ({Vsh(value / Math.Max(1, TimeSpan.FromTicks(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds))})";
 
                     // 团队占比（四舍五入为整数百分比）
                     renderContent[3].Text = $"{Math.Round(100d * value / sumValue, 0, MidpointRounding.AwayFromZero)}%";
@@ -314,9 +310,8 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             var cv = GetValueByType(cpdd, _stasticsType);
 
             // 显示当前玩家的总数值 + 每秒平均值
-            label_CurrentDps.Text = $"{lvsh(cv, 2)} ({dvsh(cv / Math.Max(1, TimeSpan.FromTicks(cpdd.LastLoggedTick - (cpdd.StartLoggedTick ?? 0)).TotalSeconds), 2)})";
+            label_CurrentDps.Text = $"{Vsh(cv)} ({Vsh(cv / Math.Max(1, TimeSpan.FromTicks(cpdd.LastLoggedTick - (cpdd.StartLoggedTick ?? 0)).TotalSeconds))})";
         }
-
 
         /// <summary>
         /// 获取每个统计类别的默认筛选器
@@ -349,26 +344,26 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
             };
         }
 
-        private Func<long, int, string> GetLongGroupingHandler(int type)
+        private Func<T, int, string> GetGroupingHandler<T>(int type) where T : INumber<T>
         {
             return type switch
             {
-                0 => Int64Extends.ToCompactString,
-                1 => Int64Extends.ToChineseUnitString,
+                0 => NumberExtends.ToCompactString,
+                1 => NumberExtends.ToChineseUnitString,
 
-                _ => (value, digit) => value.ToString()
+                _ => (value, digit) => value.ToString() ?? string.Empty
             };
         }
 
-        private Func<double, int, string> GetDoubleGroupingHandler(int type)
+        /// <summary>
+        /// ValueShowHandler (Vsh)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="number"></param>
+        /// <returns></returns>
+        private string Vsh<T>(T number) where T : INumber<T>
         {
-            return type switch
-            {
-                0 => DoubleExtends.ToCompactString,
-                1 => DoubleExtends.ToChineseUnitString,
-
-                _ => (value, digit) => value.ToString()
-            };
+            return GetGroupingHandler<T>(AppConfig.DamageDisplayType).Invoke(number, 2);
         }
 
         private long GetValueByType(DpsData data, int type)
