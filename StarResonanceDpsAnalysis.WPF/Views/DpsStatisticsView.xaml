@@ -306,15 +306,14 @@
                         Grid.Column="4"
                         HorizontalAlignment="Right"
                         Orientation="Horizontal">
-                        <Button Command="{Binding SortByValueCommand}"
-                            >[Sort]</Button>
-                        <Button Command="{Binding AddRandomDataCommand}"
-                            >[AddRand]</Button>
+                        <Button Command="{Binding SortByValueCommand}">[Sort]</Button>
+                        <Button Command="{Binding AddRandomDataCommand}">[AddRand]</Button>
                         <!--  设置按钮  -->
                         <Button
                             x:Name="RefreshButton"
+                            Width="21"
                             Command="{Binding RefreshCommand}"
-                            Content="&#xE644;" Width="21">
+                            Content="&#xE644;">
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="MouseEnter">
                                     <b:InvokeCommandAction Command="{Binding RefreshButtonMouseEnteredCommand}" />
@@ -325,7 +324,10 @@
                             </b:Interaction.Triggers>
                         </Button>
                         <!--  设置按钮  -->
-                        <Button x:Name="SetButton" Content="&#xE600;" Width="24">
+                        <Button
+                            x:Name="SetButton"
+                            Width="24"
+                            Content="&#xE600;">
                             <b:Interaction.Behaviors>
                                 <behaviors:OpenContextMenuBehavior />
                             </b:Interaction.Behaviors>
@@ -337,7 +339,7 @@
                                     </ContextMenu.Resources>
 
                                     <ContextMenu.Style>
-                                        <StaticResource ResourceKey="ModernContextMenu"/>
+                                        <StaticResource ResourceKey="ModernContextMenu" />
                                     </ContextMenu.Style>
 
                                     <MenuItem
@@ -407,9 +409,10 @@
                         <!--  隐藏按钮  -->
                         <Button
                             x:Name="PullButton"
+                            Width="22"
                             Click="PullButton_Click"
                             Content="&#xE601;"
-                            RenderTransformOrigin="0.5,0.5" Width="22">
+                            RenderTransformOrigin="0.5,0.5">
                             <Button.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform />
@@ -436,7 +439,7 @@
 
             <ctrl:SortedDpsControl
                 Grid.Row="1"
-                Data="{Binding Slots.Values, UpdateSourceTrigger=PropertyChanged}"
+                Data="{Binding Slots, UpdateSourceTrigger=PropertyChanged}"
                 ItemTemplate="{StaticResource ProgressBarDataTemplate}"
                 SortDirection="Descending"
                 SortMemberPath="Value" />

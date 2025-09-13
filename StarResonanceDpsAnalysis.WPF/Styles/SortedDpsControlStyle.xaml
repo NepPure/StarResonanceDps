@@ -9,16 +9,16 @@
                 <ControlTemplate TargetType="ctrl:SortedDpsControl">
                     <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
                         <ListBox
-                                x:Name="PART_ListBox"
+                            x:Name="PART_ListBox"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
                             AlternationCount="10000"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                ItemTemplate="{Binding ItemTemplate, RelativeSource={RelativeSource TemplatedParent}}"
-                                ItemsSource="{Binding Data, RelativeSource={RelativeSource TemplatedParent}}"
-                                ScrollViewer.CanContentScroll="True"
-                                ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ItemTemplate="{Binding ItemTemplate, RelativeSource={RelativeSource TemplatedParent}}"
+                            ItemsSource="{Binding Data, RelativeSource={RelativeSource TemplatedParent}}"
+                            ScrollViewer.CanContentScroll="True"
+                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                             SelectedItem="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
 
                             <!--  VirtualizingStackPanel.IsVirtualizing="True"  -->

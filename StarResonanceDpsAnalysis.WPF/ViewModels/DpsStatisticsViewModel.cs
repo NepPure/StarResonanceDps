@@ -54,8 +54,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     [ObservableProperty] private bool _showSkillListPopup;
 
     [ObservableProperty] private List<SkillItem>? _skillList;
-    // [ObservableProperty] private ObservableCollection<ProgressBarData> _slots = [];
-    [ObservableProperty] private ObservableDictionary<uint, StatisticDataViewModel> _slots = new();
     [ObservableProperty] private StatisticType _statisticIndex;
     [ObservableProperty] private NumberDisplayMode _numberDisplayMode = NumberDisplayMode.Wan;
 
@@ -91,12 +89,12 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         };
 
         Slots.BeginUpdate();
-        for (uint i = 0; i < players.Length; i++)
+        for (int i = 0; i < players.Length; i++)
         {
             var (nick, @class) = players[i];
             var barData = new StatisticDataViewModel()
             {
-                Id = i,
+                Id = i + 1, // 1-based index
                 Name = nick,
                 Id = i + 1, // 1-based index
                 Name = nick,
@@ -335,10 +333,10 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         // 3) 定时器：实时更新
         _timer = new DispatcherTimer(DispatcherPriority.Background)
         {
-            Interval = TimeSpan.FromMilliseconds(100)
+            Interval = TimeSpan.FromMilliseconds(1000)
         };
         _timer.Tick += (_, __) => UpdateData();
-        _timer.Start();
+        // _timer.Start();
     }
 
     [RelayCommand]
