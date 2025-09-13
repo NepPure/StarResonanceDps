@@ -27,7 +27,7 @@ public partial class App : Application
 
         App app = new();
         app.InitializeComponent();
-        app.MainWindow = host.Services.GetRequiredService<SettingsView>();
+        app.MainWindow = host.Services.GetRequiredService<MainWindow>();
         app.MainWindow.Visibility = Visibility.Visible;
         app.Run();
     }
@@ -53,6 +53,7 @@ public partial class App : Application
                     services.AddTransient<DpsStatisticsViewModel>();
                     services.AddTransient<DpsStatisticsView>();
                     services.AddTransient<SettingsView>();
+                    services.AddSingleton<DebugFunctions>();
                     services.AddThemes();
                     services.AddSingleton<IApplicationController, ApplicationController>();
                     services.AddSingleton<IDataSource, DpsDummyDataSource>();
