@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Windows.Threading;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,6 +16,12 @@ using StarResonanceDpsAnalysis.WPF.Extensions;
 using StarResonanceDpsAnalysis.WPF.Models;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
+
+public enum SortDirectionEnum
+{
+    Ascending,
+    Descending
+}
 
 public partial class DpsStatisticsOptions : BaseViewModel
 {
@@ -39,10 +47,12 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     [ObservableProperty] private bool _showSkillListPopup;
 
     [ObservableProperty] private List<SkillItem>? _skillList;
-    // [ObservableProperty] private ObservableCollection<ProgressBarData> _slots = [];
-    [ObservableProperty] private ObservableDictionary<uint, StatisticDataViewModel> _slots = new();
     [ObservableProperty] private StatisticType _statisticIndex;
     [ObservableProperty] private NumberDisplayMode _numberDisplayMode = NumberDisplayMode.Wan;
+
+    [ObservableProperty] private BulkObservableCollection<StatisticDataViewModel> _slots = new();
+    [ObservableProperty] private string _sortMemberPath = "Value";
+    [ObservableProperty] private SortDirectionEnum _sortDirection = SortDirectionEnum.Descending;
 
     private DispatcherTimer _timer = null!;
 
@@ -72,16 +82,16 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         };
 
         Slots.BeginUpdate();
-        for (uint i = 0; i < players.Length; i++)
+        for (int i = 0; i < players.Length; i++)
         {
             var (nick, @class) = players[i];
             var barData = new StatisticDataViewModel()
             {
-                Id = i,
+                Id = i + 1, // 1-based index
                 Name = nick,
                 Classes = @class,
             };
-            Slots[i] = barData;
+            Slots.Add(barData);
         }
         UpdateData();
         Slots.EndUpdate();
@@ -93,17 +103,22 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         StartRefreshTimer();
     }
 
+    [RelayCommand]
+    private void AddRandomData()
+    {
+        UpdateData();
+    }
+
     private void StartRefreshTimer()
     {
         // 3) 定时器：实时更新
         _timer = new DispatcherTimer(DispatcherPriority.Background)
         {
-            Interval = TimeSpan.FromMilliseconds(100)
+            Interval = TimeSpan.FromMilliseconds(1000)
         };
         _timer.Tick += (_, __) => UpdateData();
-        _timer.Start();
+        // _timer.Start();
     }
-
 
     [RelayCommand]
     private void NextMetricType()
@@ -126,30 +141,146 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     private void UpdateData()
     {
         Debug.WriteLine("Enter updatedata");
-        foreach (var slot in Slots)
+        
+        // Update values for each slot
+        foreach (var data in Slots)
         {
-            if (slot.Value is not StatisticDataViewModel data) continue;
             data.Value += (ulong)_rd.Next(1000, 80000);
-
             Debug.WriteLine($"Updated {data.Name}'s value to {data.Value}");
         }
-        // update percentage of max
-        var max = Slots.Max(d => d.Value);
-        foreach (var slot in Slots)
+        
+        // Calculate percentage of max
+        if (Slots.Count > 0)
         {
-            if (slot.Value is not StatisticDataViewModel data) continue;
-            data.PercentOfMax = data.Value / (double)max.Value * 100;
+            var maxValue = Slots.Max(d => d.Value);
+            foreach (var data in Slots)
+            {
+                data.PercentOfMax = maxValue > 0 ? (data.Value / (double)maxValue * 100) : 0;
+            }
 
-            Debug.WriteLine($"Updated {data.Name}'s value to {data.Value}");
+            // Calculate percentage of total
+            var totalValue = Slots.Sum(d => Convert.ToDouble(d.Value));
+            foreach (var data in Slots)
+            {
+                data.Percent = totalValue > 0 ? (data.Value / totalValue) : 0;
+            }
         }
+        
+        // Sort data in place 
+        SortSlotsInPlace();
 
-        var percentOfTotal = Slots.Values.Sum(d => Convert.ToDouble(d.Value));
-        foreach (var slot in Slots)
-        {
-            if (slot.Value is not StatisticDataViewModel data) continue;
-            data.Percent = data.Value / percentOfTotal;
-        }
         Debug.WriteLine("Exit updatedata");
+    }
+
+    /// <summary>
+    /// Sorts the slots collection in-place based on the current sort criteria
+    /// </summary>
+    private void SortSlotsInPlace()
+    {
+        if (Slots.Count == 0 || string.IsNullOrWhiteSpace(SortMemberPath))
+            return;
+
+        try
+        {
+            // Sort the collection based on the current criteria
+            switch (SortMemberPath)
+            {
+                case "Value":
+                    Slots.SortBy(x => x.Value, SortDirection == SortDirectionEnum.Descending);
+                    break;
+                case "Name":
+                    Slots.SortBy(x => x.Name, SortDirection == SortDirectionEnum.Descending);
+                    break;
+                case "Classes":
+                    Slots.SortBy(x => (int)x.Classes, SortDirection == SortDirectionEnum.Descending);
+                    break;
+                case "PercentOfMax":
+                    Slots.SortBy(x => x.PercentOfMax, SortDirection == SortDirectionEnum.Descending);
+                    break;
+                case "Percent":
+                    Slots.SortBy(x => x.Percent, SortDirection == SortDirectionEnum.Descending);
+                    break;
+            }
+
+            // Update the Id property to reflect the new order (1-based index)
+            UpdateItemIndices();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error during sorting: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Updates the Id property of items to reflect their current position in the collection
+    /// </summary>
+    private void UpdateItemIndices()
+    {
+        for (int i = 0; i < Slots.Count; i++)
+        {
+            Slots[i].Id = i + 1; // 1-based index
+        }
+    }
+
+    /// <summary>
+    /// Changes the sort member path and re-sorts the data
+    /// </summary>
+    [RelayCommand]
+    private void SetSortMemberPath(string memberPath)
+    {
+        if (SortMemberPath == memberPath)
+        {
+            // Toggle sort direction if the same property is clicked
+            SortDirection = SortDirection == SortDirectionEnum.Ascending 
+                ? SortDirectionEnum.Descending 
+                : SortDirectionEnum.Ascending;
+        }
+        else
+        {
+            SortMemberPath = memberPath;
+            SortDirection = SortDirectionEnum.Descending; // Default to descending for new properties
+        }
+        
+        // Trigger immediate re-sort
+        SortSlotsInPlace();
+    }
+
+    /// <summary>
+    /// Manually triggers a sort operation
+    /// </summary>
+    [RelayCommand]
+    private void ManualSort()
+    {
+        SortSlotsInPlace();
+    }
+
+    /// <summary>
+    /// Sorts by Value in descending order (highest DPS first)
+    /// </summary>
+    [RelayCommand]
+    private void SortByValue()
+    {
+        SetSortMemberPath("Value");
+    }
+
+    /// <summary>
+    /// Sorts by Name in ascending order
+    /// </summary>
+    [RelayCommand]
+    private void SortByName()
+    {
+        SortMemberPath = "Name";
+        SortDirection = SortDirectionEnum.Ascending;
+        SortSlotsInPlace();
+    }
+
+    /// <summary>
+    /// Sorts by Classes
+    /// </summary>
+    [RelayCommand]
+    private void SortByClass()
+    {
+        SetSortMemberPath("Classes");
     }
 
     [RelayCommand]

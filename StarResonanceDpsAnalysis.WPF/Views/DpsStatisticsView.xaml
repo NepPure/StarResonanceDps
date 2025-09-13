@@ -143,8 +143,11 @@
                     Margin="4,0,4,0"
                     VerticalAlignment="Center"
                     FontFamily="pack://application:,,,/Assets/Fonts/#SAO Welcome TT"
-                    Foreground="White"
-                    Text="{Binding Id}" />
+                    Foreground="White">
+                    <TextBlock.Text>
+                        <Binding Path="Id" UpdateSourceTrigger="PropertyChanged" />
+                    </TextBlock.Text>
+                </TextBlock>
 
                 <!--  职业图标  -->
                 <Image
@@ -303,6 +306,10 @@
                         Grid.Column="4"
                         HorizontalAlignment="Right"
                         Orientation="Horizontal">
+                        <Button Command="{Binding SortByValueCommand}"
+                            >[Sort]</Button>
+                        <Button Command="{Binding AddRandomDataCommand}"
+                            >[AddRand]</Button>
                         <Button
                             x:Name="RefreshButton"
                             Command="{Binding RefreshCommand}"
@@ -425,10 +432,10 @@
 
             <ctrl:SortedDpsControl
                 Grid.Row="1"
-                Data="{Binding Slots.Values, UpdateSourceTrigger=PropertyChanged}"
-                ItemTemplate="{StaticResource ProgressBarDataTemplate}"
+                Data="{Binding Slots, UpdateSourceTrigger=PropertyChanged}"
+                ItemTemplate="{StaticResource ProgressBarDataTemplate}" 
                 SortDirection="Descending"
-                SortMemberPath="Value" />
+                SortMemberPath="Value"/>
 
             <Border
                 x:Name="ContentBorder"

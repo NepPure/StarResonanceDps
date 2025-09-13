@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using StarResonanceDpsAnalysis.Core.Models;
 using StarResonanceDpsAnalysis.WPF.ViewModels;
@@ -12,6 +13,7 @@ public class ProgressBarData : BaseViewModel
     public OrderingDataViewModel? Data { get; set; }
 }
 
+[DebuggerDisplay("Name:{Name};Value:{Value}")]
 public partial class StatisticDataViewModel : BaseViewModel, IComparable<StatisticDataViewModel>
 {
 

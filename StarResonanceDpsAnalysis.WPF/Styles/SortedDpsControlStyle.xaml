@@ -12,16 +12,17 @@
                             x:Name="PART_ListBox"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch"
+                            AlternationCount="10000"
                             Background="Transparent"
                             BorderThickness="0"
                             ItemTemplate="{Binding ItemTemplate, RelativeSource={RelativeSource TemplatedParent}}"
                             ItemsSource="{Binding Data, RelativeSource={RelativeSource TemplatedParent}}"
                             ScrollViewer.CanContentScroll="True"
                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                            SelectedItem="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" >
+                            SelectedItem="{Binding SelectedItem, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
 
-                            <!-- VirtualizingStackPanel.IsVirtualizing="True" -->
-                            <!-- VirtualizingStackPanel.VirtualizationMode="Recycling" -->
+                            <!--  VirtualizingStackPanel.IsVirtualizing="True"  -->
+                            <!--  VirtualizingStackPanel.VirtualizationMode="Recycling"  -->
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -31,7 +32,8 @@
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <!-- <VirtualizingStackPanel /> -->
-                                    <StackPanel></StackPanel>
+                                    <!-- <StackPanel /> -->
+                                    <ctrl:AnimatedStackPanel />
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
