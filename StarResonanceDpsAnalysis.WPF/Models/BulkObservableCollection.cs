@@ -1,19 +1,20 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace StarResonanceDpsAnalysis.WPF.Models;
 
 /// <summary>
-/// ObservableCollection with bulk operation support to minimize UI notifications
+///     ObservableCollection with bulk operation support to minimize UI notifications
 /// </summary>
 /// <typeparam name="T">The type of elements in the collection</typeparam>
-public class BulkObservableCollection<T> : ObservableCollection<T>
+public class BulkObservableCollection<T> : ObservableCollection<T> where T : notnull
 {
     private bool _isUpdating;
 
     /// <summary>
-    /// Begins a bulk update operation. Notifications are suppressed until EndUpdate is called.
+    ///     Begins a bulk update operation. Notifications are suppressed until EndUpdate is called.
     /// </summary>
     public void BeginUpdate()
     {
@@ -21,7 +22,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T>
     }
 
     /// <summary>
-    /// Ends a bulk update operation and raises a Reset notification.
+    ///     Ends a bulk update operation and raises a Reset notification.
     /// </summary>
     public void EndUpdate()
     {
@@ -30,7 +31,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T>
     }
 
     /// <summary>
-    /// Adds multiple items to the collection in bulk
+    ///     Adds multiple items to the collection in bulk
     /// </summary>
     /// <param name="items">Items to add</param>
     public void AddRange(IEnumerable<T> items)
@@ -50,7 +51,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T>
     }
 
     /// <summary>
-    /// Replaces all items in the collection
+    ///     Replaces all items in the collection
     /// </summary>
     /// <param name="items">New items for the collection</param>
     public void ReplaceAll(IEnumerable<T> items)
@@ -71,14 +72,14 @@ public class BulkObservableCollection<T> : ObservableCollection<T>
     }
 
     /// <summary>
-    /// Sorts the collection in place using the provided comparison function
+    ///     Sorts the collection in place using the provided comparison function
     /// </summary>
     /// <param name="comparison">Comparison function</param>
     public void Sort(Comparison<T> comparison)
     {
         var sortedList = Items.ToList();
         sortedList.Sort(comparison);
-        
+
         BeginUpdate();
         try
         {
@@ -95,7 +96,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T>
     }
 
     /// <summary>
-    /// Sorts the collection in place using IComparer
+    ///     Sorts the collection in place using IComparer
     /// </summary>
     /// <param name="comparer">Comparer to use for sorting</param>
     public void Sort(IComparer<T> comparer)
@@ -104,33 +105,60 @@ public class BulkObservableCollection<T> : ObservableCollection<T>
     }
 
     /// <summary>
-    /// Sorts the collection in place using a key selector
+    ///     Sorts the collection in place using a key selector
+    ///     Uses Move operations so the UI receives Move notifications and can animate/reuse items
     /// </summary>
     /// <param name="keySelector">Function to extract the sort key</param>
     /// <param name="descending">Whether to sort in descending order</param>
-    public void SortBy<TKey>(Func<T, TKey> keySelector, bool descending = false) where TKey : IComparable<TKey>
+    public void SortBy<TKey>(Func<T, TKey> keySelector, bool descending = false)
     {
-        var sortedList = descending 
+        if (Items.Count <= 1) return;
+
+        // Create the list of items in the desired order (references preserved)
+        var sortedList = descending
             ? Items.OrderByDescending(keySelector).ToList()
             : Items.OrderBy(keySelector).ToList();
-        
-        // BeginUpdate();
-        try
+
+        // If already in desired order, nothing to do
+        var same = true;
+        for (var i = 0; i < sortedList.Count; i++)
         {
-            for (var index = 0; index < sortedList.Count; index++)
-            {
-                var itm = sortedList[index];
-                Items[index] = itm;
-            }
-            // Items.Clear();
-            // foreach (var item in sortedList)
-            // {
-            //     Items.Add(item);
-            // }
+            if (EqualityComparer<T>.Default.Equals(Items[i], sortedList[i])) continue;
+            same = false;
+            break;
         }
-        finally
+
+        if (same) return;
+
+        // Build an index map for quick lookup. Use reference-equality for reference types to avoid relying on Equals overrides.
+        var comparer = typeof(T).IsValueType
+            ? EqualityComparer<T>.Default
+            : (IEqualityComparer<T>)new ReferenceEqualityComparer<T>();
+        var indexMap = new Dictionary<T, int>(Items.Count, comparer);
+        for (var i = 0; i < Items.Count; i++)
         {
-            // EndUpdate();
+            indexMap[Items[i]] = i;
+        }
+
+        // Reorder the underlying collection by moving items to their target indices.
+        for (var targetIndex = 0; targetIndex < sortedList.Count; targetIndex++)
+        {
+            var desiredItem = sortedList[targetIndex];
+            if (!indexMap.TryGetValue(desiredItem, out var currentIndex))
+                continue; // item not found for some reason
+
+            if (currentIndex == targetIndex) continue;
+
+            // Perform move and then update indexMap for affected range
+            Move(currentIndex, targetIndex);
+
+            var start = Math.Min(currentIndex, targetIndex);
+            var end = Math.Max(currentIndex, targetIndex);
+
+            for (var i = start; i <= end; i++)
+            {
+                indexMap[Items[i]] = i;
+            }
         }
     }
 
@@ -148,5 +176,28 @@ public class BulkObservableCollection<T> : ObservableCollection<T>
         {
             base.OnPropertyChanged(e);
         }
+    }
+
+    // Reference-equality comparer for reference types to use object identity in dictionary keys
+    private sealed class ReferenceEqualityComparer<TRef> : IEqualityComparer<TRef>
+    {
+        public bool Equals(TRef? x, TRef? y)
+        {
+            return ReferenceEquals(x, y);
+        }
+
+        public int GetHashCode(TRef obj)
+        {
+            return RuntimeHelpers.GetHashCode(obj!);
+        }
+    }
+
+    internal static class EventArgsCache
+    {
+        internal static readonly PropertyChangedEventArgs CountPropertyChanged = new("Count");
+        internal static readonly PropertyChangedEventArgs IndexerPropertyChanged = new("Item[]");
+
+        internal static readonly NotifyCollectionChangedEventArgs ResetCollectionChanged =
+            new(NotifyCollectionChangedAction.Reset);
     }
 }

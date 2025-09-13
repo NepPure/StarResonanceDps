@@ -114,10 +114,10 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         // 3) 定时器：实时更新
         _timer = new DispatcherTimer(DispatcherPriority.Background)
         {
-            Interval = TimeSpan.FromMilliseconds(1000)
+            Interval = TimeSpan.FromMilliseconds(100)
         };
         _timer.Tick += (_, __) => UpdateData();
-        // _timer.Start();
+        _timer.Start();
     }
 
     [RelayCommand]
