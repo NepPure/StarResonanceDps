@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 namespace StarResonanceDpsAnalysis.WPF.Models;
 
 /// <summary>
-///     ObservableCollection with bulk operation support to minimize UI notifications
+/// ObservableCollection with bulk operation support to minimize UI notifications
 /// </summary>
 /// <typeparam name="T">The type of elements in the collection</typeparam>
 public class BulkObservableCollection<T> : ObservableCollection<T> where T : notnull
@@ -14,7 +14,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
     private bool _isUpdating;
 
     /// <summary>
-    ///     Begins a bulk update operation. Notifications are suppressed until EndUpdate is called.
+    /// Begins a bulk update operation. Notifications are suppressed until EndUpdate is called.
     /// </summary>
     public void BeginUpdate()
     {
@@ -22,7 +22,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
     }
 
     /// <summary>
-    ///     Ends a bulk update operation and raises a Reset notification.
+    /// Ends a bulk update operation and raises a Reset notification.
     /// </summary>
     public void EndUpdate()
     {
@@ -31,7 +31,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
     }
 
     /// <summary>
-    ///     Adds multiple items to the collection in bulk
+    /// Adds multiple items to the collection in bulk
     /// </summary>
     /// <param name="items">Items to add</param>
     public void AddRange(IEnumerable<T> items)
@@ -51,7 +51,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
     }
 
     /// <summary>
-    ///     Replaces all items in the collection
+    /// Replaces all items in the collection
     /// </summary>
     /// <param name="items">New items for the collection</param>
     public void ReplaceAll(IEnumerable<T> items)
@@ -72,14 +72,14 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
     }
 
     /// <summary>
-    ///     Sorts the collection in place using the provided comparison function
+    /// Sorts the collection in place using the provided comparison function
     /// </summary>
     /// <param name="comparison">Comparison function</param>
     public void Sort(Comparison<T> comparison)
     {
         var sortedList = Items.ToList();
         sortedList.Sort(comparison);
-
+        
         BeginUpdate();
         try
         {
@@ -96,7 +96,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
     }
 
     /// <summary>
-    ///     Sorts the collection in place using IComparer
+    /// Sorts the collection in place using IComparer
     /// </summary>
     /// <param name="comparer">Comparer to use for sorting</param>
     public void Sort(IComparer<T> comparer)
@@ -105,20 +105,21 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
     }
 
     /// <summary>
-    ///     Sorts the collection in place using a key selector
-    ///     Uses Move operations so the UI receives Move notifications and can animate/reuse items
+    /// Sorts the collection in place using a key selector
     /// </summary>
     /// <param name="keySelector">Function to extract the sort key</param>
     /// <param name="descending">Whether to sort in descending order</param>
-    public void SortBy<TKey>(Func<T, TKey> keySelector, bool descending = false)
+    public void SortBy<TKey>(Func<T, TKey> keySelector, bool descending = false) where TKey : IComparable<TKey>
     {
         if (Items.Count <= 1) return;
 
         // Create the list of items in the desired order (references preserved)
-        var sortedList = descending
+        var sortedList = descending 
             ? Items.OrderByDescending(keySelector).ToList()
             : Items.OrderBy(keySelector).ToList();
-
+        
+        // BeginUpdate();
+        try
         // If already in desired order, nothing to do
         var same = true;
         for (var i = 0; i < sortedList.Count; i++)
@@ -136,9 +137,9 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
             : (IEqualityComparer<T>)new ReferenceEqualityComparer<T>();
         var indexMap = new Dictionary<T, int>(Items.Count, comparer);
         for (var i = 0; i < Items.Count; i++)
-        {
+            {
             indexMap[Items[i]] = i;
-        }
+            }
 
         // Reorder the underlying collection by moving items to their target indices.
         for (var targetIndex = 0; targetIndex < sortedList.Count; targetIndex++)
@@ -158,7 +159,10 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
             for (var i = start; i <= end; i++)
             {
                 indexMap[Items[i]] = i;
-            }
+        }
+        finally
+        {
+            // EndUpdate();
         }
     }
 
