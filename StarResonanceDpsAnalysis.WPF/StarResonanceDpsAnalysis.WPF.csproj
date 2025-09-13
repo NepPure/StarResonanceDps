@@ -22,6 +22,10 @@
   
     <ItemGroup>
         <ApplicationDefinition Remove="App.xaml" />
+        <None Remove="Assets\Images\cancel_hover.png" />
+        <None Remove="Assets\Images\cancel_normal.png" />
+        <None Remove="Assets\Images\ok_hover.png" />
+        <None Remove="Assets\Images\ok_normal.png" />
         <Page Include="App.xaml" />
     </ItemGroup>
 
@@ -43,6 +47,8 @@
     <Resource Include="Assets\Fonts\HarmonyOS_Sans_SC_Regular.ttf" />
     <Resource Include="Assets\Fonts\iconfont.ttf" />
     <Resource Include="Assets\Fonts\SAOWelcomeTT-Regular.ttf" />
+    <Resource Include="Assets\Images\cancel_hover.png" />
+    <Resource Include="Assets\Images\cancel_normal.png" />
     <Resource Include="Assets\Images\Crown.png" />
     <Resource Include="Assets\Images\Classes_FrostMage.png" />
     <Resource Include="Assets\Images\Classes_HeavyGuardian.png" />
@@ -52,6 +58,8 @@
     <Resource Include="Assets\Images\Classes_ShieldKnight.png" />
     <Resource Include="Assets\Images\Classes_SoulMusician.png" />
     <Resource Include="Assets\Images\Classes_WIndKnight.png" />
+    <Resource Include="Assets\Images\ok_hover.png" />
+    <Resource Include="Assets\Images\ok_normal.png" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,20 +10,17 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-using StarResonanceDpsAnalysis.WPF.Controls;
-using StarResonanceDpsAnalysis.WPF.Controls.Models;
-using StarResonanceDpsAnalysis.WPF.ViewModels;
-
-namespace StarResonanceDpsAnalysis.WPF.Views
+namespace StarResonanceDpsAnalysis.WPF.Controls
 {
     /// <summary>
-    /// SettingForm.xaml 的交互逻辑
+    /// CheckBox.xaml 的交互逻辑
     /// </summary>
-    public partial class SettingsView : Window
+    public partial class Switch : UserControl
     {
-        public SettingsView()
+        public Switch()
         {
             InitializeComponent();
         }

@@ -528,7 +528,7 @@
             Controls.Add(pageHeader_MainHeader);
             Icon = (Icon)resources.GetObject("$this.Icon");
             Margin = new Padding(2);
-            MinimumSize = new Size(450, 0);
+            MinimumSize = new Size(450, 100);
             Name = "SettingsForm";
             Opacity = 0.95D;
             StartPosition = FormStartPosition.CenterScreen;
