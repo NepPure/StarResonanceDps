@@ -18,6 +18,4 @@ public partial class PlayerSlotViewModel : OrderingDataViewModel
     [ObservableProperty] private Classes _class = Classes.Unknown;
 
     [ObservableProperty] private ulong _value = 0;
-
-    public string OrderText => $"{Order:00}.";
 }

@@ -55,6 +55,7 @@ public partial class App : Application
                     services.AddThemes();
                     services.AddSingleton<IApplicationController, ApplicationController>();
                     services.AddSingleton<IDataSource, DpsDummyDataSource>();
+                    services.AddDataStorage();
                     // 注册主线程调度器
                     services.AddSingleton(_ => Current.Dispatcher);
                 })
