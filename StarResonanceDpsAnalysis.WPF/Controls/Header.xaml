@@ -20,6 +20,8 @@
                         TopRight="{StaticResource MainCornerRadiusDouble}" />
                 </Setter.Value>
             </Setter>
+
+            <EventSetter Event="MouseLeftButtonDown" Handler="Header_MouseLeftButtonDown" />
         </Style>
 
         <Style x:Key="HeaderTitle" TargetType="TextBlock">

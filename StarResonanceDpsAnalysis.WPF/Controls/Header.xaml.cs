@@ -36,5 +36,11 @@ namespace StarResonanceDpsAnalysis.WPF.Controls
         {
             InitializeComponent();
         }
+
+        private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+                Window.GetWindow(this)?.DragMove();
+        }
     }
 }

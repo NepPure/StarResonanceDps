@@ -35,7 +35,7 @@
     <!--  Border 风格：给窗口内容区留边距并加圆角和投影  -->
     <Style x:Key="ShadowWindowBorder" TargetType="Border">
         <!--  给外部留出空间以显示投影（shadow）  -->
-        <Setter Property="Margin" Value="3" />
+        <Setter Property="Margin" Value="5" />
         <!--  使用上面定义的圆角资源  -->
         <Setter Property="CornerRadius" Value="{DynamicResource MainCornerRadius}" />
         <!--  使用 DropShadowEffect 作为简单投影效果  -->
@@ -43,11 +43,16 @@
             <Setter.Value>
                 <!--  BlurRadius: 模糊半径；Opacity: 透明度；ShadowDepth: 阴影偏移（0 = 居中扩散）  -->
                 <DropShadowEffect
-                    BlurRadius="3"
+                    BlurRadius="5"
                     Opacity="0.5"
                     ShadowDepth="0"
                     Color="#000" />
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style x:Key="SpliterBase" TargetType="Border">
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Background" Value="#ECECEC" />
     </Style>
 </ResourceDictionary>
