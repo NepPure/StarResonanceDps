@@ -96,8 +96,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel
             {
                 Id = i + 1, // 1-based index
                 Name = nick,
-                Id = i + 1, // 1-based index
-                Name = nick,
                 Classes = @class,
             };
             Slots.Add(barData);
@@ -141,7 +139,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     private void OnLoaded()
     {
 
-    
+
 
         // 开始监听DPS更新事件
         DataStorage.DpsDataUpdated += DataStorage_DpsDataUpdated;
@@ -169,6 +167,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     // 核心：根据最新 dps 数据，填充 / 更新 Slots（供 XAML 进度条显示）
     private void UpdateSortProgressBarListData()
     {
+        /*
         // 1) 选择全程 or 分段
         var dpsList = _isShowFullData
             ? DataStorage.ReadOnlyFullDpsDataList
@@ -204,7 +203,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
             .ToList();
 
         // 把现有 Slots 建索引，便于“就地更新”
-        var slotIndex = Slots.ToDictionary(s => s.ID, s => s);
+        var slotIndex = Slots.ToDictionary(s => s.Id, s => s);
 
         // 5) 逐个构建/更新进度条项
         var newList = new List<ProgressBarData>(ordered.Count);
@@ -222,12 +221,12 @@ public partial class DpsStatisticsViewModel : BaseViewModel
                                  ?? string.Empty;
 
             // 每秒（DPS/HPS）= 总值 / 持续秒数
-            var seconds = Math.Max(1,
-                TimeSpan.FromTicks(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds);
-            var perSec = value / seconds;
+            // var seconds = Math.Max(1,
+            //     TimeSpan.FromTicks(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds);
+            // var perSec = value / seconds;
 
             // 右侧显示文本：总值(每秒)
-            var valueText = $"{value.ToCompactString()} ({perSec.ToCompactString()})";
+            // var valueText = $"{value.ToCompactString()} ({perSec.ToCompactString()})";
 
             // 这四个字段要和 XAML 里的绑定名字一致：
             // OrderText、Classes、Nickname、ValueText
@@ -242,9 +241,9 @@ public partial class DpsStatisticsViewModel : BaseViewModel
                                    + (playerInfo?.SubProfessionName ?? professionName)
                                    + $"({playerInfo?.CombatPower?.ToString() ?? ($"UID: {e.UID}")})";
                 //slotVm.Class = professionName.GetProfessionEnumForWpf(); // 见下面备注
-                slotVm.ValueText = valueText;
+                // slotVm.Value = valueText;
 
-                existed.ProgressBarValue = ratio; // 0~1
+                // existed.ProgressBarValue = ratio; // 0~1
                 newList.Add(existed);
             }
             else
@@ -256,7 +255,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
                                 + (playerInfo?.SubProfessionName ?? professionName)
                                 + $"({playerInfo?.CombatPower?.ToString() ?? ($"UID: {e.UID}")})",
                     //Class = professionName.GetProfessionEnumForWpf(), // 见下面备注
-                    ValueText = valueText
+                    // ValueText = valueText
                 };
 
                 var bar = new ProgressBarData
@@ -276,6 +275,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         // 6) 用排序好的新列表替换 Slots（需要重排时用这种）
         //    如果你的控件支持就地修改顺序，也可逐项搬移；最简单是整体替换。
         Slots = new ObservableCollection<ProgressBarData>(newList);
+        */
     }
 
     /// <summary>
@@ -360,14 +360,14 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     private void UpdateData()
     {
         Debug.WriteLine("Enter updatedata");
-        
+
         // Update values for each slot
         foreach (var data in Slots)
         {
             data.Value += (ulong)_rd.Next(1000, 80000);
             Debug.WriteLine($"Updated {data.Name}'s value to {data.Value}");
         }
-        
+
         // Calculate percentage of max
         if (Slots.Count > 0)
         {
@@ -384,7 +384,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
                 data.Percent = totalValue > 0 ? (data.Value / totalValue) : 0;
             }
         }
-        
+
         // Sort data in place 
         SortSlotsInPlace();
 
@@ -450,8 +450,8 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         if (SortMemberPath == memberPath)
         {
             // Toggle sort direction if the same property is clicked
-            SortDirection = SortDirection == SortDirectionEnum.Ascending 
-                ? SortDirectionEnum.Descending 
+            SortDirection = SortDirection == SortDirectionEnum.Ascending
+                ? SortDirectionEnum.Descending
                 : SortDirectionEnum.Ascending;
         }
         else
@@ -459,7 +459,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
             SortMemberPath = memberPath;
             SortDirection = SortDirectionEnum.Descending; // Default to descending for new properties
         }
-        
+
         // Trigger immediate re-sort
         SortSlotsInPlace();
     }
