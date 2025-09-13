@@ -60,7 +60,7 @@ public class HumanReadableNumberConverter : IValueConverter, IMultiValueConverte
         throw new NotSupportedException();
     }
 
-    private static NumberDisplayMode ParseModeFromParameter(object parameter)
+    private static NumberDisplayMode ParseModeFromParameter(object? parameter)
     {
         if (parameter == null) return NumberDisplayMode.KMB;
         return ParseModeFromObject(parameter);
@@ -113,7 +113,7 @@ public class HumanReadableNumberConverter : IValueConverter, IMultiValueConverte
         return sign + d.ToString("0.##", culture);
     }
 
-    private static bool TryGetDouble(object value, out double result)
+    private static bool TryGetDouble(object? value, out double result)
     {
         switch (value)
         {

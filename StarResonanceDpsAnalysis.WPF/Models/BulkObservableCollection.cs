@@ -79,7 +79,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
     {
         var sortedList = Items.ToList();
         sortedList.Sort(comparison);
-        
+
         BeginUpdate();
         try
         {
@@ -114,55 +114,58 @@ public class BulkObservableCollection<T> : ObservableCollection<T> where T : not
         if (Items.Count <= 1) return;
 
         // Create the list of items in the desired order (references preserved)
-        var sortedList = descending 
+        var sortedList = descending
             ? Items.OrderByDescending(keySelector).ToList()
             : Items.OrderBy(keySelector).ToList();
-        
-        // BeginUpdate();
+
+        BeginUpdate();
         try
-        // If already in desired order, nothing to do
-        var same = true;
-        for (var i = 0; i < sortedList.Count; i++)
         {
-            if (EqualityComparer<T>.Default.Equals(Items[i], sortedList[i])) continue;
-            same = false;
-            break;
-        }
-
-        if (same) return;
-
-        // Build an index map for quick lookup. Use reference-equality for reference types to avoid relying on Equals overrides.
-        var comparer = typeof(T).IsValueType
-            ? EqualityComparer<T>.Default
-            : (IEqualityComparer<T>)new ReferenceEqualityComparer<T>();
-        var indexMap = new Dictionary<T, int>(Items.Count, comparer);
-        for (var i = 0; i < Items.Count; i++)
+            // If already in desired order, nothing to do
+            var same = true;
+            for (var i = 0; i < sortedList.Count; i++)
             {
-            indexMap[Items[i]] = i;
+                if (EqualityComparer<T>.Default.Equals(Items[i], sortedList[i])) continue;
+                same = false;
+                break;
             }
 
-        // Reorder the underlying collection by moving items to their target indices.
-        for (var targetIndex = 0; targetIndex < sortedList.Count; targetIndex++)
-        {
-            var desiredItem = sortedList[targetIndex];
-            if (!indexMap.TryGetValue(desiredItem, out var currentIndex))
-                continue; // item not found for some reason
+            if (same) return;
 
-            if (currentIndex == targetIndex) continue;
-
-            // Perform move and then update indexMap for affected range
-            Move(currentIndex, targetIndex);
-
-            var start = Math.Min(currentIndex, targetIndex);
-            var end = Math.Max(currentIndex, targetIndex);
-
-            for (var i = start; i <= end; i++)
+            // Build an index map for quick lookup. Use reference-equality for reference types to avoid relying on Equals overrides.
+            var comparer = typeof(T).IsValueType
+                ? EqualityComparer<T>.Default
+                : (IEqualityComparer<T>)new ReferenceEqualityComparer<T>();
+            var indexMap = new Dictionary<T, int>(Items.Count, comparer);
+            for (var i = 0; i < Items.Count; i++)
             {
                 indexMap[Items[i]] = i;
+            }
+
+            // Reorder the underlying collection by moving items to their target indices.
+            for (var targetIndex = 0; targetIndex < sortedList.Count; targetIndex++)
+            {
+                var desiredItem = sortedList[targetIndex];
+                if (!indexMap.TryGetValue(desiredItem, out var currentIndex))
+                    continue; // item not found for some reason
+
+                if (currentIndex == targetIndex) continue;
+
+                // Perform move and then update indexMap for affected range
+                Move(currentIndex, targetIndex);
+
+                var start = Math.Min(currentIndex, targetIndex);
+                var end = Math.Max(currentIndex, targetIndex);
+
+                for (var i = start; i <= end; i++)
+                {
+                    indexMap[Items[i]] = i;
+                }
+            }
         }
         finally
         {
-            // EndUpdate();
+            EndUpdate();
         }
     }
 
