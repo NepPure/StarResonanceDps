@@ -28,14 +28,12 @@
         <Style x:Key="Title" TargetType="ctrl:Header">
             <Setter Property="VerticalAlignment" Value="Top" />
             <Setter Property="Height" Value="30" />
-            <Setter Property="Grid.Row" Value="0"/>
         </Style>
 
         <Style x:Key="Header" TargetType="Grid">
             <Setter Property="VerticalAlignment" Value="Top" />
             <Setter Property="Height" Value="35"/>
             <Setter Property="Background" Value="#2297F4" />
-            <Setter Property="Grid.Row" Value="1"/>
         </Style>
 
         <Style x:Key="HeaderText" TargetType="TextBlock">
@@ -49,7 +47,6 @@
 
         <Style x:Key="MainContentSV" TargetType="ScrollViewer">
             <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-            <Setter Property="Grid.Row" Value="2"/>
         </Style>
         
         <Style x:Key="SettingBorderBase" TargetType="Border">
@@ -60,28 +57,27 @@
         </Style>
 
         <Style x:Key="BasicSettingBorder" TargetType="Border" BasedOn="{StaticResource SettingBorderBase}">
-            <Setter Property="Grid.Row" Value="0"/>
+            
         </Style>
 
         <Style x:Key="KeySettingBorder" TargetType="Border" BasedOn="{StaticResource SettingBorderBase}">
-            <Setter Property="Grid.Row" Value="1"/>
+            
         </Style>
 
         <Style x:Key="BattleSettingBorder" TargetType="Border" BasedOn="{StaticResource SettingBorderBase}">
-            <Setter Property="Grid.Row" Value="2"/>
+            
         </Style>
 
         <Style x:Key="SettingTitleGrid" TargetType="Grid">
-            <Setter Property="Grid.Row" Value="0" />
+            
         </Style>
 
         <Style x:Key="Spliter" TargetType="Border" BasedOn="{StaticResource SpliterBase}">
             <Setter Property="Margin" Value="0,20,0,0" />
-            <Setter Property="Grid.Row" Value="1" />
         </Style>
 
         <Style x:Key="SettingContentGrid" TargetType="Grid">
-            <Setter Property="Grid.Row" Value="2" />
+            
         </Style>
 
         <Style x:Key="SettingBorderBar" TargetType="Border">
@@ -119,11 +115,11 @@
         </Style>
 
         <Style x:Key="MouseThroughKeyTextBox" TargetType="ctrl:AffixedTextBox">
-            <Setter Property="Grid.Column" Value="0"/>
+            
         </Style>
 
         <Style x:Key="ClearDataKeyTextBox" TargetType="ctrl:AffixedTextBox">
-            <Setter Property="Grid.Column" Value="2"/>
+            
         </Style>
 
         <Style x:Key="BattleSettingFieldBase" TargetType="Grid">
@@ -132,7 +128,6 @@
 
         <Style x:Key="ClearSectionedDataTimeGrid" TargetType="Grid" BasedOn="{StaticResource BattleSettingFieldBase}">
             <Setter Property="Margin" Value="0,20,0,0" />
-            <Setter Property="Grid.Row" Value="0" />
         </Style>
 
         <Style x:Key="ClearSectionedDataTimeTextBox" TargetType="ctrl:AffixedTextBox">
@@ -140,36 +135,33 @@
         </Style>
 
         <Style x:Key="ClearAllDataWhenSwitchGrid" TargetType="Grid" BasedOn="{StaticResource BattleSettingFieldBase}">
-            <Setter Property="Grid.Row" Value="1" />
+            
         </Style>
 
         <Style x:Key="ClearAllDataWhenSwitch" TargetType="ctrl:Switch">
             <Setter Property="HorizontalAlignment" Value="Right" />
-            <Setter Property="Grid.Column" Value="1" />
         </Style>
 
         <Style x:Key="DamageDisplayType" TargetType="ctrl:PrefixedComboBox">
             <Setter Property="HorizontalAlignment" Value="Right" />
-            <Setter Property="Grid.Column" Value="1" />
         </Style>
 
         <Style x:Key="TransparencySlider" TargetType="Slider">
-            <Setter Property="Grid.Column" Value="1" />
+            
 
         </Style>
 
         <Style x:Key="DamageDisplayTypeGrid" TargetType="Grid" BasedOn="{StaticResource BattleSettingFieldBase}">
-            <Setter Property="Grid.Row" Value="2" />
+            
         </Style>
 
         <Style x:Key="TransparencyGrid" TargetType="Grid" BasedOn="{StaticResource BattleSettingFieldBase}">
-            <Setter Property="Grid.Row" Value="3" />
+            
         </Style>
 
         <Style x:Key="Footer" TargetType="Border">
             <Setter Property="Height" Value="50" />
             <Setter Property="Background" Value="#FFF" />
-            <Setter Property="Grid.Row" Value="3"/>
             <Setter Property="CornerRadius">
                 <Setter.Value>
                     <CornerRadius
@@ -206,13 +198,18 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <ctrl:Header Title="Setting" Style="{StaticResource Title}" />
+            <ctrl:Header Title="Setting" Style="{StaticResource Title}" 
+                         Grid.Row="0" />
 
-            <Grid Style="{StaticResource Header}">
+            <Grid Style="{StaticResource Header}" 
+                  Grid.Row="1">
+                
                 <TextBlock Text="设置" Style="{StaticResource HeaderText}"/>
             </Grid>
 
-            <ScrollViewer Style="{StaticResource MainContentSV}">
+            <ScrollViewer Style="{StaticResource MainContentSV}" 
+                          Grid.Row="2">
+                
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -220,25 +217,35 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <Border Style="{StaticResource BasicSettingBorder}">
+                    <Border Style="{StaticResource BasicSettingBorder}" 
+                            Grid.Row="0">
+                        
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <Grid Style="{StaticResource SettingTitleGrid}">
+                            
+                            <Grid Style="{StaticResource SettingTitleGrid}" 
+                                  Grid.Row="0">
+                                
                                 <Border Style="{StaticResource SettingBorderBar}"/>
                                 <TextBlock Text="基础设置" Style="{StaticResource SettingTitle}"/>
                                 <TextBlock Text="自动设置错误时可手动设置" Style="{StaticResource SettingSubTitle}"/>
                             </Grid>
-                            <Border Style="{StaticResource Spliter}"/>
-                            <Grid Style="{StaticResource SettingContentGrid}">
+                            
+                            <Border Style="{StaticResource Spliter}" 
+                                    Grid.Row="1"/>
+                            
+                            <Grid Style="{StaticResource SettingContentGrid}" 
+                                  Grid.Row="2">
+                                
                                 <ctrl:PrefixedComboBox x:Name="NetcardSelector" Style="{StaticResource NetcardComboBox}">
                                     <!-- 临时占位 -->
                                     <Border>
                                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC">
-                        监听网卡设备：
+                                            监听网卡设备：
                                         </TextBlock>
                                     </Border>
                                 </ctrl:PrefixedComboBox>
@@ -246,39 +253,56 @@
                         </Grid>
                     </Border>
 
-                    <Border Style="{StaticResource KeySettingBorder}">
+                    <Border Style="{StaticResource KeySettingBorder}" 
+                            Grid.Row="1">
+                        
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <Grid Style="{StaticResource SettingTitleGrid}">
+                            
+                            <Grid Style="{StaticResource SettingTitleGrid}" 
+                                  Grid.Row="0">
+                                
                                 <Border Style="{StaticResource SettingBorderBar}"/>
                                 <TextBlock Text="按键设置" Style="{StaticResource SettingTitle}"/>
                                 <TextBlock Text="按下 Delete 删除选择的键位" Style="{StaticResource SettingSubTitle}"/>
                             </Grid>
-                            <Border Style="{StaticResource Spliter}"/>
-                            <Grid Style="{StaticResource SettingContentGrid}">
+                            
+                            <Border Style="{StaticResource Spliter}" 
+                                    Grid.Row="1"/>
+                            
+                            <Grid Style="{StaticResource SettingContentGrid}" 
+                                  Grid.Row="2">
+                                
                                 <Grid Style="{StaticResource KeysGrid}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="1*"/>
                                         <ColumnDefinition Width="20"/>
                                         <ColumnDefinition Width="1*"/>
                                     </Grid.ColumnDefinitions>
-                                    <ctrl:AffixedTextBox x:Name="MouseThroughKeyTextBox" Style="{StaticResource MouseThroughKeyTextBox}">
+                                    
+                                    <ctrl:AffixedTextBox x:Name="MouseThroughKeyTextBox" 
+                                                         Style="{StaticResource MouseThroughKeyTextBox}" 
+                                                         Grid.Column="0">
+                                        
                                         <!-- 临时占位 -->
                                         <Border>
                                             <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC">
-                            鼠标穿透：
+                                                鼠标穿透：
                                             </TextBlock>
                                         </Border>
                                     </ctrl:AffixedTextBox>
-                                    <ctrl:AffixedTextBox x:Name="ClearDataKeyTextBox" Style="{StaticResource ClearDataKeyTextBox}">
+                                    <ctrl:AffixedTextBox x:Name="ClearDataKeyTextBox" 
+                                                         Style="{StaticResource ClearDataKeyTextBox}" 
+                                                         Grid.Column="2">
+                                        
                                         <!-- 临时占位 -->
                                         <Border>
                                             <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC">
-                            清空数据：
+                                                清空数据：
                                             </TextBlock>
                                         </Border>
                                     </ctrl:AffixedTextBox>
@@ -287,81 +311,105 @@
                         </Grid>
                     </Border>
 
-                    <Border Style="{StaticResource BattleSettingBorder}">
+                    <Border Style="{StaticResource BattleSettingBorder}" 
+                            Grid.Row="2">
+                        
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <Grid Style="{StaticResource SettingTitleGrid}">
+                            
+                            <Grid Style="{StaticResource SettingTitleGrid}" 
+                                  Grid.Row="0">
+                                
                                 <Border Style="{StaticResource SettingBorderBar}"/>
                                 <TextBlock Text="战斗设置" Style="{StaticResource SettingTitle}"/>
                                 <TextBlock Text="脱战清空为当前统计，非全程统计" Style="{StaticResource SettingSubTitle}"/>
                             </Grid>
-                            <Border Style="{StaticResource Spliter}"/>
-                            <Grid Style="{StaticResource SettingContentGrid}">
+                            
+                            <Border Style="{StaticResource Spliter}" 
+                                    Grid.Row="1"/>
+
+                            <Grid Style="{StaticResource SettingContentGrid}" 
+                                  Grid.Row="2">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Grid Style="{StaticResource ClearSectionedDataTimeGrid}">
+                                
+                                <Grid Style="{StaticResource ClearSectionedDataTimeGrid}" 
+                                      Grid.Row="0">
+                                    
                                     <ctrl:AffixedTextBox x:Name="ClearSectionedDataTime" Style="{StaticResource ClearSectionedDataTimeTextBox}">
                                         <!-- 临时占位 -->
                                         <Grid>
                                             <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC">
-                            脱战
+                                                脱战
                                             </TextBlock>
                                             <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
-                                   HorizontalAlignment="Right">
-                            秒后清除当前统计
+                                                       HorizontalAlignment="Right">
+                                                秒后清除当前统计
                                             </TextBlock>
                                         </Grid>
                                     </ctrl:AffixedTextBox>
                                 </Grid>
-                                <Grid Style="{StaticResource ClearAllDataWhenSwitchGrid}">
+                                <Grid Style="{StaticResource ClearAllDataWhenSwitchGrid}" 
+                                      Grid.Row="1">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="140"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
+                                    
                                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC">
-                    换地图时清空全程统计
+                                        换地图时清空全程统计
                                     </TextBlock>
-                                    <ctrl:Switch x:Name="ClearAllDataWhenSwitch" Style="{StaticResource ClearAllDataWhenSwitch}"/>
+                                    <ctrl:Switch x:Name="ClearAllDataWhenSwitch" 
+                                                 Style="{StaticResource ClearAllDataWhenSwitch}" 
+                                                 Grid.Column="1"/>
                                 </Grid>
-                                <Grid Style="{StaticResource DamageDisplayTypeGrid}">
+                                <Grid Style="{StaticResource DamageDisplayTypeGrid}" 
+                                      Grid.Row="2">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="140"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
+                                    
                                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC">
-                    计数显示类型
+                                        计数显示类型
                                     </TextBlock>
-                                    <ctrl:PrefixedComboBox x:Name="DamageDisplayType" Style="{StaticResource DamageDisplayType}">
+                                    <ctrl:PrefixedComboBox x:Name="DamageDisplayType" 
+                                                           Style="{StaticResource DamageDisplayType}" 
+                                                           Grid.Column="1">
                                         <!-- 临时占位 -->
                                         <Border>
                                             <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC">
-                            三位分节法（KMBT）
+                                                三位分节法（KMBT）
                                             </TextBlock>
                                         </Border>
                                         <!--<Border>
-                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC">
-                            四位分节法（万亿兆）
-                        </TextBlock>
-                    </Border>-->
+                                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC">
+                                                四位分节法（万亿兆）
+                                            </TextBlock>
+                                        </Border>-->
                                     </ctrl:PrefixedComboBox>
                                 </Grid>
-                                <Grid Style="{StaticResource TransparencyGrid}">
+                                <Grid Style="{StaticResource TransparencyGrid}" 
+                                      Grid.Row="3">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="140"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
+                                    
                                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC">
-                    窗体透明度
+                                        窗体透明度
                                     </TextBlock>
-                                    <Slider x:Name="TransparencySlider" Style="{StaticResource TransparencySlider}"/>
+                                    <Slider x:Name="TransparencySlider" 
+                                            Style="{StaticResource TransparencySlider}" 
+                                            Grid.Column="1"/>
                                 </Grid>
                             </Grid>
                         </Grid>
@@ -369,7 +417,9 @@
                 </Grid>
             </ScrollViewer>
 
-            <Border Style="{StaticResource Footer}">
+            <Border Style="{StaticResource Footer}" 
+                    Grid.Row="3">
+                
                 <Grid>
                     <Button x:Name="Confirm" Style="{StaticResource ConfirmButton}">
                         <Image Source="pack://application:,,,/Assets/Images/ok_normal.png"/>
