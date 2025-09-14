@@ -9,7 +9,7 @@ namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 /// <summary>
 /// 用于 DataTemplate 绑定的数据载体（挂到 ProgressBarData.Data 上）
 /// </summary>
-public partial class PlayerSlotViewModel : OrderingData
+public partial class PlayerSlotViewModel : OrderingDataViewModel
 {
     [ObservableProperty] private string _name = string.Empty;
 
@@ -17,7 +17,5 @@ public partial class PlayerSlotViewModel : OrderingData
 
     [ObservableProperty] private Classes _class = Classes.Unknown;
 
-    [ObservableProperty] private string _valueText = string.Empty;
-
-    public string OrderText => $"{Order:00}.";
+    [ObservableProperty] private ulong _value = 0;
 }

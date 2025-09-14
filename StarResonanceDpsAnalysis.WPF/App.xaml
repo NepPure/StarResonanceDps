@@ -12,7 +12,12 @@
                 <ResourceDictionary Source="pack://application:,,,/Styles/MenuStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Styles/FooterStyles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Styles/TestThemeStyle.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Styles/Classes.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Converters/ConveterDictionary.xaml" />
+
+                <!--  Load SortedDpsControl default style  -->
+                <ResourceDictionary Source="pack://application:,,,/Styles/SortedDpsControlStyle.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Styles/DpsIndicatorControlStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

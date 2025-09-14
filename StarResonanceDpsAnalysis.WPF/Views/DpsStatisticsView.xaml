@@ -4,19 +4,24 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:behaviors="clr-namespace:StarResonanceDpsAnalysis.WPF.Behaviors"
+    xmlns:converters="clr-namespace:StarResonanceDpsAnalysis.WPF.Converters"
     xmlns:ctrl="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
+    xmlns:models="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls.Models"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:viewModels="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
     Title="DpsStatisticsForm"
-    Width="320" Height="359"
-    MinWidth="300" MinHeight="31"
-    WindowStartupLocation="CenterScreen"
+    Width="320"
+    Height="359"
+    MinWidth="300"
+    MinHeight="31"
+    d:DataContext="{d:DesignInstance Type=viewModels:DpsStatisticsDesignTimeViewModel,
+                                     IsDesignTimeCreatable=True}"
     ResizeMode="CanResize"
     Style="{StaticResource TransparentWindow}"
-    d:DataContext="{d:DesignInstance Type=vm:DpsStatisticsViewModel,
-                                     IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
     <b:Interaction.Triggers>
         <b:EventTrigger EventName="Loaded">
@@ -34,6 +39,7 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <!-- <converters:PercentOfMaxConverter x:Key="PercentOfMaxConverter" /> -->
         <Style x:Key="TitleBar" TargetType="Border">
             <Setter Property="Background" Value="#CCBABABA" />
             <Setter Property="VerticalAlignment" Value="Top" />
@@ -122,11 +128,138 @@
             </Style.Triggers>
         </Style>
 
+        <DataTemplate x:Key="PercentageDataTemplate" DataType="{x:Type models:StatisticDataViewModel}">
+            <Grid HorizontalAlignment="Stretch">
+                <!--  名次  -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="A" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="B" />
+                    <ColumnDefinition Width="*" SharedSizeGroup="C" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="D" />
+                    <ColumnDefinition Width="Auto" SharedSizeGroup="E" />
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Grid.Column="0"
+                    Margin="4,0,4,0"
+                    VerticalAlignment="Center"
+                    FontFamily="pack://application:,,,/Assets/Fonts/#SAO Welcome TT"
+                    Foreground="White">
+                    <TextBlock.Text>
+                        <Binding Path="Id" UpdateSourceTrigger="PropertyChanged" />
+                    </TextBlock.Text>
+                </TextBlock>
+
+                <!--  职业图标  -->
+                <Image
+                    Grid.Column="1"
+                    Margin="4"
+                    Source="{Binding Classes, Converter={StaticResource ClassesToIconConverter}, FallbackValue={StaticResource ClassesUnknownIcon}}" />
+
+                <!--  昵称  -->
+                <TextBlock
+                    x:Name="Name"
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
+                    Foreground="White"
+                    Text="{Binding Name}" />
+
+                <!--  数值  -->
+                <TextBlock
+                    Grid.Column="3"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
+                    FontWeight="Bold"
+                    Foreground="White">
+                    <TextBlock.Text>
+                        <MultiBinding Converter="{StaticResource HumanReadableNumberConverter}">
+                            <Binding Path="Value" />
+                            <Binding Path="DataContext.NumberDisplayMode" RelativeSource="{RelativeSource AncestorType=Window}" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+                <TextBlock
+                    Grid.Column="4"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
+                    FontWeight="Bold"
+                    Foreground="White"
+                    Text="{Binding Percent, StringFormat={}({0:P1})}" />
+
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="ProgressBarDataTemplate" DataType="{x:Type models:StatisticDataViewModel}">
+            <Grid Height="30" Margin="0">
+                <Button
+                    Margin="1"
+                    Padding="0"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Command="{Binding ItemClickCommand, RelativeSource={RelativeSource AncestorType=ctrl:SortedDpsControl}}"
+                    CommandParameter="{Binding}"
+                    FocusVisualStyle="{x:Null}"
+                    Focusable="False"
+                    IsHitTestVisible="False"
+                    IsTabStop="False"
+                    OverridesDefaultStyle="True">
+
+                    <!--  simple ControlTemplate so ContentPresenter stretches to available size  -->
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border
+                                Padding="{TemplateBinding Padding}"
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                                <ContentPresenter
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    Content="{TemplateBinding Content}"
+                                    ContentTemplate="{TemplateBinding ContentTemplate}" />
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+
+                    <!--  actual visual content, will now stretch to fill the button  -->
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <ctrl:DpsIndicatorControl
+                            Grid.Column="1"
+                            Margin="1"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch"
+                            OverlayContent="{Binding}"
+                            OverlayTemplate="{StaticResource PercentageDataTemplate}"
+                            Percentage="{Binding PercentOfMax}">
+                            <!-- <ctrl:DpsIndicatorControl.Percentage> -->
+                            <!--  <MultiBinding Converter="{StaticResource PercentOfMaxConverter}"  -->
+                            <!--  Mode="OneWay">  -->
+                            <!--         <Binding Path="Value" UpdateSourceTrigger="PropertyChanged"/> -->
+                            <!--         <Binding Path="DataContext.Slots.Values" RelativeSource="{RelativeSource AncestorType=Window}" UpdateSourceTrigger="PropertyChanged"/> -->
+                            <!--     </MultiBinding> -->
+                            <!-- </ctrl:DpsIndicatorControl.Percentage> -->
+                        </ctrl:DpsIndicatorControl>
+                    </Grid>
+                </Button>
+            </Grid>
+        </DataTemplate>
     </Window.Resources>
 
     <!--  半透明/圆角交给内部 Border  -->
     <Border Background="#99191919" Style="{StaticResource ShadowWindowBorder}">
         <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="25" />
+            </Grid.RowDefinitions>
             <Border Style="{StaticResource TitleBar}">
                 <!--  顶部栏,Grid 一般不设置属性  -->
                 <Grid Margin="2">
@@ -173,11 +306,15 @@
                         Grid.Column="4"
                         HorizontalAlignment="Right"
                         Orientation="Horizontal">
+                        <Button Command="{Binding SortByValueCommand}">[Sort]</Button>
+                        <Button Command="{Binding AddRandomDataCommand}">[AddRand]</Button>
                         <!--  设置按钮  -->
                         <Button
                             x:Name="RefreshButton"
+                            Width="21"
                             Command="{Binding RefreshCommand}"
-                            Content="&#xE644;" Width="21">
+                            Content="&#xE644;" >
+
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="MouseEnter">
                                     <b:InvokeCommandAction Command="{Binding RefreshButtonMouseEnteredCommand}" />
@@ -215,15 +352,35 @@
                                     <MenuItem Header="个人模式" />
                                     <!--  记录设置  -->
                                     <MenuItem Header="记录设置" ItemContainerStyle="{StaticResource CheckableMenuItem}">
-                                        <MenuItem Click="RecordSettingsMenuItem_Click" Header="记录每一次" />
-                                        <MenuItem Click="RecordSettingsMenuItem_Click" Header="不记录1分钟以下" />
-                                        <MenuItem Click="RecordSettingsMenuItem_Click" Header="不记录2分钟以下" />
+                                        <!--  pass a parameter (literal) to the command  -->
+                                        <MenuItem
+                                            Command="{Binding Options.SetMinimalDurationCommand}"
+                                            Header="记录每一次"
+                                            IsChecked="{Binding Options.MinimalDurationInSeconds}">
+                                            <MenuItem.CommandParameter>
+                                                <system:Int32>-1</system:Int32>
+                                            </MenuItem.CommandParameter>
+                                        </MenuItem>
+                                        <MenuItem
+                                            Command="{Binding Options.SetMinimalDurationCommand}"
+                                            Header="不记录1分钟以下"
+                                            IsChecked="{Binding Options.MinimalDurationInSeconds}">
+                                            <MenuItem.CommandParameter>
+                                                <system:Int32>60</system:Int32>
+                                            </MenuItem.CommandParameter>
+                                        </MenuItem>
+                                        <!--  Click="RecordSettingsMenuItem_Click"  -->
+                                        <MenuItem
+                                            Command="{Binding Options.SetMinimalDurationCommand}"
+                                            Header="不记录2分钟以下"
+                                            IsChecked="{Binding Options.MinimalDurationInSeconds}">
+                                            <MenuItem.CommandParameter>
+                                                <system:Int32>120</system:Int32>
+                                            </MenuItem.CommandParameter>
+                                        </MenuItem>
                                     </MenuItem>
                                     <!--  历史记录  -->
-                                    <MenuItem
-                                        x:Name="miHistory"
-                                        Header="历史记录"
-                                        ItemContainerStyle="{StaticResource CheckableMenuItem}" />
+                                    <MenuItem Header="历史记录" ItemContainerStyle="{StaticResource CheckableMenuItem}" />
                                     <!--  打桩模式  -->
                                     <MenuItem Header="打桩模式" ItemContainerStyle="{StaticResource CheckableMenuItem}">
                                         <MenuItem
@@ -250,9 +407,10 @@
                         <!--  隐藏按钮  -->
                         <Button
                             x:Name="PullButton"
+                            Width="22"
                             Click="PullButton_Click"
                             Content="&#xE601;"
-                            RenderTransformOrigin="0.5,0.5" Width="22">
+                            RenderTransformOrigin="0.5,0.5" >
                             <Button.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform />
@@ -276,75 +434,16 @@
                 </Grid>
             </Border>
 
-            <ctrl:SortedProgressBarList
-                x:Name="ProgressBarList"
-                Margin="0,25,0,25"
-                ProgressBarMouseEnter="ProgressBarList_ProgressBarMouseEnter"
-                ProgressBarMouseMove="ProgressBarList_ProgressBarMouseMove"
-                ProgressBarMouseLeave="ProgressBarList_ProgressBarMouseLeave"
-                ProgressBarMouseDown="ProgressBarList_ProgressBarMouseDown"
-                Data="{Binding Path=Slots}">
-                <ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <!--  名次  -->
-                            <TextBlock
-                                Margin="10,0,0,0"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Panel.ZIndex="999"
-                                FontFamily="pack://application:,,,/Assets/Fonts/#SAO Welcome TT"
-                                FontSize="18"
-                                Foreground="White"
-                                IsHitTestVisible="False"
-                                Text="{Binding OrderText}" />
 
-                            <!--  职业图标  -->
-                            <Image
-                                Width="11"
-                                Margin="38,2,0,1"
-                                HorizontalAlignment="Left"
-                                Panel.ZIndex="999"
-                                IsHitTestVisible="False"
-                                Source="{Binding Classes, Converter={StaticResource ClassesToIconConverter}}" />
+            <ctrl:SortedDpsControl
+                Grid.Row="1"
+                Data="{Binding Slots, UpdateSourceTrigger=PropertyChanged}"
+                ItemTemplate="{StaticResource ProgressBarDataTemplate}" />
 
-                            <!--  昵称  -->
-                            <TextBlock
-                                Margin="55,3,0,0"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center"
-                                Panel.ZIndex="999"
-                                FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
-                                FontSize="12"
-                                FontWeight="Bold"
-                                Foreground="White"
-                                IsHitTestVisible="False"
-                                Text="{Binding Nickname}" />
-
-                            <!--  数值  -->
-                            <TextBlock
-                                Margin="0,3,8,0"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                Panel.ZIndex="999"
-                                FontFamily="pack://application:,,,/Assets/Fonts/#HarmonyOS Sans SC"
-                                FontSize="12"
-                                FontWeight="Bold"
-                                Foreground="White"
-                                IsHitTestVisible="False"
-                                Text="{Binding ValueText}" />
-                        </Grid>
-                    </DataTemplate>
-                </ctrl:SortedProgressBarList.ProgressBarSlotDataTemplate>
-                <ctrl:SortedProgressBarList.Style>
-                    <Style TargetType="ctrl:SortedProgressBarList">
-                        <Setter Property="ProgressBarMargin" Value="4,4,4,0" />
-                    </Style>
-                </ctrl:SortedProgressBarList.Style>
-            </ctrl:SortedProgressBarList>
-
-
-            <Border x:Name="ContentBorder" Style="{StaticResource FooterContentBorder}">
+            <Border
+                x:Name="ContentBorder"
+                Grid.Row="2"
+                Style="{StaticResource FooterContentBorder}">
                 <Grid Margin="6">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />

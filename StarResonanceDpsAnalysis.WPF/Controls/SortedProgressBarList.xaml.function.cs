@@ -10,7 +10,7 @@ namespace StarResonanceDpsAnalysis.WPF.Controls;
 
 public partial class SortedProgressBarList
 {
-    private readonly object _dataLock = new();
+    // private readonly object _dataLock = new();
     private bool _animating;
     private List<SortAnimatingInfo> _animatingInfoBuffer = [];
     private List<long> _prevIdOrder = [];
@@ -59,7 +59,7 @@ public partial class SortedProgressBarList
                     ProgressBarListBox.Children.Remove(progressBar);
                 }
 
-                lock (_dataLock)
+                // lock (_dataLock)
                 {
                     _animating = false;
                     Debug.WriteLine("Animation End");

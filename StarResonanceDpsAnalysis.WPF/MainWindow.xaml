@@ -6,11 +6,18 @@
     xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="clr-namespace:StarResonanceDpsAnalysis.WPF.ViewModels"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     Title="MainWindow"
     Width="800"
     Height="450"
     d:DataContext="{d:DesignInstance viewModels:MainViewModel}"
     mc:Ignorable="d">
+    <b:Interaction.Triggers>
+        <b:EventTrigger EventName="Loaded">
+            <b:InvokeCommandAction Command="{Binding CallSettingsViewCommand}" />
+            <b:InvokeCommandAction Command="{Binding CallDpsStatisticsViewCommand}" />
+        </b:EventTrigger>
+    </b:Interaction.Triggers>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
