@@ -313,7 +313,7 @@
                             x:Name="RefreshButton"
                             Width="21"
                             Command="{Binding RefreshCommand}"
-                            Content="&#xE644;" Width="21">
+                            Content="&#xE644;" >
 
                             <b:Interaction.Triggers>
                                 <b:EventTrigger EventName="MouseEnter">
@@ -410,7 +410,7 @@
                             Width="22"
                             Click="PullButton_Click"
                             Content="&#xE601;"
-                            RenderTransformOrigin="0.5,0.5" Width="22">
+                            RenderTransformOrigin="0.5,0.5" >
                             <Button.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform />
