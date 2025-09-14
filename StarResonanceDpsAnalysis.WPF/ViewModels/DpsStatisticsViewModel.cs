@@ -7,13 +7,19 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using StarResonanceDpsAnalysis.Core.Analyze.Exceptions;
 using StarResonanceDpsAnalysis.Core.Data;
+using StarResonanceDpsAnalysis.Core;
 using StarResonanceDpsAnalysis.Core.Data.Models;
+using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.Core.Models;
 using StarResonanceDpsAnalysis.WPF.Controls.Models;
 using StarResonanceDpsAnalysis.WPF.Converters;
 using StarResonanceDpsAnalysis.WPF.Data;
 using StarResonanceDpsAnalysis.WPF.Extensions;
 using StarResonanceDpsAnalysis.WPF.Models;
+using StarResonanceDpsAnalysis.Core.Extends.Data;
+using SharpPcap;
+using StarResonanceDpsAnalysis.Core.Analyze.Exceptions;
+using System.IO;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 
@@ -119,6 +125,37 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         }
     }
 
+
+
+
+    /// <summary>
+    /// 读取用户缓存
+    /// </summary>
+    private void LoadPlayerCache()
+    {
+        try
+        {
+            DataStorage.LoadPlayerInfoFromFile();
+        }
+        catch (FileNotFoundException)
+        {
+            // 没有缓存
+        }
+        catch (DataTamperedException)
+        {
+
+            DataStorage.ClearAllPlayerInfos();
+            DataStorage.SavePlayerInfoToFile();
+        }
+    }
+
+
+    private readonly Stopwatch _fullBattleTimer = new();
+    private bool _isShowFullData = false;
+    private readonly Stopwatch _battleTimer = new();
+    private int _stasticsType = 0;
+    private Stopwatch InUsingTimer => _isShowFullData ? _fullBattleTimer : _battleTimer;
+
     [RelayCommand]
     private void OnLoaded()
     {
@@ -135,7 +172,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         {
             _fullBattleTimer.Restart();
         }
-
         if (!_battleTimer.IsRunning)
         {
             _battleTimer.Restart();
@@ -143,7 +179,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel
 
         UpdateSortProgressBarListData();
     }
-
 
     // 核心：根据最新 dps 数据，填充 / 更新 Slots（供 XAML 进度条显示）
     private void UpdateSortProgressBarListData()
@@ -284,7 +319,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel
             StatisticType.Damage => (list.Max(e => e.TotalAttackDamage), list.Sum(e => e.TotalAttackDamage)),
             StatisticType.Healing => (list.Max(e => e.TotalHeal), list.Sum(e => e.TotalHeal)),
             StatisticType.TakenDamage or StatisticType.NpcTakenDamage => (list.Max(e => e.TotalTakenDamage), list.Sum(e => e.TotalTakenDamage)),
-
             _ => (long.MaxValue, long.MaxValue)
         };
     }
@@ -296,7 +330,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel
             StatisticType.Damage => data.TotalAttackDamage,
             StatisticType.Healing => data.TotalHeal,
             StatisticType.TakenDamage or StatisticType.NpcTakenDamage => data.TotalTakenDamage,
-
             _ => long.MaxValue
         };
     }
@@ -307,7 +340,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     {
         UpdateData();
     }
-
+    
     private void StartRefreshTimer()
     {
         // 3) 定时器：实时更新

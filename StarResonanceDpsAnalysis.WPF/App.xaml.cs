@@ -27,7 +27,7 @@ public partial class App : Application
 
         App app = new();
         app.InitializeComponent();
-        app.MainWindow = host.Services.GetRequiredService<MainWindow>();
+        app.MainWindow = host.Services.GetRequiredService<SettingsView>();
         app.MainWindow.Visibility = Visibility.Visible;
         app.Run();
     }
