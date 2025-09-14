@@ -1,10 +1,10 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!--  引入 System.Double 类型（用于定义数值资源）  -->
-    <sys:Double xmlns:sys="clr-namespace:System;assembly=mscorlib" x:Key="MainCornerRadiusDouble">6</sys:Double>
+    <sys:Double x:Key="MainCornerRadiusDouble">6</sys:Double>
 
     <!--  以 CornerRadius 资源形式定义圆角（四个角相同）  -->
     <CornerRadius x:Key="MainCornerRadius">6,6,6,6</CornerRadius>
