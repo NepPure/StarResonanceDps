@@ -6,9 +6,10 @@ namespace StarResonanceDpsAnalysis.WPF.Themes;
 public class ApplicationThemeManager
 {
     // internal const string LibraryNamespace = "StarResonanceDpsAnalysis.WPF";
-    internal const string LibraryNamespace = "";
+    internal const string LibraryNamespace = "StarResonanceDpsAnalysis.WPF";
 
-    internal const string ThemesDictionaryPath = "pack://application:,,,/Themes/";
+    // include assembly name and component segment so pack URIs resolve in designer
+    internal const string ThemesDictionaryPath = "pack://application:,,,/" + LibraryNamespace + ";component/Themes/";
     private readonly ResourceDictionaryManager _appDictionaries = new(LibraryNamespace);
     private ApplicationTheme _cachedApplicationTheme = ApplicationTheme.Unknown;
 

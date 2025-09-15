@@ -60,16 +60,16 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         /// - 仅在首次读取对应属性时，从 INI 取值并写入缓存；之后命中缓存避免重复 IO。
         /// </summary>
         // 网卡编号（可能用于网络数据抓取的网卡选择），null 表示尚未设置
-        private static int? _networkCard = null;
+        private int? _networkCard = null;
 
         // 窗体透明度（0.0~1.0），null 表示未设置
-        private static double? _transparency = null;
+        private double? _transparency = null;
 
         // 是否使用浅色模式（true 浅色 / false 深色），null 表示未设置
-        private static bool? _isLight = null;
+        private bool? _isLight = null;
 
         // 启动时的窗口状态（位置和大小），null 表示未设置
-        private static Rectangle? _startUpState = null;
+        private Rectangle? _startUpState = null;
 
         //// 鼠标穿透的快捷键（例如 Ctrl+Shift+...），null 表示未设置
         //private static Keys? _mouseThroughKey = null;
@@ -83,12 +83,12 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         //// 清空当前数据的快捷键，null 表示未设置
         //private static Keys? _clearDataKey = null;
 
-        private static string? _damageDisplayType = null;
+        private string? _damageDisplayType = null;
 
         /// <summary>
         /// DPS伤害类型显示
         /// </summary>
-        public static string DamageDisplayType
+        public string DamageDisplayType
         {
             get
             {
@@ -108,28 +108,18 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
             }
 
         }
-        /// <summary>
-        /// # 分类：外观/用户信息/业务参数（立即可用的公开字段）
-        /// - DpsColor：进度条或 DPS 相关 UI 颜色
-        /// - NickName：用户昵称（默认“未设置昵称”）
-        /// - Uid：用户 UID，默认 0
-        /// - CombatTimeClearDelaySeconds：战斗计时清除延迟秒数（默认 5 秒）
-        ///   用于 UI 或统计在战斗结束后延迟清除，避免过快闪烁。
-        /// </summary>
-        public static Color DpsColor = Color.FromArgb(0x22, 0x97, 0xF4);//进度条颜色
 
-        private static string? _nickName = null;
-        private static string? _profession = null;
-        private static long? _uid = null;//用户UID
-        private static int? _combatPower = null;//战斗力
-        public static int? _combatTimeClearDelaySeconds;//战斗计时清除延迟
-        public static int _clearPicture = 1;//是否过图清空记录
-        public static Color colorText = Color.Black;//文字颜色
+        private string? _nickName = null;
+        private string? _profession = null;
+        private long? _uid = null;//用户UID
+        private int? _combatPower = null;//战斗力
+        public int? _combatTimeClearDelaySeconds;//战斗计时清除延迟
+        public int _clearPicture = 1;//是否过图清空记录
 
         /// <summary>
         /// 是否过图清全程记录
         /// </summary>
-        public static int ClearPicture
+        public int ClearPicture
         {
             get
             {
@@ -149,7 +139,7 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
             }
         }
 
-        public static int CombatTimeClearDelaySeconds
+        public int CombatTimeClearDelaySeconds
         {
             get
             {
@@ -170,7 +160,7 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         /// <summary>
         /// 昵称
         /// </summary>
-        public static string NickName
+        public string NickName
         {
             get
             {
@@ -191,7 +181,7 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         /// <summary>
         /// 职业
         /// </summary>
-        public static string Profession
+        public string Profession
         {
             get
             {
@@ -211,7 +201,7 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         /// <summary>
         /// UID
         /// </summary>
-        public static long Uid
+        public  long Uid
         {
             get
             {
@@ -233,7 +223,7 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         /// <summary>
         /// 战力
         /// </summary>
-        public static int CombatPower
+        public int CombatPower
         {
             get
             {
@@ -261,7 +251,7 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         /// 设置流程：
         /// - 写入 INI 文件并更新缓存。
         /// </summary>
-        public static int NetworkCard
+        public int NetworkCard
         {
             get
             {
@@ -284,7 +274,7 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         /// UI 总体透明度百分比，默认 100（不透明）。
         /// 注意：此处未强制约束范围；调用方应确保 0-100 合法范围，或在使用处进行钳制。
         /// </summary>
-        public static double Transparency
+        public double Transparency
         {
             get
             {
@@ -307,7 +297,7 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         /// IsLight = true 表示浅色主题，false 表示深色主题。
         /// 读取时默认值 "1"（即浅色）。
         /// </summary>
-        public static bool IsLight
+        public bool IsLight
         {
             get
             {
@@ -328,7 +318,7 @@ namespace StarResonanceDpsAnalysis.WPF.Settings
         /// <summary>
         /// 启动位置
         /// </summary>
-        public static Rectangle? StartUpState
+        public Rectangle? StartUpState
         {
             get
             {
