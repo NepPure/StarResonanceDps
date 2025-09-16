@@ -3,10 +3,8 @@ using System.Text.Json;
 using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using StarResonanceDpsAnalysis.WPF.Converters;
-using StarResonanceDpsAnalysis.WPF.Settings;
-using KeyBinding = StarResonanceDpsAnalysis.WPF.Models.KeyBinding;
 
-namespace StarResonanceDpsAnalysis.WPF.Services;
+namespace StarResonanceDpsAnalysis.WPF.Extensions;
 
 public static class ServiceCollectionExtensions
 {
@@ -28,7 +26,7 @@ public static class ServiceCollectionExtensions
         }
 
         // Add new singleton instance
-        services.AddSingleton<TService>(newInstance);
+        services.AddSingleton(newInstance);
         return services;
     }
 
@@ -39,7 +37,8 @@ public static class ServiceCollectionExtensions
     /// <param name="services">Service collection</param>
     /// <param name="factory">Factory function to create new instance</param>
     /// <returns>Updated service collection</returns>
-    public static IServiceCollection ReplaceSingleton<TService>(this IServiceCollection services, Func<IServiceProvider, TService> factory)
+    public static IServiceCollection ReplaceSingleton<TService>(this IServiceCollection services,
+        Func<IServiceProvider, TService> factory)
         where TService : class
     {
         // Remove existing registration
@@ -50,7 +49,7 @@ public static class ServiceCollectionExtensions
         }
 
         // Add new singleton factory
-        services.AddSingleton<TService>(factory);
+        services.AddSingleton(factory);
         return services;
     }
 
@@ -70,7 +69,8 @@ public static class ServiceCollectionExtensions
             // options.Converters.Add(new JsonModifierKeysConverterFactory());
         });
         // TypeDescriptor.AddAttributes(typeof(KeyBinding), new TypeConverterAttribute(typeof(KeyBindingTypeConverter)));
-        TypeDescriptor.AddAttributes(typeof(ModifierKeys), new TypeConverterAttribute(typeof(ModifierKeysTypeConverter)));
+        TypeDescriptor.AddAttributes(typeof(ModifierKeys),
+            new TypeConverterAttribute(typeof(ModifierKeysTypeConverter)));
 
         return services;
     }

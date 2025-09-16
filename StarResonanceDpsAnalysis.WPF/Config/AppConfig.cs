@@ -1,15 +1,13 @@
 using System.Drawing;
-using System.Text.Json.Nodes;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Newtonsoft.Json;
-using StarResonanceDpsAnalysis.Core.Extends.System;
 using StarResonanceDpsAnalysis.Core.Models;
 using StarResonanceDpsAnalysis.WPF.Converters;
 using StarResonanceDpsAnalysis.WPF.Models;
 using KeyBinding = StarResonanceDpsAnalysis.WPF.Models.KeyBinding;
 
-namespace StarResonanceDpsAnalysis.WPF.Settings;
+namespace StarResonanceDpsAnalysis.WPF.Config;
 
 /// <summary>
 /// ”¶”√≈‰÷√¿‡

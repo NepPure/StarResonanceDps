@@ -1,4 +1,4 @@
-﻿namespace StarResonanceDpsAnalysis.WPF.Settings;
+﻿namespace StarResonanceDpsAnalysis.WPF.Config;
 
 public interface IConfigManager
 {

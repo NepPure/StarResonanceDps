@@ -4,14 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SharpPcap;
+using StarResonanceDpsAnalysis.WPF.Config;
 using StarResonanceDpsAnalysis.WPF.Data;
 using StarResonanceDpsAnalysis.WPF.Extensions;
 using StarResonanceDpsAnalysis.WPF.Models;
-using StarResonanceDpsAnalysis.WPF.Services;
-using StarResonanceDpsAnalysis.WPF.Settings;
 using StarResonanceDpsAnalysis.WPF.Themes;
 using StarResonanceDpsAnalysis.WPF.ViewModels;
 using StarResonanceDpsAnalysis.WPF.Views;
+using AppConfig = StarResonanceDpsAnalysis.WPF.Config.AppConfig;
 
 namespace StarResonanceDpsAnalysis.WPF;
 

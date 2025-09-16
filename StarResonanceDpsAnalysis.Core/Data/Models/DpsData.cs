@@ -20,19 +20,19 @@ namespace StarResonanceDpsAnalysis.Core.Data.Models
         /// <summary>
         /// 最后一次统计的时间戳 (Ticks)
         /// </summary>
-        public long LastLoggedTick { get; internal set; }
+        public long LastLoggedTick { get; internal set; } // TODO: 改成ulong
         /// <summary>
         /// 统计的总伤害
         /// </summary>
-        public long TotalAttackDamage { get; internal set; }
+        public long TotalAttackDamage { get; internal set; }// TODO: 改成ulong
         /// <summary>
         /// 统计的总承受伤害
         /// </summary>
-        public long TotalTakenDamage { get; internal set; }
+        public long TotalTakenDamage { get; internal set; }// TODO: 改成ulong
         /// <summary>
         /// 统计的总治疗量
         /// </summary>
-        public long TotalHeal { get; internal set; }
+        public long TotalHeal { get; internal set; }// TODO: 改成ulong
         /// <summary>
         /// 是否为NPC数据
         /// </summary>

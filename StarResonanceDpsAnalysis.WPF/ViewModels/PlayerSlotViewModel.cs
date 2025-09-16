@@ -1,8 +1,5 @@
-﻿using System;
-
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using StarResonanceDpsAnalysis.Core.Models;
-using StarResonanceDpsAnalysis.WPF.Controls.Models;
 
 namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 
@@ -11,11 +8,10 @@ namespace StarResonanceDpsAnalysis.WPF.ViewModels;
 /// </summary>
 public partial class PlayerSlotViewModel : OrderingDataViewModel
 {
+    [ObservableProperty] private Classes _class = Classes.Unknown;
     [ObservableProperty] private string _name = string.Empty;
 
     [ObservableProperty] private string _nickname = string.Empty;
 
-    [ObservableProperty] private Classes _class = Classes.Unknown;
-
-    [ObservableProperty] private ulong _value = 0;
+    [ObservableProperty] private ulong _value;
 }

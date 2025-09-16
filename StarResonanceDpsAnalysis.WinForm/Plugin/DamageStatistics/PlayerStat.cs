@@ -600,6 +600,9 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
         /// <param name="healing">治疗数值。</param>
         /// <param name="isCrit">是否暴击。</param>
         /// <param name="isLucky">是否幸运。</param>
+        /// <param name="damageElement"></param>
+        /// <param name="isCauseLucky"></param>
+        /// <param name="targetUuid"></param>
         public void AddHealing(
             long skillId, ulong healing, bool isCrit, bool isLucky,
             string? damageElement = null, bool isCauseLucky = false, ulong targetUuid = 0)
@@ -612,7 +615,6 @@ namespace StarResonanceDpsAnalysis.WinForm.Plugin.DamageStatistics
                 HealingBySkill[skillId] = stat;
             }
             stat.AddRecord(healing, isCrit, isLucky, 0, isCauseLucky);
-            string subProfession = skillId.GetSubProfessionBySkillId();
             if (string.IsNullOrEmpty(SubProfession))
             {
                 var sp = skillId.GetSubProfessionBySkillId();
