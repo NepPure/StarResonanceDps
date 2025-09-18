@@ -25,6 +25,17 @@
             <Setter Property="Background" Value="#FFF" />
         </Style>
 
+        <Style x:Key="InfoText" TargetType="TextBlock" BasedOn="{StaticResource NormalTextBlockBaseStyle}">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="20,0,0,0" />
+        </Style>
+
+        <Style x:Key="InfoNameText" TargetType="TextBlock" BasedOn="{StaticResource InfoText}">
+            <Setter Property="Margin" Value="30,0,0,0" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
         <Style x:Key="ControlButton" TargetType="Button">
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="HorizontalAlignment" Value="Center" />
@@ -57,14 +68,18 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="--测试名称--" Margin="30,0,0,0" Grid.Column="0"/>
-                <TextBlock Text="UID: 123456" Margin="20,0,0,0" Grid.Column="1"/>
-                <TextBlock Text="战力: 25000" Margin="20,0,0,0" Grid.Column="2"/>
-                <TextBlock Text="等级: 60" Margin="20,0,0,0" Grid.Column="3"/>
-                <TextBlock Text="臂章: 19" Margin="20,0,0,0"  Grid.Column="4"/>
+                <TextBlock Style="{StaticResource InfoNameText}" Text="--测试名称--" Grid.Column="0"/>
+                <TextBlock Style="{StaticResource InfoText}" Text="UID: 123456" Grid.Column="1"/>
+                <TextBlock Style="{StaticResource InfoText}" Text="战力: 25000" Grid.Column="2"/>
+                <TextBlock Style="{StaticResource InfoText}" Text="等级: 60" Grid.Column="3"/>
+                <TextBlock Style="{StaticResource InfoText}" Text="臂章: 190"  Grid.Column="4"/>
 
                 <Border Width="300" CornerRadius="99" Grid.Column="6">
-                    
+                    <ctrl:MultiSelector>
+                        <TextBlock Text="123" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="456" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="789" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </ctrl:MultiSelector>
                 </Border>
             </Grid>
 
