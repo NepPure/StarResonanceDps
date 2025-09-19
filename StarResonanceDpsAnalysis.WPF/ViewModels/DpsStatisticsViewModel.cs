@@ -8,7 +8,6 @@ using StarResonanceDpsAnalysis.Core.Analyze.Exceptions;
 using StarResonanceDpsAnalysis.Core.Data;
 using StarResonanceDpsAnalysis.Core.Data.Models;
 using StarResonanceDpsAnalysis.Core.Models;
-using StarResonanceDpsAnalysis.WPF.Controls.Models;
 using StarResonanceDpsAnalysis.WPF.Converters;
 using StarResonanceDpsAnalysis.WPF.Data;
 using StarResonanceDpsAnalysis.WPF.Extensions;
@@ -87,9 +86,9 @@ public partial class DpsStatisticsViewModel : BaseViewModel
             var (nick, @class) = players[i];
             var barData = new StatisticDataViewModel
             {
-                Id = i + 1, // 1-based index
-                Name = nick,
-                Classes = @class
+                Index = i + 1, // 1-based index
+                // Name = nick,
+                // Classes = @class
             };
             Slots.Add(barData);
         }
@@ -142,118 +141,6 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         }
 
         // UpdateSortProgressBarListData();
-    }
-
-    // 核心：根据最新 dps 数据，填充 / 更新 Slots（供 XAML 进度条显示）
-    private void UpdateSortProgressBarListData()
-    {
-        // 1) 选择全程 or 分段
-        var dpsList = ScopeTime == ScopeTime.Total
-            ? DataStorage.ReadOnlyFullDpsDataList
-            : DataStorage.ReadOnlySectionedDpsDataList;
-
-        // 无数据 → 清空
-        if (dpsList.Count == 0)
-        {
-            Slots.Clear();
-            return;
-        }
-
-        // 2) 过滤（按类型去掉 0 值/无效项）
-        var filtered = GetDefaultFilter(dpsList, StatisticIndex, ScopeTime).ToList();
-        if (filtered.Count == 0)
-        {
-            Slots.Clear();
-            return;
-        }
-
-        // 3) 取最大值、总和用于比例/占比
-        var (maxValue, sumValue) = GetMaxSumValueByType(filtered, StatisticIndex, ScopeTime);
-        if (maxValue <= 0) maxValue = 1; // 防止除 0
-
-        // 4) 先按当前数值降序排，后面要写名次
-        var ordered = filtered
-            .Select(e => new
-            {
-                Data = e,
-                Value = GetValueByType(e, StatisticIndex)
-            })
-            .OrderByDescending(x => x.Value)
-            .ToList();
-
-        // 把现有 Slots 建索引，便于“就地更新”
-        var slotIndex = Slots.ToDictionary(s => s.Id, s => s);
-
-        // // 5) 逐个构建/更新进度条项
-        // var newList = new List<ProgressBarData>(ordered.Count);
-        // for (int i = 0; i < ordered.Count; i++)
-        // {
-        //     var x = ordered[i];
-        //     var e = x.Data;
-        //     var value = x.Value;
-        //     var ratio = (double)value / maxValue;
-        //
-        //     // 额外信息（职业、昵称、战力）
-        //     DataStorage.ReadOnlyPlayerInfoDatas.TryGetValue(e.UID, out var playerInfo);
-        //     var professionName = playerInfo?.SubProfessionName
-        //                          ?? playerInfo?.ProfessionID?.GetProfessionNameById()
-        //                          ?? string.Empty;
-        //
-        //     // 每秒（DPS/HPS）= 总值 / 持续秒数
-        //     // var seconds = Math.Max(1,
-        //     //     TimeSpan.FromTicks(e.LastLoggedTick - (e.StartLoggedTick ?? 0)).TotalSeconds);
-        //     // var perSec = value / seconds;
-        //
-        //     // 右侧显示文本：总值(每秒)
-        //     // var valueText = $"{value.ToCompactString()} ({perSec.ToCompactString()})";
-        //
-        //     // 这四个字段要和 XAML 里的绑定名字一致：
-        //     // OrderText、Classes、Nickname、ValueText
-        //     // 注意：XAML 里用的是 “Classes”（复数），和你的 Demo 里的“Class”不一样
-        //     PlayerSlotViewModel slotVm;
-        //
-        //     if (slotIndex.TryGetValue(e.UID, out var existed) && existed.Data is PlayerSlotViewModel existedVm)
-        //     {
-        //         // 就地更新，避免闪烁
-        //         slotVm = existedVm;
-        //         slotVm.Nickname = (playerInfo?.Name == null ? string.Empty : $"{playerInfo.Name}-")
-        //                            + (playerInfo?.SubProfessionName ?? professionName)
-        //                            + $"({playerInfo?.CombatPower?.ToString() ?? ($"UID: {e.UID}")})";
-        //         //slotVm.Class = professionName.GetProfessionEnumForWpf(); // 见下面备注
-        //         // slotVm.Value = valueText;
-        //
-        //         // existed.ProgressBarValue = ratio; // 0~1
-        //         newList.Add(existed);
-        //     }
-        //     else
-        //     {
-        //         // 新建
-        //         slotVm = new PlayerSlotViewModel
-        //         {
-        //             Nickname = (playerInfo?.Name == null ? string.Empty : $"{playerInfo.Name}-")
-        //                         + (playerInfo?.SubProfessionName ?? professionName)
-        //                         + $"({playerInfo?.CombatPower?.ToString() ?? ($"UID: {e.UID}")})",
-        //             //Class = professionName.GetProfessionEnumForWpf(), // 见下面备注
-        //             // ValueText = valueText
-        //         };
-        //
-        //         var bar = new ProgressBarData
-        //         {
-        //             ID = e.UID,
-        //             ProgressBarValue = ratio,
-        //             Data = slotVm
-        //             // 如你的控件还支持颜色、圆角等，可一并赋值：
-        //             // ProgressBarColor = professionName.GetProfessionThemeColor(Config.IsLight),
-        //             // ProgressBarCornerRadius = 3,
-        //         };
-        //
-        //         newList.Add(bar);
-        //     }
-        // }
-
-        // 6) 用排序好的新列表替换 Slots（需要重排时用这种）
-        //    如果你的控件支持就地修改顺序，也可逐项搬移；最简单是整体替换。
-        // Slots = new ObservableCollection<ProgressBarData>(newList);
     }
 
     /// <summary>
@@ -344,7 +231,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
         foreach (var data in Slots)
         {
             data.Value += (ulong)_rd.Next(1000, 80000);
-            _logger.LogDebug($"Updated {data.Name}'s value to {data.Value}");
+            // _logger.LogDebug($"Updated {data.Name}'s value to {data.Value}");
         }
 
         // Calculate percentage of max
@@ -377,7 +264,7 @@ public partial class DpsStatisticsViewModel : BaseViewModel
     {
         for (var i = 0; i < Slots.Count; i++)
         {
-            Slots[i].Id = i + 1; // 1-based index
+            Slots[i].Index = i + 1; // 1-based index
         }
     }
 
@@ -510,10 +397,10 @@ public partial class DpsStatisticsViewModel : BaseViewModel
                     Slots.SortBy(x => x.Value, SortDirection == SortDirectionEnum.Descending);
                     break;
                 case "Name":
-                    Slots.SortBy(x => x.Name, SortDirection == SortDirectionEnum.Descending);
+                    Slots.SortBy(x => x.Player.Name, SortDirection == SortDirectionEnum.Descending);
                     break;
                 case "Classes":
-                    Slots.SortBy(x => (int)x.Classes, SortDirection == SortDirectionEnum.Descending);
+                    Slots.SortBy(x => (int)x.Player.Class, SortDirection == SortDirectionEnum.Descending);
                     break;
                 case "PercentOfMax":
                     Slots.SortBy(x => x.PercentOfMax, SortDirection == SortDirectionEnum.Descending);

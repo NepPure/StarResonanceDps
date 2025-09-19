@@ -4,7 +4,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using StarResonanceDpsAnalysis.WPF.Controls;
-using StarResonanceDpsAnalysis.WPF.Controls.Models;
 using StarResonanceDpsAnalysis.WPF.ViewModels;
 
 namespace StarResonanceDpsAnalysis.WPF.Views;
@@ -127,25 +126,5 @@ public partial class DpsStatisticsView : Window
 
         // 这次点击后变成 false：允许“全不选”，什么也不做
         e.Handled = true;
-    }
-
-    private void ProgressBarList_ProgressBarMouseDown(CustomizeProgressBar sender, MouseButtonEventArgs e, ProgressBarData data)
-    {
-        Debug.WriteLine($"ProgressBar Clicked: ID({data.ID}), Value({data.ProgressBarValue}), typeof(Data)=>{data.Data?.GetType().Name}");
-    }
-
-    private void ProgressBarList_ProgressBarMouseEnter(CustomizeProgressBar sender, MouseEventArgs e, ProgressBarData data)
-    {
-        Debug.WriteLine($"ProgressBar Entered: ID({data.ID}), Value({data.ProgressBarValue}), typeof(Data)=>{data.Data?.GetType().Name}");
-    }
-
-    private void ProgressBarList_ProgressBarMouseMove(CustomizeProgressBar sender, MouseEventArgs e, ProgressBarData data)
-    {
-        Debug.WriteLine($"ProgressBar Moving: ID({data.ID}), Value({data.ProgressBarValue}), typeof(Data)=>{data.Data?.GetType().Name}");
-    }
-
-    private void ProgressBarList_ProgressBarMouseLeave(CustomizeProgressBar sender, MouseEventArgs e, ProgressBarData data)
-    {
-        Debug.WriteLine($"ProgressBar Leaveed: ID({data.ID}), Value({data.ProgressBarValue}), typeof(Data)=>{data.Data?.GetType().Name}");
     }
 }
