@@ -110,21 +110,21 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     
-                    <Button
-                        x:Name="Confirm"
-                        Grid.Column="0"
-                        Command="{Binding ConfirmCommand}"
-                        Style="{StaticResource ControlButton}">
+                    <Button x:Name="Confirm"
+                            Grid.Column="0"
+                            Command="{Binding ConfirmCommand}"
+                            Style="{StaticResource ControlButton}">
+                        
                         <Button.Content>
                             <Image Source="{StaticResource ImageOkNormal}" />
                         </Button.Content>
                     </Button>
                     
-                    <Button
-                        x:Name="Cancel"
-                        Grid.Column="1"
-                        Command="{Binding CancelCommand}"
-                        Style="{StaticResource ControlButton}">
+                    <Button x:Name="Cancel"
+                            Grid.Column="1"
+                            Command="{Binding CancelCommand}"
+                            Style="{StaticResource ControlButton}">
+                        
                         <Button.Content>
                             <Image Source="{StaticResource ImageCancelNormal}" />
                         </Button.Content>

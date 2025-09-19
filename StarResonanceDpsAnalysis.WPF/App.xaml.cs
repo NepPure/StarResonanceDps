@@ -71,6 +71,7 @@ public partial class App : Application
                     services.AddTransient<DpsStatisticsView>();
                     services.AddTransient<SettingsViewModel>();
                     services.AddTransient<SettingsView>();
+                    services.AddTransient<SkillBreakdownView>();
                     services.AddSingleton<DebugFunctions>();
                     services.AddSingleton<CaptureDeviceList>(CaptureDeviceList.Instance);
                     services.AddThemes();

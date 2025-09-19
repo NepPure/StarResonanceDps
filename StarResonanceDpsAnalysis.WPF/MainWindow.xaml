@@ -16,6 +16,7 @@
         <b:EventTrigger EventName="Loaded">
             <b:InvokeCommandAction Command="{Binding CallSettingsViewCommand}" />
             <b:InvokeCommandAction Command="{Binding CallDpsStatisticsViewCommand}" />
+            <b:InvokeCommandAction Command="{Binding CallSkillBreakdownViewCommand}" />
         </b:EventTrigger>
     </b:Interaction.Triggers>
     <Grid>

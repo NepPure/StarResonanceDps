@@ -47,10 +47,10 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type local:MultiSelectorItem}">
                         <Border x:Name="ItemsBorder" Style="{StaticResource SelectionButton}">
-                            <ContentPresenter ContentSource="Content"
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            <ContentPresenter ContentSource="Content"/>
                         </Border>
+                        
+                        <!-- TODO Here -->
                         
                         <ControlTemplate.Triggers>
                             <!-- 用 MultiBinding 比较 AlternationIndex 和 ActiveIndex 是否相等 -->
