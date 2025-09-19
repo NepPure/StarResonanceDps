@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:StarResonanceDpsAnalysis.WPF.Views"
     xmlns:ctrl="clr-namespace:StarResonanceDpsAnalysis.WPF.Controls"
         mc:Ignorable="d"
-        Title="SkillBreakdownView" 
-        Height="450" Width="800"
+        Title="技能详情" 
+        Width="800" Height="450"
+        MinWidth="800" MinHeight="450"
         Style="{StaticResource TransparentWindow}">
 
     <!--  WindowChrome: 开启可拉伸边界  -->
@@ -34,6 +35,58 @@
             <Setter Property="Margin" Value="30,0,0,0" />
             <Setter Property="FontSize" Value="16" />
             <Setter Property="FontWeight" Value="Bold" />
+        </Style>
+
+        <Style x:Key="TypeSelector" TargetType="ctrl:MultiSelector">
+            <Setter Property="Width" Value="300" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Margin" Value="0,0,20,0" />
+        </Style>
+
+        <Style x:Key="StatisticCard" TargetType="ctrl:CollapsibleCard">
+            <Setter Property="Margin" Value="10,10,10,0" />
+        </Style>
+
+        <Style x:Key="BlueCardBorder" TargetType="Border">
+            <Setter Property="Background" Value="#2297F4" />
+            <Setter Property="Margin" Value="10" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect
+                        BlurRadius="5"
+                        Opacity="0.5"
+                        ShadowDepth="0"
+                        Color="#000" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardTitle" TargetType="TextBlock" BasedOn="{StaticResource NormalTextBlockBaseStyle}">
+            <Setter Property="Foreground" Value="#FFF" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
+
+        <Style x:Key="InfoSpliter" TargetType="Grid">
+            <Setter Property="Width" Value="1" />
+            <Setter Property="Background" Value="#FFF" />
+            <Setter Property="Margin" Value="10,0,10,0" />
+        </Style>
+
+        <Style x:Key="FieldLineMB" TargetType="Grid">
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
+
+        <Style x:Key="CardInfoTitle" TargetType="TextBlock" BasedOn="{StaticResource NormalTextBlockBaseStyle}">
+            <Setter Property="Foreground" Value="#FFF" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+
+        <Style x:Key="CardInfoValue" TargetType="TextBlock" BasedOn="{StaticResource CardInfoTitle}">
+            <Setter Property="Foreground" Value="#FFF" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
         </Style>
 
         <Style x:Key="ControlButton" TargetType="Button">
@@ -74,18 +127,238 @@
                 <TextBlock Style="{StaticResource InfoText}" Text="等级: 60" Grid.Column="3"/>
                 <TextBlock Style="{StaticResource InfoText}" Text="臂章: 190"  Grid.Column="4"/>
 
-                <Border Width="300" CornerRadius="99" Grid.Column="6">
-                    <ctrl:MultiSelector>
-                        <TextBlock Text="123" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBlock Text="456" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        <TextBlock Text="789" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                    </ctrl:MultiSelector>
-                </Border>
+                <ctrl:MultiSelector Style="{StaticResource TypeSelector}" Grid.Column="6">
+                    <TextBlock Text="技能伤害分析" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock Text="技能治疗分析" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock Text="人物承伤分析" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </ctrl:MultiSelector>
             </Grid>
 
-            <Grid Grid.Row="2">
-                
-            </Grid>
+            <ScrollViewer Grid.Row="2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <ctrl:CollapsibleCard Style="{StaticResource StatisticCard}" Title="DPS/HPS/DTPS实时曲线图" IsExpanded="True" Grid.Row="0">
+                            <TextBlock Text="假装这里有个折线图" HorizontalAlignment="Center" />
+                        </ctrl:CollapsibleCard>
+
+                        <ctrl:CollapsibleCard Style="{StaticResource StatisticCard}" Title="技能占比分布图" IsExpanded="True" Grid.Row="1">
+                            <TextBlock Text="假装这里有个饼图" HorizontalAlignment="Center" />
+                        </ctrl:CollapsibleCard>
+
+                        <ctrl:CollapsibleCard Style="{StaticResource StatisticCard}" Title="伤害分布" IsExpanded="True" Grid.Row="2">
+                            <TextBlock Text="假装这里有个条形图" HorizontalAlignment="Center" />
+                        </ctrl:CollapsibleCard>
+                    </Grid>
+
+                    <GridSplitter />
+
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Style="{StaticResource BlueCardBorder}" Grid.Column="0">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    
+                                    <TextBlock Style="{StaticResource CardTitle}" Text="伤害信息" Grid.Row="0" />
+
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid Grid.Column="0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <Grid Style="{StaticResource FieldLineMB}" Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="总伤害" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="42.64K" Grid.Column="1" />
+                                            </Grid>
+                                            <Grid Style="{StaticResource FieldLineMB}" Grid.Row="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="秒伤" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="29.01K" Grid.Column="1" />
+                                            </Grid>
+                                            <Grid Grid.Row="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="命中次数" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="6" Grid.Column="1" />
+                                            </Grid>
+                                        </Grid>
+                                        
+                                        <Grid Style="{StaticResource InfoSpliter}" Grid.Column="1"/>
+                                        
+                                        <Grid Grid.Column="2">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <Grid Style="{StaticResource FieldLineMB}" Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="暴击率" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="16.67%" Grid.Column="1" />
+                                            </Grid>
+                                            <Grid Style="{StaticResource FieldLineMB}" Grid.Row="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="幸运率" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="0%" Grid.Column="1" />
+                                            </Grid>
+                                            <Grid Grid.Row="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="暴击次数" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="1" Grid.Column="1" />
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource BlueCardBorder}" Grid.Column="1">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Style="{StaticResource CardTitle}" Text="伤害分布" Grid.Row="0" />
+
+                                    <Grid Grid.Row="1">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <Grid Grid.Column="0">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <Grid Style="{StaticResource FieldLineMB}" Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="普通伤害" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="28.71K" Grid.Column="1" />
+                                            </Grid>
+                                            <Grid Style="{StaticResource FieldLineMB}" Grid.Row="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="暴击伤害" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="13.92K" Grid.Column="1" />
+                                            </Grid>
+                                            <Grid Grid.Row="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="幸运次数" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="0" Grid.Column="1" />
+                                            </Grid>
+                                        </Grid>
+
+                                        <Grid Style="{StaticResource InfoSpliter}" Grid.Column="1"/>
+
+                                        <Grid Grid.Column="2">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+
+                                            <Grid Style="{StaticResource FieldLineMB}" Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="幸运伤害" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="0" Grid.Column="1" />
+                                            </Grid>
+                                            <Grid Style="{StaticResource FieldLineMB}" Grid.Row="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="平均伤害" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="7106" Grid.Column="1" />
+                                            </Grid>
+                                            <Grid Grid.Row="2">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Style="{StaticResource CardInfoTitle}" Text="受击次数" Grid.Column="0" />
+                                                <TextBlock Style="{StaticResource CardInfoValue}" Text="3" Grid.Column="1" />
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <Grid Grid.Row="1">
+                            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Height="120">
+                                假装这里有个表单
+                            </TextBlock>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
 
             <Border Grid.Row="3">
                 <Border.Style>
@@ -103,33 +376,33 @@
                         </Setter>
                     </Style>
                 </Border.Style>
-                
+
                 <Grid Width="100" HorizontalAlignment="Center">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    
+
                     <Button x:Name="Confirm"
                             Grid.Column="0"
                             Command="{Binding ConfirmCommand}"
                             Style="{StaticResource ControlButton}">
-                        
+
                         <Button.Content>
                             <Image Source="{StaticResource ImageOkNormal}" />
                         </Button.Content>
                     </Button>
-                    
+
                     <Button x:Name="Cancel"
                             Grid.Column="1"
                             Command="{Binding CancelCommand}"
                             Style="{StaticResource ControlButton}">
-                        
+
                         <Button.Content>
                             <Image Source="{StaticResource ImageCancelNormal}" />
                         </Button.Content>
                     </Button>
-                    
+
                 </Grid>
             </Border>
         </Grid>
