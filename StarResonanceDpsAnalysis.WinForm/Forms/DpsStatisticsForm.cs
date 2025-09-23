@@ -433,13 +433,13 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
         private void button_SwitchStatisticsMode_Click(object sender, EventArgs e) // 单次/全程切换按钮事件
         {
             _isShowFullData = !_isShowFullData;
-            
+
             // 更新标题状态副文本
             UpdateHeaderText();
-            
+
             // 更新战斗时长文本
             UpdateBattleTimerText();
-            
+
             // 更新面板数据
             UpdateSortProgressBarListData();
             // button_LoadPcap_Click(sender, e);
@@ -719,7 +719,7 @@ namespace StarResonanceDpsAnalysis.WinForm.Forms
                 try
                 {
                     // PcapReplay.ReplayFileAsync will call PacketAnalyzer.ProcessPacket for each packet
-                    await StarResonanceDpsAnalysis.Core.Data.PcapReplay.ReplayFileAsync(filePath, PacketAnalyzer, realtime, speed, token).ConfigureAwait(false);
+                    await PacketAnalyzer.ReplayFileAsync(filePath, realtime, speed, token).ConfigureAwait(false);
                 }
                 catch (OperationCanceledException)
                 {

@@ -11,6 +11,13 @@ namespace StarResonanceDpsAnalysis.Core.Data;
 
 public static class PcapReplay
 {
+    /// <inheritdoc cref="ReplayFileAsync(string,StarResonanceDpsAnalysis.Core.Analyze.PacketAnalyzer,bool,double,System.Threading.CancellationToken)"/>
+    public static Task ReplayFileAsync(this PacketAnalyzer analyzer, string filePath, bool realtime = true,
+        double speed = 1.0, CancellationToken token = default)
+    {
+        return ReplayFileAsync(filePath, analyzer, realtime, speed, token);
+    }
+
     /// <summary>
     /// Replay a pcap/pcapng file into a PacketAnalyzer.
     /// </summary>
@@ -19,7 +26,7 @@ public static class PcapReplay
     /// <param name="realtime">If true, replay using original packet timestamps</param>
     /// <param name="speed">Playback speed (1.0 = real time, 2.0 = 2x faster)</param>
     /// <param name="token">Cancellation token</param>
-    public static async Task ReplayFileAsync(string filePath, PacketAnalyzer analyzer, bool realtime = true,
+    private static async Task ReplayFileAsync(string filePath, PacketAnalyzer analyzer, bool realtime = true,
         double speed = 1.0, CancellationToken token = default)
     {
         if (analyzer == null) throw new ArgumentNullException(nameof(analyzer));
@@ -79,11 +86,17 @@ public static class PcapReplay
         }
     }
 
+    /// <inheritdoc cref="ReplayFileEventDrivenAsync(string,StarResonanceDpsAnalysis.Core.Analyze.PacketAnalyzer,System.Threading.CancellationToken)"/>
+    public static Task ReplayFileEventDrivenAsync(this PacketAnalyzer analyzer, string filePath,
+        CancellationToken token = default)
+    {
+        return ReplayFileEventDrivenAsync(filePath, analyzer, token);
+    }
     /// <summary>
     /// Event-driven replay: let CaptureFileReaderDevice drive events and forward them to analyzer.
     /// This method prefers the synchronous event model (Capture()) and runs the capture on a background task.
     /// </summary>
-    public static Task ReplayFileEventDrivenAsync(string filePath, PacketAnalyzer analyzer, CancellationToken token = default)
+    private static Task ReplayFileEventDrivenAsync(string filePath, PacketAnalyzer analyzer, CancellationToken token = default)
     {
         if (analyzer == null) throw new ArgumentNullException(nameof(analyzer));
         if (string.IsNullOrEmpty(filePath)) throw new ArgumentNullException(nameof(filePath));
