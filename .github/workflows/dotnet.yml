@@ -22,10 +22,19 @@ jobs:
         run: dotnet restore
       - name: Build WPF
         run: dotnet build StarResonanceDpsAnalysis.WPF/StarResonanceDpsAnalysis.WPF.csproj --configuration Release --no-restore
+      - name: Build WinForm
+        run: dotnet build StarResonanceDpsAnalysis.WinForm/StarResonanceDpsAnalysis.WinForm.csproj --configuration Release --no-restore
       - name: Publish WPF
-        run: dotnet publish StarResonanceDpsAnalysis.WPF/StarResonanceDpsAnalysis.WPF.csproj --configuration Release --output ./publish --no-restore
-      - name: Upload Published Artifacts
+        run: dotnet publish StarResonanceDpsAnalysis.WPF/StarResonanceDpsAnalysis.WPF.csproj --configuration Release --output ./publish-wpf --no-restore
+      - name: Publish WinForm
+        run: dotnet publish StarResonanceDpsAnalysis.WinForm/StarResonanceDpsAnalysis.WinForm.csproj --configuration Release --output ./publish-winforms --no-restore
+      - name: Upload WPF Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: StarResonanceDpsAnalysis.WPF
-          path: ./publish
+          path: ./publish-wpf
+      - name: Upload WinForm Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: StarResonanceDpsAnalysis.WinForm
+          path: ./publish-winforms
